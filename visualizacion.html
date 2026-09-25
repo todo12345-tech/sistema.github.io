@@ -15,17 +15,17 @@ body {
 background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
 min-height: 100vh;
 display: block;
-padding: 0;  /* ⭐ CAMBIO: era 10px */
+padding: 10px;
 }
 .login-container {
 width: 100%;
-max-width: 500px;  /* ⭐ CAMBIO: era 400px */
+max-width: 400px;
 background: white;
 border-radius: 15px;
 box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
 overflow: hidden;
 animation: fadeIn 0.5s ease;
-margin: 40px auto;  /* ⭐ CAMBIO: era 50px auto */
+margin: 50px auto;
 }
 @keyframes fadeIn {
 from { opacity: 0; transform: translateY(20px); }
@@ -221,7 +221,7 @@ min-height: auto;
 padding-bottom: 50px;
 }
 .container {
-max-width: 100%;  /* ⭐ CAMBIO: era 1400px */
+max-width: 1400px;
 margin: 0 auto;
 background: white;
 border-radius: 15px;
@@ -1207,7 +1207,6 @@ Siguiente <i class="fas fa-chevron-right"></i>
 </div>
 </div>
 </div>
-</div>
 <div class="notification-container" id="notificationContainer"></div>
 <script>
 // ===================== SISTEMA DE LOGIN =====================
@@ -2066,7 +2065,7 @@ if (sortedDays.length === 0) calendarGrid.innerHTML = '<div style="text-align:ce
 }
 
 function hideLiquidityAndShowTable() {
-liquidityCalendar.style.display = 'none';
+liquidityCalendarDiv.style.display = 'none';
 normalTableContainer.style.display = 'block';
 }
 
