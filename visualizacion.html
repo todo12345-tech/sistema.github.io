@@ -1,0 +1,2042 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
+<title>Sistema de Ventas - Móvil Optimizado</title>
+<style>
+* {
+margin: 0;
+padding: 0;
+box-sizing: border-box;
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+}
+body {
+background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+min-height: 100vh;
+display: block;
+padding: 10px;
+}
+.login-container {
+width: 100%;
+max-width: 400px;
+background: white;
+border-radius: 15px;
+box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+overflow: hidden;
+animation: fadeIn 0.5s ease;
+margin: 50px auto;
+}
+@keyframes fadeIn {
+from { opacity: 0; transform: translateY(20px); }
+to { opacity: 1; transform: translateY(0); }
+}
+.login-header {
+background: linear-gradient(135deg, #2c3e50, #34495e);
+color: white;
+padding: 25px 15px;
+text-align: center;
+}
+.login-header h1 {
+font-size: 22px;
+margin-bottom: 5px;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+}
+.login-header p {
+font-size: 13px;
+opacity: 0.9;
+}
+.login-form {
+padding: 25px 15px;
+}
+.form-group {
+margin-bottom: 20px;
+}
+.form-group label {
+display: block;
+margin-bottom: 8px;
+color: #2c3e50;
+font-weight: 600;
+font-size: 14px;
+display: flex;
+align-items: center;
+gap: 8px;
+}
+.form-input {
+width: 100%;
+padding: 14px;
+border: 2px solid #e0e0e0;
+border-radius: 10px;
+font-size: 16px;
+transition: all 0.3s;
+background: #f8f9fa;
+}
+.form-input:focus {
+outline: none;
+border-color: #3498db;
+background: white;
+box-shadow: 0 0 0 3px rgba(52, 152, 219, 0.1);
+}
+.password-container {
+position: relative;
+}
+.toggle-password {
+position: absolute;
+right: 15px;
+top: 50%;
+transform: translateY(-50%);
+background: none;
+border: none;
+color: #7f8c8d;
+cursor: pointer;
+font-size: 18px;
+padding: 10px;
+}
+.login-btn {
+width: 100%;
+padding: 16px;
+background: linear-gradient(135deg, #3498db, #2980b9);
+color: white;
+border: none;
+border-radius: 10px;
+font-size: 16px;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 10px;
+margin-top: 10px;
+}
+.login-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 10px 20px rgba(52, 152, 219, 0.3);
+}
+.error-message {
+background: #fef5f5;
+color: #e74c3c;
+padding: 12px;
+border-radius: 8px;
+margin-top: 20px;
+display: none;
+font-size: 14px;
+border-left: 4px solid #e74c3c;
+}
+.loading {
+display: none;
+text-align: center;
+padding: 20px;
+color: #7f8c8d;
+}
+.loading-spinner {
+width: 40px;
+height: 40px;
+border: 4px solid #f3f3f3;
+border-top: 4px solid #3498db;
+border-radius: 50%;
+animation: spin 1s linear infinite;
+margin: 0 auto 15px;
+}
+@keyframes spin {
+0% { transform: rotate(0deg); }
+100% { transform: rotate(360deg); }
+}
+.app-container {
+display: none;
+width: 100%;
+max-width: 100%;
+}
+.app-header {
+background: linear-gradient(135deg, #2c3e50, #34495e);
+color: white;
+padding: 15px;
+position: relative;
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+.app-header > div:first-child {
+width: 100%;
+text-align: center;
+}
+.app-header h1 {
+font-size: 20px;
+margin-bottom: 5px;
+}
+.app-header p {
+font-size: 12px;
+opacity: 0.9;
+}
+.user-info {
+display: flex;
+align-items: center;
+justify-content: space-between;
+gap: 10px;
+width: 100%;
+}
+.user-avatar {
+width: 40px;
+height: 40px;
+background: #3498db;
+border-radius: 50%;
+display: flex;
+align-items: center;
+justify-content: center;
+font-weight: bold;
+font-size: 18px;
+flex-shrink: 0;
+}
+.user-details {
+flex: 1;
+}
+.user-details h3 {
+font-size: 16px;
+margin-bottom: 2px;
+}
+.user-details p {
+font-size: 12px;
+}
+.logout-btn {
+background: rgba(255, 255, 255, 0.1);
+color: white;
+border: 1px solid rgba(255, 255, 255, 0.2);
+padding: 8px 12px;
+border-radius: 6px;
+cursor: pointer;
+font-size: 13px;
+display: flex;
+align-items: center;
+gap: 5px;
+transition: all 0.3s;
+white-space: nowrap;
+}
+.main-content {
+padding: 15px;
+background: #f5f7fa;
+min-height: auto;
+padding-bottom: 50px;
+}
+.container {
+max-width: 1400px;
+margin: 0 auto;
+background: white;
+border-radius: 15px;
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+overflow: visible;
+}
+.day-panel {
+background: white;
+padding: 15px;
+border-bottom: 1px solid #eaeaea;
+display: flex;
+flex-direction: column;
+gap: 15px;
+}
+.day-info h2 {
+font-size: 20px;
+color: #2c3e50;
+margin-bottom: 5px;
+}
+.day-info p {
+font-size: 14px;
+}
+.total-ventas-box {
+background: linear-gradient(135deg, #27ae60, #219653);
+color: white;
+padding: 20px;
+border-radius: 10px;
+text-align: center;
+margin-top: 10px;
+}
+.total-ventas-label {
+font-size: 14px;
+opacity: 0.9;
+margin-bottom: 8px;
+text-transform: uppercase;
+}
+.total-ventas-amount {
+font-size: 32px;
+font-weight: bold;
+}
+.attendance-panel {
+display: flex;
+gap: 15px;
+justify-content: space-around;
+flex-wrap: wrap;
+}
+.attendance-item {
+text-align: center;
+background: #f8f9fa;
+padding: 10px 15px;
+border-radius: 8px;
+min-width: 120px;
+}
+.attendance-label {
+font-size: 11px;
+color: #7f8c8d;
+margin-bottom: 5px;
+font-weight: 600;
+text-transform: uppercase;
+}
+.attendance-value {
+font-size: 16px;
+font-weight: bold;
+color: #2c3e50;
+}
+.attendance-user {
+font-size: 12px;
+color: #3498db;
+margin-top: 3px;
+}
+.operando {
+color: #f39c12 !important;
+animation: pulse 2s infinite;
+}
+.operando-alert {
+color: #e74c3c !important;
+animation: pulse-alert 1s infinite;
+font-weight: bold;
+}
+@keyframes pulse {
+0% { opacity: 0.7; }
+50% { opacity: 1; }
+100% { opacity: 0.7; }
+}
+@keyframes pulse-alert {
+0% { opacity: 0.7; transform: scale(1); }
+50% { opacity: 1; transform: scale(1.05); }
+100% { opacity: 0.7; transform: scale(1); }
+}
+.cierre-alert {
+color: #e74c3c !important;
+animation: shake 0.5s infinite;
+}
+@keyframes shake {
+0%, 100% { transform: translateX(0); }
+25% { transform: translateX(-5px); }
+75% { transform: translateX(5px); }
+}
+.cash-control {
+display: flex;
+gap: 15px;
+justify-content: space-around;
+flex-wrap: wrap;
+}
+.cash-item {
+text-align: center;
+background: linear-gradient(135deg, #f8f9fa, #ffffff);
+padding: 20px 25px;
+border-radius: 10px;
+min-width: 140px;
+box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+.cash-label {
+font-size: 13px;
+color: #7f8c8d;
+margin-bottom: 8px;
+font-weight: 600;
+text-transform: uppercase;
+}
+.cash-value {
+font-size: 24px;
+font-weight: bold;
+color: #2c3e50;
+}
+.controls {
+padding: 15px;
+background: #f8f9fa;
+border-bottom: 1px solid #eaeaea;
+display: flex;
+flex-direction: column;
+gap: 15px;
+}
+.filters-row {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+select, input[type="text"] {
+width: 100%;
+padding: 14px;
+border: 1px solid #ddd;
+border-radius: 8px;
+font-size: 16px;
+}
+input[type="date"] {
+width: 100%;
+padding: 12px;
+border: 2px solid #3498db;
+border-radius: 8px;
+font-size: 14px;
+background: linear-gradient(135deg, #f8f9fa, #ffffff);
+color: #2c3e50;
+font-weight: 600;
+cursor: pointer;
+transition: all 0.3s;
+max-width: 100%;
+}
+input[type="date"]:focus {
+outline: none;
+border-color: #27ae60;
+box-shadow: 0 0 0 3px rgba(39, 174, 96, 0.2);
+}
+input[type="date"]::-webkit-calendar-picker-indicator {
+cursor: pointer;
+opacity: 0.7;
+transition: opacity 0.3s;
+}
+input[type="date"]::-webkit-calendar-picker-indicator:hover {
+opacity: 1;
+}
+.buttons-row {
+display: flex;
+flex-direction: column;
+gap: 10px;
+}
+.btn {
+padding: 14px 20px;
+background: #3498db;
+color: white;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+transition: all 0.3s;
+font-size: 16px;
+width: 100%;
+}
+.btn:hover {
+background: #2980b9;
+transform: translateY(-2px);
+}
+.btn-primary {
+background: linear-gradient(135deg, #3498db, #2980b9);
+}
+.btn-success {
+background: linear-gradient(135deg, #27ae60, #219653);
+}
+.btn-warning {
+background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+.btn-danger {
+background: linear-gradient(135deg, #e74c3c, #c0392b);
+}
+.sheet-source-indicator {
+background: linear-gradient(135deg, #3498db, #2980b9);
+color: white;
+padding: 15px;
+border-radius: 10px;
+text-align: center;
+font-size: 14px;
+margin-top: 5px;
+cursor: pointer;
+transition: all 0.3s;
+box-shadow: 0 3px 10px rgba(52, 152, 219, 0.3);
+font-weight: 600;
+}
+.sheet-source-indicator:hover {
+transform: translateY(-3px);
+box-shadow: 0 6px 20px rgba(52, 152, 219, 0.4);
+}
+.sheet-source-indicator i {
+margin-right: 8px;
+}
+.notification-container {
+position: fixed;
+top: 20px;
+right: 20px;
+z-index: 10000;
+display: flex;
+flex-direction: column;
+gap: 10px;
+max-width: 400px;
+}
+.notification {
+background: white;
+border-radius: 10px;
+padding: 15px;
+box-shadow: 0 10px 30px rgba(0, 0, 0, 0.2);
+display: flex;
+align-items: center;
+gap: 12px;
+animation: slideIn 0.3s ease;
+border-left: 4px solid #3498db;
+}
+@keyframes slideIn {
+from { transform: translateX(100%); opacity: 0; }
+to { transform: translateX(0); opacity: 1; }
+}
+.notification.warning {
+border-left-color: #f39c12;
+}
+.notification.danger {
+border-left-color: #e74c3c;
+}
+.notification.success {
+border-left-color: #27ae60;
+}
+.notification.info {
+border-left-color: #3498db;
+}
+.notification-update {
+padding: 8px 15px;
+font-size: 12px;
+}
+.notification-update .notification-icon {
+font-size: 16px;
+}
+.notification-update .notification-title {
+font-size: 12px;
+margin-bottom: 0;
+}
+.notification-update .notification-message {
+display: none;
+}
+.notification-update .notification-close {
+display: none;
+}
+.notification-icon {
+font-size: 24px;
+}
+.notification-content {
+flex: 1;
+}
+.notification-title {
+font-weight: 600;
+margin-bottom: 3px;
+}
+.notification-message {
+font-size: 13px;
+color: #7f8c8d;
+}
+.notification-close {
+background: none;
+border: none;
+color: #95a5a6;
+cursor: pointer;
+font-size: 18px;
+padding: 5px;
+}
+.notification-close:hover {
+color: #e74c3c;
+}
+.stats {
+display: grid;
+grid-template-columns: repeat(5, 1fr);
+gap: 10px;
+padding: 15px;
+background: #f1f5f9;
+}
+.stat-card {
+padding: 15px;
+border-radius: 10px;
+text-align: center;
+box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+transition: transform 0.3s;
+}
+.stat-card:hover {
+transform: translateY(-3px);
+}
+.stat-value {
+font-size: 18px;
+font-weight: bold;
+margin-bottom: 5px;
+color: white;
+}
+.stat-label {
+color: white;
+font-size: 10px;
+text-transform: uppercase;
+font-weight: 600;
+}
+#aperturaEfectivo {
+background: linear-gradient(135deg, #f39c12, #e67e22);
+}
+#totalSales {
+background: linear-gradient(135deg, #3498db, #2980b9);
+}
+#ventasDia {
+background: linear-gradient(135deg, #27ae60, #2ecc71);
+}
+#ventasEfectivo {
+background: linear-gradient(135deg, #f1c40f, #f39c12);
+}
+#cierreEfectivo {
+background: linear-gradient(135deg, #145a32, #1e8449);
+}
+.nav-buttons {
+display: flex;
+gap: 10px;
+padding: 15px;
+background: linear-gradient(135deg, #f8f9fa, #ffffff);
+border-radius: 10px;
+margin: 15px;
+border: 2px solid #e0e0e0;
+}
+.nav-btn {
+flex: 1;
+padding: 15px;
+background: linear-gradient(135deg, #3498db, #2980b9);
+color: white;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-size: 15px;
+font-weight: 600;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+transition: all 0.3s;
+}
+.nav-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(52, 152, 219, 0.3);
+}
+.nav-btn:active {
+transform: translateY(0);
+}
+.nav-btn:disabled {
+background: #bdc3c7;
+cursor: not-allowed;
+transform: none;
+opacity: 0.6;
+}
+.table-container {
+padding: 15px;
+overflow-x: auto;
+-webkit-overflow-scrolling: touch;
+}
+table {
+width: 100%;
+border-collapse: collapse;
+min-width: 700px;
+font-size: 14px;
+}
+th {
+background: #34495e;
+color: white;
+padding: 12px 8px;
+text-align: left;
+font-weight: 600;
+white-space: nowrap;
+}
+td {
+padding: 10px 8px;
+border-bottom: 1px solid #eee;
+white-space: nowrap;
+}
+td:nth-child(4), td:nth-child(5) {
+white-space: normal;
+word-break: break-word;
+min-width: 100px;
+}
+tr:hover {
+background: #f8f9fa;
+}
+.row-apertura {
+background-color: #d5f5e3 !important;
+border-left: 4px solid #27ae60;
+}
+.row-cierre {
+background-color: #1e8449 !important;
+color: white;
+border-left: 4px solid #145a32;
+}
+.row-apertura:hover {
+background-color: #abebc6 !important;
+}
+.row-cierre:hover {
+background-color: #196f3d !important;
+}
+.efectivo {
+color: #27ae60;
+font-weight: bold;
+}
+.qr {
+color: #3498db;
+font-weight: bold;
+}
+.pagination {
+padding: 15px;
+display: none;
+flex-direction: column;
+align-items: center;
+gap: 10px;
+}
+.page-info {
+padding: 0 10px;
+color: #7f8c8d;
+font-size: 14px;
+text-align: center;
+}
+.data-message {
+text-align: center;
+padding: 30px 15px;
+color: #7f8c8d;
+display: none;
+}
+.data-message i {
+font-size: 48px;
+margin-bottom: 15px;
+opacity: 0.5;
+}
+.sync-badge {
+position: absolute;
+top: 10px;
+right: 10px;
+background: #27ae60;
+color: white;
+padding: 4px 8px;
+border-radius: 12px;
+font-size: 10px;
+display: flex;
+align-items: center;
+gap: 4px;
+animation: pulse 2s infinite;
+}
+.sheet-indicator {
+display: inline-block;
+padding: 4px 8px;
+border-radius: 20px;
+font-size: 11px;
+font-weight: bold;
+margin-left: 5px;
+vertical-align: middle;
+}
+.sheet-comercial {
+background: #3498db;
+color: white;
+}
+.sheet-feria {
+background: #e74c3c;
+color: white;
+}
+.mobile-summary {
+display: flex;
+padding: 15px;
+background: #f8f9fa;
+border-bottom: 1px solid #eaeaea;
+gap: 10px;
+flex-wrap: wrap;
+}
+.mobile-summary-item {
+background: white;
+padding: 12px;
+border-radius: 8px;
+text-align: center;
+box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+flex: 1;
+}
+.mobile-summary-label {
+font-size: 11px;
+color: #7f8c8d;
+text-transform: uppercase;
+margin-bottom: 5px;
+}
+.mobile-summary-value {
+font-size: 14px;
+font-weight: bold;
+color: #2c3e50;
+}
+.liquidity-buttons {
+display: flex;
+gap: 10px;
+padding: 10px 15px;
+background: #f8f9fa;
+border-bottom: 1px solid #eaeaea;
+}
+.liquidity-btn {
+flex: 1;
+padding: 12px;
+background: linear-gradient(135deg, #8e44ad, #9b59b6);
+color: white;
+border: none;
+border-radius: 8px;
+cursor: pointer;
+font-size: 14px;
+font-weight: 600;
+display: flex;
+align-items: center;
+justify-content: center;
+gap: 8px;
+transition: all 0.3s;
+}
+.liquidity-btn:hover {
+transform: translateY(-2px);
+box-shadow: 0 5px 15px rgba(142,68,173,0.3);
+}
+.liquidity-calendar {
+padding: 15px;
+background: white;
+display: none;
+}
+.liquidity-header {
+display: flex;
+justify-content: space-between;
+align-items: center;
+margin-bottom: 15px;
+flex-wrap: wrap;
+gap: 10px;
+}
+.liquidity-title {
+font-size: 18px;
+font-weight: bold;
+color: #2c3e50;
+}
+.back-to-table-btn {
+background: #7f8c8d;
+padding: 8px 15px;
+font-size: 13px;
+width: auto;
+}
+.liquidity-period-selector {
+margin-bottom: 20px;
+display: flex;
+flex-wrap: wrap;
+gap: 15px;
+align-items: center;
+justify-content: center;
+}
+.liquidity-period-selector label {
+font-weight: 600;
+color: #2c3e50;
+}
+.liquidity-period-selector input {
+padding: 8px 12px;
+border: 1px solid #ccc;
+border-radius: 8px;
+font-size: 14px;
+}
+.calendar-grid {
+display: grid;
+grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+gap: 12px;
+}
+.calendar-day-card {
+background: #f8f9fa;
+border-radius: 12px;
+padding: 12px;
+text-align: center;
+box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+border-left: 4px solid #3498db;
+}
+.calendar-day-date {
+font-weight: bold;
+font-size: 14px;
+color: #2c3e50;
+margin-bottom: 8px;
+}
+.calendar-day-sales {
+font-size: 16px;
+font-weight: bold;
+color: #27ae60;
+}
+.calendar-day-profit {
+font-size: 13px;
+color: #f39c12;
+margin-top: 5px;
+}
+.liquidity-summary {
+margin-top: 20px;
+background: linear-gradient(135deg, #27ae60, #2ecc71);
+color: white;
+padding: 15px;
+border-radius: 12px;
+text-align: center;
+}
+.total-final-box {
+background: linear-gradient(135deg, #27ae60, #219653);
+color: white;
+padding: 20px 15px;
+border-radius: 10px;
+text-align: center;
+margin: 20px 15px;
+}
+.total-final-label {
+font-size: 12px;
+opacity: 0.9;
+margin-bottom: 5px;
+text-transform: uppercase;
+}
+.total-final-amount {
+font-size: 24px;
+font-weight: bold;
+}
+.final-space {
+height: 30px;
+}
+@media (max-width: 1024px) {
+.stats {
+grid-template-columns: repeat(3, 1fr);
+}
+.nav-buttons {
+margin: 10px;
+}
+}
+@media (max-width: 768px) {
+.stats {
+grid-template-columns: repeat(2, 1fr);
+}
+}
+@media (max-width: 480px) {
+.stats {
+grid-template-columns: 1fr;
+}
+.attendance-panel {
+flex-direction: column;
+gap: 10px;
+}
+.attendance-item {
+width: 100%;
+}
+.cash-control {
+flex-direction: column;
+gap: 10px;
+}
+.cash-item {
+width: 100%;
+}
+.user-info {
+flex-wrap: wrap;
+}
+.logout-btn {
+width: 100%;
+justify-content: center;
+}
+.app-header h1 {
+font-size: 18px;
+}
+.day-info h2 {
+font-size: 18px;
+}
+.cash-value {
+font-size: 20px;
+}
+.total-ventas-amount {
+font-size: 28px;
+}
+.notification-container {
+left: 10px;
+right: 10px;
+max-width: none;
+}
+input[type="date"] {
+padding: 10px 8px;
+font-size: 13px;
+border-radius: 6px;
+width: calc(100% - 24px);
+margin: 0 auto;
+display: block;
+}
+.table-container {
+padding: 10px 5px;
+overflow-x: auto;
+}
+table {
+min-width: 650px;
+font-size: 11px;
+}
+th, td {
+padding: 5px 3px;
+white-space: nowrap;
+}
+th:nth-child(4), td:nth-child(4),
+th:nth-child(5), td:nth-child(5) {
+white-space: normal;
+word-break: break-word;
+min-width: 80px;
+}
+.calendar-grid {
+grid-template-columns: repeat(2, 1fr);
+}
+.liquidity-period-selector {
+flex-direction: column;
+align-items: stretch;
+}
+}
+.btn i {
+font-size: 18px;
+}
+.sync-badge {
+position: relative;
+top: auto;
+right: auto;
+display: inline-flex;
+margin-top: 5px;
+}
+</style>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+<!-- PANTALLA DE LOGIN -->
+<div class="login-container" id="loginScreen">
+<div class="login-header">
+<h1><i class="fas fa-lock"></i> Acceso</h1>
+<p>Sistema Privado de Ventas</p>
+</div>
+<form class="login-form" id="loginForm">
+<div class="form-group">
+<label for="username"><i class="fas fa-user"></i> Usuario</label>
+<input type="text" id="username" class="form-input" placeholder="Usuario" required>
+</div>
+<div class="form-group">
+<label for="password"><i class="fas fa-key"></i> Contraseña</label>
+<div class="password-container">
+<input type="password" id="password" class="form-input" placeholder="Contraseña" required>
+<button type="button" class="toggle-password" id="togglePassword">
+<i class="fas fa-eye"></i>
+</button>
+</div>
+</div>
+<button type="submit" class="login-btn">
+<i class="fas fa-sign-in-alt"></i> Ingresar
+</button>
+<div class="error-message" id="errorMessage">
+<i class="fas fa-exclamation-circle"></i> Usuario o contraseña incorrectos
+</div>
+</form>
+<div class="loading" id="loading">
+<div class="loading-spinner"></div>
+<p>Verificando...</p>
+</div>
+</div>
+<!-- SISTEMA PRINCIPAL -->
+<div class="app-container" id="appScreen">
+<div class="app-header">
+<div style="position: relative;">
+<h1><i class="fas fa-chart-line"></i> Ventas</h1>
+<p>Conectado a Google Sheets
+<span id="sheetIndicator" class="sheet-indicator sheet-comercial">Comercial</span>
+</p>
+<div class="sync-badge" id="syncBadge">
+<i class="fas fa-cloud"></i>
+<span>Conectado</span>
+</div>
+</div>
+<div class="user-info">
+<div class="user-avatar" id="userAvatar">M</div>
+<div class="user-details">
+<h3 id="userName">Usuario</h3>
+<p><i class="fas fa-shield-alt"></i> <span id="userRole">Admin</span></p>
+</div>
+<button class="logout-btn" id="logoutBtn">
+<i class="fas fa-sign-out-alt"></i> Salir
+</button>
+</div>
+</div>
+<div class="main-content">
+<div class="container">
+<div class="day-panel">
+<div class="day-info">
+<h2 id="dayName">Lunes</h2>
+<p id="currentDate">09/03/2026</p>
+</div>
+<div class="total-ventas-box">
+<div class="total-ventas-label"><i class="fas fa-shopping-cart"></i> Total de Ventas Registradas en el Día</div>
+<div class="total-ventas-amount" id="totalVentasDia">Bs. 0.00</div>
+</div>
+<div class="attendance-panel">
+<div class="attendance-item">
+<div class="attendance-label"><i class="fas fa-clock"></i> Hora Apertura</div>
+<div class="attendance-value" id="horaApertura">--:--</div>
+</div>
+<div class="attendance-item">
+<div class="attendance-label"><i class="fas fa-user"></i> Usuario Operando</div>
+<div class="attendance-value attendance-user" id="usuarioOperando">--</div>
+</div>
+<div class="attendance-item">
+<div class="attendance-label"><i class="fas fa-door-closed"></i> Hora Cierre</div>
+<div class="attendance-value" id="horaCierre">--:--</div>
+</div>
+</div>
+<div class="cash-control">
+<div class="cash-item">
+<div class="cash-label">Apertura Efectivo</div>
+<div class="cash-value" id="aperturaEfectivoDisplay">0.00</div>
+</div>
+<div class="cash-item">
+<div class="cash-label">Cierre Efectivo</div>
+<div class="cash-value" id="cierreEfectivoDisplay">0.00</div>
+</div>
+</div>
+</div>
+<div class="controls">
+<div class="filters-row">
+<select id="sheetSelector">
+<option value="comercial">Comercial</option>
+<option value="feria">Feria</option>
+</select>
+<input type="date" id="dateFilter">
+<input type="text" id="searchInput" placeholder="Buscar en todo el historial (producto, usuario...)">
+</div>
+<div class="buttons-row">
+<button class="btn btn-primary" onclick="filterData()">
+<i class="fas fa-filter"></i> Filtrar
+</button>
+<button class="btn btn-success" onclick="showToday()">
+<i class="fas fa-calendar-day"></i> Hoy
+</button>
+<button class="btn btn-warning" onclick="loadData()">
+<i class="fas fa-sync-alt"></i> Actualizar
+</button>
+<button class="btn btn-primary" onclick="exportToExcel()">
+<i class="fas fa-file-excel"></i> Exportar
+</button>
+</div>
+<div class="sheet-source-indicator" id="sheetSourceIndicator">
+<i class="fas fa-database"></i> Leyendo datos de: <strong id="currentSheetName">Comercial</strong>
+</div>
+</div>
+
+<!-- ========== TARJETAS DE ESTADÍSTICAS REORDENADAS ========== -->
+<div class="stats">
+  <!-- 1. Apertura Efectivo -->
+  <div class="stat-card" id="aperturaEfectivo">
+    <div class="stat-value" id="aperturaEfectivoValue">0.00</div>
+    <div class="stat-label">Apertura Efectivo</div>
+  </div>
+  <!-- 2. Ventas del Día -->
+  <div class="stat-card" id="ventasDia">
+    <div class="stat-value" id="ventasDiaValue">0.00</div>
+    <div class="stat-label">Ventas del Día</div>
+  </div>
+  <!-- 3. Ventas Efectivo -->
+  <div class="stat-card" id="ventasEfectivo">
+    <div class="stat-value" id="ventasEfectivoValue">0.00</div>
+    <div class="stat-label">Ventas Efectivo</div>
+  </div>
+  <!-- 4. Total Ventas (ahora: Apertura + Ventas Efectivo) -->
+  <div class="stat-card" id="totalSales">
+    <div class="stat-value" id="totalSalesValue">0.00</div>
+    <div class="stat-label">Total Ventas (en caja) </div>
+  </div>
+  <!-- 5. Cierre Efectivo -->
+  <div class="stat-card" id="cierreEfectivo">
+    <div class="stat-value" id="cierreEfectivoValue">0.00</div>
+    <div class="stat-label">Cierre Efectivo</div>
+  </div>
+</div>
+
+<div class="nav-buttons" id="navButtons">
+<button class="nav-btn" id="btnAtras" onclick="changeDay(-1)">
+<i class="fas fa-chevron-left"></i> Atrás
+</button>
+<button class="nav-btn" id="btnAdelante" onclick="changeDay(1)">
+Adelante <i class="fas fa-chevron-right"></i>
+</button>
+</div>
+<div class="mobile-summary" id="mobileSummary">
+<div class="mobile-summary-item">
+<div class="mobile-summary-label"><i class="fas fa-calendar"></i> Fecha</div>
+<div class="mobile-summary-value" id="mobileFecha">--/--/----</div>
+</div>
+<div class="mobile-summary-item">
+<div class="mobile-summary-label"><i class="fas fa-users"></i> Usuario(s) Operando</div>
+<div class="mobile-summary-value" id="mobileUsuarios">--</div>
+</div>
+</div>
+<div class="liquidity-buttons">
+<button class="liquidity-btn" id="btnLiquidezSemanal"><i class="fas fa-calendar-week"></i> Liquidez Semanal</button>
+<button class="liquidity-btn" id="btnLiquidezMensual"><i class="fas fa-calendar-alt"></i> Liquidez Mensual</button>
+</div>
+<div class="table-container" id="normalTableContainer">
+<div class="data-message" id="dataError">
+<i class="fas fa-exclamation-triangle"></i>
+<p>Error al cargar datos</p>
+<button class="btn" onclick="loadData()" style="margin-top: 15px;">
+<i class="fas fa-redo"></i> Reintentar
+</button>
+</div>
+<div class="data-message" id="noDataMessage">
+<i class="fas fa-inbox"></i>
+<p>No hay datos para esta fecha</p>
+</div>
+<div id="tableWrapper" style="display: none;">
+<table id="salesTable">
+<thead>
+<tr>
+<th>ID</th>
+<th>Fecha</th>
+<th>Hora</th>
+<th>Productos</th>
+<th>Montos</th>
+<th>Total Venta</th>
+<th>Método</th>
+<th>Usuario</th>
+</tr>
+</thead>
+<tbody id="salesBody">
+</tbody>
+</table>
+</div>
+</div>
+<div class="liquidity-calendar" id="liquidityCalendar">
+<div class="liquidity-header">
+<div class="liquidity-title" id="liquidityTitle">Liquidez Semanal</div>
+<button class="btn back-to-table-btn" id="backToTableBtn"><i class="fas fa-arrow-left"></i> Volver a tabla diaria</button>
+</div>
+<div class="liquidity-period-selector" id="periodSelector"></div>
+<div id="calendarGrid" class="calendar-grid"></div>
+<div id="liquiditySummary" class="liquidity-summary"></div>
+</div>
+<div class="total-final-box" id="totalFinalBox">
+<div class="total-final-label"><i class="fas fa-shopping-cart"></i> Total de Ventas Registradas</div>
+<div class="total-final-amount" id="totalFinalAmount">Bs. 0.00</div>
+</div>
+<div class="final-space"></div>
+<div class="pagination" id="pagination">
+<button class="btn" onclick="changePage(currentPage - 1)" id="prevBtn">
+<i class="fas fa-chevron-left"></i> Anterior
+</button>
+<div class="page-info">
+Pág. <span id="currentPage">1</span> de <span id="totalPages">1</span> |
+<span id="showingCount">0</span>-<span id="totalCount">0</span>
+</div>
+<button class="btn" onclick="changePage(currentPage + 1)" id="nextBtn">
+Siguiente <i class="fas fa-chevron-right"></i>
+</button>
+</div>
+</div>
+</div>
+</div>
+<div class="notification-container" id="notificationContainer"></div>
+<script>
+// ===================== SISTEMA DE LOGIN =====================
+const usuarios = {
+"milan": {
+password: "tigre1234.A",
+nombre: "Milan",
+rol: "admin"
+},
+"admin": {
+password: "admin",
+nombre: "Administrador",
+rol: "admin"
+}
+};
+const loginScreen = document.getElementById('loginScreen');
+const appScreen = document.getElementById('appScreen');
+const loginForm = document.getElementById('loginForm');
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const togglePassword = document.getElementById('togglePassword');
+const errorMessage = document.getElementById('errorMessage');
+const loading = document.getElementById('loading');
+const logoutBtn = document.getElementById('logoutBtn');
+const userName = document.getElementById('userName');
+const userRole = document.getElementById('userRole');
+const userAvatar = document.getElementById('userAvatar');
+const syncBadge = document.getElementById('syncBadge');
+const sheetIndicator = document.getElementById('sheetIndicator');
+const sheetSourceIndicator = document.getElementById('sheetSourceIndicator');
+const currentSheetName = document.getElementById('currentSheetName');
+const notificationContainer = document.getElementById('notificationContainer');
+const mobileSummary = document.getElementById('mobileSummary');
+const mobileFecha = document.getElementById('mobileFecha');
+const mobileUsuarios = document.getElementById('mobileUsuarios');
+const totalFinalBox = document.getElementById('totalFinalBox');
+const totalFinalAmount = document.getElementById('totalFinalAmount');
+const navButtons = document.getElementById('navButtons');
+const dateFilter = document.getElementById('dateFilter');
+const btnAtras = document.getElementById('btnAtras');
+const btnAdelante = document.getElementById('btnAdelante');
+let currentUser = null;
+let dataInterval = null;
+let lastSyncTime = null;
+let notificationsShown = new Set();
+let allUsers = new Set();
+const daysOfWeek = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+const btnLiquidezSemanal = document.getElementById('btnLiquidezSemanal');
+const btnLiquidezMensual = document.getElementById('btnLiquidezMensual');
+const liquidityCalendarDiv = document.getElementById('liquidityCalendar');
+const normalTableContainer = document.getElementById('normalTableContainer');
+const backToTableBtn = document.getElementById('backToTableBtn');
+const calendarGrid = document.getElementById('calendarGrid');
+const liquidityTitle = document.getElementById('liquidityTitle');
+const liquiditySummaryDiv = document.getElementById('liquiditySummary');
+const periodSelectorDiv = document.getElementById('periodSelector');
+let currentLiquidityMode = 'week';
+
+// ========== FUNCIONES AUXILIARES PARA BÚSQUEDA INTELIGENTE ==========
+function normalize(str) {
+    if (!str) return '';
+    return str
+        .toLowerCase()
+        .normalize('NFD')
+        .replace(/[\u0300-\u036f]/g, '')  // elimina tildes
+        .replace(/[^a-z0-9 ]/g, ' ')      // solo letras, números y espacios
+        .trim()
+        .replace(/\s+/g, ' ');            // múltiples espacios a uno
+}
+
+function levenshteinDistance(a, b) {
+    if (a.length === 0) return b.length;
+    if (b.length === 0) return a.length;
+    const matrix = [];
+    for (let i = 0; i <= b.length; i++) {
+        matrix[i] = [i];
+    }
+    for (let j = 0; j <= a.length; j++) {
+        matrix[0][j] = j;
+    }
+    for (let i = 1; i <= b.length; i++) {
+        for (let j = 1; j <= a.length; j++) {
+            if (b[i-1] === a[j-1]) {
+                matrix[i][j] = matrix[i-1][j-1];
+            } else {
+                matrix[i][j] = Math.min(
+                    matrix[i-1][j-1] + 1,
+                    matrix[i][j-1] + 1,
+                    matrix[i-1][j] + 1
+                );
+            }
+        }
+    }
+    return matrix[b.length][a.length];
+}
+
+function similarity(a, b) {
+    const dist = levenshteinDistance(a, b);
+    const maxLen = Math.max(a.length, b.length);
+    if (maxLen === 0) return 1;
+    return 1 - dist / maxLen;
+}
+
+// función que decide si un item debe ser incluido en la búsqueda
+function matchesSearch(item, searchTerm) {
+    if (!searchTerm || searchTerm.trim() === '') return true;
+    const searchNorm = normalize(searchTerm);
+    // Construir el texto a buscar (incluye todos los campos relevantes)
+    const text = normalize(
+        (item.id || '') + ' ' +
+        (item.fecha || '') + ' ' +
+        (item.hora || '') + ' ' +
+        (item.productos || '') + ' ' +
+        (item.montos || '') + ' ' +
+        (item.total || '') + ' ' +
+        (item.metodo_pago || '') + ' ' +
+        (item.usuario || '')
+    );
+    // Primero intentamos coincidencia parcial con includes
+    if (text.includes(searchNorm)) {
+        return true;
+    }
+    // Si no, usamos similitud de cadenas (umbral 0.6)
+    // También podemos dividir el término en palabras y buscar cada una
+    const searchWords = searchNorm.split(/\s+/);
+    const textWords = text.split(/\s+/);
+    for (let sw of searchWords) {
+        let found = false;
+        for (let tw of textWords) {
+            if (similarity(sw, tw) >= 0.65) {
+                found = true;
+                break;
+            }
+        }
+        if (!found) {
+            // Si alguna palabra del término no tiene similitud con ninguna del texto, falla
+            return false;
+        }
+    }
+    return true;
+}
+
+// ===================== FIN AUXILIARES =====================
+
+document.addEventListener('DOMContentLoaded', function() {
+const savedUser = localStorage.getItem('currentUser');
+if (savedUser) {
+try {
+currentUser = JSON.parse(savedUser);
+showApp();
+} catch(e) { console.error(e); }
+}
+loginForm.addEventListener('submit', handleLogin);
+if (togglePassword) togglePassword.addEventListener('click', togglePasswordVisibility);
+if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+if (btnLiquidezSemanal) btnLiquidezSemanal.addEventListener('click', () => showLiquidity('week'));
+if (btnLiquidezMensual) btnLiquidezMensual.addEventListener('click', () => showLiquidity('month'));
+if (backToTableBtn) backToTableBtn.addEventListener('click', hideLiquidityAndShowTable);
+});
+function handleLogin(e) {
+e.preventDefault();
+const username = usernameInput.value.trim();
+const password = passwordInput.value.trim();
+if (!username || !password) {
+showError("Por favor ingresa usuario y contraseña");
+return;
+}
+showLoading(true);
+setTimeout(() => {
+if (usuarios[username] && usuarios[username].password === password) {
+currentUser = {
+username: username,
+nombre: usuarios[username].nombre,
+rol: usuarios[username].rol
+};
+localStorage.setItem('currentUser', JSON.stringify(currentUser));
+showApp();
+} else {
+showError("Usuario o contraseña incorrectos");
+showLoading(false);
+}
+}, 500);
+}
+function togglePasswordVisibility() {
+const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+passwordInput.setAttribute('type', type);
+togglePassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+}
+function showError(message) {
+errorMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+errorMessage.style.display = 'block';
+usernameInput.classList.add('error');
+passwordInput.classList.add('error');
+setTimeout(() => {
+usernameInput.classList.remove('error');
+passwordInput.classList.remove('error');
+}, 3000);
+}
+function showLoading(show) {
+if (show) {
+loading.style.display = 'block';
+loginForm.style.display = 'none';
+} else {
+loading.style.display = 'none';
+loginForm.style.display = 'block';
+}
+}
+function showApp() {
+userName.textContent = currentUser.nombre;
+userRole.textContent = currentUser.rol === 'admin' ? 'Administrador' : 'Usuario';
+userAvatar.textContent = currentUser.nombre.charAt(0).toUpperCase();
+loginScreen.style.display = 'none';
+appScreen.style.display = 'block';
+initializeVentasSystem();
+startAutoRefresh();
+}
+function handleLogout() {
+if (confirm('¿Estás seguro de que deseas salir del sistema?')) {
+stopAutoRefresh();
+currentUser = null;
+localStorage.removeItem('currentUser');
+loginForm.reset();
+errorMessage.style.display = 'none';
+loginScreen.style.display = 'block';
+appScreen.style.display = 'none';
+}
+}
+// ===================== SISTEMA DE VENTAS =====================
+const SHEETS_IDS = {
+comercial: '1gfjpdEUnx5h83xjnVDaU_BbLvj-EMYtPLOHxjmFaMAg',
+feria: '1TEvsrUoPCRhzvxyP7U3FGg80XTSxwKMqvoqjS6F3EAc'
+};
+let allData = [];
+let filteredData = [];
+let currentPage = 1;
+const recordsPerPage = 1000;
+let currentSheet = 'comercial';
+const ventasElements = {
+dayName: document.getElementById('dayName'),
+currentDate: document.getElementById('currentDate'),
+totalVentasDia: document.getElementById('totalVentasDia'),
+horaApertura: document.getElementById('horaApertura'),
+usuarioOperando: document.getElementById('usuarioOperando'),
+horaCierre: document.getElementById('horaCierre'),
+aperturaEfectivoDisplay: document.getElementById('aperturaEfectivoDisplay'),
+cierreEfectivoDisplay: document.getElementById('cierreEfectivoDisplay'),
+sheetSelector: document.getElementById('sheetSelector'),
+dateFilter: document.getElementById('dateFilter'),
+searchInput: document.getElementById('searchInput'),
+totalSalesValue: document.getElementById('totalSalesValue'),
+ventasDiaValue: document.getElementById('ventasDiaValue'),
+ventasEfectivoValue: document.getElementById('ventasEfectivoValue'),
+aperturaEfectivoValue: document.getElementById('aperturaEfectivoValue'),
+cierreEfectivoValue: document.getElementById('cierreEfectivoValue'),
+dataError: document.getElementById('dataError'),
+noDataMessage: document.getElementById('noDataMessage'),
+tableWrapper: document.getElementById('tableWrapper'),
+salesBody: document.getElementById('salesBody'),
+pagination: document.getElementById('pagination'),
+currentPage: document.getElementById('currentPage'),
+totalPages: document.getElementById('totalPages'),
+showingCount: document.getElementById('showingCount'),
+totalCount: document.getElementById('totalCount'),
+prevBtn: document.getElementById('prevBtn'),
+nextBtn: document.getElementById('nextBtn')
+};
+function showUpdateNotification(message, duration = 2000) {
+const notification = document.createElement('div');
+notification.className = 'notification success notification-update';
+notification.innerHTML = `<i class="fas fa-check-circle notification-icon"></i><div class="notification-content"><div class="notification-title">${message}</div></div>`;
+notificationContainer.appendChild(notification);
+setTimeout(() => {
+if (notification.parentElement) {
+notification.style.animation = 'slideIn 0.3s ease reverse';
+setTimeout(() => notification.remove(), 300);
+}
+}, duration);
+}
+function showNotification(type, title, message, duration = 5000) {
+const notification = document.createElement('div');
+notification.className = `notification ${type}`;
+const icons = { warning: 'fa-exclamation-triangle', danger: 'fa-times-circle', success: 'fa-check-circle', info: 'fa-info-circle' };
+notification.innerHTML = `<i class="fas ${icons[type] || 'fa-info-circle'} notification-icon"></i><div class="notification-content"><div class="notification-title">${title}</div><div class="notification-message">${message}</div></div><button class="notification-close" onclick="this.parentElement.remove()"><i class="fas fa-times"></i></button>`;
+notificationContainer.appendChild(notification);
+setTimeout(() => {
+if (notification.parentElement) {
+notification.style.animation = 'slideIn 0.3s ease reverse';
+setTimeout(() => notification.remove(), 300);
+}
+}, duration);
+}
+async function loadDataFromGoogleSheets(sheetType) {
+try {
+const sheetId = SHEETS_IDS[sheetType];
+if (!sheetId) throw new Error(`No hay ID configurado para ${sheetType}`);
+const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
+const response = await fetch(csvUrl);
+if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
+const csvText = await response.text();
+if (!csvText.trim()) throw new Error('El archivo CSV está vacío');
+const parsedData = parseCSV(csvText);
+if (parsedData.length === 0) throw new Error('No se encontraron datos en el CSV');
+return processData(parsedData, sheetType);
+} catch (error) {
+console.error(error);
+throw error;
+}
+}
+function parseCSV(csvText) {
+const lines = csvText.split('\n').filter(line => line.trim() !== '');
+if (lines.length < 2) return [];
+const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+const result = [];
+for (let i = 1; i < lines.length; i++) {
+const line = lines[i];
+const values = [];
+let currentValue = '', insideQuotes = false;
+for (let j = 0; j < line.length; j++) {
+const char = line[j];
+if (char === '"') insideQuotes = !insideQuotes;
+else if (char === ',' && !insideQuotes) { values.push(currentValue); currentValue = ''; }
+else currentValue += char;
+}
+values.push(currentValue);
+const obj = {};
+headers.forEach((header, index) => {
+if (values[index] !== undefined) {
+let value = values[index].trim();
+if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1);
+obj[header] = value;
+}
+});
+if (Object.values(obj).some(val => val && val.trim() !== '')) result.push(obj);
+}
+return result;
+}
+function processData(rawData, sheetType) {
+return rawData.map(item => {
+const idField = Object.keys(item).find(k => k.trim().toLowerCase() === 'id');
+const fechaField = Object.keys(item).find(k => k.trim().toLowerCase() === 'fecha');
+const horaField = Object.keys(item).find(k => k.trim().toLowerCase() === 'hora');
+const productosField = Object.keys(item).find(k => k.trim().toLowerCase() === 'productos');
+const totalVentaField = Object.keys(item).find(k => k.trim().toLowerCase() === 'total_venta');
+const metodoPagoField = Object.keys(item).find(k => k.trim().toLowerCase() === 'metodo_pago');
+const usuarioField = Object.keys(item).find(k => k.trim().toLowerCase() === 'usuario');
+const tipoSucursalField = Object.keys(item).find(k => k.trim().toLowerCase() === 'tipo_sucursal');
+const montoEfectivoField = Object.keys(item).find(k => k.trim().toLowerCase() === 'monto_efectivo');
+const aperturaCajaField = Object.keys(item).find(k => k.trim().toLowerCase() === 'apertura_caja');
+const cierreCajaField = Object.keys(item).find(k => k.trim().toLowerCase() === 'cierre_caja');
+const montosField = Object.keys(item).find(k => k.trim().toLowerCase() === 'montos');
+const idReal = idField && item[idField] ? item[idField].trim() : `${sheetType}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+const fechaOriginal = fechaField ? item[fechaField] || '' : '';
+let fechaFiltro = '';
+if (fechaOriginal.includes('/')) {
+const parts = fechaOriginal.split('/');
+if (parts.length === 3) {
+const [day, month, year] = parts;
+fechaFiltro = `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
+}
+} else if (fechaOriginal.includes('-')) {
+fechaFiltro = fechaOriginal.split(' ')[0];
+}
+const total = totalVentaField ? parseFloat(item[totalVentaField]) || 0 : 0;
+const montoEfectivo = montoEfectivoField ? parseFloat(item[montoEfectivoField]) || 0 : 0;
+const aperturaCajaValor = aperturaCajaField ? (item[aperturaCajaField] || '').toUpperCase().trim() : '';
+const cierreCajaValor = cierreCajaField ? (item[cierreCajaField] || '').toUpperCase().trim() : '';
+let tipo = 'venta';
+const idUpper = idReal.toUpperCase();
+const productosLower = productosField ? (item[productosField] || '').toLowerCase() : '';
+if (idUpper.includes('APERTURA') || productosLower.includes('apertura') || (aperturaCajaValor.includes('APERTURA') && montoEfectivo > 0)) tipo = 'apertura';
+if (idUpper.includes('CIERRE') || productosLower.includes('cierre') || (cierreCajaValor.includes('CIERRE') && montoEfectivo > 0)) tipo = 'cierre';
+return {
+id: idReal, fecha: fechaOriginal, fechaFiltro, hora: horaField ? item[horaField] || '' : '',
+productos: productosField ? item[productosField] || '' : '', total, metodo_pago: metodoPagoField ? item[metodoPagoField] || '' : '',
+usuario: usuarioField ? item[usuarioField] || '' : '', sucursal: tipoSucursalField ? item[tipoSucursalField] || sheetType : sheetType,
+tipo, monto_efectivo: montoEfectivo, apertura_caja: aperturaCajaValor, cierre_caja: cierreCajaValor,
+montos: montosField ? (item[montosField] || '') : ''
+};
+});
+}
+function initializeVentasSystem() {
+const today = new Date();
+const year = today.getFullYear();
+const month = String(today.getMonth() + 1).padStart(2, '0');
+const day = String(today.getDate()).padStart(2, '0');
+const todayStr = `${year}-${month}-${day}`;
+ventasElements.dateFilter.value = todayStr;
+updateDayPanel(todayStr);
+updateSheetSourceIndicator();
+ventasElements.dateFilter.addEventListener('change', function() { updateDayPanel(this.value); filterData(); });
+ventasElements.searchInput.addEventListener('input', filterData);
+ventasElements.sheetSelector.addEventListener('change', function() { currentSheet = this.value; updateSheetIndicator(); updateSheetSourceIndicator(); loadData(); });
+loadData();
+}
+function updateSheetIndicator() {
+sheetIndicator.textContent = currentSheet === 'comercial' ? 'Comercial' : 'Feria';
+sheetIndicator.className = 'sheet-indicator ' + (currentSheet === 'comercial' ? 'sheet-comercial' : 'sheet-feria');
+}
+function updateSheetSourceIndicator() {
+currentSheetName.textContent = currentSheet === 'comercial' ? 'Comercial' : 'Feria';
+}
+function updateSyncBadge(type, message) {
+if (type === 'success') {
+syncBadge.style.background = '#27ae60';
+syncBadge.innerHTML = `<i class="fas fa-check-circle"></i> ${message}`;
+if (lastSyncTime) syncBadge.title = `Última actualización: ${lastSyncTime.toLocaleTimeString()}`;
+} else if (type === 'loading') {
+syncBadge.style.background = '#f39c12';
+syncBadge.innerHTML = `<i class="fas fa-sync-alt fa-spin"></i> ${message}`;
+} else {
+syncBadge.style.background = '#e74c3c';
+syncBadge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
+}
+}
+async function loadData() {
+updateSyncBadge('loading', 'Actualizando...');
+try {
+const data = await loadDataFromGoogleSheets(currentSheet);
+allData = data;
+allData.sort((a,b) => {
+try { return new Date(b.fechaFiltro) - new Date(a.fechaFiltro); } catch(e) { return 0; }
+});
+lastSyncTime = new Date();
+updateSyncBadge('success', 'Conectado');
+showUpdateNotification('Lista actualizada', 2000);
+filterData();
+updateNavButtons();
+} catch (error) {
+console.error(error);
+ventasElements.dataError.style.display = 'block';
+updateSyncBadge('error', 'Error de conexión');
+if (allData.length === 0) setTimeout(loadSampleData, 500);
+}
+}
+function updateDayPanel(dateString) {
+try {
+const [year, month, day] = dateString.split('-').map(Number);
+const date = new Date(year, month-1, day);
+ventasElements.dayName.textContent = daysOfWeek[date.getDay()];
+ventasElements.currentDate.textContent = date.toLocaleDateString('es-ES');
+} catch(e) { ventasElements.dayName.textContent = '---'; ventasElements.currentDate.textContent = '--/--/----'; }
+}
+
+// ========== FUNCIÓN FILTERDATA MEJORADA: BÚSQUEDA EN TODO EL HISTORIAL ==========
+function filterData() {
+    const selectedDate = ventasElements.dateFilter.value;
+    const searchTerm = ventasElements.searchInput.value.trim();
+
+    let dataSource = allData;  // siempre partimos de todos los datos
+
+    // Si NO hay término de búsqueda, aplicamos filtro de fecha
+    if (!searchTerm) {
+        if (selectedDate) {
+            dataSource = dataSource.filter(item => item.fechaFiltro === selectedDate);
+        }
+    } else {
+        // Si HAY búsqueda, IGNORAMOS la fecha y buscamos en todo el historial
+        dataSource = dataSource.filter(item => matchesSearch(item, searchTerm));
+        // Mostrar notificación indicando que se busca en todo el historial
+        showNotification('info', '🔍 Búsqueda global', 'Mostrando resultados de todas las fechas', 3000);
+    }
+
+    filteredData = dataSource;
+    allUsers.clear();
+    filteredData.forEach(item => { if(item.usuario) allUsers.add(item.usuario); });
+
+    // Actualizar panel del día con la fecha del primer resultado o mantener la actual
+    if (filteredData.length > 0 && searchTerm) {
+        // Mostrar la fecha del primer resultado en el panel superior
+        const firstDate = filteredData[0].fechaFiltro;
+        if (firstDate) {
+            updateDayPanel(firstDate);
+            ventasElements.dateFilter.value = firstDate; // sincronizar el input de fecha
+        }
+    } else if (!searchTerm && selectedDate) {
+        updateDayPanel(selectedDate);
+    } else {
+        // si no hay datos o no hay fecha, mostrar la fecha actual
+        const today = new Date();
+        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+        updateDayPanel(todayStr);
+        ventasElements.dateFilter.value = todayStr;
+    }
+
+    findAttendanceHours(ventasElements.dateFilter.value);
+    findCashControl(ventasElements.dateFilter.value);
+    checkMultipleOpenClose(ventasElements.dateFilter.value);
+    calculateTotalVentasDia();
+    calculateStatistics();
+    updateMobileSummary(ventasElements.dateFilter.value);
+    currentPage = 1;
+    displayData();
+    updateNavButtons();
+}
+// ========== FIN DE LA MODIFICACIÓN ==========
+
+function findAttendanceHours(date) {
+let horaApertura = '--:--', horaCierre = '--:--', usuarioOperando = '--', hayCierre = false;
+const sortedData = [...filteredData].sort((a,b) => (a.hora||'00:00').localeCompare(b.hora||'00:00'));
+if (sortedData.length > 0) {
+const regApertura = sortedData.find(i => i.tipo === 'apertura');
+if (regApertura) {
+horaApertura = regApertura.hora ? regApertura.hora.substring(0,5) : '--:--';
+usuarioOperando = regApertura.usuario || '--';
+} else {
+horaApertura = sortedData[0].hora ? sortedData[0].hora.substring(0,5) : '--:--';
+usuarioOperando = sortedData[0].usuario || '--';
+}
+const regCierre = sortedData.filter(i => i.tipo === 'cierre').pop();
+if (regCierre) {
+horaCierre = regCierre.hora ? regCierre.hora.substring(0,5) : '--:--';
+hayCierre = true;
+} else {
+horaCierre = sortedData[sortedData.length-1].hora ? sortedData[sortedData.length-1].hora.substring(0,5) : '--:--';
+}
+}
+const selectedDateObj = date ? new Date(date+'T00:00:00') : new Date();
+const today = new Date(); today.setHours(0,0,0,0);
+const isPastDate = selectedDateObj < today;
+if (!hayCierre && sortedData.length > 0) {
+if (isPastDate) {
+ventasElements.horaCierre.textContent = 'Operando';
+ventasElements.horaCierre.classList.add('operando-alert');
+ventasElements.horaCierre.classList.remove('operando');
+if (!notificationsShown.has(`pastDate_${date}`)) {
+showNotification('danger', '⚠️ Atención', `El día ${date} aparece como "Operando" pero es fecha pasada.`, 10000);
+notificationsShown.add(`pastDate_${date}`);
+}
+} else {
+ventasElements.horaCierre.textContent = 'Operando';
+ventasElements.horaCierre.classList.add('operando');
+ventasElements.horaCierre.classList.remove('operando-alert');
+}
+} else if (hayCierre) {
+ventasElements.horaCierre.textContent = horaCierre;
+ventasElements.horaCierre.classList.remove('operando','operando-alert');
+} else {
+ventasElements.horaCierre.textContent = '--:--';
+ventasElements.horaCierre.classList.remove('operando','operando-alert');
+}
+ventasElements.horaApertura.textContent = horaApertura;
+ventasElements.usuarioOperando.textContent = usuarioOperando;
+}
+function checkMultipleOpenClose(date) {
+const aperturas = filteredData.filter(i => i.tipo === 'apertura');
+const cierres = filteredData.filter(i => i.tipo === 'cierre');
+if (aperturas.length > 1 && !notificationsShown.has(`multiApertura_${date}`)) {
+showNotification('warning', '⚠️ Múltiples Aperturas', `Hay ${aperturas.length} aperturas en el día ${date}.`, 8000);
+notificationsShown.add(`multiApertura_${date}`);
+}
+if (cierres.length > 1 && !notificationsShown.has(`multiCierre_${date}`)) {
+showNotification('warning', '⚠️ Múltiples Cierres', `Hay ${cierres.length} cierres en el día ${date}.`, 8000);
+notificationsShown.add(`multiCierre_${date}`);
+}
+}
+function findCashControl(date) {
+let aperturaEfectivo = 0, cierreEfectivo = 0;
+const regApertura = filteredData.find(i => i.tipo === 'apertura' && i.monto_efectivo > 0 && i.apertura_caja.includes('APERTURA'));
+const regsCierre = filteredData.filter(i => i.tipo === 'cierre' && i.cierre_caja.includes('CIERRE') && i.monto_efectivo > 0);
+if (regsCierre.length) cierreEfectivo = regsCierre[regsCierre.length-1].monto_efectivo;
+if (regApertura) aperturaEfectivo = regApertura.monto_efectivo;
+ventasElements.aperturaEfectivoDisplay.textContent = aperturaEfectivo.toFixed(2);
+ventasElements.cierreEfectivoDisplay.textContent = cierreEfectivo.toFixed(2);
+const cierreElement = document.getElementById('cierreEfectivoDisplay');
+const selectedDate = ventasElements.dateFilter.value;
+const today = new Date(); today.setHours(0,0,0,0);
+const selectedDateObj = selectedDate ? new Date(selectedDate+'T00:00:00') : new Date();
+const isPastDate = selectedDateObj < today;
+if (cierreEfectivo === 0 && filteredData.length > 0) {
+cierreElement.classList.add('cierre-alert');
+if (isPastDate && !notificationsShown.has(`cierreCero_${selectedDate}`)) {
+showNotification('danger', '💰 Cierre en Cero', `El día ${selectedDate} tiene cierre en 0.00.`, 10000);
+notificationsShown.add(`cierreCero_${selectedDate}`);
+}
+} else {
+cierreElement.classList.remove('cierre-alert');
+if (isPastDate && cierreEfectivo > 0 && !notificationsShown.has(`cierreCorrecto_${selectedDate}`)) {
+showNotification('success', '✅ Todo Correcto', `Cierre del día ${selectedDate} completo.`, 5000);
+notificationsShown.add(`cierreCorrecto_${selectedDate}`);
+}
+}
+}
+function calculateTotalVentasDia() {
+const total = filteredData.filter(i => i.tipo === 'venta').reduce((s,i) => s + i.total, 0);
+ventasElements.totalVentasDia.textContent = 'Bs. ' + total.toFixed(2);
+}
+
+// ========== FUNCIÓN CALCULATE STATISTICS MODIFICADA ==========
+function calculateStatistics() {
+    const ventas = filteredData.filter(i => i.tipo === 'venta');
+    // totalVentas (cantidad) ya no se usa para la tarjeta "Total Ventas"
+    const totalVentasDia = ventas.reduce((s,i) => s + i.total, 0);
+    const ventasEfectivo = ventas.filter(v => v.metodo_pago && v.metodo_pago.toLowerCase().includes('efectivo'));
+    const totalVentasEfectivo = ventasEfectivo.reduce((s,v) => s + v.total, 0);
+    const apertura = filteredData.find(i => i.tipo === 'apertura' && i.monto_efectivo > 0 && i.apertura_caja.includes('APERTURA'));
+    const aperturaMonto = apertura ? apertura.monto_efectivo : 0;
+    const cierres = filteredData.filter(i => i.tipo === 'cierre' && i.cierre_caja.includes('CIERRE') && i.monto_efectivo > 0);
+    const cierre = cierres.length ? cierres[cierres.length-1].monto_efectivo : 0;
+
+    // 1. Apertura Efectivo
+    ventasElements.aperturaEfectivoValue.textContent = aperturaMonto.toFixed(2);
+    // 2. Ventas del Día (total de todas las ventas en monto)
+    ventasElements.ventasDiaValue.textContent = totalVentasDia.toFixed(2);
+    // 3. Ventas Efectivo (total de ventas en efectivo)
+    ventasElements.ventasEfectivoValue.textContent = totalVentasEfectivo.toFixed(2);
+    // 4. Total Ventas (ahora: apertura + ventas en efectivo)
+    const totalEfectivoAcumulado = aperturaMonto + totalVentasEfectivo;
+    ventasElements.totalSalesValue.textContent = totalEfectivoAcumulado.toFixed(2);
+    // 5. Cierre Efectivo
+    ventasElements.cierreEfectivoValue.textContent = cierre.toFixed(2);
+}
+
+function updateMobileSummary(date) {
+const formattedDate = date ? date.split('-').reverse().join('/') : '--/--/----';
+let dayName = '';
+if (date) {
+const [y,m,d] = date.split('-').map(Number);
+dayName = daysOfWeek[new Date(y,m-1,d).getDay()];
+}
+mobileFecha.textContent = dayName ? `${formattedDate} ${dayName.toLowerCase()}` : formattedDate;
+mobileUsuarios.textContent = Array.from(allUsers).join(', ') || '--';
+}
+function changeDay(direction) {
+const currentDateStr = ventasElements.dateFilter.value;
+if (!currentDateStr) return;
+const currentDate = new Date(currentDateStr + 'T12:00:00');
+if (isNaN(currentDate)) return;
+const newDate = new Date(currentDate);
+newDate.setDate(currentDate.getDate() + direction);
+const today = new Date(); today.setHours(0,0,0,0);
+const newDateMidnight = new Date(newDate); newDateMidnight.setHours(0,0,0,0);
+if (newDateMidnight > today) {
+showNotification('info', 'Fecha Futura', 'No se puede navegar a fechas futuras', 3000);
+return;
+}
+const newDateStr = `${newDate.getFullYear()}-${String(newDate.getMonth()+1).padStart(2,'0')}-${String(newDate.getDate()).padStart(2,'0')}`;
+ventasElements.dateFilter.value = newDateStr;
+updateDayPanel(newDateStr);
+filterData();
+}
+function updateNavButtons() {
+const currentDateStr = ventasElements.dateFilter.value;
+if (!currentDateStr) { btnAtras.disabled = btnAdelante.disabled = true; return; }
+const currentDate = new Date(currentDateStr + 'T12:00:00');
+if (isNaN(currentDate)) { btnAtras.disabled = btnAdelante.disabled = true; return; }
+const today = new Date(); today.setHours(0,0,0,0);
+const currentMidnight = new Date(currentDate); currentMidnight.setHours(0,0,0,0);
+btnAtras.disabled = false;
+btnAdelante.disabled = (currentMidnight >= today);
+}
+function displayData() {
+ventasElements.dataError.style.display = 'none';
+ventasElements.noDataMessage.style.display = 'none';
+if (filteredData.length === 0) {
+ventasElements.noDataMessage.style.display = 'block';
+ventasElements.tableWrapper.style.display = 'none';
+totalFinalAmount.textContent = 'Bs. 0.00';
+return;
+}
+let html = '';
+filteredData.forEach(item => {
+let metodoAbreviado = item.metodo_pago || '--';
+if (metodoAbreviado.toLowerCase().includes('efectivo')) metodoAbreviado = 'Efe';
+else if (metodoAbreviado.toLowerCase().includes('qr')) metodoAbreviado = 'QR';
+else if (metodoAbreviado.toLowerCase().includes('tarjeta')) metodoAbreviado = 'Tarj';
+const paymentClass = (item.metodo_pago && item.metodo_pago.toLowerCase().includes('efectivo')) ? 'efectivo' : (item.metodo_pago && item.metodo_pago.toLowerCase().includes('qr') ? 'qr' : '');
+const horaFormateada = item.hora ? (item.hora.includes(':') ? item.hora.substring(0,5) : item.hora) : '--:--';
+let rowClass = '';
+if (item.tipo === 'apertura') rowClass = 'class="row-apertura"';
+else if (item.tipo === 'cierre') rowClass = 'class="row-cierre"';
+const productosHTML = item.productos ? item.productos.replace(/\|/g, '<br>') : '--';
+const montosHTML = item.montos ? item.montos.replace(/\|/g, '<br>') : '—';
+html += `<tr ${rowClass}>
+<td>${item.id}</td>
+<td>${item.fecha || '--/--/----'}</td>
+<td>${horaFormateada}</td>
+<td>${productosHTML}</td>
+<td>${montosHTML}</td>
+<td><strong>${item.total.toFixed(2)}</strong></td>
+<td class="${paymentClass}">${metodoAbreviado}</td>
+<td>${item.usuario || '--'}</td>
+</tr>`;
+});
+ventasElements.salesBody.innerHTML = html;
+ventasElements.tableWrapper.style.display = 'block';
+const total = filteredData.filter(i => i.tipo === 'venta').reduce((s,i) => s + i.total, 0);
+totalFinalAmount.textContent = 'Bs. ' + total.toFixed(2);
+}
+function showToday() {
+const today = new Date();
+const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+ventasElements.dateFilter.value = todayStr;
+updateDayPanel(todayStr);
+notificationsShown.clear();
+filterData();
+}
+function exportToExcel() {
+if (filteredData.length === 0) { alert('No hay datos para exportar'); return; }
+let csvContent = "text/csv;charset=utf-8,";
+const headers = ["ID","Fecha","Hora","Productos","Montos","Total Venta","Método","Usuario"];
+csvContent += headers.join(",") + "\n";
+filteredData.forEach(item => {
+const row = [item.id, `"${item.fecha}"`, `"${item.hora}"`, `"${item.productos}"`, `"${item.montos}"`, item.total.toFixed(2), `"${item.metodo_pago}"`, `"${item.usuario}"`];
+csvContent += row.join(",") + "\n";
+});
+const link = document.createElement('a');
+link.setAttribute('href', encodeURI(csvContent));
+link.setAttribute('download', `ventas_${currentSheet}_${new Date().toISOString().split('T')[0]}.csv`);
+document.body.appendChild(link); link.click(); document.body.removeChild(link);
+}
+function loadSampleData() {
+const today = new Date();
+const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
+const todayLocale = today.toLocaleDateString('es-ES');
+allData = [
+{ id: 'APERTURA-001', fecha: todayLocale, hora: '09:11:00', productos: 'APERTURA DE CAJA', total: 0, monto_efectivo: 500, apertura_caja: 'APERTURA', cierre_caja: '', metodo_pago: 'EFECTIVO', usuario: 'vania', sucursal: 'Comercial', tipo: 'apertura', fechaFiltro: todayStr, montos: '' },
+{ id: 'VTA-001', fecha: todayLocale, hora: '11:17:00', productos: '6 dc de mano', total: 144.00, monto_efectivo: 144.00, apertura_caja: '', cierre_caja: '', metodo_pago: 'Efectivo', usuario: 'vania', sucursal: 'Comercial', tipo: 'venta', fechaFiltro: todayStr, montos: '144.00' },
+{ id: 'VTA-002', fecha: todayLocale, hora: '12:30:00', productos: '3 unidades', total: 75.00, monto_efectivo: 75.00, apertura_caja: '', cierre_caja: '', metodo_pago: 'Efectivo', usuario: 'vania', sucursal: 'Comercial', tipo: 'venta', fechaFiltro: todayStr, montos: '75.00' },
+{ id: 'CIERRE-001', fecha: todayLocale, hora: '14:27:00', productos: 'CIERRE DE CAJA', total: 0, monto_efectivo: 650, apertura_caja: '', cierre_caja: 'CIERRE', metodo_pago: 'EFECTIVO', usuario: 'vania', sucursal: 'Comercial', tipo: 'cierre', fechaFiltro: todayStr, montos: '' }
+];
+filterData();
+showUpdateNotification('Datos de ejemplo cargados', 2000);
+}
+function startAutoRefresh() { if (dataInterval) clearInterval(dataInterval); dataInterval = setInterval(() => loadData(), 60000); }
+function stopAutoRefresh() { if (dataInterval) { clearInterval(dataInterval); dataInterval = null; } }
+// Funciones de liquidez
+function showLiquidity(mode) {
+currentLiquidityMode = mode;
+normalTableContainer.style.display = 'none';
+liquidityCalendarDiv.style.display = 'block';
+periodSelectorDiv.innerHTML = '';
+if (mode === 'week') {
+const label = document.createElement('label'); label.textContent = 'Selecciona semana: ';
+const weekInput = document.createElement('input'); weekInput.type = 'week'; weekInput.id = 'weekSelector';
+const baseDate = ventasElements.dateFilter.value ? new Date(ventasElements.dateFilter.value + 'T12:00:00') : new Date();
+const year = baseDate.getFullYear();
+const weekNumber = getWeekNumber(baseDate);
+const defaultWeek = `${year}-W${weekNumber.toString().padStart(2,'0')}`;
+weekInput.value = defaultWeek;
+weekInput.addEventListener('change', () => updateLiquidityByWeek(weekInput.value));
+periodSelectorDiv.appendChild(label); periodSelectorDiv.appendChild(weekInput);
+updateLiquidityByWeek(defaultWeek);
+} else {
+const label = document.createElement('label'); label.textContent = 'Selecciona mes: ';
+const monthInput = document.createElement('input'); monthInput.type = 'month'; monthInput.id = 'monthSelector';
+const baseDate = ventasElements.dateFilter.value ? new Date(ventasElements.dateFilter.value + 'T12:00:00') : new Date();
+const defaultMonth = `${baseDate.getFullYear()}-${(baseDate.getMonth()+1).toString().padStart(2,'0')}`;
+monthInput.value = defaultMonth;
+monthInput.addEventListener('change', () => updateLiquidityByMonth(monthInput.value));
+periodSelectorDiv.appendChild(label); periodSelectorDiv.appendChild(monthInput);
+updateLiquidityByMonth(defaultMonth);
+}
+}
+function getWeekNumber(date) {
+const tempDate = new Date(date.valueOf());
+tempDate.setHours(0,0,0,0);
+tempDate.setDate(tempDate.getDate() + 3 - (tempDate.getDay() + 6) % 7);
+const week1 = new Date(tempDate.getFullYear(), 0, 4);
+return 1 + Math.round(((tempDate - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
+}
+function getDateRangeOfWeek(year, weekNumber) {
+const simple = new Date(year, 0, 1 + (weekNumber - 1) * 7);
+const dow = simple.getDay();
+const weekStart = simple;
+if (dow <= 4) weekStart.setDate(simple.getDate() - simple.getDay() + 1);
+else weekStart.setDate(simple.getDate() + 8 - simple.getDay());
+const weekEnd = new Date(weekStart);
+weekEnd.setDate(weekStart.getDate() + 6);
+return { start: weekStart, end: weekEnd };
+}
+function updateLiquidityByWeek(weekValue) {
+if (!weekValue) return;
+const [year, weekStr] = weekValue.split('-W');
+const weekNumber = parseInt(weekStr, 10);
+const { start, end } = getDateRangeOfWeek(parseInt(year), weekNumber);
+liquidityTitle.textContent = `Liquidez Semanal (${start.toLocaleDateString('es-ES')} - ${end.toLocaleDateString('es-ES')})`;
+const ventasPeriodo = allData.filter(item => {
+if (item.tipo !== 'venta') return false;
+const itemDate = new Date(item.fechaFiltro + 'T00:00:00');
+return itemDate >= start && itemDate <= end;
+});
+displayLiquidityData(ventasPeriodo);
+}
+function updateLiquidityByMonth(monthValue) {
+if (!monthValue) return;
+const [year, month] = monthValue.split('-');
+const start = new Date(parseInt(year), parseInt(month)-1, 1);
+const end = new Date(parseInt(year), parseInt(month), 0);
+liquidityTitle.textContent = `Liquidez Mensual (${start.toLocaleDateString('es-ES', {year:'numeric', month:'long'})})`;
+const ventasPeriodo = allData.filter(item => {
+if (item.tipo !== 'venta') return false;
+const itemDate = new Date(item.fechaFiltro + 'T00:00:00');
+return itemDate >= start && itemDate <= end;
+});
+displayLiquidityData(ventasPeriodo);
+}
+function displayLiquidityData(ventasPeriodo) {
+const salesByDay = new Map();
+ventasPeriodo.forEach(venta => {
+const dayKey = venta.fechaFiltro;
+if (!salesByDay.has(dayKey)) salesByDay.set(dayKey, { total: 0, profit: 0 });
+const dayData = salesByDay.get(dayKey);
+dayData.total += venta.total;
+dayData.profit = dayData.total * 0.10;
+});
+const sortedDays = Array.from(salesByDay.keys()).sort();
+calendarGrid.innerHTML = '';
+let totalSalesPeriod = 0;
+sortedDays.forEach(dayStr => {
+const data = salesByDay.get(dayStr);
+totalSalesPeriod += data.total;
+const [year, month, day] = dayStr.split('-');
+const dateObj = new Date(year, month-1, day);
+const displayDate = dateObj.toLocaleDateString('es-ES', { weekday: 'short', day:'2-digit', month:'short' });
+const card = document.createElement('div');
+card.className = 'calendar-day-card';
+card.innerHTML = `<div class="calendar-day-date">${displayDate}</div><div class="calendar-day-sales">Bs. ${data.total.toFixed(2)}</div><div class="calendar-day-profit">10% Ganancia: Bs. ${data.profit.toFixed(2)}</div>`;
+calendarGrid.appendChild(card);
+});
+const totalProfitPeriod = totalSalesPeriod * 0.10;
+liquiditySummaryDiv.innerHTML = `<div style="font-size:16px;margin-bottom:8px;">📊 Resumen del período</div><div style="font-size:22px;font-weight:bold;">Total Ventas: Bs. ${totalSalesPeriod.toFixed(2)}</div><div style="font-size:18px;margin-top:5px;">💰 Ganancia (10%): Bs. ${totalProfitPeriod.toFixed(2)}</div>`;
+if (sortedDays.length === 0) calendarGrid.innerHTML = '<div style="text-align:center;padding:20px;">No hay ventas en este período</div>';
+}
+function hideLiquidityAndShowTable() {
+liquidityCalendarDiv.style.display = 'none';
+normalTableContainer.style.display = 'block';
+}
+window.addEventListener('resize', () => { if(ventasElements.dateFilter.value) updateMobileSummary(ventasElements.dateFilter.value); });
+document.addEventListener('keydown', function(e) { if (e.key === 'F12' || (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.shiftKey && e.key === 'I')) { e.preventDefault(); return false; } });
+document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
+</script>
+</body>
+</html>
