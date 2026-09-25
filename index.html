@@ -225,6 +225,55 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     .apertura-actions { flex-direction: column; }
 }
 @media (max-width: 480px) { .actions-grid { grid-template-columns: 1fr; } }
+
+/* Compactar la tabla de Ventas del Día para que no desborde */
+.tabla-ventas-dia {
+    font-size: 11px;
+    table-layout: fixed;
+    width: 100%;
+}
+.tabla-ventas-dia th,
+.tabla-ventas-dia td {
+    padding: 5px 4px;
+    word-wrap: break-word;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+.tabla-ventas-dia th:nth-child(1)  { width: 10%; }
+.tabla-ventas-dia th:nth-child(2)  { width: 8%;  }
+.tabla-ventas-dia th:nth-child(3)  { width: 10%; }
+.tabla-ventas-dia th:nth-child(4)  { width: 8%;  }
+.tabla-ventas-dia th:nth-child(5)  { width: 7%;  }
+.tabla-ventas-dia th:nth-child(6)  { width: 6%;  }
+.tabla-ventas-dia th:nth-child(7)  { width: 15%; }
+.tabla-ventas-dia th:nth-child(8)  { width: 10%; }
+.tabla-ventas-dia th:nth-child(9)  { width: 8%;  }
+.tabla-ventas-dia th:nth-child(10) { width: 10%; }
+.tabla-ventas-dia th:nth-child(11) { width: 8%;  }
+.ventas-table-container {
+    overflow-x: hidden;
+}
+
+/* Fila de encabezados forzada en Visualización (para empujar el ancho) */
+#tablaForzadoraIframe {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 11px;
+    table-layout: fixed;
+    margin-bottom: 15px;
+    background: #2c3e50;
+    border-radius: 8px;
+    overflow: hidden;
+}
+#tablaForzadoraIframe th {
+    background: #2c3e50;
+    color: white;
+    padding: 8px 4px;
+    text-align: left;
+    font-weight: 600;
+    font-size: 11px;
+    border: none;
+}
 </style>
 </head>
 <body>
@@ -435,27 +484,43 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                 </div>
             </div>
 
-            <!-- ⭐ NUEVA Sección Iframe para páginas externas (Stock / Visualización / Ventas Mayor) -->
+            <!-- Sección Iframe (Stock / Visualización / Ventas Mayor) - CON TABLA FORZADORA -->
             <div id="seccionIframe" class="seccion-contenido">
-                <div class="container" style="padding: 0; overflow: hidden;">
-                    <div style="display: flex; align-items: center; justify-content: space-between; padding: 10px 15px; background: #2c3e50; color: white; flex-wrap: wrap; gap: 10px;">
-                        <div id="iframeTitulo" style="font-weight: bold;">
-                            <i class="fas fa-globe"></i> Cargando...
-                        </div>
-                        <div style="display: flex; gap: 8px;">
-                            <button id="recargarIframeBtn" style="width: auto; padding: 8px 15px; background: #3498db; font-size: 13px;">
-                                <i class="fas fa-sync-alt"></i> Recargar
-                            </button>
-                            <button id="abrirExternoIframeBtn" style="width: auto; padding: 8px 15px; background: #f39c12; font-size: 13px;">
-                                <i class="fas fa-external-link-alt"></i> Abrir en pestaña
-                            </button>
-                            <button id="cerrarIframeBtn" style="width: auto; padding: 8px 15px; background: #e74c3c; font-size: 13px;">
-                                <i class="fas fa-times"></i> Volver al Inicio
-                            </button>
-                        </div>
+                <div class="container">
+                    <h2><i class="fas fa-globe"></i> <span id="iframeTitulo">Visualización</span></h2>
+
+                    <!-- ⭐ Tabla forzadora de ancho: misma estructura que Ventas del Día -->
+                    <table id="tablaForzadoraIframe">
+                        <thead>
+                            <tr>
+                                <th>Nombre</th>
+                                <th>Teléfono</th>
+                                <th>Dirección</th>
+                                <th>Departamento</th>
+                                <th>Cumpleaños</th>
+                                <th>Hora</th>
+                                <th>Productos</th>
+                                <th>Montos</th>
+                                <th>Método Pago</th>
+                                <th>Observaciones</th>
+                                <th>Acciones</th>
+                            </tr>
+                        </thead>
+                    </table>
+
+                    <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
+                        <button id="recargarIframeBtn" style="width: auto; padding: 8px 15px; background: #3498db; font-size: 13px;">
+                            <i class="fas fa-sync-alt"></i> Recargar
+                        </button>
+                        <button id="abrirExternoIframeBtn" style="width: auto; padding: 8px 15px; background: #f39c12; font-size: 13px;">
+                            <i class="fas fa-external-link-alt"></i> Abrir en pestaña
+                        </button>
+                        <button id="cerrarIframeBtn" style="width: auto; padding: 8px 15px; background: #e74c3c; font-size: 13px;">
+                            <i class="fas fa-times"></i> Volver al Inicio
+                        </button>
                     </div>
                     <iframe id="iframeExterno" src="about:blank"
-                            style="width: 100%; height: calc(100vh - 160px); border: none; display: block; background: white;"
+                            style="width: 100%; height: calc(100vh - 320px); border: 1px solid #e9ecef; display: block; background: white; border-radius: 8px;"
                             referrerpolicy="no-referrer"></iframe>
                 </div>
             </div>
@@ -782,7 +847,6 @@ const menuVisualizacion = document.getElementById('menuVisualizacion');
 const menuVentasMayor = document.getElementById('menuVentasMayor');
 const seccionInicio = document.getElementById('seccionInicio');
 const seccionVentasDia = document.getElementById('seccionVentasDia');
-// ⭐ NUEVAS REFERENCIAS - iframe externo
 const seccionIframe = document.getElementById('seccionIframe');
 const iframeExterno = document.getElementById('iframeExterno');
 const iframeTitulo = document.getElementById('iframeTitulo');
@@ -1408,14 +1472,21 @@ function inicializar() {
     setTimeout(probarConexionSheetDB, 2000);
 }
 
-// ⭐ NUEVA FUNCIÓN: abrir página externa dentro del iframe
+// ⭐ abrirEnIframe: auto-colapsa sidebar derecho para ganar ancho
 function abrirEnIframe(url, titulo) {
     urlIframeActual = url;
-    iframeTitulo.innerHTML = `<i class="fas fa-globe"></i> ${titulo}`;
+    iframeTitulo.textContent = titulo;
     iframeExterno.src = url;
     document.querySelectorAll('.seccion-contenido').forEach(s => s.classList.remove('activa'));
     document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
     seccionIframe.classList.add('activa');
+
+    // ⭐ Auto-colapsar sidebar derecho para ganar +260px de ancho
+    if (!rightSidebar.classList.contains('collapsed')) {
+        rightSidebar.classList.add('collapsed');
+        rightSidebarToggle.classList.add('collapsed');
+        mainContent.classList.add('right-sidebar-collapsed');
+    }
 }
 
 // ========== EVENT LISTENERS ==========
@@ -1452,7 +1523,6 @@ function configurarEventListeners() {
     menuInicio.addEventListener('click', function(e) { e.preventDefault(); cambiarSeccion('inicio'); });
     menuVentasDia.addEventListener('click', function(e) { e.preventDefault(); cambiarSeccion('ventasDia'); });
 
-    // ⭐ LINKS EXTERNOS AHORA ABREN EN IFRAME INTERNO
     menuStock.addEventListener('click', function(e) {
         e.preventDefault();
         if (LINK_STOCK.indexOf('CAMBIAR') !== -1) Notificaciones.mostrar('⚠️ Configura el link de Stock en el código', 'warning', 6000);
@@ -1469,7 +1539,6 @@ function configurarEventListeners() {
         else abrirEnIframe(LINK_VENTAS_MAYOR, 'Sistema de Ventas por Mayor');
     });
 
-    // ⭐ BOTONES DEL IFRAME
     cerrarIframeBtn.addEventListener('click', function() {
         iframeExterno.src = 'about:blank';
         urlIframeActual = '';
@@ -1781,10 +1850,15 @@ function calcularCambio() {
 function cambiarSeccion(seccion) {
     document.querySelectorAll('.seccion-contenido').forEach(s => s.classList.remove('activa'));
     document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
-    // ⭐ Limpiar iframe al cambiar de sección (para liberar recursos)
     if (seccion !== 'iframe') {
         iframeExterno.src = 'about:blank';
         urlIframeActual = '';
+    }
+    // ⭐ Auto-expandir sidebar derecho al salir de iframe
+    if (seccion !== 'iframe' && rightSidebar.classList.contains('collapsed')) {
+        rightSidebar.classList.remove('collapsed');
+        rightSidebarToggle.classList.remove('collapsed');
+        mainContent.classList.remove('right-sidebar-collapsed');
     }
     switch(seccion) {
         case 'inicio': seccionInicio.classList.add('activa'); menuInicio.classList.add('active'); break;
