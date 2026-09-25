@@ -1271,10 +1271,10 @@ function normalize(str) {
     return str
         .toLowerCase()
         .normalize('NFD')
-        .replace(/[\u0300-\u036f]/g, '')  // elimina tildes
-        .replace(/[^a-z0-9 ]/g, ' ')      // solo letras, números y espacios
+        .replace(/[\u0300-\u036f]/g, '')
+        .replace(/[^a-z0-9 ]/g, ' ')
         .trim()
-        .replace(/\s+/g, ' ');            // múltiples espacios a uno
+        .replace(/\s+/g, ' ');
 }
 
 function levenshteinDistance(a, b) {
@@ -1310,11 +1310,9 @@ function similarity(a, b) {
     return 1 - dist / maxLen;
 }
 
-// función que decide si un item debe ser incluido en la búsqueda
 function matchesSearch(item, searchTerm) {
     if (!searchTerm || searchTerm.trim() === '') return true;
     const searchNorm = normalize(searchTerm);
-    // Construir el texto a buscar (incluye todos los campos relevantes)
     const text = normalize(
         (item.id || '') + ' ' +
         (item.fecha || '') + ' ' +
@@ -1325,12 +1323,9 @@ function matchesSearch(item, searchTerm) {
         (item.metodo_pago || '') + ' ' +
         (item.usuario || '')
     );
-    // Primero intentamos coincidencia parcial con includes
     if (text.includes(searchNorm)) {
         return true;
     }
-    // Si no, usamos similitud de cadenas (umbral 0.6)
-    // También podemos dividir el término en palabras y buscar cada una
     const searchWords = searchNorm.split(/\s+/);
     const textWords = text.split(/\s+/);
     for (let sw of searchWords) {
@@ -1342,98 +1337,131 @@ function matchesSearch(item, searchTerm) {
             }
         }
         if (!found) {
-            // Si alguna palabra del término no tiene similitud con ninguna del texto, falla
             return false;
         }
     }
     return true;
 }
-
 // ===================== FIN AUXILIARES =====================
 
+// ===================================================================
+// ⭐⭐⭐ CLAVE DE SESIÓN AISLADA ⭐⭐⭐
+// Usamos una clave distinta para no pisar la sesión del index principal
+// ===================================================================
+const SESSION_KEY = 'visualizacion_currentUser';
+
 document.addEventListener('DOMContentLoaded', function() {
-const savedUser = localStorage.getItem('currentUser');
-if (savedUser) {
-try {
-currentUser = JSON.parse(savedUser);
-showApp();
-} catch(e) { console.error(e); }
-}
-loginForm.addEventListener('submit', handleLogin);
-if (togglePassword) togglePassword.addEventListener('click', togglePasswordVisibility);
-if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
-if (btnLiquidezSemanal) btnLiquidezSemanal.addEventListener('click', () => showLiquidity('week'));
-if (btnLiquidezMensual) btnLiquidezMensual.addEventListener('click', () => showLiquidity('month'));
-if (backToTableBtn) backToTableBtn.addEventListener('click', hideLiquidityAndShowTable);
+    const savedUser = localStorage.getItem(SESSION_KEY);
+    if (savedUser) {
+        try {
+            const parsed = JSON.parse(savedUser);
+            // ✅ VALIDAR: el usuario debe existir en la lista local Y ser admin
+            if (parsed && parsed.username && usuarios[parsed.username] && usuarios[parsed.username].rol === 'admin') {
+                currentUser = {
+                    username: parsed.username,
+                    nombre: usuarios[parsed.username].nombre,
+                    rol: usuarios[parsed.username].rol
+                };
+                showApp();
+            } else {
+                // ❌ Usuario no autorizado en esta página → forzar login
+                localStorage.removeItem(SESSION_KEY);
+                loginScreen.style.display = 'block';
+                appScreen.style.display = 'none';
+            }
+        } catch(e) {
+            console.error(e);
+            localStorage.removeItem(SESSION_KEY);
+        }
+    }
+    loginForm.addEventListener('submit', handleLogin);
+    if (togglePassword) togglePassword.addEventListener('click', togglePasswordVisibility);
+    if (logoutBtn) logoutBtn.addEventListener('click', handleLogout);
+    if (btnLiquidezSemanal) btnLiquidezSemanal.addEventListener('click', () => showLiquidity('week'));
+    if (btnLiquidezMensual) btnLiquidezMensual.addEventListener('click', () => showLiquidity('month'));
+    if (backToTableBtn) backToTableBtn.addEventListener('click', hideLiquidityAndShowTable);
 });
+
 function handleLogin(e) {
-e.preventDefault();
-const username = usernameInput.value.trim();
-const password = passwordInput.value.trim();
-if (!username || !password) {
-showError("Por favor ingresa usuario y contraseña");
-return;
+    e.preventDefault();
+    const username = usernameInput.value.trim();
+    const password = passwordInput.value.trim();
+    if (!username || !password) {
+        showError("Por favor ingresa usuario y contraseña");
+        return;
+    }
+    showLoading(true);
+    setTimeout(() => {
+        if (usuarios[username] && usuarios[username].password === password) {
+            // ✅ Solo admins pueden entrar a visualización
+            if (usuarios[username].rol !== 'admin') {
+                showError("No tienes permiso para acceder a este sistema");
+                showLoading(false);
+                return;
+            }
+            currentUser = {
+                username: username,
+                nombre: usuarios[username].nombre,
+                rol: usuarios[username].rol
+            };
+            localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
+            showApp();
+        } else {
+            showError("Usuario o contraseña incorrectos");
+            showLoading(false);
+        }
+    }, 500);
 }
-showLoading(true);
-setTimeout(() => {
-if (usuarios[username] && usuarios[username].password === password) {
-currentUser = {
-username: username,
-nombre: usuarios[username].nombre,
-rol: usuarios[username].rol
-};
-localStorage.setItem('currentUser', JSON.stringify(currentUser));
-showApp();
-} else {
-showError("Usuario o contraseña incorrectos");
-showLoading(false);
-}
-}, 500);
-}
+
 function togglePasswordVisibility() {
-const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
-passwordInput.setAttribute('type', type);
-togglePassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
+    const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
+    passwordInput.setAttribute('type', type);
+    togglePassword.innerHTML = type === 'password' ? '<i class="fas fa-eye"></i>' : '<i class="fas fa-eye-slash"></i>';
 }
+
 function showError(message) {
-errorMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
-errorMessage.style.display = 'block';
-usernameInput.classList.add('error');
-passwordInput.classList.add('error');
-setTimeout(() => {
-usernameInput.classList.remove('error');
-passwordInput.classList.remove('error');
-}, 3000);
+    errorMessage.innerHTML = `<i class="fas fa-exclamation-circle"></i> ${message}`;
+    errorMessage.style.display = 'block';
+    usernameInput.classList.add('error');
+    passwordInput.classList.add('error');
+    setTimeout(() => {
+        usernameInput.classList.remove('error');
+        passwordInput.classList.remove('error');
+    }, 3000);
 }
+
 function showLoading(show) {
-if (show) {
-loading.style.display = 'block';
-loginForm.style.display = 'none';
-} else {
-loading.style.display = 'none';
-loginForm.style.display = 'block';
+    if (show) {
+        loading.style.display = 'block';
+        loginForm.style.display = 'none';
+    } else {
+        loading.style.display = 'none';
+        loginForm.style.display = 'block';
+    }
 }
-}
+
 function showApp() {
-userName.textContent = currentUser.nombre;
-userRole.textContent = currentUser.rol === 'admin' ? 'Administrador' : 'Usuario';
-userAvatar.textContent = currentUser.nombre.charAt(0).toUpperCase();
-loginScreen.style.display = 'none';
-appScreen.style.display = 'block';
-initializeVentasSystem();
-startAutoRefresh();
+    userName.textContent = currentUser.nombre;
+    userRole.textContent = currentUser.rol === 'admin' ? 'Administrador' : 'Usuario';
+    userAvatar.textContent = currentUser.nombre.charAt(0).toUpperCase();
+    loginScreen.style.display = 'none';
+    appScreen.style.display = 'block';
+    initializeVentasSystem();
+    startAutoRefresh();
 }
+
 function handleLogout() {
-if (confirm('¿Estás seguro de que deseas salir del sistema?')) {
-stopAutoRefresh();
-currentUser = null;
-localStorage.removeItem('currentUser');
-loginForm.reset();
-errorMessage.style.display = 'none';
-loginScreen.style.display = 'block';
-appScreen.style.display = 'none';
+    if (confirm('¿Estás seguro de que deseas salir del sistema?')) {
+        stopAutoRefresh();
+        currentUser = null;
+        localStorage.removeItem(SESSION_KEY);
+        loginForm.reset();
+        errorMessage.style.display = 'none';
+        loginScreen.style.display = 'block';
+        appScreen.style.display = 'none';
+    }
 }
-}
+
 // ===================== SISTEMA DE VENTAS =====================
 const SHEETS_IDS = {
 comercial: '1gfjpdEUnx5h83xjnVDaU_BbLvj-EMYtPLOHxjmFaMAg',
@@ -1473,6 +1501,7 @@ totalCount: document.getElementById('totalCount'),
 prevBtn: document.getElementById('prevBtn'),
 nextBtn: document.getElementById('nextBtn')
 };
+
 function showUpdateNotification(message, duration = 2000) {
 const notification = document.createElement('div');
 notification.className = 'notification success notification-update';
@@ -1485,6 +1514,7 @@ setTimeout(() => notification.remove(), 300);
 }
 }, duration);
 }
+
 function showNotification(type, title, message, duration = 5000) {
 const notification = document.createElement('div');
 notification.className = `notification ${type}`;
@@ -1498,6 +1528,7 @@ setTimeout(() => notification.remove(), 300);
 }
 }, duration);
 }
+
 async function loadDataFromGoogleSheets(sheetType) {
 try {
 const sheetId = SHEETS_IDS[sheetType];
@@ -1515,6 +1546,7 @@ console.error(error);
 throw error;
 }
 }
+
 function parseCSV(csvText) {
 const lines = csvText.split('\n').filter(line => line.trim() !== '');
 if (lines.length < 2) return [];
@@ -1543,6 +1575,7 @@ if (Object.values(obj).some(val => val && val.trim() !== '')) result.push(obj);
 }
 return result;
 }
+
 function processData(rawData, sheetType) {
 return rawData.map(item => {
 const idField = Object.keys(item).find(k => k.trim().toLowerCase() === 'id');
@@ -1587,6 +1620,7 @@ montos: montosField ? (item[montosField] || '') : ''
 };
 });
 }
+
 function initializeVentasSystem() {
 const today = new Date();
 const year = today.getFullYear();
@@ -1601,13 +1635,16 @@ ventasElements.searchInput.addEventListener('input', filterData);
 ventasElements.sheetSelector.addEventListener('change', function() { currentSheet = this.value; updateSheetIndicator(); updateSheetSourceIndicator(); loadData(); });
 loadData();
 }
+
 function updateSheetIndicator() {
 sheetIndicator.textContent = currentSheet === 'comercial' ? 'Comercial' : 'Feria';
 sheetIndicator.className = 'sheet-indicator ' + (currentSheet === 'comercial' ? 'sheet-comercial' : 'sheet-feria');
 }
+
 function updateSheetSourceIndicator() {
 currentSheetName.textContent = currentSheet === 'comercial' ? 'Comercial' : 'Feria';
 }
+
 function updateSyncBadge(type, message) {
 if (type === 'success') {
 syncBadge.style.background = '#27ae60';
@@ -1621,6 +1658,7 @@ syncBadge.style.background = '#e74c3c';
 syncBadge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
 }
 }
+
 async function loadData() {
 updateSyncBadge('loading', 'Actualizando...');
 try {
@@ -1641,6 +1679,7 @@ updateSyncBadge('error', 'Error de conexión');
 if (allData.length === 0) setTimeout(loadSampleData, 500);
 }
 }
+
 function updateDayPanel(dateString) {
 try {
 const [year, month, day] = dateString.split('-').map(Number);
@@ -1650,47 +1689,35 @@ ventasElements.currentDate.textContent = date.toLocaleDateString('es-ES');
 } catch(e) { ventasElements.dayName.textContent = '---'; ventasElements.currentDate.textContent = '--/--/----'; }
 }
 
-// ========== FUNCIÓN FILTERDATA MEJORADA: BÚSQUEDA EN TODO EL HISTORIAL ==========
 function filterData() {
     const selectedDate = ventasElements.dateFilter.value;
     const searchTerm = ventasElements.searchInput.value.trim();
-
-    let dataSource = allData;  // siempre partimos de todos los datos
-
-    // Si NO hay término de búsqueda, aplicamos filtro de fecha
+    let dataSource = allData;
     if (!searchTerm) {
         if (selectedDate) {
             dataSource = dataSource.filter(item => item.fechaFiltro === selectedDate);
         }
     } else {
-        // Si HAY búsqueda, IGNORAMOS la fecha y buscamos en todo el historial
         dataSource = dataSource.filter(item => matchesSearch(item, searchTerm));
-        // Mostrar notificación indicando que se busca en todo el historial
         showNotification('info', '🔍 Búsqueda global', 'Mostrando resultados de todas las fechas', 3000);
     }
-
     filteredData = dataSource;
     allUsers.clear();
     filteredData.forEach(item => { if(item.usuario) allUsers.add(item.usuario); });
-
-    // Actualizar panel del día con la fecha del primer resultado o mantener la actual
     if (filteredData.length > 0 && searchTerm) {
-        // Mostrar la fecha del primer resultado en el panel superior
         const firstDate = filteredData[0].fechaFiltro;
         if (firstDate) {
             updateDayPanel(firstDate);
-            ventasElements.dateFilter.value = firstDate; // sincronizar el input de fecha
+            ventasElements.dateFilter.value = firstDate;
         }
     } else if (!searchTerm && selectedDate) {
         updateDayPanel(selectedDate);
     } else {
-        // si no hay datos o no hay fecha, mostrar la fecha actual
         const today = new Date();
         const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
         updateDayPanel(todayStr);
         ventasElements.dateFilter.value = todayStr;
     }
-
     findAttendanceHours(ventasElements.dateFilter.value);
     findCashControl(ventasElements.dateFilter.value);
     checkMultipleOpenClose(ventasElements.dateFilter.value);
@@ -1701,7 +1728,6 @@ function filterData() {
     displayData();
     updateNavButtons();
 }
-// ========== FIN DE LA MODIFICACIÓN ==========
 
 function findAttendanceHours(date) {
 let horaApertura = '--:--', horaCierre = '--:--', usuarioOperando = '--', hayCierre = false;
@@ -1750,6 +1776,7 @@ ventasElements.horaCierre.classList.remove('operando','operando-alert');
 ventasElements.horaApertura.textContent = horaApertura;
 ventasElements.usuarioOperando.textContent = usuarioOperando;
 }
+
 function checkMultipleOpenClose(date) {
 const aperturas = filteredData.filter(i => i.tipo === 'apertura');
 const cierres = filteredData.filter(i => i.tipo === 'cierre');
@@ -1762,6 +1789,7 @@ showNotification('warning', '⚠️ Múltiples Cierres', `Hay ${cierres.length} 
 notificationsShown.add(`multiCierre_${date}`);
 }
 }
+
 function findCashControl(date) {
 let aperturaEfectivo = 0, cierreEfectivo = 0;
 const regApertura = filteredData.find(i => i.tipo === 'apertura' && i.monto_efectivo > 0 && i.apertura_caja.includes('APERTURA'));
@@ -1789,15 +1817,14 @@ notificationsShown.add(`cierreCorrecto_${selectedDate}`);
 }
 }
 }
+
 function calculateTotalVentasDia() {
 const total = filteredData.filter(i => i.tipo === 'venta').reduce((s,i) => s + i.total, 0);
 ventasElements.totalVentasDia.textContent = 'Bs. ' + total.toFixed(2);
 }
 
-// ========== FUNCIÓN CALCULATE STATISTICS MODIFICADA ==========
 function calculateStatistics() {
     const ventas = filteredData.filter(i => i.tipo === 'venta');
-    // totalVentas (cantidad) ya no se usa para la tarjeta "Total Ventas"
     const totalVentasDia = ventas.reduce((s,i) => s + i.total, 0);
     const ventasEfectivo = ventas.filter(v => v.metodo_pago && v.metodo_pago.toLowerCase().includes('efectivo'));
     const totalVentasEfectivo = ventasEfectivo.reduce((s,v) => s + v.total, 0);
@@ -1805,17 +1832,11 @@ function calculateStatistics() {
     const aperturaMonto = apertura ? apertura.monto_efectivo : 0;
     const cierres = filteredData.filter(i => i.tipo === 'cierre' && i.cierre_caja.includes('CIERRE') && i.monto_efectivo > 0);
     const cierre = cierres.length ? cierres[cierres.length-1].monto_efectivo : 0;
-
-    // 1. Apertura Efectivo
     ventasElements.aperturaEfectivoValue.textContent = aperturaMonto.toFixed(2);
-    // 2. Ventas del Día (total de todas las ventas en monto)
     ventasElements.ventasDiaValue.textContent = totalVentasDia.toFixed(2);
-    // 3. Ventas Efectivo (total de ventas en efectivo)
     ventasElements.ventasEfectivoValue.textContent = totalVentasEfectivo.toFixed(2);
-    // 4. Total Ventas (ahora: apertura + ventas en efectivo)
     const totalEfectivoAcumulado = aperturaMonto + totalVentasEfectivo;
     ventasElements.totalSalesValue.textContent = totalEfectivoAcumulado.toFixed(2);
-    // 5. Cierre Efectivo
     ventasElements.cierreEfectivoValue.textContent = cierre.toFixed(2);
 }
 
@@ -1829,6 +1850,7 @@ dayName = daysOfWeek[new Date(y,m-1,d).getDay()];
 mobileFecha.textContent = dayName ? `${formattedDate} ${dayName.toLowerCase()}` : formattedDate;
 mobileUsuarios.textContent = Array.from(allUsers).join(', ') || '--';
 }
+
 function changeDay(direction) {
 const currentDateStr = ventasElements.dateFilter.value;
 if (!currentDateStr) return;
@@ -1847,6 +1869,7 @@ ventasElements.dateFilter.value = newDateStr;
 updateDayPanel(newDateStr);
 filterData();
 }
+
 function updateNavButtons() {
 const currentDateStr = ventasElements.dateFilter.value;
 if (!currentDateStr) { btnAtras.disabled = btnAdelante.disabled = true; return; }
@@ -1857,6 +1880,7 @@ const currentMidnight = new Date(currentDate); currentMidnight.setHours(0,0,0,0)
 btnAtras.disabled = false;
 btnAdelante.disabled = (currentMidnight >= today);
 }
+
 function displayData() {
 ventasElements.dataError.style.display = 'none';
 ventasElements.noDataMessage.style.display = 'none';
@@ -1895,6 +1919,7 @@ ventasElements.tableWrapper.style.display = 'block';
 const total = filteredData.filter(i => i.tipo === 'venta').reduce((s,i) => s + i.total, 0);
 totalFinalAmount.textContent = 'Bs. ' + total.toFixed(2);
 }
+
 function showToday() {
 const today = new Date();
 const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
@@ -1903,6 +1928,7 @@ updateDayPanel(todayStr);
 notificationsShown.clear();
 filterData();
 }
+
 function exportToExcel() {
 if (filteredData.length === 0) { alert('No hay datos para exportar'); return; }
 let csvContent = "text/csv;charset=utf-8,";
@@ -1917,6 +1943,7 @@ link.setAttribute('href', encodeURI(csvContent));
 link.setAttribute('download', `ventas_${currentSheet}_${new Date().toISOString().split('T')[0]}.csv`);
 document.body.appendChild(link); link.click(); document.body.removeChild(link);
 }
+
 function loadSampleData() {
 const today = new Date();
 const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
@@ -1930,9 +1957,10 @@ allData = [
 filterData();
 showUpdateNotification('Datos de ejemplo cargados', 2000);
 }
+
 function startAutoRefresh() { if (dataInterval) clearInterval(dataInterval); dataInterval = setInterval(() => loadData(), 60000); }
 function stopAutoRefresh() { if (dataInterval) { clearInterval(dataInterval); dataInterval = null; } }
-// Funciones de liquidez
+
 function showLiquidity(mode) {
 currentLiquidityMode = mode;
 normalTableContainer.style.display = 'none';
@@ -1960,6 +1988,7 @@ periodSelectorDiv.appendChild(label); periodSelectorDiv.appendChild(monthInput);
 updateLiquidityByMonth(defaultMonth);
 }
 }
+
 function getWeekNumber(date) {
 const tempDate = new Date(date.valueOf());
 tempDate.setHours(0,0,0,0);
@@ -1967,6 +1996,7 @@ tempDate.setDate(tempDate.getDate() + 3 - (tempDate.getDay() + 6) % 7);
 const week1 = new Date(tempDate.getFullYear(), 0, 4);
 return 1 + Math.round(((tempDate - week1) / 86400000 - 3 + (week1.getDay() + 6) % 7) / 7);
 }
+
 function getDateRangeOfWeek(year, weekNumber) {
 const simple = new Date(year, 0, 1 + (weekNumber - 1) * 7);
 const dow = simple.getDay();
@@ -1977,6 +2007,7 @@ const weekEnd = new Date(weekStart);
 weekEnd.setDate(weekStart.getDate() + 6);
 return { start: weekStart, end: weekEnd };
 }
+
 function updateLiquidityByWeek(weekValue) {
 if (!weekValue) return;
 const [year, weekStr] = weekValue.split('-W');
@@ -1990,6 +2021,7 @@ return itemDate >= start && itemDate <= end;
 });
 displayLiquidityData(ventasPeriodo);
 }
+
 function updateLiquidityByMonth(monthValue) {
 if (!monthValue) return;
 const [year, month] = monthValue.split('-');
@@ -2003,6 +2035,7 @@ return itemDate >= start && itemDate <= end;
 });
 displayLiquidityData(ventasPeriodo);
 }
+
 function displayLiquidityData(ventasPeriodo) {
 const salesByDay = new Map();
 ventasPeriodo.forEach(venta => {
@@ -2030,10 +2063,12 @@ const totalProfitPeriod = totalSalesPeriod * 0.10;
 liquiditySummaryDiv.innerHTML = `<div style="font-size:16px;margin-bottom:8px;">📊 Resumen del período</div><div style="font-size:22px;font-weight:bold;">Total Ventas: Bs. ${totalSalesPeriod.toFixed(2)}</div><div style="font-size:18px;margin-top:5px;">💰 Ganancia (10%): Bs. ${totalProfitPeriod.toFixed(2)}</div>`;
 if (sortedDays.length === 0) calendarGrid.innerHTML = '<div style="text-align:center;padding:20px;">No hay ventas en este período</div>';
 }
+
 function hideLiquidityAndShowTable() {
 liquidityCalendarDiv.style.display = 'none';
 normalTableContainer.style.display = 'block';
 }
+
 window.addEventListener('resize', () => { if(ventasElements.dateFilter.value) updateMobileSummary(ventasElements.dateFilter.value); });
 document.addEventListener('keydown', function(e) { if (e.key === 'F12' || (e.ctrlKey && e.key === 'u') || (e.ctrlKey && e.shiftKey && e.key === 'I')) { e.preventDefault(); return false; } });
 document.addEventListener('contextmenu', function(e) { e.preventDefault(); return false; });
