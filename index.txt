@@ -1,0 +1,4041 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Todoenuno_store - Gestión de Ventas</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+<style>
+* { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+body { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); height: 100%; display: flex; }
+.sidebar { width: 250px; background: #2c3e50; color: white; transition: all 0.3s; overflow-y: auto; height: 100vh; position: fixed; left: 0; top: 0; z-index: 1000; box-shadow: 2px 0 10px rgba(0,0,0,0.1); }
+.sidebar.collapsed { width: 70px; }
+.sidebar-header { padding: 15px; background: #1a252f; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #34495e; }
+.sidebar-toggle { background: none; border: none; color: white; font-size: 18px; cursor: pointer; }
+.store-logo { display: flex; align-items: center; gap: 10px; font-weight: bold; font-size: 16px; }
+.sidebar-menu { list-style: none; padding: 0; margin: 0; }
+.sidebar-menu li { padding: 0; }
+.sidebar-menu a { padding: 12px 15px; display: flex; align-items: center; gap: 12px; color: #bdc3c7; text-decoration: none; transition: all 0.3s; border-left: 4px solid transparent; }
+.sidebar-menu a:hover { background: #34495e; color: white; border-left-color: #3498db; }
+.sidebar-menu a.active { background: #34495e; color: white; border-left-color: #3498db; }
+.sidebar.collapsed .menu-text { display: none; }
+.sidebar.collapsed .store-logo span { display: none; }
+.sidebar.collapsed .sidebar-header { justify-content: center; }
+.main-content { flex: 1; margin-left: 250px; margin-right: 320px; transition: margin-left 0.3s, margin-right 0.3s; display: flex; flex-direction: column; min-height: 100vh; }
+.main-content.sidebar-collapsed { margin-left: 70px; }
+.main-content.right-sidebar-collapsed { margin-right: 70px; }
+.right-sidebar { width: 320px; background: #34495e; color: white; transition: all 0.3s; overflow-y: auto; height: 100vh; position: fixed; right: 0; top: 0; z-index: 1000; box-shadow: -2px 0 10px rgba(0,0,0,0.1); }
+.right-sidebar.collapsed { width: 60px; }
+.right-sidebar-header { padding: 15px; background: #2c3e50; display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid #4a6985; position: sticky; top: 0; z-index: 10; }
+.right-sidebar-title { font-weight: bold; font-size: 14px; display: flex; align-items: center; gap: 8px; white-space: nowrap; }
+.right-sidebar-toggle { background: none; border: none; color: white; font-size: 18px; cursor: pointer; transition: transform 0.3s; }
+.right-sidebar-toggle.collapsed { transform: rotate(180deg); }
+.right-sidebar-content { padding: 15px; }
+.right-sidebar.collapsed .right-sidebar-content { display: none; }
+.right-sidebar-section { background: #2c3e50; border-radius: 8px; padding: 15px; margin-bottom: 15px; }
+.right-sidebar-section h4 { font-size: 14px; margin-bottom: 12px; color: #3498db; display: flex; align-items: center; gap: 8px; }
+.right-sidebar-btn { background: linear-gradient(to right, #3498db, #2980b9); color: white; border: none; padding: 10px; border-radius: 6px; font-size: 12px; cursor: pointer; width: 100%; margin-bottom: 8px; display: flex; align-items: center; justify-content: center; gap: 8px; transition: all 0.3s; }
+.right-sidebar-btn:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.2); }
+.right-sidebar-btn.backup { background: linear-gradient(to right, #9b59b6, #8e44ad); }
+.right-sidebar-btn.sync { background: linear-gradient(to right, #1abc9c, #16a085); }
+.right-sidebar-btn.load { background: linear-gradient(to right, #e67e22, #d35400); }
+.right-sidebar-status { font-size: 11px; margin-top: 8px; display: flex; align-items: center; gap: 5px; }
+.right-sidebar-status.online { color: #2ecc71; }
+.right-sidebar-status.offline { color: #e74c3c; }
+.right-sidebar.collapsed .right-sidebar-status { display: none; }
+.cargar-pedido-textarea { width: 100%; min-height: 150px; padding: 10px; border: 2px solid #4a6985; border-radius: 6px; background: #1a252f; color: white; font-size: 12px; resize: vertical; margin-bottom: 10px; }
+.cargar-pedido-textarea:focus { outline: none; border-color: #3498db; }
+.right-sidebar.collapsed .cargar-pedido-textarea { display: none; }
+.extraccion-info { font-size: 11px; color: #bdc3c7; margin-top: 8px; line-height: 1.4; }
+.right-sidebar.collapsed .extraccion-info { display: none; }
+.right-sidebar-expand-inline { display: none; background: #3498db; color: white; border: none; width: 100%; padding: 15px 0; cursor: pointer; font-size: 20px; text-align: center; transition: background 0.3s; }
+.right-sidebar-expand-inline:hover { background: #2980b9; }
+.right-sidebar.collapsed .right-sidebar-expand-inline { display: block; }
+.right-sidebar.collapsed .right-sidebar-header { display: none; }
+.top-bar { background: white; padding: 12px 20px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); display: flex; align-items: center; justify-content: space-between; z-index: 100; }
+.top-bar-title { font-size: 18px; font-weight: bold; color: #2c3e50; }
+.user-info { display: flex; align-items: center; gap: 12px; }
+.user-details { text-align: right; }
+.user-name { font-weight: bold; color: #2c3e50; font-size: 14px; }
+.user-role { font-size: 12px; color: #7f8c8d; }
+.logout-btn { background: #e74c3c; color: white; border: none; border-radius: 5px; padding: 6px 12px; cursor: pointer; font-size: 12px; display: flex; align-items: center; gap: 5px; transition: all 0.3s; }
+.logout-btn:hover { background: #c0392b; }
+.content-area { flex: 1; padding: 15px; overflow-y: auto; }
+.container { background-color: white; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); width: 100%; padding: 20px; margin-bottom: 15px; overflow: visible; }
+.header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; flex-wrap: wrap; padding-bottom: 12px; border-bottom: 2px solid #f0f0f0; }
+.store-name { font-size: 22px; font-weight: bold; color: #2c3e50; display: flex; align-items: center; gap: 8px; }
+h1 { text-align: center; color: #2c3e50; margin-bottom: 15px; font-size: 20px; }
+h2 { color: #2c3e50; margin: 15px 0 12px; padding-bottom: 6px; border-bottom: 2px solid #ff7e5f; font-size: 18px; }
+.form-group { margin-bottom: 15px; }
+label { display: block; margin-bottom: 8px; font-weight: 600; color: #34495e; font-size: 14px; }
+input, select, textarea { width: 100%; padding: 12px; border: 2px solid #ddd; border-radius: 8px; font-size: 14px; transition: border-color 0.3s; }
+input:focus, select:focus, textarea:focus { border-color: #4a90e2; outline: none; box-shadow: 0 0 0 3px rgba(74, 144, 226, 0.2); }
+button { background: linear-gradient(to right, #ff7e5f, #feb47b); color: white; border: none; padding: 14px; border-radius: 8px; font-size: 14px; font-weight: 600; cursor: pointer; width: 100%; transition: transform 0.2s, box-shadow 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; }
+button:hover { transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0, 0, 0, 0.15); }
+button:active { transform: translateY(0); }
+button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+.productos-container { margin-bottom: 15px; border: 2px solid #e9ecef; border-radius: 8px; padding: 12px; background-color: #f8f9fa; }
+.producto-item { background-color: white; padding: 12px; border-radius: 8px; margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; font-size: 14px; box-shadow: 0 2px 4px rgba(0,0,0,0.1); transition: all 0.2s ease; border-left: 4px solid #4a90e2; }
+.producto-item:hover { transform: translateY(-2px); box-shadow: 0 4px 8px rgba(0,0,0,0.15); background-color: #f8f9fa; }
+.producto-info { flex: 1; margin-right: 15px; min-width: 0; }
+.producto-descripcion { font-weight: 600; color: #2c3e50; margin-bottom: 4px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; max-width: 100%; display: block; }
+.producto-precio-unitario { font-size: 12px; color: #7f8c8d; font-style: italic; }
+.producto-cantidad { min-width: 100px; text-align: right; font-weight: bold; color: #ff7e5f; font-size: 16px; padding: 0 10px; }
+.eliminar-btn { background: #ff4757; color: white; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; font-size: 14px; display: flex; align-items: center; justify-content: center; transition: all 0.3s; flex-shrink: 0; box-shadow: 0 2px 4px rgba(255, 71, 87, 0.2); }
+.eliminar-btn:hover { background: #ff3742; transform: scale(1.1); box-shadow: 0 4px 8px rgba(255, 71, 87, 0.3); }
+.eliminar-btn:active { transform: scale(0.95); }
+.productos-lista { max-height: 250px; overflow-y: auto; margin-bottom: 15px; padding-right: 5px; }
+.productos-lista::-webkit-scrollbar { width: 6px; }
+.productos-lista::-webkit-scrollbar-track { background: #f1f1f1; border-radius: 3px; }
+.productos-lista::-webkit-scrollbar-thumb { background: #c1c1c1; border-radius: 3px; }
+.productos-lista::-webkit-scrollbar-thumb:hover { background: #a8a8a8; }
+.total-container { background-color: #ffe8e6; padding: 12px; border-radius: 6px; margin: 12px 0; text-align: right; font-size: 16px; font-weight: bold; }
+.empty-cart { text-align: center; padding: 30px 15px; color: #7f8c8d; font-size: 14px; }
+.empty-cart i { font-size: 48px; margin-bottom: 12px; color: #dee2e6; opacity: 0.7; }
+.empty-cart p { margin: 5px 0; }
+.producto-unidad { display: flex; gap: 10px; margin-bottom: 12px; flex-direction: column; }
+@media (min-width: 768px) { .producto-unidad { flex-direction: row; } }
+.descripcion-input { flex: 3; }
+.monto-input { flex: 1; }
+.agregar-btn { background: linear-gradient(to right, #4a90e2, #2c3e50); margin-bottom: 15px; max-width: 180px; padding: 12px; }
+.actions-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin: 15px 0; }
+.action-card { background: white; border-radius: 12px; padding: 20px 12px; text-align: center; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s; border: 2px solid transparent; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 120px; }
+.action-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); border-color: #4a90e2; }
+.action-card i { font-size: 32px; margin-bottom: 12px; color: #4a90e2; }
+.action-title { font-weight: bold; font-size: 14px; color: #2c3e50; }
+.action-description { font-size: 12px; color: #7f8c8d; margin-top: 5px; }
+.collapsible-section { border: 1px solid #ddd; border-radius: 6px; margin-bottom: 12px; overflow: hidden; }
+.collapsible-header { background-color: #f8f9fa; padding: 10px 12px; cursor: pointer; display: flex; justify-content: space-between; align-items: center; font-weight: 600; font-size: 14px; }
+.collapsible-content { max-height: 0; overflow: hidden; transition: max-height 0.3s ease-out; }
+.collapsible-content.expanded { max-height: 400px; padding: 12px; }
+.collapsible-icon { transition: transform 0.3s; }
+.collapsible-icon.rotated { transform: rotate(180deg); }
+.ventas-info { background-color: #e8f4fd; padding: 12px; border-radius: 8px; margin: 12px 0; text-align: center; font-size: 14px; border-left: 4px solid #4a90e2; }
+.ventas-table-container { background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 2px 10px rgba(0,0,0,0.1); margin-bottom: 15px; }
+.accion-btn { padding: 6px 10px; border: none; border-radius: 5px; cursor: pointer; font-size: 11px; display: flex; align-items: center; gap: 4px; transition: all 0.3s; width: auto; }
+.eliminar-btn-tabla { background: #dc3545; color: white; }
+.observacion-btn { background: #ffc107; color: #212529; }
+.imprimir-btn { background: #28a745; color: white; }
+.no-ventas { text-align: center; padding: 30px; color: #6c757d; }
+.no-ventas i { font-size: 36px; margin-bottom: 12px; color: #dee2e6; }
+.modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; align-items: center; justify-content: center; z-index: 1000; padding: 15px; }
+.modal-content { background: white; border-radius: 12px; padding: 20px; max-width: 700px; width: 100%; max-height: 85vh; overflow-y: auto; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
+.modal-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; padding-bottom: 12px; border-bottom: 1px solid #e9ecef; }
+.modal-close { background: none; border: none; font-size: 20px; cursor: pointer; color: #6c757d; width: auto; padding: 5px; }
+.modal-actions { display: flex; gap: 8px; margin-top: 15px; }
+.btn-cancel { background: #6c757d; }
+.btn-save { background: #28a745; }
+.stats-container { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 12px; margin: 15px 0; }
+.stat-card { background: white; border-radius: 8px; padding: 15px; text-align: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
+.stat-value { font-size: 20px; font-weight: bold; margin: 8px 0; }
+.stat-label { color: #6c757d; font-size: 12px; }
+.login-container { background: white; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); width: 100%; max-width: 450px; padding: 25px; margin: 40px auto; }
+.login-title { text-align: center; margin-bottom: 20px; color: #2c3e50; }
+.login-form { display: flex; flex-direction: column; gap: 15px; }
+.login-btn { background: linear-gradient(to right, #4a90e2, #2c3e50); }
+.permiso-admin { display: none; }
+.permiso-vendedor { display: none; }
+.sucursal-selection-container { background: white; border-radius: 12px; box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2); width: 100%; max-width: 550px; padding: 25px; margin: 40px auto; }
+.sucursal-selection-title { text-align: center; margin-bottom: 20px; color: #2c3e50; }
+.sucursal-card { background: white; border-radius: 12px; padding: 20px; box-shadow: 0 5px 15px rgba(0,0,0,0.1); cursor: pointer; transition: all 0.3s; border: 2px solid transparent; margin-bottom: 15px; }
+.sucursal-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.15); border-color: #4a90e2; }
+.sucursal-card.selected { border-color: #28a745; background-color: #f8fff9; }
+.sucursal-card-header { display: flex; align-items: center; gap: 12px; margin-bottom: 12px; }
+.sucursal-card-icon { font-size: 24px; color: #4a90e2; }
+.sucursal-card-title { font-size: 18px; font-weight: bold; color: #2c3e50; }
+.sucursal-card-description { color: #7f8c8d; margin-bottom: 8px; font-size: 14px; }
+.sucursal-card-location { color: #28a745; font-weight: 500; font-size: 13px; }
+.mobile-menu-toggle { display: none; background: none; border: none; font-size: 20px; color: #2c3e50; cursor: pointer; }
+.seccion-contenido { display: none; }
+.seccion-contenido.activa { display: block; }
+.compacto { max-height: 350px; overflow-y: auto; }
+.tabla-ventas-dia { width: 100%; border-collapse: collapse; font-size: 13px; }
+.tabla-ventas-dia th { background: #2c3e50; color: white; padding: 8px; text-align: left; }
+.tabla-ventas-dia td { padding: 8px; border-bottom: 1px solid #e9ecef; vertical-align: top; }
+.tabla-ventas-dia tr:hover { background-color: #f8f9fa; }
+.resumen-ventas-dia { background: #f8f9fa; padding: 12px; border-radius: 8px; margin: 12px 0; border-left: 4px solid #4a90e2; }
+.resumen-ventas-dia h3 { margin-bottom: 8px; color: #2c3e50; font-size: 16px; }
+.resumen-ventas-dia p { margin: 4px 0; font-size: 14px; }
+.fecha-hora-display { background-color: #f8f9fa; padding: 12px; border-radius: 8px; margin: 12px 0; text-align: center; font-size: 16px; font-weight: bold; border-left: 4px solid #ff7e5f; }
+.info-box { background-color: #f8f9fa; padding: 12px; border-radius: 8px; margin: 12px 0; border-left: 4px solid #6c757d; font-size: 13px; }
+.notification { position: fixed; top: 15px; right: 15px; padding: 12px 15px; border-radius: 6px; color: white; z-index: 10000; box-shadow: 0 4px 12px rgba(0,0,0,0.15); transform: translateX(120%); transition: transform 0.3s ease; max-width: 300px; display: flex; align-items: center; gap: 8px; font-size: 13px; margin-bottom: 5px; }
+.notification.show { transform: translateX(0); }
+.notification.success { background: #28a745; }
+.notification.error { background: #dc3545; }
+.notification.warning { background: #ffc107; color: #212529; }
+.notification.info { background: #17a2b8; }
+.notification-close { background: none; border: none; color: inherit; cursor: pointer; font-size: 16px; margin-left: auto; }
+.notification-container { position: fixed; top: 15px; right: 15px; z-index: 10000; display: flex; flex-direction: column; align-items: flex-end; gap: 5px; max-height: 80vh; overflow-y: auto; }
+.session-timeout-warning { position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%); background: white; padding: 25px; border-radius: 12px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); z-index: 10000; text-align: center; max-width: 350px; width: 90%; }
+.session-timeout-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.7); z-index: 9999; }
+.imprimir-resumen-dia-btn { background: linear-gradient(to right, #28a745, #20c997); width: auto; padding: 10px 15px; font-size: 13px; margin-top: 10px; }
+.modal-metodo-pago { max-width: 400px; }
+.metodo-pago-modal-option { display: flex; align-items: center; gap: 15px; padding: 15px; border: 2px solid #ddd; border-radius: 8px; margin-bottom: 10px; cursor: pointer; transition: all 0.3s; }
+.metodo-pago-modal-option:hover { border-color: #4a90e2; background-color: #f0f8ff; }
+.metodo-pago-modal-option.selected { border-color: #28a745; background-color: #d4edda; }
+.metodo-pago-modal-icon { font-size: 24px; width: 40px; text-align: center; }
+.metodo-pago-modal-info { flex: 1; }
+.metodo-pago-modal-name { font-weight: bold; font-size: 16px; color: #2c3e50; margin-bottom: 5px; }
+.metodo-pago-modal-desc { font-size: 13px; color: #7f8c8d; }
+.pago-mixto-container { margin: 20px 0; border: 1px solid #ddd; border-radius: 8px; padding: 15px; background-color: #f9f9f9; }
+.pago-mixto-opciones { display: flex; gap: 10px; margin-bottom: 15px; }
+.pago-mixto-opcion { flex: 1; text-align: center; padding: 10px; border: 1px solid #ddd; border-radius: 4px; cursor: pointer; transition: all 0.3s; }
+.pago-mixto-opcion.active { background: #4a90e2; color: white; border-color: #4a90e2; }
+.pago-mixto-campos { display: none; }
+.pago-mixto-campos.active { display: block; }
+.resumen-pago { margin-top: 15px; padding: 10px; background-color: #e9f7ef; border-radius: 4px; border-left: 4px solid #28a745; }
+.resumen-pago p { margin: 5px 0; }
+.fecha-separador { background-color: #e9ecef; font-weight: bold; color: #2c3e50; padding: 10px 12px; border-left: 4px solid #4a90e2; }
+.resumen-pago { margin-top: 15px; padding: 15px; background-color: #e9f7ef; border-radius: 8px; border-left: 4px solid #28a745; animation: fadeIn 0.3s ease; }
+@keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+.resumen-pago p { margin: 8px 0; font-size: 15px; }
+.resumen-pago strong { color: #2c3e50; }
+#montoCambio { font-size: 20px; font-weight: bold; color: #28a745; }
+.resumen-pago p[style*="color: #dc3545"] { padding: 10px; background-color: #fde8e8; border-radius: 6px; border-left: 4px solid #dc3545; margin: 10px 0; }
+.cambio-section { margin: 20px 0; padding: 20px; background-color: #f8f9fa; border-radius: 10px; border-left: 4px solid #4caf50; box-shadow: 0 2px 8px rgba(0,0,0,0.1); }
+.cambio-section h4 { color: #2c3e50; margin-bottom: 15px; display: flex; align-items: center; gap: 10px; font-size: 16px; }
+.cambio-section h4 i { color: #4caf50; }
+#montoRecibido { font-size: 18px; font-weight: bold; text-align: center; background-color: white; border: 2px solid #4caf50; }
+#montoRecibido:focus { box-shadow: 0 0 0 3px rgba(76, 175, 80, 0.2); }
+.total-contado { background: #e3f2fd; border-left: 4px solid #2196f3; }
+.diferencia-positiva { color: #4caf50; font-weight: bold; }
+.diferencia-negativa { color: #f44336; font-weight: bold; }
+.resumen-valor-input { font-size: 16px; font-weight: bold; margin: 5px 0; width: 100%; text-align: center; border: none; background: transparent; }
+.fila-apertura-cierre { background-color: #f0f8ff; }
+
+/* Estilo especial para la columna MONTOS desglosada */
+.montos-cell { display: flex; justify-content: space-between; align-items: flex-start; gap: 15px; min-width: 120px; }
+.montos-lista { display: flex; flex-direction: column; gap: 2px; font-size: 12px; }
+.montos-total { font-weight: bold; color: #ff7e5f; font-size: 14px; white-space: nowrap; }
+
+/* Estilo para el resumen del día mejorado */
+.resumen-ventas-dia .resumen-fila { display: flex; justify-content: space-between; padding: 6px 0; border-bottom: 1px dashed #dee2e6; font-size: 14px; }
+.resumen-ventas-dia .resumen-fila:last-child { border-bottom: none; }
+.resumen-ventas-dia .resumen-fila strong { color: #2c3e50; }
+.resumen-ventas-dia .resumen-valor-dia { font-weight: bold; color: #ff7e5f; }
+
+/* NUEVO: botón continuar sin abrir caja en modal de apertura */
+.btn-continuar-sin-abrir { background: linear-gradient(to right, #f39c12, #e67e22); }
+.apertura-actions { display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap; }
+.apertura-actions button { flex: 1; min-width: 150px; }
+
+@media (max-width: 768px) {
+    .sidebar { width: 100%; transform: translateX(-100%); }
+    .sidebar.active { transform: translateX(0); }
+    .right-sidebar { width: 100%; transform: translateX(100%); }
+    .right-sidebar.active { transform: translateX(0); }
+    .main-content { margin-left: 0; margin-right: 0; }
+    .container { padding: 15px; }
+    .header { flex-direction: column; gap: 12px; align-items: stretch; }
+    .store-name { justify-content: center; }
+    input, select, textarea { padding: 12px; }
+    button { padding: 14px; }
+    .producto-item { flex-direction: column; align-items: flex-start; padding: 15px; gap: 10px; }
+    .producto-info { margin-right: 0; width: 100%; }
+    .producto-cantidad { text-align: left; min-width: auto; width: 100%; padding: 8px 0; border-top: 1px solid #e9ecef; border-bottom: 1px solid #e9ecef; margin: 5px 0; }
+    .eliminar-btn { align-self: flex-end; margin-top: 5px; }
+    .producto-descripcion { white-space: normal; word-break: break-word; }
+    .producto-unidad { flex-direction: column; }
+    .agregar-btn { max-width: 100%; }
+    .actions-grid { grid-template-columns: repeat(2, 1fr); }
+    .mobile-menu-toggle { display: block; }
+    .notification-container { left: 15px; right: 15px; align-items: center; }
+    .notification { left: 15px; right: 15px; max-width: none; }
+    .pago-mixto-opciones { flex-direction: column; }
+    .right-sidebar-expand-btn { display: flex !important; }
+    .ventas-table-container { overflow-x: auto; }
+    .tabla-ventas-dia { min-width: 900px; }
+    .apertura-actions { flex-direction: column; }
+    .apertura-actions button { width: 100%; }
+}
+@media (max-width: 480px) {
+    .actions-grid { grid-template-columns: 1fr; }
+}
+</style>
+</head>
+<body>
+
+<!-- Pantalla de Login -->
+<div id="loginScreen" class="login-container">
+    <h1 class="login-title">
+        <i class="fas fa-store"></i> Todoenuno_store
+    </h1>
+    <p class="info-box">Sistema de Gestión de Ventas - Iniciar Sesión</p>
+    <form id="loginForm" class="login-form">
+        <div class="form-group">
+            <label><i class="fas fa-user"></i> Usuario:</label>
+            <input type="text" id="username" placeholder="Ingresa tu usuario" required>
+        </div>
+        <div class="form-group">
+            <label><i class="fas fa-lock"></i> Contraseña:</label>
+            <input type="password" id="password" placeholder="Ingresa tu contraseña" required>
+        </div>
+        <button type="submit" class="login-btn">
+            <i class="fas fa-sign-in-alt"></i> Iniciar Sesión
+        </button>
+    </form>
+</div>
+
+<!-- Pantalla de Selección de Sucursal -->
+<div id="sucursalSelectionScreen" class="sucursal-selection-container" style="display: none;" tabindex="-1">
+    <h1 class="sucursal-selection-title">
+        <i class="fas fa-map-marker-alt"></i> Selecciona tu Sucursal
+    </h1>
+    <p class="info-box">Por favor, selecciona la sucursal en la que trabajarás hoy:</p>
+    <div class="sucursal-card selected" id="sucursalFeriaCard" tabindex="0">
+        <div class="sucursal-card-header">
+            <i class="fas fa-store sucursal-card-icon"></i>
+            <div class="sucursal-card-title">Feria Barrio Lindo</div>
+        </div>
+        <div class="sucursal-card-description">Venta directa en feria</div>
+        <div class="sucursal-card-location">Asociación 3 de marzo, pasillo 1, puesto 1</div>
+    </div>
+    <div class="sucursal-card" id="sucursalCentroCard" tabindex="0">
+        <div class="sucursal-card-header">
+            <i class="fas fa-shopping-cart sucursal-card-icon"></i>
+            <div class="sucursal-card-title">Centro Comercial Avenida Brasil</div>
+        </div>
+        <div class="sucursal-card-description">Puesto comercial fijo</div>
+        <div class="sucursal-card-location">Puesto D2, Av. Brasil</div>
+    </div>
+    <button type="button" id="confirmarSucursalBtn" class="login-btn">
+        <i class="fas fa-check"></i> Confirmar Sucursal
+    </button>
+</div>
+
+<!-- Pantalla Principal -->
+<div id="mainScreen" style="display: none;">
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            <div class="store-logo">
+                <i class="fas fa-store"></i>
+                <span>Todoenuno</span>
+            </div>
+            <button class="sidebar-toggle" id="sidebarToggle">
+                <i class="fas fa-bars"></i>
+            </button>
+        </div>
+        <ul class="sidebar-menu">
+            <li><a href="#" class="active" id="menuInicio">
+                <i class="fas fa-home"></i>
+                <span class="menu-text">Inicio</span>
+            </a></li>
+            <li><a href="#" id="menuSucursal">
+                <i class="fas fa-map-marker-alt"></i>
+                <span class="menu-text" id="sidebarSucursal">Sucursal: Feria</span>
+            </a></li>
+            <li><a href="#" id="menuVentasDia">
+                <i class="fas fa-chart-line"></i>
+                <span class="menu-text">Ventas del Día</span>
+            </a></li>
+        </ul>
+    </div>
+
+    <div class="main-content" id="mainContent">
+        <div class="top-bar">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                    <i class="fas fa-bars"></i>
+                </button>
+                <div class="top-bar-title">Sistema de Gestión de Ventas</div>
+            </div>
+            <div class="user-info">
+                <div class="user-details">
+                    <div class="user-name" id="currentUserName"></div>
+                    <div class="user-role" id="currentUserRole"></div>
+                </div>
+                <button class="logout-btn" id="cambiarUsuarioBtn" style="background: #f39c12; margin-right: 8px;">
+                    <i class="fas fa-user-circle"></i> Cambiar Usuario
+                </button>
+                <button class="logout-btn" id="logoutBtn">
+                    <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+                </button>
+            </div>
+        </div>
+        <div class="content-area">
+            <!-- Sección Inicio -->
+            <div id="seccionInicio" class="seccion-contenido activa">
+                <div class="container">
+                    <div class="fecha-hora-display">
+                        <i class="fas fa-clock"></i> <span id="fechaHoraActual"></span>
+                    </div>
+                    <div class="info-box" id="cajaInfo">
+                        <i class="fas fa-cash-register"></i> <span id="cajaStatus">Caja cerrada</span>
+                    </div>
+                    <div class="collapsible-section permiso-admin">
+                        <div class="collapsible-header" id="estadisticasHeader">
+                            <span><i class="fas fa-chart-bar"></i> Estadísticas de Ventas</span>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content" id="estadisticasContent">
+                            <div class="stats-container" id="statsContainer">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="ventas-info permiso-admin" id="ventasInfo">
+                        <i class="fas fa-database"></i> <span id="contadorVentas">0 ventas</span> guardadas en el sistema
+                    </div>
+                    <div class="actions-grid">
+                        <div class="action-card" id="actionGuardarVenta">
+                            <i class="fas fa-save"></i>
+                            <div class="action-title">Guardar Venta</div>
+                            <div class="action-description">Guarda localmente</div>
+                        </div>
+                        <div class="action-card" id="actionImprimir">
+                            <i class="fas fa-print"></i>
+                            <div class="action-title">Imprimir Nota</div>
+                            <div class="action-description">Imprimir nota de venta</div>
+                        </div>
+                        <div class="action-card" id="actionWhatsApp">
+                            <i class="fab fa-whatsapp"></i>
+                            <div class="action-title">Enviar WhatsApp</div>
+                            <div class="action-description">Enviar resumen del día</div>
+                        </div>
+                        <div class="action-card" id="actionCerrarCaja">
+                            <i class="fas fa-cash-register"></i>
+                            <div class="action-title">Abrir/Cerrar Caja</div>
+                            <div class="action-description">Gestionar caja</div>
+                        </div>
+                    </div>
+
+                    <!-- DATOS DEL CLIENTE -->
+                    <h2><i class="fas fa-user"></i> Datos del Cliente</h2>
+                    <div class="form-group">
+                        <label><i class="fas fa-user"></i> Nombre del Cliente:</label>
+                        <input type="text" id="clienteNombreInput" placeholder="Nombre del cliente">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-map-marker-alt"></i> Dirección:</label>
+                        <input type="text" id="clienteDireccionInput" placeholder="Dirección del cliente">
+                    </div>
+                    <div class="form-group">
+                        <label><i class="fas fa-map"></i> Departamento:</label>
+                        <input type="text" id="clienteDepartamentoInput" placeholder="Departamento">
+                    </div>
+
+                    <h2><i class="fas fa-file-alt"></i> Agregar Productos</h2>
+                    <div class="form-group">
+                        <div class="producto-unidad">
+                            <input type="text" class="descripcion-input" id="descripcionProducto" placeholder="Descripción del producto">
+                            <input type="number" class="monto-input" id="montoProducto" placeholder="Precio Bs" min="0" step="0.01">
+                        </div>
+                        <button type="button" class="agregar-btn" id="agregarProductoBtn">
+                            <i class="fas fa-plus"></i> Agregar Producto
+                        </button>
+                    </div>
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" id="productosHeader">
+                            <span><i class="fas fa-list"></i> Productos Agregados</span>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content" id="productosContent">
+                            <div class="productos-container">
+                                <div class="productos-lista" id="productosLista">
+                                    <div class="empty-cart">
+                                        <i class="fas fa-shopping-cart"></i>
+                                        <p>No hay productos en la venta</p>
+                                        <p style="font-size: 12px;">Agrega productos usando el formulario superior</p>
+                                    </div>
+                                </div>
+                                <div class="total-container">
+                                    Total Venta: <span id="totalCompra">0.00</span> Bs
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="collapsible-section">
+                        <div class="collapsible-header" id="previewHeader">
+                            <span><i class="fas fa-receipt"></i> Vista Previa de la Nota de Venta</span>
+                            <i class="fas fa-chevron-down collapsible-icon"></i>
+                        </div>
+                        <div class="collapsible-content" id="previewContent">
+                            <div class="empty-cart">
+                                <i class="fas fa-receipt"></i>
+                                <p>Agrega productos para ver la nota de venta</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Sección Ventas del Día -->
+            <div id="seccionVentasDia" class="seccion-contenido">
+                <div class="container">
+                    <h2><i class="fas fa-chart-line"></i> Ventas del Día</h2>
+                    <div class="resumen-ventas-dia">
+                        <h3>Resumen del Día</h3>
+                        <div class="resumen-fila">
+                            <strong><i class="fas fa-cash-register"></i> Apertura de Caja:</strong>
+                            <span class="resumen-valor-dia"><span id="aperturaCajaDia">0.00</span> Bs</span>
+                        </div>
+                        <div class="resumen-fila">
+                            <strong><i class="fas fa-chart-line"></i> Total Recaudado:</strong>
+                            <span class="resumen-valor-dia"><span id="totalRecaudadoDia">0.00</span> Bs</span>
+                        </div>
+                        <div class="resumen-fila">
+                            <strong><i class="fas fa-money-bill-wave"></i> Ventas en Efectivo:</strong>
+                            <span class="resumen-valor-dia"><span id="ventasEfectivoDia">0.00</span> Bs</span>
+                        </div>
+                        <div class="resumen-fila">
+                            <strong><i class="fas fa-wallet"></i> Total en Caja (Dinero):</strong>
+                            <span class="resumen-valor-dia"><span id="totalEnCajaDia">0.00</span> Bs</span>
+                        </div>
+                        <div class="resumen-fila">
+                            <strong><i class="fas fa-lock"></i> Cierre Efectivo:</strong>
+                            <span class="resumen-valor-dia"><span id="cierreEfectivoDia">0.00</span> Bs</span>
+                        </div>
+                        <div class="resumen-fila" style="margin-top: 8px; padding-top: 8px; border-top: 2px solid #dee2e6;">
+                            <strong><i class="fas fa-shopping-cart"></i> Total de Ventas:</strong>
+                            <span class="resumen-valor-dia"><span id="totalVentasDia">0</span></span>
+                        </div>
+                        <div class="resumen-fila">
+                            <strong><i class="fas fa-calculator"></i> Promedio por Venta:</strong>
+                            <span class="resumen-valor-dia"><span id="promedioVentaDia">0.00</span> Bs</span>
+                        </div>
+                        <button id="imprimirResumenDiaBtn" class="imprimir-resumen-dia-btn">
+                            <i class="fas fa-print"></i> Imprimir Resumen del Día
+                        </button>
+                        <button id="imprimirTodasVentasDiaBtn" class="imprimir-resumen-dia-btn">
+                            <i class="fas fa-print"></i> Imprimir Todas las Ventas del Día
+                        </button>
+                    </div>
+                    <div class="compacto ventas-table-container">
+                        <table class="tabla-ventas-dia">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Dirección</th>
+                                    <th>Departamento</th>
+                                    <th>Hora</th>
+                                    <th>Productos</th>
+                                    <th>Montos</th>
+                                    <th>Método Pago</th>
+                                    <th>Observaciones</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablaVentasDia">
+                            </tbody>
+                        </table>
+                    </div>
+                    <div class="no-ventas" id="noVentasDiaMessage" style="display: none;">
+                        <i class="fas fa-receipt"></i>
+                        <p>No hay ventas registradas hoy</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========== SIDEBAR DERECHO ========== -->
+    <div class="right-sidebar" id="rightSidebar">
+        <button class="right-sidebar-expand-inline" id="rightSidebarExpandInline">
+            <i class="fas fa-chevron-right"></i>
+        </button>
+        <div class="right-sidebar-header">
+            <div class="right-sidebar-title">
+                <i class="fas fa-tools"></i>
+                <span>Herramientas</span>
+            </div>
+            <button class="right-sidebar-toggle" id="rightSidebarToggle">
+                <i class="fas fa-chevron-left"></i>
+            </button>
+        </div>
+        <div class="right-sidebar-content">
+            <!-- Sección Cargar Pedido -->
+            <div class="right-sidebar-section">
+                <h4>
+                    <i class="fas fa-upload"></i>
+                    <span>Cargar Pedido</span>
+                </h4>
+                <label style="font-size: 12px; color: #bdc3c7; margin-bottom: 8px; display: block;">
+                    <i class="fas fa-paste"></i> Pega aquí el texto del pedido:
+                </label>
+                <textarea class="cargar-pedido-textarea" id="cargarPedidoTextarea" placeholder="Ejemplo:
+PEDIDO AL POR MAYOR - Todoenuno_store
+
+👤 *Nombre:* Carla Montero
+📱 *Teléfono:* 62042482
+📍 *Dirección:* Av. Cristo Redentor #123
+🏢 *Departamento:* Santa Cruz
+💰 *Estado de pago:* Pendiente
+
+📋 *DETALLE DEL PEDIDO:*
+➡️ 2 unidades envase para aceites - 30 Bs
+➡️ 1 pulidor - 30 Bs
+
+💰 *TOTAL:* 60.00 Bs"></textarea>
+                <button class="right-sidebar-btn load" id="extraerDatosBtn">
+                    <i class="fas fa-file-export"></i> Extraer Datos del Texto
+                </button>
+                <p class="extraccion-info">
+                    <i class="fas fa-info-circle"></i> Extrae: Nombre, teléfono, dirección, departamento y productos
+                </p>
+            </div>
+
+            <!-- Sección Sincronización -->
+            <div class="right-sidebar-section">
+                <h4>
+                    <i class="fas fa-cloud"></i>
+                    <span>Sincronización</span>
+                </h4>
+                <button class="right-sidebar-btn sync" id="syncToCloudBtn">
+                    <i class="fas fa-cloud-upload-alt"></i> Subir
+                </button>
+                <button class="right-sidebar-btn sync" id="syncFromCloudBtn">
+                    <i class="fas fa-cloud-download-alt"></i> Bajar
+                </button>
+                <button class="right-sidebar-btn sync" id="testCloudBtn">
+                    <i class="fas fa-wifi"></i> Probar
+                </button>
+                <div class="right-sidebar-status offline" id="cloudStatus">
+                    <i class="fas fa-circle"></i> <span>No conectado</span>
+                </div>
+            </div>
+
+            <!-- Sección Gestión de Respaldo -->
+            <div class="right-sidebar-section">
+                <h4>
+                    <i class="fas fa-database"></i>
+                    <span>Gestión de Respaldo</span>
+                </h4>
+                <p style="font-size: 11px; color: #bdc3c7; margin-bottom: 10px;">
+                    Realiza copias de seguridad de todos los datos del sistema.
+                </p>
+                <button class="right-sidebar-btn backup" id="backupBtn">
+                    <i class="fas fa-download"></i> Descargar Backup
+                </button>
+                <button class="right-sidebar-btn backup" id="restoreBtn">
+                    <i class="fas fa-upload"></i> Restaurar Backup
+                </button>
+                <input type="file" id="restoreFile" accept=".json" style="display: none;">
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para selección de método de pago -->
+<div class="modal-overlay" id="metodoPagoModal" style="display: none;">
+    <div class="modal-content modal-metodo-pago">
+        <div class="modal-header">
+            <h3>Selecciona el Método de Pago</h3>
+            <button class="modal-close" id="closeMetodoPagoModal">&times;</button>
+        </div>
+        <div id="metodoPagoModalContent">
+            <div class="metodo-pago-modal-option selected" data-metodo="Efectivo" tabindex="0">
+                <div class="metodo-pago-modal-icon">
+                    <i class="fas fa-money-bill-wave" style="color: #28a745;"></i>
+                </div>
+                <div class="metodo-pago-modal-info">
+                    <div class="metodo-pago-modal-name">Efectivo</div>
+                    <div class="metodo-pago-modal-desc">Pago en efectivo con billetes o monedas</div>
+                </div>
+            </div>
+            <div class="metodo-pago-modal-option" data-metodo="QR" tabindex="0">
+                <div class="metodo-pago-modal-icon">
+                    <i class="fas fa-qrcode" style="color: #17a2b8;"></i>
+                </div>
+                <div class="metodo-pago-modal-info">
+                    <div class="metodo-pago-modal-name">QR</div>
+                    <div class="metodo-pago-modal-desc">Pago mediante código QR con tu celular</div>
+                </div>
+            </div>
+            <div class="metodo-pago-modal-option" data-metodo="Mixto" tabindex="0">
+                <div class="metodo-pago-modal-icon">
+                    <i class="fas fa-money-bill-wave" style="color: #28a745;"></i>
+                    <i class="fas fa-qrcode" style="color: #17a2b8;"></i>
+                </div>
+                <div class="metodo-pago-modal-info">
+                    <div class="metodo-pago-modal-name">Pago Mixto</div>
+                    <div class="metodo-pago-modal-desc">Pago combinado en efectivo y QR</div>
+                </div>
+            </div>
+            <div id="camposMixto" class="pago-mixto-campos">
+                <div class="pago-mixto-container">
+                    <h3>Pago Mixto</h3>
+                    <p>Total a pagar: $<span id="totalMixto">0.00</span></p>
+                    <div class="pago-mixto-opciones">
+                        <div class="pago-mixto-opcion active" data-tipo="efectivo-primero">
+                            Efectivo primero
+                        </div>
+                        <div class="pago-mixto-opcion" data-tipo="qr-primero">
+                            QR primero
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="montoEfectivoMixto">Monto en Efectivo:</label>
+                        <input type="number" id="montoEfectivoMixto" step="0.01" min="0" value="0">
+                    </div>
+                    <div class="form-group">
+                        <label for="montoQRMixto">Monto con QR:</label>
+                        <input type="number" id="montoQRMixto" step="0.01" min="0" value="0">
+                    </div>
+                    <div id="resumenMixto" class="resumen-pago" style="display: none;">
+                        <p><strong>Resumen de pago:</strong></p>
+                        <p>Efectivo: $<span id="resumenEfectivo">0.00</span></p>
+                        <p>QR: $<span id="resumenQR">0.00</span></p>
+                        <p>Total pagado: $<span id="totalPagado">0.00</span></p>
+                        <p id="mensajeFaltante" style="color: #dc3545; display: none;">Falta por pagar: $<span id="montoFaltante">0.00</span></p>
+                        <p id="mensajeCambio" style="color: #28a745; display: none;">Cambio: $<span id="montoCambioMixto">0.00</span></p>
+                    </div>
+                </div>
+            </div>
+            <div id="camposCambio" class="cambio-section" style="display: none;">
+                <h4><i class="fas fa-calculator"></i> Cálculo de Cambio</h4>
+                <div class="form-group">
+                    <label for="montoRecibido">Monto Recibido del Cliente (Bs):</label>
+                    <input type="number" id="montoRecibido" step="0.01" min="0" placeholder="Ingresa el monto recibido">
+                </div>
+                <div id="resultadoCambio" class="resumen-pago" style="display: none;">
+                    <p><strong>Cambio a Entregar:</strong> <span id="montoCambio">0.00</span> Bs</p>
+                </div>
+            </div>
+            <div class="modal-actions">
+                <button class="form-btn btn-cancel" id="cancelMetodoPago">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="form-btn btn-save" id="confirmMetodoPago">
+                    <i class="fas fa-check"></i> Confirmar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Observación -->
+<div class="modal-overlay" id="observacionModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Agregar Observación a la Venta</h3>
+            <button class="modal-close" id="closeObservacionModal">&times;</button>
+        </div>
+        <div id="observacionModalContent">
+            <div class="form-group">
+                <label>Observación:</label>
+                <textarea id="observacionText" rows="4" placeholder="Ingresa una observación sobre esta venta"></textarea>
+            </div>
+            <div class="modal-actions">
+                <button class="form-btn btn-cancel" id="cancelObservacion">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="form-btn btn-save" id="saveObservacion">
+                    <i class="fas fa-save"></i> Guardar Observación
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Detalle de Venta -->
+<div class="modal-overlay" id="detailModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Detalle de Venta</h3>
+            <button class="modal-close" id="closeDetailModal">&times;</button>
+        </div>
+        <div id="detailModalContent">
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Apertura de Caja (CON BOTÓN CONTINUAR SIN ABRIR) -->
+<div class="modal-overlay" id="aperturaCajaModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3><i class="fas fa-cash-register"></i> Apertura de Caja</h3>
+        </div>
+        <div id="aperturaCajaModalContent">
+            <div class="info-box" style="border-left-color: #f39c12; background-color: #fff9e6;">
+                <p style="font-size: 13px;">
+                    <i class="fas fa-info-circle" style="color: #f39c12;"></i>
+                    Si <strong>ya abriste caja antes</strong> y solo se recargó la página, usa
+                    <strong>"Continuar sin abrir caja"</strong> para no duplicar el registro.
+                </p>
+            </div>
+            <div class="form-group">
+                <label>Monto de Apertura de Caja (Bs):</label>
+                <input type="number" id="montoAperturaCaja" placeholder="Ingresa el monto con el que abres la caja" min="0" step="0.01">
+            </div>
+            <div class="apertura-actions">
+                <button type="button" class="btn-continuar-sin-abrir" id="continuarSinAbrirCaja">
+                    <i class="fas fa-forward"></i> Continuar sin abrir caja
+                </button>
+                <button type="button" class="form-btn btn-save" id="confirmAperturaCaja">
+                    <i class="fas fa-check"></i> Confirmar Apertura
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Cambiar Usuario -->
+<div class="modal-overlay" id="cambiarUsuarioModal" style="display: none;">
+    <div class="modal-content" style="max-width: 400px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-user-circle"></i> Cambiar de Usuario</h3>
+            <button class="modal-close" id="closeCambiarUsuarioModal">&times;</button>
+        </div>
+        <div id="cambiarUsuarioModalContent">
+            <div class="info-box" style="margin-bottom: 15px;">
+                <p><strong>Usuario actual:</strong> <span id="usuarioActualNombre"></span></p>
+                <p style="font-size: 12px; color: #7f8c8d;">
+                    <i class="fas fa-info-circle"></i> La caja permanecerá abierta. Solo cambiarán los permisos.
+                </p>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-user"></i> Nuevo Usuario:</label>
+                <input type="text" id="nuevoUsuarioInput" placeholder="Ingresa el usuario">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Contraseña:</label>
+                <input type="password" id="nuevaPasswordInput" placeholder="Ingresa la contraseña">
+            </div>
+            <div class="modal-actions">
+                <button class="form-btn btn-cancel" id="cancelCambiarUsuario">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="form-btn btn-save" id="confirmCambiarUsuario">
+                    <i class="fas fa-check"></i> Cambiar Usuario
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Autorización de Admin al eliminar venta -->
+<div class="modal-overlay" id="autorizacionAdminModal" style="display: none;">
+    <div class="modal-content" style="max-width: 420px;">
+        <div class="modal-header">
+            <h3><i class="fas fa-shield-alt" style="color: #e74c3c;"></i> Autorización de Administrador</h3>
+            <button class="modal-close" id="closeAutorizacionModal">&times;</button>
+        </div>
+        <div id="autorizacionAdminModalContent">
+            <div class="info-box" style="border-left-color: #e74c3c; background-color: #fde8e8;">
+                <p style="font-size: 13px;">
+                    <i class="fas fa-exclamation-triangle" style="color: #e74c3c;"></i>
+                    Se requiere autorización de un administrador para eliminar esta venta.
+                </p>
+                <p style="font-size: 12px; color: #7f8c8d; margin-top: 6px;">
+                    La sesión actual NO cambiará. Solo se valida la autorización.
+                </p>
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-user-shield"></i> Usuario Administrador:</label>
+                <input type="text" id="adminUsuarioInput" placeholder="Ingresa el usuario admin">
+            </div>
+            <div class="form-group">
+                <label><i class="fas fa-lock"></i> Contraseña:</label>
+                <input type="password" id="adminPasswordInput" placeholder="Ingresa la contraseña">
+            </div>
+            <div class="modal-actions">
+                <button class="form-btn btn-cancel" id="cancelAutorizacion">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="form-btn btn-save" id="confirmAutorizacion" style="background: #e74c3c;">
+                    <i class="fas fa-trash"></i> Autorizar y Eliminar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal para Cierre de Caja -->
+<div class="modal-overlay" id="cierreCajaModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Cierre de Caja</h3>
+            <button class="modal-close" id="closeCierreCajaModal">&times;</button>
+        </div>
+        <div id="cierreCajaModalContent">
+            <div class="form-group">
+                <label>Monto de Cierre de Caja (Bs):</label>
+                <input type="number" id="montoCierreCaja" placeholder="Ingresa el monto con el que cierras la caja" min="0" step="0.01" required>
+            </div>
+            <div class="modal-actions">
+                <button class="form-btn btn-cancel" id="cancelCierreCaja">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button class="form-btn btn-save" id="confirmCierreCaja">
+                    <i class="fas fa-check"></i> Confirmar Cierre
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Contenedor de notificaciones -->
+<div class="notification-container" id="notificationContainer"></div>
+<div id="sessionTimeoutOverlay" class="session-timeout-overlay" style="display: none;"></div>
+<div id="sessionTimeoutWarning" class="session-timeout-warning" style="display: none;">
+    <h3><i class="fas fa-clock"></i> Sesión por expirar</h3>
+    <p>Tu sesión expirará en <span id="countdown">60</span> segundos por inactividad.</p>
+    <p>¿Deseas continuar?</p>
+    <div style="display: flex; gap: 10px; justify-content: center; margin-top: 20px;">
+        <button id="extendSessionBtn" class="login-btn" style="width: auto; padding: 10px 20px;">
+            <i class="fas fa-sync-alt"></i> Continuar
+        </button>
+        <button id="logoutTimeoutBtn" class="logout-btn" style="width: auto; padding: 10px 20px;">
+            <i class="fas fa-sign-out-alt"></i> Cerrar Sesión
+        </button>
+    </div>
+</div>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+// ========== CONFIGURACIÓN DE SHEETDB ==========
+const API_URL_BASE = 'https://sheetdb.io/api/v1/kh5t9g90zly1x';
+
+function obtenerUrlSheetDB(sucursal) {
+    let sheetName = '';
+    if (sucursal === 'Feria Barrio Lindo') {
+        sheetName = 'feria';
+    } else if (sucursal === 'Centro Comercial Avenida Brasil') {
+        sheetName = 'comercial';
+    }
+    return `${API_URL_BASE}?sheet=${sheetName}`;
+}
+
+// ========== ELEMENTOS DEL DOM ==========
+const loginScreen = document.getElementById('loginScreen');
+const sucursalSelectionScreen = document.getElementById('sucursalSelectionScreen');
+const mainScreen = document.getElementById('mainScreen');
+const loginForm = document.getElementById('loginForm');
+const usernameInput = document.getElementById('username');
+const passwordInput = document.getElementById('password');
+const sucursalFeriaCard = document.getElementById('sucursalFeriaCard');
+const sucursalCentroCard = document.getElementById('sucursalCentroCard');
+const confirmarSucursalBtn = document.getElementById('confirmarSucursalBtn');
+const currentUserName = document.getElementById('currentUserName');
+const currentUserRole = document.getElementById('currentUserRole');
+const logoutBtn = document.getElementById('logoutBtn');
+const cajaInfo = document.getElementById('cajaInfo');
+const cajaStatus = document.getElementById('cajaStatus');
+
+const sidebar = document.getElementById('sidebar');
+const sidebarToggle = document.getElementById('sidebarToggle');
+const mobileMenuToggle = document.getElementById('mobileMenuToggle');
+const mainContent = document.getElementById('mainContent');
+const sidebarSucursal = document.getElementById('sidebarSucursal');
+
+const rightSidebar = document.getElementById('rightSidebar');
+const rightSidebarToggle = document.getElementById('rightSidebarToggle');
+const rightSidebarExpandInline = document.getElementById('rightSidebarExpandInline');
+
+const menuInicio = document.getElementById('menuInicio');
+const menuVentasDia = document.getElementById('menuVentasDia');
+
+const seccionInicio = document.getElementById('seccionInicio');
+const seccionVentasDia = document.getElementById('seccionVentasDia');
+
+const actionGuardarVenta = document.getElementById('actionGuardarVenta');
+const actionImprimir = document.getElementById('actionImprimir');
+const actionWhatsApp = document.getElementById('actionWhatsApp');
+const actionCerrarCaja = document.getElementById('actionCerrarCaja');
+
+const descripcionProducto = document.getElementById('descripcionProducto');
+const montoProducto = document.getElementById('montoProducto');
+const agregarProductoBtn = document.getElementById('agregarProductoBtn');
+const productosLista = document.getElementById('productosLista');
+const totalCompra = document.getElementById('totalCompra');
+const fechaHoraActual = document.getElementById('fechaHoraActual');
+const productosHeader = document.getElementById('productosHeader');
+const productosContent = document.getElementById('productosContent');
+const ventasInfo = document.getElementById('ventasInfo');
+const contadorVentas = document.getElementById('contadorVentas');
+const statsContainer = document.getElementById('statsContainer');
+
+const totalVentasDia = document.getElementById('totalVentasDia');
+const totalRecaudadoDia = document.getElementById('totalRecaudadoDia');
+const promedioVentaDia = document.getElementById('promedioVentaDia');
+const aperturaCajaDia = document.getElementById('aperturaCajaDia');
+const ventasEfectivoDia = document.getElementById('ventasEfectivoDia');
+const totalEnCajaDia = document.getElementById('totalEnCajaDia');
+const cierreEfectivoDia = document.getElementById('cierreEfectivoDia');
+const tablaVentasDia = document.getElementById('tablaVentasDia');
+const noVentasDiaMessage = document.getElementById('noVentasDiaMessage');
+const imprimirResumenDiaBtn = document.getElementById('imprimirResumenDiaBtn');
+const imprimirTodasVentasDiaBtn = document.getElementById('imprimirTodasVentasDiaBtn');
+
+const estadisticasHeader = document.getElementById('estadisticasHeader');
+const estadisticasContent = document.getElementById('estadisticasContent');
+const previewHeader = document.getElementById('previewHeader');
+const previewContent = document.getElementById('previewContent');
+
+const metodoPagoModal = document.getElementById('metodoPagoModal');
+const closeMetodoPagoModal = document.getElementById('closeMetodoPagoModal');
+const cancelMetodoPago = document.getElementById('cancelMetodoPago');
+const confirmMetodoPago = document.getElementById('confirmMetodoPago');
+const metodoPagoOptions = document.querySelectorAll('.metodo-pago-modal-option');
+const observacionModal = document.getElementById('observacionModal');
+const closeObservacionModal = document.getElementById('closeObservacionModal');
+const observacionText = document.getElementById('observacionText');
+const cancelObservacion = document.getElementById('cancelObservacion');
+const saveObservacion = document.getElementById('saveObservacion');
+const detailModal = document.getElementById('detailModal');
+const closeDetailModal = document.getElementById('closeDetailModal');
+const detailModalContent = document.getElementById('detailModalContent');
+
+const aperturaCajaModal = document.getElementById('aperturaCajaModal');
+const confirmAperturaCaja = document.getElementById('confirmAperturaCaja');
+const continuarSinAbrirCaja = document.getElementById('continuarSinAbrirCaja');
+const montoAperturaCaja = document.getElementById('montoAperturaCaja');
+const cierreCajaModal = document.getElementById('cierreCajaModal');
+const closeCierreCajaModal = document.getElementById('closeCierreCajaModal');
+const cancelCierreCaja = document.getElementById('cancelCierreCaja');
+const confirmCierreCaja = document.getElementById('confirmCierreCaja');
+const cambiarUsuarioModal = document.getElementById('cambiarUsuarioModal');
+const closeCambiarUsuarioModal = document.getElementById('closeCambiarUsuarioModal');
+const cancelCambiarUsuario = document.getElementById('cancelCambiarUsuario');
+const confirmCambiarUsuario = document.getElementById('confirmCambiarUsuario');
+const cambiarUsuarioBtn = document.getElementById('cambiarUsuarioBtn');
+const nuevoUsuarioInput = document.getElementById('nuevoUsuarioInput');
+const nuevaPasswordInput = document.getElementById('nuevaPasswordInput');
+const usuarioActualNombre = document.getElementById('usuarioActualNombre');
+const montoCierreCaja = document.getElementById('montoCierreCaja');
+
+const autorizacionAdminModal = document.getElementById('autorizacionAdminModal');
+const closeAutorizacionModal = document.getElementById('closeAutorizacionModal');
+const cancelAutorizacion = document.getElementById('cancelAutorizacion');
+const confirmAutorizacion = document.getElementById('confirmAutorizacion');
+const adminUsuarioInput = document.getElementById('adminUsuarioInput');
+const adminPasswordInput = document.getElementById('adminPasswordInput');
+
+const backupBtn = document.getElementById('backupBtn');
+const restoreBtn = document.getElementById('restoreBtn');
+const restoreFile = document.getElementById('restoreFile');
+
+const sessionTimeoutOverlay = document.getElementById('sessionTimeoutOverlay');
+const sessionTimeoutWarning = document.getElementById('sessionTimeoutWarning');
+const countdownElement = document.getElementById('countdown');
+const extendSessionBtn = document.getElementById('extendSessionBtn');
+const logoutTimeoutBtn = document.getElementById('logoutTimeoutBtn');
+
+const camposMixto = document.getElementById('camposMixto');
+const totalMixto = document.getElementById('totalMixto');
+const montoEfectivoMixto = document.getElementById('montoEfectivoMixto');
+const montoQRMixto = document.getElementById('montoQRMixto');
+const resumenMixto = document.getElementById('resumenMixto');
+const pagoMixtoOpciones = document.querySelectorAll('.pago-mixto-opcion');
+
+const syncToCloudBtn = document.getElementById('syncToCloudBtn');
+const syncFromCloudBtn = document.getElementById('syncFromCloudBtn');
+const testCloudBtn = document.getElementById('testCloudBtn');
+const cloudStatus = document.getElementById('cloudStatus');
+
+const camposCambio = document.getElementById('camposCambio');
+const montoRecibido = document.getElementById('montoRecibido');
+const resultadoCambio = document.getElementById('resultadoCambio');
+const montoCambioElement = document.getElementById('montoCambio');
+
+const cargarPedidoTextarea = document.getElementById('cargarPedidoTextarea');
+const extraerDatosBtn = document.getElementById('extraerDatosBtn');
+const clienteNombreInput = document.getElementById('clienteNombreInput');
+const clienteDireccionInput = document.getElementById('clienteDireccionInput');
+const clienteDepartamentoInput = document.getElementById('clienteDepartamentoInput');
+
+// Variables globales
+let items = [];
+let total = 0;
+let ventasDelDia = [];
+let currentUser = null;
+let cajaAbierta = false;
+let horaAperturaCaja = null;
+let ventasCajaActual = [];
+let sucursalSeleccionada = 'Feria Barrio Lindo';
+let ventaConObservacionIndex = -1;
+let timeoutTimer;
+let countdown;
+let lastActivityTime = Date.now();
+const SESSION_TIMEOUT = 30 * 60 * 1000;
+const WARNING_TIME = 60;
+let metodoPagoSeleccionado = 'Efectivo';
+let tipoPagoMixto = 'efectivo-primero';
+let montoApertura = 0;
+let montoCierre = 0;
+let indiceSucursalSeleccionada = 0;
+let agregandoProducto = false;
+let guardandoVenta = false;
+let nombreClienteActual = '';
+let direccionClienteActual = '';
+let departamentoClienteActual = '';
+let ventaAEliminarIndex = -1;
+
+const sucursales = {
+    "Feria Barrio Lindo": {
+        nombre: "Feria Barrio Lindo",
+        ubicacion: "Asociación 3 de marzo, pasillo 1, puesto 1",
+        telefono: "61439475",
+        tipo: "feria"
+    },
+    "Centro Comercial Avenida Brasil": {
+        nombre: "Centro Comercial Avenida Brasil",
+        ubicacion: "Puesto D2, Av. Brasil",
+        telefono: "61439475",
+        tipo: "centro"
+    }
+};
+
+const usuarios = {
+    "milan": { password: "tigre1234.A", nombre: "Milan", rol: "admin" },
+    "vania": { password: "vania123", nombre: "vania", rol: "vendedor" },
+    "argile": { password: "argile123", nombre: "argile", rol: "vendedor" },
+    "dilan": { password: "dilan123", nombre: "dilan", rol: "vendedor" }
+};
+
+// ========== SISTEMA DE NOTIFICACIONES ==========
+class Notificaciones {
+    static notificacionesActivas = [];
+    static maxNotificaciones = 5;
+
+    static mostrar(mensaje, tipo = 'info', duracion = 5000) {
+        let container = document.getElementById('notificationContainer');
+        if (!container) {
+            container = document.createElement('div');
+            container.id = 'notificationContainer';
+            container.className = 'notification-container';
+            document.body.appendChild(container);
+        }
+
+        const notification = document.createElement('div');
+        notification.className = `notification ${tipo}`;
+        notification.innerHTML = `
+            <i class="fas fa-${this.obtenerIcono(tipo)}"></i>
+            <span>${mensaje}</span>
+            <button class="notification-close">&times;</button>
+        `;
+        container.appendChild(notification);
+
+        const notificationData = { element: notification, timer: null };
+        this.notificacionesActivas.push(notificationData);
+
+        setTimeout(() => notification.classList.add('show'), 10);
+
+        notification.querySelector('.notification-close').addEventListener('click', () => {
+            this.cerrar(notificationData);
+        });
+
+        if (duracion > 0) {
+            notificationData.timer = setTimeout(() => this.cerrar(notificationData), duracion);
+        }
+
+        if (this.notificacionesActivas.length > this.maxNotificaciones) {
+            const oldNotification = this.notificacionesActivas.shift();
+            this.cerrar(oldNotification);
+        }
+
+        return notificationData;
+    }
+
+    static obtenerIcono(tipo) {
+        const iconos = {
+            'success': 'check-circle',
+            'error': 'exclamation-circle',
+            'warning': 'exclamation-triangle',
+            'info': 'info-circle'
+        };
+        return iconos[tipo] || 'info-circle';
+    }
+
+    static cerrar(notificationData) {
+        if (!notificationData) return;
+        const index = this.notificacionesActivas.indexOf(notificationData);
+        if (index > -1) {
+            this.notificacionesActivas.splice(index, 1);
+        }
+        if (notificationData.timer) {
+            clearTimeout(notificationData.timer);
+        }
+        notificationData.element.classList.remove('show');
+        setTimeout(() => {
+            if (notificationData.element.parentNode) {
+                notificationData.element.parentNode.removeChild(notificationData.element);
+            }
+        }, 300);
+    }
+
+    static limpiarTodas() {
+        while (this.notificacionesActivas.length > 0) {
+            this.cerrar(this.notificacionesActivas[0]);
+        }
+    }
+}
+
+// ========== EXTRAER DATOS DEL TEXTO DEL PEDIDO ==========
+function extraerDatosDelPedido() {
+    const texto = cargarPedidoTextarea.value.trim();
+
+    if (!texto) {
+        Notificaciones.mostrar('Por favor pega el texto del pedido primero', 'warning');
+        return;
+    }
+
+    try {
+        let nombre = '';
+        let telefono = '';
+        let direccion = '';
+        let departamento = '';
+        let productosTexto = '';
+
+        const nombreMatch = texto.match(/(?:👤\s*)?\*?Nombre\*?:?\s*([^\n]+)/i);
+        if (nombreMatch) {
+            nombre = nombreMatch[1].trim().replace(/\*/g, '');
+        }
+
+        const telefonoMatch = texto.match(/(?:📱\s*)?\*?Tel(?:éfono|efono)?\*?:?\s*(\d+)/i);
+        if (telefonoMatch) {
+            telefono = telefonoMatch[1].trim();
+        }
+
+        const direccionMatch = texto.match(/(?:📍\s*)?\*?Direcci[oó]n\*?:?\s*([^\n]+)/i);
+        if (direccionMatch) {
+            direccion = direccionMatch[1].trim().replace(/\*/g, '');
+        }
+
+        const departamentoMatch = texto.match(/(?:🏢\s*)?\*?Departamento\*?:?\s*([^\n]+)/i);
+        if (departamentoMatch) {
+            departamento = departamentoMatch[1].trim().replace(/\*/g, '');
+        }
+
+        const detalleMatch = texto.match(/(?:📋\s*)?\*?DETALLE DEL PEDIDO\*?:?([\s\S]*?)(?:💰|$)/i);
+        if (detalleMatch) {
+            productosTexto = detalleMatch[1].trim();
+        }
+
+        const lineasProductos = productosTexto.split('\n').filter(linea => linea.includes('➡️'));
+
+        let productosEncontrados = 0;
+
+        lineasProductos.forEach(linea => {
+            const lineaLimpia = linea.replace(/➡️\s*/, '').trim();
+
+            let descripcion = '';
+            let precio = 0;
+
+            const ultimoGuion = lineaLimpia.lastIndexOf(' - ');
+
+            if (ultimoGuion !== -1) {
+                descripcion = lineaLimpia.substring(0, ultimoGuion).trim();
+                const precioTexto = lineaLimpia.substring(ultimoGuion + 3).trim();
+                const precioMatch = precioTexto.match(/(\d+(?:[.,]\d{1,2})?)/);
+                if (precioMatch) {
+                    precio = parseFloat(precioMatch[1].replace(',', '.'));
+                }
+            } else {
+                descripcion = lineaLimpia;
+            }
+
+            if (descripcion && precio > 0) {
+                items.push({
+                    id: Date.now() + productosEncontrados,
+                    descripcion: descripcion,
+                    monto: precio
+                });
+                productosEncontrados++;
+            }
+        });
+
+        if (nombre) {
+            nombreClienteActual = nombre;
+            clienteNombreInput.value = nombre;
+        }
+        if (direccion) {
+            direccionClienteActual = direccion;
+            clienteDireccionInput.value = direccion;
+        }
+        if (departamento) {
+            departamentoClienteActual = departamento;
+            clienteDepartamentoInput.value = departamento;
+        }
+
+        if (productosEncontrados > 0) {
+            actualizarListaItems();
+            actualizarPrevisualizacion();
+
+            if (!productosContent.classList.contains('expanded')) {
+                productosContent.classList.add('expanded');
+                productosHeader.querySelector('.collapsible-icon').classList.add('rotated');
+            }
+
+            Notificaciones.mostrar(`${productosEncontrados} productos extraídos exitosamente`, 'success');
+
+            let infoCliente = 'Cliente: ';
+            if (nombre) infoCliente += nombre;
+            if (telefono) infoCliente += ` (Tel: ${telefono})`;
+            if (direccion) infoCliente += ` - ${direccion}`;
+            if (departamento) infoCliente += `, ${departamento}`;
+            Notificaciones.mostrar(infoCliente, 'info', 5000);
+
+            cargarPedidoTextarea.value = '';
+        } else {
+            Notificaciones.mostrar('No se pudieron extraer productos del texto', 'warning');
+        }
+
+    } catch (error) {
+        console.error('Error al extraer datos:', error);
+        Notificaciones.mostrar('Error al procesar el texto del pedido', 'error');
+    }
+}
+
+// ========== FUNCIONES DE LA NUBE ==========
+async function probarConexionSheetDB() {
+    try {
+        const url = obtenerUrlSheetDB(sucursalSeleccionada);
+        const response = await fetch(url);
+        if (response.ok) {
+            cloudStatus.innerHTML = '<i class="fas fa-circle online"></i> <span>Conectado a SheetDB</span>';
+            cloudStatus.className = 'right-sidebar-status online';
+            Notificaciones.mostrar('Conexión exitosa con SheetDB', 'success');
+            return true;
+        } else {
+            cloudStatus.innerHTML = '<i class="fas fa-circle offline"></i> <span>Error de conexión</span>';
+            cloudStatus.className = 'right-sidebar-status offline';
+            Notificaciones.mostrar('Error al conectar con SheetDB', 'error');
+            return false;
+        }
+    } catch (error) {
+        console.error('Error de conexión:', error);
+        cloudStatus.innerHTML = '<i class="fas fa-circle offline"></i> <span>Sin conexión</span>';
+        cloudStatus.className = 'right-sidebar-status offline';
+        Notificaciones.mostrar('No se pudo conectar con SheetDB', 'error');
+        return false;
+    }
+}
+
+async function sincronizarVentaIndividualANube(venta) {
+    try {
+        const url = obtenerUrlSheetDB(venta.sucursal);
+
+        let montoEfectivo = '';
+        let montoQR = '';
+        let aperturaCaja = '';
+        let cierreCaja = '';
+
+        if (venta.productos === 'APERTURA DE CAJA') {
+            aperturaCaja = 'APERTURA';
+            montoEfectivo = venta.monto_efectivo || '';
+        } else if (venta.productos === 'CIERRE DE CAJA') {
+            cierreCaja = 'CIERRE';
+            montoEfectivo = venta.monto_efectivo || '';
+        } else {
+            montoEfectivo = venta.monto_efectivo || '';
+            montoQR = venta.monto_qr || '';
+        }
+
+        let idVenta = venta.id;
+        if (venta.nombre_cliente && venta.productos !== 'APERTURA DE CAJA' && venta.productos !== 'CIERRE DE CAJA') {
+            idVenta = venta.nombre_cliente;
+        }
+
+        const datosParaSheetDB = {
+            id: idVenta,
+            fecha: venta.fecha || '',
+            hora: venta.hora || '',
+            sucursal: venta.sucursal || '',
+            'ubicación': venta.ubicacion || '',
+            productos: venta.productos || '',
+            montos: venta.montos || '',
+            total_venta: venta.total_venta || '0',
+            timestamp: venta.timestamp || new Date().toISOString(),
+            tipo_sucursal: venta.tipo_sucursal || '',
+            usuario: venta.usuario || '',
+            observaciones: venta.observaciones || '',
+            metodo_pago: venta.metodo_pago || '',
+            monto_efectivo: montoEfectivo,
+            monto_qr: montoQR,
+            apertura_caja: aperturaCaja,
+            cierre_caja: cierreCaja,
+            dia: venta.dia || '',
+            sincronizada: 'TRUE',
+            numero_productos: venta.numero_productos || '0',
+            direccion: venta.direccion || '',
+            departamento: venta.departamento || ''
+        };
+
+        Object.keys(datosParaSheetDB).forEach(key => {
+            if (datosParaSheetDB[key] === undefined) {
+                datosParaSheetDB[key] = '';
+            }
+        });
+
+        const response = await fetch(url, {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({ data: datosParaSheetDB })
+        });
+
+        if (response.ok) {
+            const ventaIndex = ventasDelDia.findIndex(v => v.id === venta.id);
+            if (ventaIndex !== -1) {
+                ventasDelDia[ventaIndex].sincronizada = true;
+                localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+            }
+            Notificaciones.mostrar('Datos enviados exitosamente a SheetDB', 'success', 3000);
+            cloudStatus.innerHTML = '<i class="fas fa-circle online"></i> <span>Sincronizado</span>';
+            cloudStatus.className = 'right-sidebar-status online';
+            return true;
+        } else {
+            console.error('Error de SheetDB:', await response.text());
+            Notificaciones.mostrar('Error al enviar datos a SheetDB', 'error', 3000);
+            return false;
+        }
+    } catch (error) {
+        console.error('Error al sincronizar con SheetDB:', error);
+        Notificaciones.mostrar('Error de conexión con SheetDB', 'error', 3000);
+        return false;
+    }
+}
+
+async function sincronizarVentasANube() {
+    const ventasParaSincronizar = ventasDelDia.filter(v => !v.sincronizada);
+    if (ventasParaSincronizar.length === 0) {
+        Notificaciones.mostrar('No hay ventas nuevas para sincronizar', 'info');
+        return;
+    }
+
+    try {
+        syncToCloudBtn.disabled = true;
+        syncToCloudBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Sincronizando...';
+        let ventasEnviadas = 0;
+        let errores = 0;
+
+        for (const venta of ventasParaSincronizar) {
+            try {
+                const exito = await sincronizarVentaIndividualANube(venta);
+                if (exito) {
+                    ventasEnviadas++;
+                } else {
+                    errores++;
+                }
+            } catch (error) {
+                console.error(`Error al enviar venta ${venta.id}:`, error);
+                errores++;
+            }
+        }
+
+        if (errores === 0) {
+            Notificaciones.mostrar(`${ventasEnviadas} ventas sincronizadas exitosamente`, 'success');
+        } else {
+            Notificaciones.mostrar(`${ventasEnviadas} ventas sincronizadas, ${errores} errores`, 'warning');
+        }
+        actualizarContadorVentas();
+    } catch (error) {
+        console.error('Error al sincronizar:', error);
+        Notificaciones.mostrar('Error al sincronizar ventas con la nube: ' + error.message, 'error');
+    } finally {
+        syncToCloudBtn.disabled = false;
+        syncToCloudBtn.innerHTML = '<i class="fas fa-cloud-upload-alt"></i> Subir';
+    }
+}
+
+async function sincronizarDesdeNube() {
+    try {
+        syncFromCloudBtn.disabled = true;
+        syncFromCloudBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Descargando...';
+        const url = obtenerUrlSheetDB(sucursalSeleccionada);
+        const response = await fetch(url);
+
+        if (response.ok) {
+            const datos = await response.json();
+            if (datos.length > 0) {
+                crearBackupAutomatico();
+                datos.forEach(venta => {
+                    venta.sincronizada = true;
+                    if (!venta.ubicacion && venta['ubicación']) {
+                        venta.ubicacion = venta['ubicación'];
+                    }
+                });
+
+                const ventasSucursal = datos.filter(v => v.sucursal === sucursalSeleccionada);
+                ventasSucursal.forEach(nuevaVenta => {
+                    const existe = ventasDelDia.find(v => v.id === nuevaVenta.id);
+                    if (!existe) {
+                        ventasDelDia.push(nuevaVenta);
+                    }
+                });
+
+                localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+                actualizarContadorVentas();
+                actualizarEstadisticas();
+                actualizarVentasDelDia();
+                Notificaciones.mostrar(`Datos descargados exitosamente (${ventasSucursal.length} registros)`, 'success');
+                cloudStatus.innerHTML = '<i class="fas fa-circle online"></i> <span>Sincronizado</span>';
+                cloudStatus.className = 'right-sidebar-status online';
+            } else {
+                Notificaciones.mostrar('No hay datos en la hoja de esta sucursal', 'info');
+            }
+        } else {
+            throw new Error('Error al obtener datos de la nube');
+        }
+    } catch (error) {
+        console.error('Error al descargar:', error);
+        Notificaciones.mostrar('Error al descargar datos de la nube', 'error');
+    } finally {
+        syncFromCloudBtn.disabled = false;
+        syncFromCloudBtn.innerHTML = '<i class="fas fa-cloud-download-alt"></i> Bajar';
+    }
+}
+
+// ========== FUNCIONES PRINCIPALES ==========
+function actualizarFechaHora() {
+    const ahora = new Date();
+    const opciones = {
+        weekday: 'long',
+        year: 'numeric',
+        month: 'long',
+        day: 'numeric',
+        hour: '2-digit',
+        minute: '2-digit',
+        second: '2-digit'
+    };
+    fechaHoraActual.textContent = ahora.toLocaleDateString('es-ES', opciones);
+}
+
+actualizarFechaHora();
+setInterval(actualizarFechaHora, 1000);
+
+async function guardarVentaCompleta() {
+    if (guardandoVenta) return;
+    if (!validarFormulario()) {
+        Notificaciones.mostrar('Agrega al menos un producto antes de guardar', 'warning');
+        return;
+    }
+    if (!cajaAbierta) {
+        Notificaciones.mostrar('Debe abrir la caja antes de guardar una venta', 'warning');
+        mostrarModalAperturaCaja();
+        return;
+    }
+    metodoPagoModal.style.display = 'flex';
+    metodoPagoSeleccionado = 'Efectivo';
+    metodoPagoOptions.forEach(option => {
+        option.classList.remove('selected');
+    });
+    metodoPagoOptions[0].classList.add('selected');
+    camposMixto.classList.remove('active');
+    camposCambio.style.display = 'block';
+    totalMixto.textContent = total.toFixed(2);
+    montoRecibido.value = '';
+    resultadoCambio.style.display = 'none';
+}
+
+async function guardarVentaConMetodoPago() {
+    if (guardandoVenta) return;
+    guardandoVenta = true;
+    confirmMetodoPago.disabled = true;
+    confirmMetodoPago.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+
+    if (metodoPagoSeleccionado === 'Mixto') {
+        const montoEfectivo = parseFloat(montoEfectivoMixto.value) || 0;
+        const montoQR = parseFloat(montoQRMixto.value) || 0;
+        const totalPagado = montoEfectivo + montoQR;
+        if (Math.abs(totalPagado - total) > 0.01) {
+            Notificaciones.mostrar('La suma de los montos debe ser igual al total de la venta', 'error');
+            guardandoVenta = false;
+            confirmMetodoPago.disabled = false;
+            confirmMetodoPago.innerHTML = '<i class="fas fa-check"></i> Confirmar';
+            return;
+        }
+    }
+
+    try {
+        actionGuardarVenta.disabled = true;
+        actionGuardarVenta.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        const ventaGuardada = guardarVentaLocal();
+        if (ventaGuardada) {
+            Notificaciones.mostrar('Venta guardada correctamente en local', 'success', 3000);
+            setTimeout(async () => {
+                await sincronizarVentaIndividualANube(ventaGuardada);
+            }, 500);
+        }
+    } catch (error) {
+        console.error('Error:', error);
+        Notificaciones.mostrar('Error al procesar la venta', 'error');
+    } finally {
+        guardandoVenta = false;
+        actionGuardarVenta.disabled = false;
+        actionGuardarVenta.innerHTML = '<i class="fas fa-save"></i> Guardar Venta';
+        confirmMetodoPago.disabled = false;
+        confirmMetodoPago.innerHTML = '<i class="fas fa-check"></i> Confirmar';
+        metodoPagoModal.style.display = 'none';
+    }
+}
+
+function guardarVentaLocal() {
+    const datosSucursal = obtenerDatosSucursal();
+    let metodoPagoData = { metodo_pago: metodoPagoSeleccionado };
+
+    if (metodoPagoSeleccionado === 'Mixto') {
+        metodoPagoData.monto_efectivo = parseFloat(montoEfectivoMixto.value) || 0;
+        metodoPagoData.monto_qr = parseFloat(montoQRMixto.value) || 0;
+    } else {
+        metodoPagoData.monto_efectivo = '';
+        metodoPagoData.monto_qr = '';
+    }
+
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const fecha = new Date();
+    const diaSemana = dias[fecha.getDay()];
+
+    const datosVenta = {
+        id: Date.now(),
+        nombre_cliente: nombreClienteActual || 'Cliente General',
+        direccion: direccionClienteActual || '',
+        departamento: departamentoClienteActual || '',
+        fecha: new Date().toLocaleDateString('es-ES'),
+        hora: new Date().toLocaleTimeString('es-ES'),
+        sucursal: datosSucursal.nombre,
+        ubicacion: datosSucursal.ubicacion,
+        productos: items.map(item => item.descripcion).join(' | '),
+        montos: items.map(item => item.monto.toFixed(2)).join(' | '),
+        total_venta: total.toFixed(2),
+        numero_productos: items.length,
+        timestamp: new Date().toISOString(),
+        tipo_sucursal: datosSucursal.tipo,
+        usuario: currentUser.nombre,
+        observaciones: '',
+        apertura_caja: '',
+        cierre_caja: '',
+        sincronizada: false,
+        dia: diaSemana,
+        ...metodoPagoData
+    };
+
+    ventasDelDia.push(datosVenta);
+    localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+    ventasCajaActual.push(datosVenta);
+    localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
+    crearBackupAutomatico();
+
+    items = [];
+    nombreClienteActual = '';
+    direccionClienteActual = '';
+    departamentoClienteActual = '';
+    clienteNombreInput.value = '';
+    clienteDireccionInput.value = '';
+    clienteDepartamentoInput.value = '';
+    actualizarListaItems();
+    actualizarPrevisualizacion();
+    actualizarContadorVentas();
+    actualizarEstadisticas();
+    actualizarVentasDelDia();
+
+    return datosVenta;
+}
+
+function enviarResumenVentasDiaWhatsApp() {
+    const hoy = new Date().toLocaleDateString('es-ES');
+    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy);
+    if (ventasHoy.length === 0) {
+        Notificaciones.mostrar('No hay ventas hoy para enviar por WhatsApp', 'warning');
+        return;
+    }
+
+    const totalRecaudado = ventasHoy.reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const promedio = totalRecaudado / ventasHoy.length;
+
+    let mensaje = `*RESUMEN DE VENTAS DEL DÍA - TODOENUNO_STORE*%0A%0A`;
+    mensaje += `*Fecha:* ${hoy}%0A`;
+    mensaje += `*Sucursal:* ${sucursalSeleccionada}%0A`;
+    mensaje += `*Total Ventas:* ${ventasHoy.length}%0A`;
+    mensaje += `*Total Recaudado:* ${totalRecaudado.toFixed(2)} Bs%0A`;
+    mensaje += `*Promedio por Venta:* ${promedio.toFixed(2)} Bs%0A%0A`;
+    mensaje += `*DETALLE DE VENTAS:*%0A`;
+
+    ventasHoy.forEach((venta, index) => {
+        const productosPreview = venta.productos.split(' | ').slice(0, 2).join(', ');
+        const productosExtra = venta.productos.split(' | ').length > 2 ? '...' : '';
+        mensaje += `${index + 1}. ${productosPreview}${productosExtra} - ${venta.total_venta} Bs%0A`;
+    });
+
+    mensaje += `%0A*MÉTODOS DE PAGO:*%0A`;
+    const efectivo = ventasHoy.filter(v => v.metodo_pago === 'Efectivo').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const qr = ventasHoy.filter(v => v.metodo_pago === 'QR').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const mixto = ventasHoy.filter(v => v.metodo_pago === 'Mixto').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+
+    mensaje += `Efectivo: ${efectivo.toFixed(2)} Bs%0A`;
+    mensaje += `QR: ${qr.toFixed(2)} Bs%0A`;
+    mensaje += `Mixto: ${mixto.toFixed(2)} Bs%0A%0A`;
+    mensaje += `*Generado por:* ${currentUser.nombre}%0A`;
+    mensaje += `*Hora de generación:* ${new Date().toLocaleTimeString('es-ES')}`;
+
+    const whatsappNumber = "75000435";
+    const whatsappUrl = `https://wa.me/${whatsappNumber}?text=${mensaje}`;
+    window.open(whatsappUrl, '_blank');
+}
+
+function inicializar() {
+    configurarEventListeners();
+    cargarVentasDelDia();
+    actualizarContadorVentas();
+    actualizarEstadisticas();
+    actualizarVentasDelDia();
+    verificarSesionActiva();
+    setupActivityListeners();
+    resetSessionTimer();
+    setTimeout(probarConexionSheetDB, 2000);
+}
+
+// ========== CONFIGURAR EVENT LISTENERS ==========
+function configurarEventListeners() {
+    loginForm.addEventListener('submit', function(e) {
+        e.preventDefault();
+        const username = usernameInput.value.trim().toLowerCase();
+        const password = passwordInput.value;
+        if (usuarios[username] && usuarios[username].password === password) {
+            currentUser = {
+                username: username,
+                nombre: usuarios[username].nombre,
+                rol: usuarios[username].rol
+            };
+            localStorage.setItem('currentUser', JSON.stringify(currentUser));
+            mostrarPantallaSeleccionSucursal();
+        } else {
+            Notificaciones.mostrar('Usuario o contraseña incorrectos', 'error');
+        }
+    });
+
+    sucursalSelectionScreen.addEventListener('keydown', function(e) {
+        if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            indiceSucursalSeleccionada = (indiceSucursalSeleccionada + 1) % 2;
+            actualizarSeleccionSucursalConTeclado();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            indiceSucursalSeleccionada = (indiceSucursalSeleccionada - 1 + 2) % 2;
+            actualizarSeleccionSucursalConTeclado();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmarSucursalBtn.click();
+        }
+    });
+
+    function actualizarSeleccionSucursalConTeclado() {
+        sucursalFeriaCard.classList.remove('selected');
+        sucursalCentroCard.classList.remove('selected');
+        if (indiceSucursalSeleccionada === 0) {
+            sucursalFeriaCard.classList.add('selected');
+            sucursalSeleccionada = 'Feria Barrio Lindo';
+            sucursalFeriaCard.focus();
+        } else {
+            sucursalCentroCard.classList.add('selected');
+            sucursalSeleccionada = 'Centro Comercial Avenida Brasil';
+            sucursalCentroCard.focus();
+        }
+    }
+
+    sucursalFeriaCard.addEventListener('click', function() {
+        indiceSucursalSeleccionada = 0;
+        actualizarSeleccionSucursalConTeclado();
+    });
+
+    sucursalCentroCard.addEventListener('click', function() {
+        indiceSucursalSeleccionada = 1;
+        actualizarSeleccionSucursalConTeclado();
+    });
+
+    confirmarSucursalBtn.addEventListener('click', function() {
+        localStorage.setItem('sucursalSeleccionada', sucursalSeleccionada);
+        mostrarPantallaPrincipal();
+    });
+
+    sidebarToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('collapsed');
+        mainContent.classList.toggle('sidebar-collapsed');
+    });
+
+    rightSidebarToggle.addEventListener('click', function() {
+        rightSidebar.classList.toggle('collapsed');
+        rightSidebarToggle.classList.toggle('collapsed');
+        mainContent.classList.toggle('right-sidebar-collapsed');
+    });
+
+    rightSidebarExpandInline.addEventListener('click', function() {
+        rightSidebar.classList.remove('collapsed');
+        rightSidebarToggle.classList.remove('collapsed');
+        mainContent.classList.remove('right-sidebar-collapsed');
+    });
+
+    mobileMenuToggle.addEventListener('click', function() {
+        sidebar.classList.toggle('active');
+    });
+
+    menuInicio.addEventListener('click', function(e) {
+        e.preventDefault();
+        cambiarSeccion('inicio');
+    });
+
+    menuVentasDia.addEventListener('click', function(e) {
+        e.preventDefault();
+        cambiarSeccion('ventasDia');
+    });
+
+    logoutBtn.addEventListener('click', function() {
+        Swal.fire({
+            title: '¿Cerrar Sesión?',
+            text: 'Se perderán los datos no guardados de la caja actual',
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonText: 'Sí, cerrar sesión',
+            cancelButtonText: 'Cancelar'
+        }).then((result) => {
+            if (result.isConfirmed) {
+                if (cajaAbierta) {
+                    cerrarCaja();
+                }
+                localStorage.removeItem('currentUser');
+                localStorage.removeItem('sucursalSeleccionada');
+                localStorage.removeItem('montoApertura');
+                localStorage.removeItem('montoCierre');
+                localStorage.removeItem('cajaAbierta');
+                localStorage.removeItem('horaAperturaCaja');
+                localStorage.removeItem('ventasCajaActual');
+                currentUser = null;
+                sucursalSeleccionada = null;
+                mainScreen.style.display = 'none';
+                loginScreen.style.display = 'block';
+                usernameInput.value = '';
+                passwordInput.value = '';
+            }
+        });
+    });
+
+    cambiarUsuarioBtn.addEventListener('click', function() {
+        mostrarModalCambiarUsuario();
+    });
+
+    closeCambiarUsuarioModal.addEventListener('click', function() {
+        cambiarUsuarioModal.style.display = 'none';
+    });
+
+    cancelCambiarUsuario.addEventListener('click', function() {
+        cambiarUsuarioModal.style.display = 'none';
+    });
+
+    confirmCambiarUsuario.addEventListener('click', function() {
+        cambiarUsuario();
+    });
+
+    cambiarUsuarioModal.addEventListener('click', function(e) {
+        if (e.target === cambiarUsuarioModal) {
+            cambiarUsuarioModal.style.display = 'none';
+        }
+    });
+
+    nuevoUsuarioInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmCambiarUsuario.click();
+        }
+    });
+    nuevaPasswordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmCambiarUsuario.click();
+        }
+    });
+
+    // Modal de autorización admin
+    closeAutorizacionModal.addEventListener('click', function() {
+        autorizacionAdminModal.style.display = 'none';
+        ventaAEliminarIndex = -1;
+    });
+    cancelAutorizacion.addEventListener('click', function() {
+        autorizacionAdminModal.style.display = 'none';
+        ventaAEliminarIndex = -1;
+    });
+    autorizacionAdminModal.addEventListener('click', function(e) {
+        if (e.target === autorizacionAdminModal) {
+            autorizacionAdminModal.style.display = 'none';
+            ventaAEliminarIndex = -1;
+        }
+    });
+    adminUsuarioInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            adminPasswordInput.focus();
+        }
+    });
+    adminPasswordInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmarAutorizacionEliminar();
+        }
+    });
+    confirmAutorizacion.addEventListener('click', function() {
+        confirmarAutorizacionEliminar();
+    });
+
+    actionGuardarVenta.addEventListener('click', function() {
+        guardarVentaCompleta();
+    });
+
+    actionImprimir.addEventListener('click', function() {
+        if (!validarFormulario()) {
+            Notificaciones.mostrar('Agrega al menos un producto antes de imprimir', 'warning');
+            return;
+        }
+        if (!cajaAbierta) {
+            Notificaciones.mostrar('Debe abrir la caja antes de imprimir', 'warning');
+            mostrarModalAperturaCaja();
+            return;
+        }
+        actualizarPrevisualizacion();
+        setTimeout(function() {
+            imprimirNotaVenta();
+        }, 100);
+    });
+
+    actionWhatsApp.addEventListener('click', function() {
+        enviarResumenVentasDiaWhatsApp();
+    });
+
+    actionCerrarCaja.addEventListener('click', function() {
+        if (!cajaAbierta) {
+            mostrarModalAperturaCaja();
+        } else {
+            mostrarModalCierreCaja();
+        }
+    });
+
+    syncToCloudBtn.addEventListener('click', sincronizarVentasANube);
+    syncFromCloudBtn.addEventListener('click', sincronizarDesdeNube);
+    testCloudBtn.addEventListener('click', probarConexionSheetDB);
+    backupBtn.addEventListener('click', realizarBackupCompleto);
+    restoreBtn.addEventListener('click', function() {
+        restoreFile.click();
+    });
+    restoreFile.addEventListener('change', function(e) {
+        if (e.target.files.length > 0) {
+            restaurarBackup(e.target.files[0]);
+            e.target.value = '';
+        }
+    });
+
+    extraerDatosBtn.addEventListener('click', extraerDatosDelPedido);
+
+    clienteNombreInput.addEventListener('input', function() {
+        nombreClienteActual = this.value.trim();
+    });
+    clienteDireccionInput.addEventListener('input', function() {
+        direccionClienteActual = this.value.trim();
+    });
+    clienteDepartamentoInput.addEventListener('input', function() {
+        departamentoClienteActual = this.value.trim();
+    });
+
+    agregarProductoBtn.addEventListener('click', function() {
+        if (agregandoProducto) return;
+        if (!cajaAbierta) {
+            Notificaciones.mostrar('Debe abrir la caja antes de agregar productos', 'warning');
+            mostrarModalAperturaCaja();
+            return;
+        }
+        agregandoProducto = true;
+        agregarProductoBtn.disabled = true;
+        agregarProductoBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Agregando...';
+
+        setTimeout(() => {
+            const descripcion = descripcionProducto.value.trim();
+            const monto = parseFloat(montoProducto.value);
+
+            if (!descripcion) {
+                Notificaciones.mostrar('La descripción no puede estar vacía', 'error');
+                agregandoProducto = false;
+                agregarProductoBtn.disabled = false;
+                agregarProductoBtn.innerHTML = '<i class="fas fa-plus"></i> Agregar Producto';
+                return;
+            }
+
+            if (isNaN(monto) || monto <= 0) {
+                Notificaciones.mostrar('El monto debe ser un número mayor a 0', 'error');
+                agregandoProducto = false;
+                agregarProductoBtn.disabled = false;
+                agregarProductoBtn.innerHTML = '<i class="fas fa-plus"></i> Agregar Producto';
+                return;
+            }
+
+            items.push({
+                id: Date.now(),
+                descripcion: descripcion,
+                monto: monto
+            });
+
+            actualizarListaItems();
+            descripcionProducto.value = '';
+            montoProducto.value = '';
+            descripcionProducto.focus();
+
+            if (!productosContent.classList.contains('expanded')) {
+                productosContent.classList.add('expanded');
+                productosHeader.querySelector('.collapsible-icon').classList.add('rotated');
+            }
+
+            actualizarPrevisualizacion();
+            Notificaciones.mostrar('Producto agregado correctamente', 'success', 2000);
+
+            agregandoProducto = false;
+            agregarProductoBtn.disabled = false;
+            agregarProductoBtn.innerHTML = '<i class="fas fa-plus"></i> Agregar Producto';
+        }, 300);
+    });
+
+    montoProducto.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            agregarProductoBtn.click();
+        }
+    });
+
+    descripcionProducto.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter') {
+            e.preventDefault();
+            montoProducto.focus();
+        }
+    });
+
+    productosHeader.addEventListener('click', function() {
+        productosContent.classList.toggle('expanded');
+        productosHeader.querySelector('.collapsible-icon').classList.toggle('rotated');
+    });
+
+    estadisticasHeader.addEventListener('click', function() {
+        estadisticasContent.classList.toggle('expanded');
+        estadisticasHeader.querySelector('.collapsible-icon').classList.toggle('rotated');
+    });
+
+    previewHeader.addEventListener('click', function() {
+        previewContent.classList.toggle('expanded');
+        previewHeader.querySelector('.collapsible-icon').classList.toggle('rotated');
+    });
+
+    metodoPagoOptions.forEach(option => {
+        option.addEventListener('click', function() {
+            metodoPagoOptions.forEach(opt => opt.classList.remove('selected'));
+            this.classList.add('selected');
+            metodoPagoSeleccionado = this.getAttribute('data-metodo');
+
+            if (metodoPagoSeleccionado === 'Mixto') {
+                camposMixto.classList.add('active');
+                totalMixto.textContent = total.toFixed(2);
+                actualizarPagoMixto();
+            } else {
+                camposMixto.classList.remove('active');
+            }
+
+            if (metodoPagoSeleccionado === 'Efectivo' || metodoPagoSeleccionado === 'Mixto') {
+                camposCambio.style.display = 'block';
+                montoRecibido.value = '';
+                resultadoCambio.style.display = 'none';
+            } else {
+                camposCambio.style.display = 'none';
+            }
+        });
+    });
+
+    closeMetodoPagoModal.addEventListener('click', function() {
+        metodoPagoModal.style.display = 'none';
+    });
+
+    cancelMetodoPago.addEventListener('click', function() {
+        metodoPagoModal.style.display = 'none';
+    });
+
+    confirmMetodoPago.addEventListener('click', function() {
+        guardarVentaConMetodoPago();
+    });
+
+    metodoPagoModal.addEventListener('click', function(e) {
+        if (e.target === metodoPagoModal) {
+            metodoPagoModal.style.display = 'none';
+        }
+    });
+
+    closeObservacionModal.addEventListener('click', function() {
+        observacionModal.style.display = 'none';
+    });
+
+    cancelObservacion.addEventListener('click', function() {
+        observacionModal.style.display = 'none';
+    });
+
+    saveObservacion.addEventListener('click', function() {
+        guardarObservacion();
+    });
+
+    observacionModal.addEventListener('click', function(e) {
+        if (e.target === observacionModal) {
+            observacionModal.style.display = 'none';
+        }
+    });
+
+    closeDetailModal.addEventListener('click', function() {
+        detailModal.style.display = 'none';
+    });
+
+    detailModal.addEventListener('click', function(e) {
+        if (e.target === detailModal) {
+            detailModal.style.display = 'none';
+        }
+    });
+
+    // Confirmar apertura normal (con registro de apertura)
+    confirmAperturaCaja.addEventListener('click', function() {
+        const monto = parseFloat(montoAperturaCaja.value);
+        if (isNaN(monto) || monto < 0) {
+            Notificaciones.mostrar('Ingresa un monto válido para la apertura de caja', 'error');
+            return;
+        }
+        montoApertura = monto;
+        localStorage.setItem('montoApertura', montoApertura.toString());
+        aperturaCajaModal.style.display = 'none';
+        abrirCaja(true);
+    });
+
+    // NUEVO: Continuar sin abrir caja (NO registra apertura, solo activa el estado)
+    continuarSinAbrirCaja.addEventListener('click', function() {
+        aperturaCajaModal.style.display = 'none';
+        abrirCaja(false);
+    });
+
+    aperturaCajaModal.addEventListener('click', function(e) {
+        if (e.target === aperturaCajaModal) {
+            // No hacer nada (evitar cierre accidental)
+        }
+    });
+
+    closeCierreCajaModal.addEventListener('click', function() {
+        cierreCajaModal.style.display = 'none';
+    });
+
+    cancelCierreCaja.addEventListener('click', function() {
+        cierreCajaModal.style.display = 'none';
+    });
+
+    confirmCierreCaja.addEventListener('click', function() {
+        const monto = parseFloat(montoCierreCaja.value);
+        if (isNaN(monto) || monto < 0) {
+            Notificaciones.mostrar('Ingresa un monto válido para el cierre de caja', 'error');
+            return;
+        }
+        montoCierre = monto;
+        localStorage.setItem('montoCierre', montoCierre.toString());
+        cierreCajaModal.style.display = 'none';
+        cerrarCaja();
+    });
+
+    cierreCajaModal.addEventListener('click', function(e) {
+        if (e.target === cierreCajaModal) {
+            cierreCajaModal.style.display = 'none';
+        }
+    });
+
+    pagoMixtoOpciones.forEach(opcion => {
+        opcion.addEventListener('click', function() {
+            pagoMixtoOpciones.forEach(o => o.classList.remove('active'));
+            this.classList.add('active');
+            tipoPagoMixto = this.dataset.tipo;
+            actualizarPagoMixto();
+        });
+    });
+
+    montoEfectivoMixto.addEventListener('input', actualizarPagoMixto);
+    montoQRMixto.addEventListener('input', actualizarPagoMixto);
+    montoRecibido.addEventListener('input', calcularCambio);
+
+    extendSessionBtn.addEventListener('click', hideSessionWarning);
+    logoutTimeoutBtn.addEventListener('click', cerrarSesionAutomatica);
+
+    imprimirResumenDiaBtn.addEventListener('click', function() {
+        imprimirResumenVentasDia();
+    });
+
+    imprimirTodasVentasDiaBtn.addEventListener('click', function() {
+        imprimirTodasVentasDia();
+    });
+}
+
+// ========== FUNCIONES DE CAJA ==========
+function mostrarModalAperturaCaja() {
+    montoAperturaCaja.value = '';
+    aperturaCajaModal.style.display = 'flex';
+}
+
+function mostrarModalCierreCaja() {
+    montoCierreCaja.value = '';
+    cierreCajaModal.style.display = 'flex';
+}
+
+// abrirCaja(registrarApertura)
+//   true  → registra apertura normal (con monto, sincroniza a SheetDB)
+//   false → activa el estado "caja abierta" SIN registrar apertura nueva
+//           (útil cuando se recargó la página y ya se había abierto caja antes)
+function abrirCaja(registrarApertura = true) {
+    cajaAbierta = true;
+
+    if (registrarApertura) {
+        horaAperturaCaja = new Date().toISOString();
+        ventasCajaActual = [];
+        localStorage.setItem('cajaAbierta', 'true');
+        localStorage.setItem('horaAperturaCaja', horaAperturaCaja);
+        localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
+
+        const datosSucursal = obtenerDatosSucursal();
+        const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+        const fecha = new Date();
+        const diaSemana = dias[fecha.getDay()];
+
+        const registroApertura = {
+            id: 'APERTURA',
+            fecha: new Date().toLocaleDateString('es-ES'),
+            hora: new Date().toLocaleTimeString('es-ES'),
+            sucursal: datosSucursal.nombre,
+            ubicacion: datosSucursal.ubicacion,
+            productos: 'APERTURA DE CAJA',
+            montos: '',
+            total_venta: '0',
+            numero_productos: 0,
+            timestamp: new Date().toISOString(),
+            tipo_sucursal: datosSucursal.tipo,
+            usuario: currentUser.nombre,
+            observaciones: '',
+            metodo_pago: 'EFECTIVO',
+            monto_efectivo: montoApertura.toString(),
+            monto_qr: '',
+            apertura_caja: montoApertura.toString(),
+            cierre_caja: '',
+            sincronizada: false,
+            dia: diaSemana,
+            nombre_cliente: '',
+            direccion: '',
+            departamento: ''
+        };
+
+        ventasDelDia.push(registroApertura);
+        localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+        actualizarEstadoCaja();
+        actualizarVentasDelDia();
+        Notificaciones.mostrar(`Caja abierta en ${sucursalSeleccionada}`, 'success');
+
+        setTimeout(async () => {
+            const exito = await sincronizarVentaIndividualANube(registroApertura);
+            if (exito) {
+                Notificaciones.mostrar('Apertura de caja sincronizada con SheetDB', 'success');
+            }
+        }, 1000);
+    } else {
+        // Continuar sin abrir caja: activamos el estado y permitimos trabajar,
+        // pero NO se registra apertura nueva ni se sincroniza a SheetDB.
+        if (!horaAperturaCaja) {
+            horaAperturaCaja = new Date().toISOString();
+        }
+        localStorage.setItem('cajaAbierta', 'true');
+        localStorage.setItem('horaAperturaCaja', horaAperturaCaja);
+        localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
+
+        actualizarEstadoCaja();
+        actualizarVentasDelDia();
+        Notificaciones.mostrar('Continuando sin abrir caja (no se registra apertura nueva)', 'info', 5000);
+    }
+}
+
+function cerrarCaja() {
+    if (!cajaAbierta) {
+        Notificaciones.mostrar('La caja ya está cerrada', 'warning');
+        return;
+    }
+
+    const datosSucursal = obtenerDatosSucursal();
+    const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+    const fecha = new Date();
+    const diaSemana = dias[fecha.getDay()];
+
+    const registroCierre = {
+        id: 'CIERRE',
+        fecha: new Date().toLocaleDateString('es-ES'),
+        hora: new Date().toLocaleTimeString('es-ES'),
+        sucursal: datosSucursal.nombre,
+        ubicacion: datosSucursal.ubicacion,
+        productos: 'CIERRE DE CAJA',
+        montos: '',
+        total_venta: '0',
+        numero_productos: 0,
+        timestamp: new Date().toISOString(),
+        tipo_sucursal: datosSucursal.tipo,
+        usuario: currentUser.nombre,
+        observaciones: '',
+        metodo_pago: 'EFECTIVO',
+        monto_efectivo: montoCierre.toString(),
+        monto_qr: '',
+        apertura_caja: '',
+        cierre_caja: 'CIERRE DE CAJA',
+        sincronizada: false,
+        dia: diaSemana,
+        nombre_cliente: '',
+        direccion: '',
+        departamento: ''
+    };
+
+    ventasDelDia.push(registroCierre);
+    localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+
+    const resumen = {
+        efectivo: 0,
+        qr: 0,
+        tarjeta: 0,
+        total: 0,
+        numeroVentas: ventasCajaActual.length,
+        horaApertura: horaAperturaCaja,
+        horaCierre: new Date().toISOString(),
+        montoApertura: montoApertura,
+        montoCierre: montoCierre
+    };
+
+    ventasCajaActual.forEach(venta => {
+        const monto = parseFloat(venta.total_venta);
+        resumen.total += monto;
+        switch(venta.metodo_pago) {
+            case 'Efectivo': resumen.efectivo += monto; break;
+            case 'QR': resumen.qr += monto; break;
+            case 'Tarjeta': resumen.tarjeta += monto; break;
+            case 'Mixto':
+                resumen.efectivo += venta.monto_efectivo || 0;
+                resumen.qr += venta.monto_qr || 0;
+                break;
+        }
+    });
+
+    mostrarResumenCierre(resumen);
+    cajaAbierta = false;
+    horaAperturaCaja = null;
+    ventasCajaActual = [];
+    montoApertura = 0;
+    montoCierre = 0;
+    localStorage.removeItem('cajaAbierta');
+    localStorage.removeItem('horaAperturaCaja');
+    localStorage.removeItem('ventasCajaActual');
+    localStorage.removeItem('montoApertura');
+    localStorage.removeItem('montoCierre');
+    actualizarEstadoCaja();
+    actualizarVentasDelDia();
+    Notificaciones.mostrar('Caja cerrada correctamente', 'success');
+
+    setTimeout(async () => {
+        const exito = await sincronizarVentaIndividualANube(registroCierre);
+        if (exito) {
+            Notificaciones.mostrar('Cierre de caja sincronizado con SheetDB', 'success');
+        }
+    }, 1000);
+}
+
+// ========== FUNCIONES RESTANTES ==========
+function actualizarPagoMixto() {
+    const totalVenta = total;
+    const montoEfectivo = parseFloat(montoEfectivoMixto.value) || 0;
+    const montoQR = parseFloat(montoQRMixto.value) || 0;
+    const totalPagado = montoEfectivo + montoQR;
+
+    document.getElementById('resumenEfectivo').textContent = montoEfectivo.toFixed(2);
+    document.getElementById('resumenQR').textContent = montoQR.toFixed(2);
+    document.getElementById('totalPagado').textContent = totalPagado.toFixed(2);
+    resumenMixto.style.display = 'block';
+
+    const faltante = totalVenta - totalPagado;
+    const cambio = totalPagado - totalVenta;
+
+    if (faltante > 0) {
+        document.getElementById('mensajeFaltante').style.display = 'block';
+        document.getElementById('montoFaltante').textContent = faltante.toFixed(2);
+        document.getElementById('mensajeCambio').style.display = 'none';
+    } else if (cambio > 0) {
+        document.getElementById('mensajeFaltante').style.display = 'none';
+        document.getElementById('mensajeCambio').style.display = 'block';
+        document.getElementById('montoCambioMixto').textContent = cambio.toFixed(2);
+    } else {
+        document.getElementById('mensajeFaltante').style.display = 'none';
+        document.getElementById('mensajeCambio').style.display = 'none';
+    }
+}
+
+function calcularCambio() {
+    const montoRecibidoValor = parseFloat(montoRecibido.value) || 0;
+    if (montoRecibidoValor >= total) {
+        const cambio = montoRecibidoValor - total;
+        montoCambioElement.textContent = cambio.toFixed(2);
+        resultadoCambio.style.display = 'block';
+        resultadoCambio.innerHTML = `
+            <p><strong>Cambio a Entregar:</strong> <span id="montoCambio">${cambio.toFixed(2)}</span> Bs</p>
+            <p style="color: #28a745;"><i class="fas fa-check-circle"></i> Pago completo</p>
+        `;
+    } else if (montoRecibidoValor > 0 && montoRecibidoValor < total) {
+        const faltante = total - montoRecibidoValor;
+        resultadoCambio.style.display = 'block';
+        resultadoCambio.innerHTML = `
+            <p style="color: #dc3545;"><strong>Faltante:</strong> ${faltante.toFixed(2)} Bs</p>
+            <p><strong>Monto recibido insuficiente</strong></p>
+        `;
+    } else {
+        resultadoCambio.style.display = 'none';
+    }
+}
+
+function cambiarSeccion(seccion) {
+    document.querySelectorAll('.seccion-contenido').forEach(s => {
+        s.classList.remove('activa');
+    });
+    document.querySelectorAll('.sidebar-menu a').forEach(a => {
+        a.classList.remove('active');
+    });
+
+    switch(seccion) {
+        case 'inicio':
+            seccionInicio.classList.add('activa');
+            menuInicio.classList.add('active');
+            break;
+        case 'ventasDia':
+            seccionVentasDia.classList.add('activa');
+            menuVentasDia.classList.add('active');
+            actualizarVentasDelDia();
+            break;
+    }
+}
+
+// ========== ACTUALIZAR VENTAS DEL DÍA ==========
+function actualizarVentasDelDia() {
+    const hoy = new Date().toLocaleDateString('es-ES');
+    const todasVentasHoy = ventasDelDia.filter(v => v.fecha === hoy);
+    const ventasNormales = todasVentasHoy.filter(v =>
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA'
+    );
+
+    const registroApertura = todasVentasHoy.find(v => v.productos === 'APERTURA DE CAJA');
+    const registroCierre = todasVentasHoy.find(v => v.productos === 'CIERRE DE CAJA');
+
+    const aperturaMonto = registroApertura ? parseFloat(registroApertura.monto_efectivo) || 0 : 0;
+    const cierreMonto = registroCierre ? parseFloat(registroCierre.monto_efectivo) || 0 : 0;
+
+    const totalRecaudado = ventasNormales.reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const promedio = ventasNormales.length > 0 ? totalRecaudado / ventasNormales.length : 0;
+
+    const ventasEfectivo = ventasNormales.reduce((sum, v) => {
+        if (v.metodo_pago === 'Efectivo') return sum + parseFloat(v.total_venta);
+        if (v.metodo_pago === 'Mixto') return sum + (parseFloat(v.monto_efectivo) || 0);
+        return sum;
+    }, 0);
+
+    const totalEnCaja = aperturaMonto + ventasEfectivo;
+
+    totalVentasDia.textContent = ventasNormales.length;
+    totalRecaudadoDia.textContent = totalRecaudado.toFixed(2);
+    promedioVentaDia.textContent = promedio.toFixed(2);
+    aperturaCajaDia.textContent = aperturaMonto.toFixed(2);
+    ventasEfectivoDia.textContent = ventasEfectivo.toFixed(2);
+    totalEnCajaDia.textContent = totalEnCaja.toFixed(2);
+    cierreEfectivoDia.textContent = cierreMonto.toFixed(2);
+
+    if (todasVentasHoy.length === 0) {
+        tablaVentasDia.innerHTML = '';
+        noVentasDiaMessage.style.display = 'block';
+        return;
+    } else {
+        noVentasDiaMessage.style.display = 'none';
+    }
+
+    let tablaHTML = '';
+
+    todasVentasHoy.forEach(venta => {
+        const productosArr = venta.productos.split(' | ');
+        const montosArr = venta.montos ? venta.montos.split(' | ') : [];
+        const esAperturaCierre = venta.productos === 'APERTURA DE CAJA' || venta.productos === 'CIERRE DE CAJA';
+
+        let productosHTML = '';
+        let montosHTML = '';
+        let totalVenta = 0;
+
+        if (esAperturaCierre) {
+            productosHTML = venta.productos;
+            montosHTML = venta.monto_efectivo ? `${venta.monto_efectivo} Bs` : '-';
+        } else {
+            productosHTML = productosArr.map((p, i) => `<div>${p}</div>`).join('');
+            let montosLista = '';
+            productosArr.forEach((p, i) => {
+                const montoItem = parseFloat(montosArr[i] || 0) || 0;
+                totalVenta += montoItem;
+                montosLista += `<div>${montoItem.toFixed(2)}</div>`;
+            });
+            montosHTML = `
+                <div class="montos-cell">
+                    <div class="montos-lista">${montosLista}</div>
+                    <div class="montos-total">${totalVenta.toFixed(2)} Bs</div>
+                </div>
+            `;
+        }
+
+        const tieneObservaciones = venta.observaciones && venta.observaciones.trim() !== '';
+        let metodoPagoDisplay = venta.metodo_pago || '';
+        if (venta.metodo_pago === 'Mixto') {
+            metodoPagoDisplay = `Mixto (Ef: ${venta.monto_efectivo || 0}, QR: ${venta.monto_qr || 0})`;
+        }
+
+        const claseFila = esAperturaCierre ? 'fila-apertura-cierre' : '';
+
+        let botonesVentasDia = `
+            ${!esAperturaCierre ? `
+            <button class="accion-btn observacion-btn" data-index="${ventasDelDia.indexOf(venta)}">
+                <i class="fas fa-sticky-note"></i> Obs
+            </button>
+            <button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}">
+                <i class="fas fa-print"></i> Imprimir
+            </button>
+            ` : ''}
+            <button class="accion-btn eliminar-btn-tabla" data-index="${ventasDelDia.indexOf(venta)}">
+                <i class="fas fa-trash"></i> Eliminar
+            </button>
+        `;
+
+        const nombreCliente = esAperturaCierre ? venta.usuario : (venta.nombre_cliente || 'Cliente General');
+        const direccionCliente = esAperturaCierre ? '-' : (venta.direccion || '-');
+        const departamentoCliente = esAperturaCierre ? '-' : (venta.departamento || '-');
+
+        tablaHTML += `
+            <tr class="${claseFila}">
+                <td>${nombreCliente}</td>
+                <td>${direccionCliente}</td>
+                <td>${departamentoCliente}</td>
+                <td>${venta.hora}</td>
+                <td>${productosHTML}</td>
+                <td>${montosHTML}</td>
+                <td>${metodoPagoDisplay}</td>
+                <td>${tieneObservaciones ? venta.observaciones : ''}</td>
+                <td>
+                    <div class="acciones">${botonesVentasDia}</div>
+                </td>
+            </tr>
+        `;
+    });
+
+    tablaVentasDia.innerHTML = tablaHTML;
+
+    document.querySelectorAll('#tablaVentasDia .observacion-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            abrirModalObservacion(index);
+        });
+    });
+
+    document.querySelectorAll('#tablaVentasDia .imprimir-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            const venta = ventasDelDia[index];
+            imprimirNotaVentaGuardada(venta);
+        });
+    });
+
+    document.querySelectorAll('#tablaVentasDia .eliminar-btn-tabla').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            intentarEliminar(index);
+        });
+    });
+}
+
+// ========== INTENTAR ELIMINAR (con autorización admin) ==========
+function intentarEliminar(index) {
+    if (currentUser.rol === 'admin') {
+        eliminarVenta(index);
+    } else {
+        ventaAEliminarIndex = index;
+        adminUsuarioInput.value = '';
+        adminPasswordInput.value = '';
+        autorizacionAdminModal.style.display = 'flex';
+        setTimeout(() => adminUsuarioInput.focus(), 100);
+    }
+}
+
+function confirmarAutorizacionEliminar() {
+    const usuario = adminUsuarioInput.value.trim().toLowerCase();
+    const password = adminPasswordInput.value;
+
+    if (!usuario || !password) {
+        Notificaciones.mostrar('Completa usuario y contraseña del administrador', 'warning');
+        return;
+    }
+
+    if (usuarios[usuario] && usuarios[usuario].password === password && usuarios[usuario].rol === 'admin') {
+        const indexAEliminar = ventaAEliminarIndex;
+        autorizacionAdminModal.style.display = 'none';
+        ventaAEliminarIndex = -1;
+        Notificaciones.mostrar(`Autorizado por ${usuarios[usuario].nombre}`, 'success', 3000);
+        setTimeout(() => {
+            eliminarVenta(indexAEliminar);
+        }, 300);
+    } else {
+        Notificaciones.mostrar('Credenciales de administrador incorrectas', 'error');
+    }
+}
+
+function imprimirNotaVenta() {
+    try {
+        const iframe = document.createElement('iframe');
+        iframe.style.position = 'absolute';
+        iframe.style.left = '-9999px';
+        iframe.style.top = '0';
+        iframe.style.width = '80mm';
+        iframe.style.height = 'auto';
+        iframe.style.border = 'none';
+        document.body.appendChild(iframe);
+
+        const notaVentaHTML = generarNotaVenta();
+        const iframeDoc = iframe.contentWindow.document;
+        iframeDoc.open();
+        iframeDoc.write(`
+            <!DOCTYPE html>
+            <html>
+            <head>
+                <title>Nota de Venta - Todoenuno_store</title>
+                <meta charset="UTF-8">
+                <style>
+                    body { font-family: 'Arial', sans-serif; margin: 0; padding: 5mm; color: #000; font-size: 12px; width: 80mm; }
+                    .nota-venta { width: 100%; margin: 0 auto; }
+                    .nota-header { text-align: center; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+                    .nota-titulo { font-size: 16px; font-weight: bold; margin-bottom: 3px; }
+                    .nota-subtitulo { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+                    .nota-detalle { font-size: 10px; margin-bottom: 2px; }
+                    .nota-seccion-titulo { font-size: 12px; font-weight: bold; margin: 8px 0 5px 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 3px; }
+                    .nota-info-cliente { display: flex; flex-wrap: wrap; justify-content: space-between; margin-bottom: 8px; font-size: 10px; }
+                    .nota-tabla { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 10px; }
+                    .nota-tabla th { background-color: #f0f0f0; padding: 4px 2px; text-align: left; border-bottom: 1px solid #000; font-weight: bold; }
+                    .nota-tabla td { padding: 4px 2px; border-bottom: 1px solid #ddd; }
+                    .nota-tabla .descripcion { width: 60%; }
+                    .nota-tabla .cantidad { text-align: center; width: 15%; }
+                    .nota-tabla .precio { text-align: right; width: 25%; }
+                    .nota-total { text-align: right; font-weight: bold; font-size: 12px; margin-top: 8px; padding-top: 5px; border-top: 1px solid #000; }
+                    .nota-footer { text-align: center; margin-top: 8px; padding-top: 5px; border-top: 1px solid #000; font-size: 10px; }
+                    .nota-agradecimiento { font-weight: bold; margin-bottom: 2px; }
+                    @media print { body { margin: 0; padding: 5mm; } @page { margin: 0; size: 80mm auto; } }
+                </style>
+            </head>
+            <body onload="window.print();">
+                ${notaVentaHTML}
+            </body>
+            </html>
+        `);
+        iframeDoc.close();
+
+        setTimeout(function() {
+            try {
+                iframe.contentWindow.focus();
+                setTimeout(function() {
+                    if (document.body.contains(iframe)) {
+                        document.body.removeChild(iframe);
+                    }
+                }, 1000);
+            } catch (e) {
+                console.error('Error al imprimir:', e);
+                Notificaciones.mostrar('Error al imprimir: ' + e.message, 'error');
+                if (document.body.contains(iframe)) {
+                    document.body.removeChild(iframe);
+                }
+            }
+        }, 500);
+    } catch (error) {
+        console.error('Error en imprimirNotaVenta:', error);
+        Notificaciones.mostrar('Error al preparar la impresión', 'error');
+    }
+}
+
+function generarNotaVenta() {
+    const datosSucursal = obtenerDatosSucursal();
+    let totalVenta = items.reduce((sum, item) => sum + item.monto, 0);
+
+    let notaHTML = `
+        <div class="nota-venta">
+            <div class="nota-header">
+                <div class="nota-titulo">TODOENUNO_STORE</div>
+                <div class="nota-subtitulo">${datosSucursal.nombre}</div>
+                <div class="nota-detalle">${datosSucursal.ubicacion}</div>
+                <div class="nota-detalle">TEL: ${datosSucursal.telefono}</div>
+                <div class="nota-detalle">SANTA CRUZ - BOLIVIA</div>
+            </div>
+            <div class="nota-seccion">
+                <div class="nota-seccion-titulo">NOTA DE VENTA</div>
+                <div class="nota-info-cliente">
+                    <div class="nota-info-item">
+                        <span class="nota-info-label">FECHA:</span> ${new Date().toLocaleDateString('es-ES')} ${new Date().toLocaleTimeString('es-ES')}
+                    </div>
+                    <div class="nota-info-item">
+                        <span class="nota-info-label">LUGAR:</span> ${datosSucursal.nombre}
+                    </div>
+                    ${nombreClienteActual ? `<div class="nota-info-item"><span class="nota-info-label">CLIENTE:</span> ${nombreClienteActual}</div>` : ''}
+                    ${direccionClienteActual ? `<div class="nota-info-item"><span class="nota-info-label">DIRECCIÓN:</span> ${direccionClienteActual}</div>` : ''}
+                    ${departamentoClienteActual ? `<div class="nota-info-item"><span class="nota-info-label">DEPARTAMENTO:</span> ${departamentoClienteActual}</div>` : ''}
+                </div>
+            </div>
+            <table class="nota-tabla">
+                <thead>
+                    <tr>
+                        <th class="descripcion">DESCRIPCIÓN</th>
+                        <th class="cantidad">CANT.</th>
+                        <th class="precio">PRECIO</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    items.forEach(item => {
+        notaHTML += `
+            <tr>
+                <td class="descripcion">${item.descripcion}</td>
+                <td class="cantidad">1</td>
+                <td class="precio">${item.monto.toFixed(2)} Bs</td>
+            </tr>
+        `;
+    });
+
+    notaHTML += `
+                </tbody>
+            </table>
+            <div class="nota-total">TOTAL: ${totalVenta.toFixed(2)} Bs</div>
+    `;
+
+    const montoRecibidoValor = parseFloat(montoRecibido.value) || 0;
+    const cambio = montoRecibidoValor > totalVenta ? (montoRecibidoValor - totalVenta).toFixed(2) : 0;
+
+    if (metodoPagoSeleccionado === 'Mixto') {
+        const montoEfectivo = parseFloat(montoEfectivoMixto.value) || 0;
+        const montoQR = parseFloat(montoQRMixto.value) || 0;
+        notaHTML += `
+            <div style="margin-top: 10px;">
+                <p><strong>Método de Pago:</strong> Mixto</p>
+                <p><strong>Efectivo:</strong> ${montoEfectivo.toFixed(2)} Bs</p>
+                <p><strong>QR:</strong> ${montoQR.toFixed(2)} Bs</p>
+        `;
+        if (montoRecibidoValor > 0 && cambio > 0) {
+            notaHTML += `
+                <p><strong>Monto Recibido:</strong> ${montoRecibidoValor.toFixed(2)} Bs</p>
+                <p><strong>Cambio:</strong> ${cambio} Bs</p>
+            `;
+        }
+        notaHTML += `</div>`;
+    } else {
+        notaHTML += `
+            <div style="margin-top: 10px;">
+                <p><strong>Método de Pago:</strong> ${metodoPagoSeleccionado}</p>
+        `;
+        if (metodoPagoSeleccionado === 'Efectivo' && montoRecibidoValor > 0) {
+            notaHTML += `
+                <p><strong>Monto Recibido:</strong> ${montoRecibidoValor.toFixed(2)} Bs</p>
+                <p><strong>Cambio:</strong> ${cambio} Bs</p>
+            `;
+        }
+        notaHTML += `</div>`;
+    }
+
+    notaHTML += `
+            <div class="nota-footer">
+                <div class="nota-agradecimiento">¡GRACIAS POR SU PREFERENCIA!</div>
+                <div class="nota-vuelva">VUELVA PRONTO</div>
+            </div>
+        </div>
+    `;
+
+    return notaHTML;
+}
+
+function generarNotaVentaGuardada(venta) {
+    const productos = venta.productos.split(' | ');
+    const montos = venta.montos.split(' | ');
+
+    let notaHTML = `
+        <div class="nota-venta">
+            <div class="nota-header">
+                <div class="nota-titulo">TODOENUNO_STORE</div>
+                <div class="nota-subtitulo">${venta.sucursal}</div>
+                <div class="nota-detalle">${venta.ubicacion}</div>
+                <div class="nota-detalle">TEL: 61439475</div>
+                <div class="nota-detalle">SANTA CRUZ - BOLIVIA</div>
+            </div>
+            <div class="nota-seccion">
+                <div class="nota-seccion-titulo">NOTA DE VENTA</div>
+                <div class="nota-info-cliente">
+                    <div class="nota-info-item">
+                        <span class="nota-info-label">FECHA:</span> ${venta.fecha} ${venta.hora}
+                    </div>
+                    <div class="nota-info-item">
+                        <span class="nota-info-label">ID:</span> ${venta.id}
+                    </div>
+                    ${venta.nombre_cliente ? `<div class="nota-info-item"><span class="nota-info-label">CLIENTE:</span> ${venta.nombre_cliente}</div>` : ''}
+                    ${venta.direccion ? `<div class="nota-info-item"><span class="nota-info-label">DIRECCIÓN:</span> ${venta.direccion}</div>` : ''}
+                    ${venta.departamento ? `<div class="nota-info-item"><span class="nota-info-label">DEPARTAMENTO:</span> ${venta.departamento}</div>` : ''}
+                </div>
+            </div>
+            <table class="nota-tabla">
+                <thead>
+                    <tr>
+                        <th class="descripcion">DESCRIPCIÓN</th>
+                        <th class="cantidad">CANT.</th>
+                        <th class="precio">PRECIO</th>
+                    </tr>
+                </thead>
+                <tbody>
+    `;
+
+    productos.forEach((producto, index) => {
+        notaHTML += `
+            <tr>
+                <td class="descripcion">${producto}</td>
+                <td class="cantidad">1</td>
+                <td class="precio">${montos[index]} Bs</td>
+            </tr>
+        `;
+    });
+
+    notaHTML += `
+                </tbody>
+            </table>
+            <div class="nota-total">TOTAL: ${venta.total_venta} Bs</div>
+    `;
+
+    if (venta.metodo_pago === 'Mixto') {
+        const montoEfectivo = venta.monto_efectivo || 0;
+        const montoQR = venta.monto_qr || 0;
+        notaHTML += `
+            <div style="margin-top: 10px;">
+                <p><strong>Método de Pago:</strong> Mixto</p>
+                <p><strong>Efectivo:</strong> ${montoEfectivo} Bs</p>
+                <p><strong>QR:</strong> ${montoQR} Bs</p>
+            </div>
+        `;
+    } else {
+        notaHTML += `
+            <div style="margin-top: 10px;">
+                <p><strong>Método de Pago:</strong> ${venta.metodo_pago}</p>
+            </div>
+        `;
+    }
+
+    if (venta.observaciones) {
+        notaHTML += `
+            <div style="margin-top: 10px;">
+                <p><strong>Observaciones:</strong> ${venta.observaciones}</p>
+            </div>
+        `;
+    }
+
+    notaHTML += `
+            <div class="nota-footer">
+                <div class="nota-agradecimiento">¡GRACIAS POR SU PREFERENCIA!</div>
+                <div class="nota-vuelva">VUELVA PRONTO</div>
+            </div>
+        </div>
+    `;
+
+    return notaHTML;
+}
+
+function imprimirNotaVentaGuardada(venta) {
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.left = '-9999px';
+    iframe.style.top = '0';
+    document.body.appendChild(iframe);
+
+    const notaVentaHTML = generarNotaVentaGuardada(venta);
+    const iframeDoc = iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(`
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Nota de Venta - Todoenuno_store</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 10mm; color: #000; font-size: 12px; }
+                .nota-venta { max-width: 80mm; margin: 0 auto; }
+                .nota-header { text-align: center; margin-bottom: 10px; border-bottom: 2px solid #000; padding-bottom: 5px; }
+                .nota-titulo { font-size: 18px; font-weight: bold; margin-bottom: 3px; }
+                .nota-subtitulo { font-size: 14px; font-weight: bold; margin-bottom: 3px; }
+                .nota-detalle { font-size: 10px; margin-bottom: 2px; font-weight: bold; }
+                .nota-seccion { margin-bottom: 10px; }
+                .nota-seccion-titulo { font-size: 14px; font-weight: bold; margin-bottom: 8px; text-align: center; border-bottom: 1px solid #000; padding-bottom: 3px; }
+                .nota-info-cliente { display: flex; flex-wrap: wrap; justify-content: space-between; margin-bottom: 10px; font-size: 10px; }
+                .nota-info-item { flex: 1; min-width: 120px; margin-bottom: 5px; }
+                .nota-info-label { font-weight: bold; }
+                .nota-tabla { width: 100%; border-collapse: collapse; margin-bottom: 10px; table-layout: fixed; font-size: 10px; }
+                .nota-tabla th { background-color: #f0f0f0; padding: 4px 2px; text-align: left; border-bottom: 1px solid #000; font-weight: bold; }
+                .nota-tabla td { padding: 4px 2px; border-bottom: 1px solid #ddd; word-wrap: break-word; }
+                .nota-tabla .descripcion { width: 60%; }
+                .nota-tabla .cantidad { text-align: center; width: 15%; }
+                .nota-tabla .precio { text-align: right; width: 25%; padding-right: 3px; }
+                .nota-total { text-align: right; font-weight: bold; font-size: 14px; margin-top: 10px; padding-top: 8px; border-top: 2px solid #000; }
+                .nota-footer { text-align: center; margin-top: 10px; padding-top: 8px; border-top: 1px solid #000; font-size: 10px; }
+                .nota-agradecimiento { font-weight: bold; margin-bottom: 3px; font-size: 12px; }
+                .nota-vuelva { font-weight: bold; font-size: 10px; }
+                @media print { body { margin: 0; padding: 5mm; } @page { margin: 0; size: 80mm auto; } }
+            </style>
+        </head>
+        <body>
+            ${notaVentaHTML}
+        </body>
+        </html>
+    `);
+    iframeDoc.close();
+
+    setTimeout(function() {
+        try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(function() {
+                document.body.removeChild(iframe);
+            }, 1000);
+        } catch (e) {
+            console.error('Error al imprimir:', e);
+            Notificaciones.mostrar('Error al intentar imprimir', 'error');
+            document.body.removeChild(iframe);
+        }
+    }, 500);
+}
+
+function imprimirTodasVentasDia() {
+    const hoy = new Date().toLocaleDateString('es-ES');
+    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy);
+    if (ventasHoy.length === 0) {
+        Notificaciones.mostrar('No hay ventas hoy para imprimir', 'warning');
+        return;
+    }
+
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.left = '-9999px';
+    iframe.style.top = '0';
+    document.body.appendChild(iframe);
+
+    const contenidoHTML = generarHTMLTodasVentasDia(ventasHoy, hoy);
+    const iframeDoc = iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(contenidoHTML);
+    iframeDoc.close();
+
+    setTimeout(function() {
+        try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(function() {
+                document.body.removeChild(iframe);
+            }, 1000);
+        } catch (e) {
+            console.error('Error al imprimir:', e);
+            Notificaciones.mostrar('Error al intentar imprimir', 'error');
+            document.body.removeChild(iframe);
+        }
+    }, 500);
+}
+
+function generarHTMLTodasVentasDia(ventas, fecha) {
+    let html = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Todas las Ventas del Día - ${fecha}</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #000; font-size: 12px; }
+                .header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+                .venta { margin-bottom: 25px; border: 1px solid #000; padding: 15px; page-break-inside: avoid; }
+                .venta-header { display: flex; justify-content: space-between; margin-bottom: 10px; border-bottom: 1px solid #ddd; padding-bottom: 5px; }
+                .venta-productos { width: 100%; border-collapse: collapse; margin-bottom: 10px; }
+                .venta-productos th { background-color: #f0f0f0; padding: 8px; text-align: left; border-bottom: 1px solid #000; }
+                .venta-productos td { padding: 8px; border-bottom: 1px solid #ddd; }
+                .total { text-align: right; font-weight: bold; margin-top: 10px; font-size: 14px; }
+                .venta-info { display: flex; justify-content: space-between; margin-top: 10px; font-size: 11px; }
+                .resumen-general { margin-top: 30px; padding: 15px; border: 2px solid #000; background-color: #f9f9f9; }
+                @media print { body { margin: 0; padding: 10mm; } @page { margin: 0; size: auto; } }
+            </style>
+        </head>
+        <body>
+            <div class="header">
+                <h1>TODOENUNO_STORE</h1>
+                <h2>Todas las Ventas del Día: ${fecha}</h2>
+                <p>Sucursal: ${sucursalSeleccionada}</p>
+                <p>Total de Ventas: ${ventas.length}</p>
+            </div>
+    `;
+
+    let totalGeneral = 0;
+    ventas.forEach((venta, index) => {
+        const productos = venta.productos.split(' | ');
+        const montos = venta.montos ? venta.montos.split(' | ') : [];
+        totalGeneral += parseFloat(venta.total_venta);
+
+        html += `
+            <div class="venta">
+                <div class="venta-header">
+                    <div><strong>Venta #${index + 1}</strong></div>
+                    <div><strong>ID:</strong> ${venta.id}</div>
+                    <div><strong>Hora:</strong> ${venta.hora}</div>
+                </div>
+                ${venta.nombre_cliente ? `<p><strong>Cliente:</strong> ${venta.nombre_cliente}</p>` : ''}
+                ${venta.direccion ? `<p><strong>Dirección:</strong> ${venta.direccion}</p>` : ''}
+                ${venta.departamento ? `<p><strong>Departamento:</strong> ${venta.departamento}</p>` : ''}
+                <table class="venta-productos">
+                    <thead>
+                        <tr>
+                            <th>Producto</th>
+                            <th>Precio (Bs)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+        `;
+
+        productos.forEach((producto, i) => {
+            html += `
+                <tr>
+                    <td>${producto}</td>
+                    <td>${montos[i]}</td>
+                </tr>
+            `;
+        });
+
+        html += `
+                    </tbody>
+                </table>
+                <div class="total">Total: ${venta.total_venta} Bs</div>
+                <div class="venta-info">
+                    <div><strong>Método de pago:</strong> ${venta.metodo_pago}</div>
+                    ${venta.observaciones ? `<div><strong>Observaciones:</strong> ${venta.observaciones}</div>` : ''}
+                </div>
+            </div>
+        `;
+    });
+
+    html += `
+            <div class="resumen-general">
+                <h3>Resumen General del Día</h3>
+                <p><strong>Total de Ventas:</strong> ${ventas.length}</p>
+                <p><strong>Total Recaudado:</strong> ${totalGeneral.toFixed(2)} Bs</p>
+                <p><strong>Promedio por Venta:</strong> ${(totalGeneral / ventas.length).toFixed(2)} Bs</p>
+                <p><strong>Generado por:</strong> ${currentUser.nombre}</p>
+                <p><strong>Fecha de impresión:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+        </body>
+        </html>
+    `;
+
+    return html;
+}
+
+function actualizarSeleccionSucursal() {
+    if (items.length > 0) {
+        actualizarPrevisualizacion();
+    }
+}
+
+function obtenerDatosSucursal() {
+    return sucursales[sucursalSeleccionada];
+}
+
+function validarFormulario() {
+    if (items.length === 0) {
+        return false;
+    }
+    return true;
+}
+
+function actualizarPrevisualizacion() {
+    if (items.length === 0) {
+        previewContent.innerHTML = `
+            <div class="empty-cart">
+                <i class="fas fa-receipt"></i>
+                <p>Agrega productos para ver la nota de venta</p>
+            </div>
+        `;
+    } else {
+        const notaVentaHTML = generarNotaVenta();
+        previewContent.innerHTML = notaVentaHTML;
+    }
+}
+
+function actualizarListaItems() {
+    productosLista.innerHTML = '';
+    let subtotal = 0;
+
+    if (items.length === 0) {
+        productosLista.innerHTML = `
+            <div class="empty-cart">
+                <i class="fas fa-shopping-cart"></i>
+                <p>No hay productos en la venta</p>
+                <p style="font-size: 12px;">Agrega productos usando el formulario superior</p>
+            </div>
+        `;
+        totalCompra.textContent = '0.00';
+        return;
+    }
+
+    items.forEach((item, index) => {
+        const productoItem = document.createElement('div');
+        productoItem.className = 'producto-item';
+        productoItem.innerHTML = `
+            <div class="producto-info">
+                <span class="producto-descripcion" title="${item.descripcion}">${item.descripcion}</span>
+                <span class="producto-precio-unitario">Precio unitario: ${item.monto.toFixed(2)} Bs</span>
+            </div>
+            <div class="producto-cantidad">${item.monto.toFixed(2)} Bs</div>
+            <button type="button" class="eliminar-btn" data-index="${index}" title="Eliminar producto">
+                <i class="fas fa-times"></i>
+            </button>
+        `;
+        productosLista.appendChild(productoItem);
+        subtotal += item.monto;
+    });
+
+    total = subtotal;
+    totalCompra.textContent = total.toFixed(2);
+
+    document.querySelectorAll('.eliminar-btn').forEach(btn => {
+        btn.addEventListener('click', function() {
+            const index = parseInt(this.getAttribute('data-index'));
+            items.splice(index, 1);
+            actualizarListaItems();
+            actualizarPrevisualizacion();
+            Notificaciones.mostrar('Producto eliminado correctamente', 'info', 2000);
+        });
+    });
+}
+
+function actualizarContadorVentas() {
+    const totalVentas = ventasDelDia.filter(v =>
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA'
+    ).length;
+    const ventasNoSincronizadas = ventasDelDia.filter(v => !v.sincronizada &&
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length;
+    const totalRecaudado = ventasDelDia.filter(v =>
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA'
+    ).reduce((sum, venta) => sum + parseFloat(venta.total_venta), 0);
+
+    if (totalVentas === 0) {
+        contadorVentas.textContent = '0 ventas guardadas';
+        ventasInfo.style.display = 'none';
+    } else {
+        contadorVentas.textContent = `${totalVentas} ventas (${totalRecaudado.toFixed(2)} Bs) - ${ventasNoSincronizadas} por sincronizar`;
+        if (currentUser.rol === 'admin') {
+            ventasInfo.style.display = 'block';
+        } else {
+            ventasInfo.style.display = 'none';
+        }
+    }
+}
+
+function cargarVentasDelDia() {
+    const ventasGuardadas = localStorage.getItem('ventasDelDia');
+    if (ventasGuardadas) {
+        ventasDelDia = JSON.parse(ventasGuardadas);
+        ventasDelDia.forEach(venta => {
+            if (venta.sincronizada === undefined) {
+                venta.sincronizada = false;
+            }
+            if (venta.apertura_caja === undefined) {
+                venta.apertura_caja = '';
+            }
+            if (venta.cierre_caja === undefined) {
+                venta.cierre_caja = '';
+            }
+            if (!venta.ubicacion) {
+                const sucursal = sucursales[venta.sucursal];
+                if (sucursal) {
+                    venta.ubicacion = sucursal.ubicacion;
+                }
+            }
+            if (!venta.dia) {
+                const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
+                const fecha = new Date(venta.timestamp);
+                const diaSemana = dias[fecha.getDay()];
+                venta.dia = diaSemana;
+            }
+            if (!venta.numero_productos) {
+                venta.numero_productos = venta.productos ? venta.productos.split(' | ').length : 0;
+            }
+            if (venta.direccion === undefined) {
+                venta.direccion = '';
+            }
+            if (venta.departamento === undefined) {
+                venta.departamento = '';
+            }
+        });
+        localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+    } else {
+        ventasDelDia = [];
+        localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+        crearBackupAutomatico();
+    }
+
+    const montoAperturaGuardado = localStorage.getItem('montoApertura');
+    if (montoAperturaGuardado) {
+        montoApertura = parseFloat(montoAperturaGuardado);
+    }
+    const montoCierreGuardado = localStorage.getItem('montoCierre');
+    if (montoCierreGuardado) {
+        montoCierre = parseFloat(montoCierreGuardado);
+    }
+}
+
+function actualizarEstadisticas() {
+    if (currentUser.rol !== 'admin') {
+        return;
+    }
+
+    const hoy = new Date().toLocaleDateString('es-ES');
+    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy &&
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA');
+    const totalHoy = ventasHoy.reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const totalGeneral = ventasDelDia.filter(v =>
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA'
+    ).reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const ventasFeria = ventasDelDia.filter(v => v.tipo_sucursal === 'feria' &&
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length;
+    const ventasCentro = ventasDelDia.filter(v => v.tipo_sucursal === 'centro' &&
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length;
+    const efectivo = ventasDelDia.filter(v => v.metodo_pago === 'Efectivo' &&
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const qr = ventasDelDia.filter(v => v.metodo_pago === 'QR' &&
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const mixto = ventasDelDia.filter(v => v.metodo_pago === 'Mixto' &&
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+
+    const statsHTML = `
+        <div class="stat-card">
+            <div class="stat-label">Ventas Hoy</div>
+            <div class="stat-value">${ventasHoy.length}</div>
+            <div class="stat-detail">${totalHoy.toFixed(2)} Bs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Total General</div>
+            <div class="stat-value">${ventasDelDia.filter(v =>
+                v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length}</div>
+            <div class="stat-detail">${totalGeneral.toFixed(2)} Bs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Ventas Feria</div>
+            <div class="stat-value">${ventasFeria}</div>
+            <div class="stat-detail">${ventasDelDia.filter(v => v.tipo_sucursal === 'feria' &&
+                v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0).toFixed(2)} Bs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Ventas Centro</div>
+            <div class="stat-value">${ventasCentro}</div>
+            <div class="stat-detail">${ventasDelDia.filter(v => v.tipo_sucursal === 'centro' &&
+                v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0).toFixed(2)} Bs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Efectivo</div>
+            <div class="stat-value">${efectivo.toFixed(2)}</div>
+            <div class="stat-detail">Bs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">QR</div>
+            <div class="stat-value">${qr.toFixed(2)}</div>
+            <div class="stat-detail">Bs</div>
+        </div>
+        <div class="stat-card">
+            <div class="stat-label">Mixto</div>
+            <div class="stat-value">${mixto.toFixed(2)}</div>
+            <div class="stat-detail">Bs</div>
+        </div>
+    `;
+
+    statsContainer.innerHTML = statsHTML;
+}
+
+function abrirModalObservacion(index) {
+    ventaConObservacionIndex = index;
+    const venta = ventasDelDia[index];
+    observacionText.value = venta.observaciones || '';
+    observacionModal.style.display = 'flex';
+}
+
+function guardarObservacion() {
+    if (ventaConObservacionIndex === -1) return;
+    const observacion = observacionText.value.trim();
+    ventasDelDia[ventaConObservacionIndex].observaciones = observacion;
+    localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+    actualizarVentasDelDia();
+    observacionModal.style.display = 'none';
+    Notificaciones.mostrar('Observación guardada correctamente', 'success');
+}
+
+function eliminarVenta(index) {
+    Swal.fire({
+        title: '¿Eliminar este registro?',
+        html: `
+            <div style="text-align: left; font-size: 14px;">
+                <p>Esta acción eliminará permanentemente el registro seleccionado.</p>
+                <p><strong>Registro:</strong> ${ventasDelDia[index].productos}</p>
+                <p><strong>Fecha:</strong> ${ventasDelDia[index].fecha}</p>
+                <p><strong>Total:</strong> ${ventasDelDia[index].total_venta} Bs</p>
+            </div>
+        `,
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#d33',
+        cancelButtonColor: '#3085d6',
+        confirmButtonText: 'Sí, eliminar',
+        cancelButtonText: 'Cancelar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            crearBackupAutomatico();
+            ventasDelDia.splice(index, 1);
+            localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+            actualizarContadorVentas();
+            actualizarEstadisticas();
+            actualizarVentasDelDia();
+            Notificaciones.mostrar('Registro eliminado correctamente', 'success');
+        }
+    });
+}
+
+function verificarSesionActiva() {
+    const usuarioGuardado = localStorage.getItem('currentUser');
+    const cajaAbiertaGuardada = localStorage.getItem('cajaAbierta');
+    const horaAperturaGuardada = localStorage.getItem('horaAperturaCaja');
+    const ventasCajaGuardadas = localStorage.getItem('ventasCajaActual');
+    const sucursalGuardada = localStorage.getItem('sucursalSeleccionada');
+    const montoAperturaGuardado = localStorage.getItem('montoApertura');
+    const montoCierreGuardado = localStorage.getItem('montoCierre');
+
+    if (usuarioGuardado) {
+        currentUser = JSON.parse(usuarioGuardado);
+        if (sucursalGuardada) {
+            sucursalSeleccionada = sucursalGuardada;
+            mostrarPantallaPrincipal();
+            if (montoAperturaGuardado) {
+                montoApertura = parseFloat(montoAperturaGuardado);
+            }
+            if (montoCierreGuardado) {
+                montoCierre = parseFloat(montoCierreGuardado);
+            }
+            if (cajaAbiertaGuardada === 'true' && horaAperturaGuardada) {
+                cajaAbierta = true;
+                horaAperturaCaja = horaAperturaGuardada;
+                if (ventasCajaGuardadas) {
+                    ventasCajaActual = JSON.parse(ventasCajaGuardadas);
+                }
+                actualizarEstadoCaja();
+            } else {
+                cajaAbierta = false;
+                horaAperturaCaja = null;
+                ventasCajaActual = [];
+                actualizarEstadoCaja();
+            }
+        } else {
+            mostrarPantallaSeleccionSucursal();
+        }
+    }
+}
+
+function mostrarPantallaSeleccionSucursal() {
+    loginScreen.style.display = 'none';
+    mainScreen.style.display = 'none';
+    sucursalSelectionScreen.style.display = 'block';
+    indiceSucursalSeleccionada = 0;
+    actualizarSeleccionSucursalConTeclado();
+    setTimeout(() => {
+        sucursalSelectionScreen.focus();
+    }, 100);
+}
+
+function mostrarPantallaPrincipal() {
+    loginScreen.style.display = 'none';
+    sucursalSelectionScreen.style.display = 'none';
+    mainScreen.style.display = 'block';
+    currentUserName.textContent = currentUser.username;
+    currentUserRole.textContent = `(${currentUser.rol})`;
+    sidebarSucursal.textContent = `Sucursal: ${sucursalSeleccionada}`;
+
+    if (currentUser.rol === 'admin') {
+        document.querySelectorAll('.permiso-admin').forEach(el => {
+            el.style.display = 'block';
+        });
+    } else {
+        document.querySelectorAll('.permiso-admin').forEach(el => {
+            el.style.display = 'none';
+        });
+    }
+
+    actualizarSeleccionSucursal();
+}
+
+function mostrarResumenCierre(resumen) {
+    const fechaApertura = new Date(resumen.horaApertura);
+    const fechaCierre = new Date(resumen.horaCierre);
+    const duracion = Math.round((fechaCierre - fechaApertura) / (1000 * 60));
+    const efectivoEsperado = resumen.montoApertura + resumen.efectivo;
+    const qrEsperado = resumen.qr;
+
+    const resumenHTML = `
+        <div class="info-box">
+            <p><strong>Período:</strong> ${fechaApertura.toLocaleString()} - ${fechaCierre.toLocaleString()}</p>
+            <p><strong>Duración:</strong> ${duracion} minutos</p>
+            <p><strong>Número de Ventas:</strong> ${resumen.numeroVentas}</p>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+            <div style="background: #e8f5e9; padding: 15px; border-radius: 8px; border-left: 4px solid #4caf50;">
+                <div style="font-weight: bold; margin-bottom: 8px;">RESUMEN DE EFECTIVO</div>
+                <p><strong>Monto de apertura:</strong> ${resumen.montoApertura.toFixed(2)} Bs</p>
+                <p><strong>Ventas en efectivo:</strong> ${resumen.efectivo.toFixed(2)} Bs</p>
+                <p><strong>Total efectivo en caja:</strong> ${efectivoEsperado.toFixed(2)} Bs</p>
+            </div>
+            <div style="background: #e3f2fd; padding: 15px; border-radius: 8px; border-left: 4px solid #2196f3;">
+                <div style="font-weight: bold; margin-bottom: 8px;">RESUMEN DE QR</div>
+                <p><strong>Ventas QR:</strong> ${resumen.qr.toFixed(2)} Bs</p>
+                <p><strong>Total QR esperado:</strong> ${qrEsperado.toFixed(2)} Bs</p>
+            </div>
+        </div>
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin: 15px 0;">
+            <div class="resumen-total total-contado">
+                <div class="stat-label">EFECTIVO CONTADO</div>
+                <input type="number" id="efectivoContado" class="resumen-valor-input" value="${efectivoEsperado.toFixed(2)}" step="0.01" min="0">
+            </div>
+            <div class="resumen-total total-contado">
+                <div class="stat-label">QR CONTADO</div>
+                <input type="number" id="qrContado" class="resumen-valor-input" value="${qrEsperado.toFixed(2)}" step="0.01" min="0">
+            </div>
+        </div>
+        <div id="resultadoCierre" style="display: none; margin-top: 20px; padding: 15px; background: #f8f9fa; border-radius: 8px;">
+            <h4>Resultado del Cierre</h4>
+            <p id="resultadoEfectivo"></p>
+            <p id="resultadoQR"></p>
+            <p id="resultadoTotal" style="font-weight: bold; font-size: 16px;"></p>
+        </div>
+        <div style="display: flex; gap: 10px; margin-top: 20px;">
+            <button type="button" id="calcularCierreBtn" class="agregar-btn" style="width: auto; padding: 12px 20px;">
+                <i class="fas fa-calculator"></i> Calcular Cierre
+            </button>
+            <button type="button" id="imprimirResumenBtn" class="agregar-btn" style="width: auto; padding: 12px 20px; display: none;">
+                <i class="fas fa-print"></i> Imprimir Resumen
+            </button>
+            <button type="button" id="cerrarResumenBtn" class="logout-btn" style="width: auto; padding: 12px 20px;">
+                <i class="fas fa-times"></i> Cerrar
+            </button>
+        </div>
+    `;
+
+    Swal.fire({
+        title: 'Cierre de Caja - Resumen Detallado',
+        html: resumenHTML,
+        width: 800,
+        showCloseButton: true,
+        showConfirmButton: false
+    });
+
+    document.getElementById('calcularCierreBtn').addEventListener('click', function() {
+        calcularCierre(efectivoEsperado, qrEsperado, resumen);
+    });
+
+    document.getElementById('imprimirResumenBtn').addEventListener('click', function() {
+        const efectivoContado = parseFloat(document.getElementById('efectivoContado').value) || 0;
+        const qrContado = parseFloat(document.getElementById('qrContado').value) || 0;
+        imprimirResumenCierre(resumen, fechaApertura, fechaCierre, duracion, efectivoEsperado, qrEsperado, efectivoContado, qrContado);
+    });
+
+    document.getElementById('cerrarResumenBtn').addEventListener('click', function() {
+        Swal.close();
+    });
+}
+
+function calcularCierre(efectivoEsperado, qrEsperado, resumen) {
+    const efectivoContado = parseFloat(document.getElementById('efectivoContado').value) || 0;
+    const qrContado = parseFloat(document.getElementById('qrContado').value) || 0;
+    const diferenciaEfectivo = efectivoContado - efectivoEsperado;
+    const diferenciaQR = qrContado - qrEsperado;
+    const diferenciaTotal = diferenciaEfectivo + diferenciaQR;
+
+    const resultadoEfectivo = document.getElementById('resultadoEfectivo');
+    const resultadoQR = document.getElementById('resultadoQR');
+    const resultadoTotal = document.getElementById('resultadoTotal');
+    const resultadoCierre = document.getElementById('resultadoCierre');
+
+    if (diferenciaEfectivo > 0) {
+        resultadoEfectivo.innerHTML = `<strong>Efectivo:</strong> <span class="diferencia-positiva">SOBRANTE ${diferenciaEfectivo.toFixed(2)} Bs</span>`;
+    } else if (diferenciaEfectivo < 0) {
+        resultadoEfectivo.innerHTML = `<strong>Efectivo:</strong> <span class="diferencia-negativa">FALTANTE ${Math.abs(diferenciaEfectivo).toFixed(2)} Bs</span>`;
+    } else {
+        resultadoEfectivo.innerHTML = `<strong>Efectivo:</strong> CUADRADO`;
+    }
+
+    if (diferenciaQR > 0) {
+        resultadoQR.innerHTML = `<strong>QR:</strong> <span class="diferencia-positiva">SOBRANTE ${diferenciaQR.toFixed(2)} Bs</span>`;
+    } else if (diferenciaQR < 0) {
+        resultadoQR.innerHTML = `<strong>QR:</strong> <span class="diferencia-negativa">FALTANTE ${Math.abs(diferenciaQR).toFixed(2)} Bs</span>`;
+    } else {
+        resultadoQR.innerHTML = `<strong>QR:</strong> CUADRADO`;
+    }
+
+    if (diferenciaTotal > 0) {
+        resultadoTotal.innerHTML = `<span class="diferencia-positiva">TOTAL SOBRANTE: ${diferenciaTotal.toFixed(2)} Bs</span>`;
+    } else if (diferenciaTotal < 0) {
+        resultadoTotal.innerHTML = `<span class="diferencia-negativa">TOTAL FALTANTE: ${Math.abs(diferenciaTotal).toFixed(2)} Bs</span>`;
+    } else {
+        resultadoTotal.innerHTML = `<span style="color: #4caf50;">TOTAL CUADRADO</span>`;
+    }
+
+    resultadoCierre.style.display = 'block';
+    document.getElementById('imprimirResumenBtn').style.display = 'inline-block';
+}
+
+function imprimirResumenCierre(resumen, fechaApertura, fechaCierre, duracion, efectivoEsperado, qrEsperado, efectivoContado, qrContado) {
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.left = '-9999px';
+    iframe.style.top = '0';
+    document.body.appendChild(iframe);
+
+    const diferenciaEfectivo = efectivoContado - efectivoEsperado;
+    const diferenciaQR = qrContado - qrEsperado;
+    const diferenciaTotal = diferenciaEfectivo + diferenciaQR;
+
+    const contenidoHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Resumen de Cierre - Todoenuno_store</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 10mm; color: #000; font-size: 12px; }
+                .resumen-header { text-align: center; margin-bottom: 15px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+                .resumen-titulo { font-size: 18px; font-weight: bold; margin-bottom: 5px; }
+                .resumen-info { margin-bottom: 15px; }
+                .resumen-comparativa { display: grid; grid-template-columns: repeat(2, 1fr); gap: 10px; margin-bottom: 15px; }
+                .resumen-comparativa-item { padding: 10px; border: 1px solid #000; border-radius: 5px; text-align: center; }
+                .resumen-esperado { background-color: #e8f5e9; }
+                .resumen-contado { background-color: #e3f2fd; }
+                .resumen-diferencia { margin-top: 15px; padding: 15px; border: 2px solid #000; border-radius: 5px; text-align: center; font-weight: bold; }
+                .diferencia-positiva { color: #4caf50; }
+                .diferencia-negativa { color: #f44336; }
+                .resumen-valor { font-size: 16px; font-weight: bold; margin: 5px 0; }
+                @media print { body { margin: 0; padding: 5mm; } @page { margin: 0; size: auto; } }
+            </style>
+        </head>
+        <body>
+            <div class="resumen-header">
+                <div class="resumen-titulo">TODOENUNO_STORE</div>
+                <div class="resumen-subtitulo">RESUMEN DETALLADO DE CIERRE DE CAJA</div>
+            </div>
+            <div class="resumen-info">
+                <p><strong>Período:</strong> ${fechaApertura.toLocaleString()} - ${fechaCierre.toLocaleString()}</p>
+                <p><strong>Duración:</strong> ${duracion} minutos</p>
+                <p><strong>Número de Ventas:</strong> ${resumen.numeroVentas}</p>
+                <p><strong>Sucursal:</strong> ${sucursalSeleccionada}</p>
+                <p><strong>Apertura de Caja:</strong> ${resumen.montoApertura} Bs</p>
+            </div>
+            <div class="resumen-comparativa">
+                <div class="resumen-comparativa-item resumen-esperado">
+                    <div class="stat-label">EFECTIVO ESPERADO</div>
+                    <div class="resumen-valor">${efectivoEsperado.toFixed(2)} Bs</div>
+                    <div class="stat-detail">Apertura: ${resumen.montoApertura} Bs</div>
+                    <div class="stat-detail">+ Ventas: ${resumen.efectivo.toFixed(2)} Bs</div>
+                </div>
+                <div class="resumen-comparativa-item resumen-esperado">
+                    <div class="stat-label">QR ESPERADO</div>
+                    <div class="resumen-valor">${qrEsperado.toFixed(2)} Bs</div>
+                    <div class="stat-detail">Total ventas QR</div>
+                </div>
+                <div class="resumen-comparativa-item resumen-contado">
+                    <div class="stat-label">EFECTIVO CONTADO</div>
+                    <div class="resumen-valor">${efectivoContado.toFixed(2)} Bs</div>
+                </div>
+                <div class="resumen-comparativa-item resumen-contado">
+                    <div class="stat-label">QR CONTADO</div>
+                    <div class="resumen-valor">${qrContado.toFixed(2)} Bs</div>
+                </div>
+            </div>
+            <div class="resumen-diferencia">
+                ${diferenciaTotal > 0 ?
+                    `<div class="diferencia-positiva">SOBRANTE TOTAL: ${diferenciaTotal.toFixed(2)} Bs</div>` :
+                    diferenciaTotal < 0 ?
+                    `<div class="diferencia-negativa">FALTANTE TOTAL: ${Math.abs(diferenciaTotal).toFixed(2)} Bs</div>` :
+                    `<div style="color: #4caf50;">TOTAL CUADRADO</div>`
+                }
+                ${diferenciaEfectivo !== 0 ?
+                    `<div>Efectivo: ${diferenciaEfectivo > 0 ? 'Sobrante ' : 'Faltante '}${Math.abs(diferenciaEfectivo).toFixed(2)} Bs</div>` :
+                    '<div>Efectivo: Cuadrado</div>'
+                }
+                ${diferenciaQR !== 0 ?
+                    `<div>QR: ${diferenciaQR > 0 ? 'Sobrante ' : 'Faltante '}${Math.abs(diferenciaQR).toFixed(2)} Bs</div>` :
+                    '<div>QR: Cuadrado</div>'
+                }
+            </div>
+            <div class="resumen-totales" style="margin-top: 15px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <div><strong>Total Ventas Efectivo:</strong> ${resumen.efectivo.toFixed(2)} Bs</div>
+                    <div><strong>Total Ventas QR:</strong> ${resumen.qr.toFixed(2)} Bs</div>
+                </div>
+                <div style="display: flex; justify-content: space-between; margin-top: 5px;">
+                    <div><strong>Total Ventas Tarjeta:</strong> ${resumen.tarjeta.toFixed(2)} Bs</div>
+                    <div><strong>Total General:</strong> ${resumen.total.toFixed(2)} Bs</div>
+                </div>
+            </div>
+            <div class="resumen-footer" style="margin-top: 20px; border-top: 1px solid #000; padding-top: 10px;">
+                <p><strong>Generado por:</strong> ${currentUser.nombre}</p>
+                <p><strong>Fecha de generación:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+        </body>
+        </html>
+    `;
+
+    const iframeDoc = iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(contenidoHTML);
+    iframeDoc.close();
+
+    setTimeout(function() {
+        try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(function() {
+                document.body.removeChild(iframe);
+            }, 1000);
+        } catch (e) {
+            console.error('Error al imprimir:', e);
+            Notificaciones.mostrar('Error al intentar imprimir', 'error');
+            document.body.removeChild(iframe);
+        }
+    }, 500);
+}
+
+function actualizarEstadoCaja() {
+    if (cajaAbierta) {
+        cajaStatus.textContent = `Caja abierta en ${sucursalSeleccionada} desde ${new Date(horaAperturaCaja).toLocaleTimeString()}`;
+        cajaInfo.style.borderLeftColor = '#28a745';
+        actionCerrarCaja.innerHTML = '<i class="fas fa-cash-register"></i> Cerrar Caja';
+        agregarProductoBtn.disabled = false;
+        actionGuardarVenta.disabled = false;
+        actionImprimir.disabled = false;
+    } else {
+        cajaStatus.textContent = 'Caja cerrada - Presiona "Abrir/Cerrar Caja" para abrir';
+        cajaInfo.style.borderLeftColor = '#dc3545';
+        actionCerrarCaja.innerHTML = '<i class="fas fa-cash-register"></i> Abrir Caja';
+        agregarProductoBtn.disabled = true;
+        actionGuardarVenta.disabled = true;
+        actionImprimir.disabled = true;
+    }
+}
+
+function realizarBackupCompleto() {
+    try {
+        const backupData = {
+            ventas: ventasDelDia,
+            configuracion: {
+                usuario: currentUser,
+                sucursal: sucursalSeleccionada,
+                ultimaActualizacion: new Date().toISOString()
+            },
+            version: '2.0',
+            totalVentas: ventasDelDia.filter(v =>
+                v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length,
+            totalRecaudado: ventasDelDia.filter(v =>
+                v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA'
+            ).reduce((sum, v) => sum + parseFloat(v.total_venta), 0)
+        };
+
+        const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
+        const url = URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = url;
+        a.download = `backup_todoenuno_${new Date().toISOString().split('T')[0]}.json`;
+        a.click();
+        URL.revokeObjectURL(url);
+        Notificaciones.mostrar('Backup descargado correctamente', 'success');
+    } catch (error) {
+        console.error('Error al crear backup:', error);
+        Notificaciones.mostrar('Error al crear backup', 'error');
+    }
+}
+
+function restaurarBackup(archivo) {
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        try {
+            const backupData = JSON.parse(e.target.result);
+            Swal.fire({
+                title: '¿Restaurar Backup?',
+                html: `
+                    <div style="text-align: left; font-size: 14px;">
+                        <p><strong>Esta acción reemplazará todos los datos actuales.</strong></p>
+                        <p><strong>Ventas en backup:</strong> ${backupData.ventas.filter(v =>
+                            v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length}</p>
+                        <p><strong>Total recaudado:</strong> ${backupData.totalRecaudado ? backupData.totalRecaudado.toFixed(2) : 'N/A'} Bs</p>
+                        <p><strong>Fecha de backup:</strong> ${new Date(backupData.configuracion.ultimaActualizacion).toLocaleString()}</p>
+                    </div>
+                `,
+                icon: 'warning',
+                showCancelButton: true,
+                confirmButtonColor: '#3085d6',
+                cancelButtonColor: '#d33',
+                confirmButtonText: 'Sí, restaurar',
+                cancelButtonText: 'Cancelar'
+            }).then((result) => {
+                if (result.isConfirmed) {
+                    crearBackupAutomatico();
+                    ventasDelDia = backupData.ventas;
+                    localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+                    actualizarContadorVentas();
+                    actualizarEstadisticas();
+                    actualizarVentasDelDia();
+                    Notificaciones.mostrar('Backup restaurado correctamente', 'success');
+                }
+            });
+        } catch (error) {
+            console.error('Error al leer backup:', error);
+            Notificaciones.mostrar('Error: Archivo de backup inválido', 'error');
+        }
+    };
+    reader.readAsText(archivo);
+}
+
+function crearBackupAutomatico() {
+    try {
+        const backup = {
+            fecha: new Date().toISOString(),
+            ventas: ventasDelDia,
+            totalVentas: ventasDelDia.filter(v =>
+                v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length,
+            totalRecaudado: ventasDelDia.filter(v =>
+                v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA'
+            ).reduce((sum, v) => sum + parseFloat(v.total_venta), 0)
+        };
+        const clave = 'backup_ventas_' + new Date().toISOString().split('T')[0];
+        localStorage.setItem(clave, JSON.stringify(backup));
+        limpiarBackupsAntiguos();
+        console.log('Backup automático creado:', clave);
+    } catch (error) {
+        console.error('Error creando backup:', error);
+    }
+}
+
+function limpiarBackupsAntiguos() {
+    const sieteDias = 7 * 24 * 60 * 60 * 1000;
+    const ahora = Date.now();
+    for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+        if (clave && clave.startsWith('backup_ventas_')) {
+            try {
+                const fechaBackup = new Date(clave.replace('backup_ventas_', ''));
+                if (ahora - fechaBackup.getTime() > sieteDias) {
+                    localStorage.removeItem(clave);
+                    console.log('Backup antiguo eliminado:', clave);
+                }
+            } catch (e) {
+                console.error('Error procesando backup:', clave, e);
+            }
+        }
+    }
+}
+
+function imprimirResumenVentasDia() {
+    const hoy = new Date().toLocaleDateString('es-ES');
+    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy &&
+        v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA');
+
+    if (ventasHoy.length === 0) {
+        Notificaciones.mostrar('No hay ventas hoy para generar un resumen', 'warning');
+        return;
+    }
+
+    let resumen = {
+        efectivo: 0, qr: 0, tarjeta: 0, mixto: 0, total: 0,
+        numeroVentas: ventasHoy.length,
+        numeroVentasEfectivo: 0, numeroVentasQR: 0,
+        numeroVentasTarjeta: 0, numeroVentasMixto: 0
+    };
+
+    ventasHoy.forEach(venta => {
+        const monto = parseFloat(venta.total_venta);
+        resumen.total += monto;
+        switch(venta.metodo_pago) {
+            case 'Efectivo':
+                resumen.efectivo += monto;
+                resumen.numeroVentasEfectivo++;
+                break;
+            case 'QR':
+                resumen.qr += monto;
+                resumen.numeroVentasQR++;
+                break;
+            case 'Tarjeta':
+                resumen.tarjeta += monto;
+                resumen.numeroVentasTarjeta++;
+                break;
+            case 'Mixto':
+                resumen.mixto += monto;
+                resumen.numeroVentasMixto++;
+                resumen.efectivo += venta.monto_efectivo || 0;
+                resumen.qr += venta.monto_qr || 0;
+                break;
+        }
+    });
+
+    const iframe = document.createElement('iframe');
+    iframe.style.position = 'absolute';
+    iframe.style.left = '-9999px';
+    iframe.style.top = '0';
+    document.body.appendChild(iframe);
+
+    const contenidoHTML = `
+        <!DOCTYPE html>
+        <html>
+        <head>
+            <title>Resumen de Ventas del Día - Todoenuno_store</title>
+            <style>
+                body { font-family: Arial, sans-serif; margin: 0; padding: 20px; color: #000; font-size: 14px; }
+                .resumen-header { text-align: center; margin-bottom: 20px; border-bottom: 2px solid #000; padding-bottom: 10px; }
+                .resumen-titulo { font-size: 24px; font-weight: bold; margin-bottom: 5px; }
+                .resumen-info { margin-bottom: 20px; }
+                .resumen-totales { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; margin-bottom: 20px; }
+                .resumen-total { padding: 15px; border: 1px solid #000; border-radius: 8px; text-align: center; }
+                .resumen-total.efectivo { border-color: #28a745; }
+                .resumen-total.qr { border-color: #17a2b8; }
+                .resumen-total.tarjeta { border-color: #ffc107; }
+                .resumen-total.mixto { border-color: #6f42c1; }
+                .resumen-total.general { border-color: #dc3545; }
+                .resumen-valor { font-size: 20px; font-weight: bold; margin: 10px 0; }
+                .resumen-detalle { margin-top: 20px; border-top: 1px solid #000; padding-top: 15px; }
+                .resumen-detalle table { width: 100%; border-collapse: collapse; }
+                .resumen-detalle th { background-color: #f0f0f0; padding: 8px; text-align: left; border-bottom: 1px solid #000; }
+                .resumen-detalle td { padding: 8px; border-bottom: 1px solid #ddd; }
+                @media print { body { margin: 0; padding: 10mm; } @page { margin: 0; size: auto; } }
+            </style>
+        </head>
+        <body>
+            <div class="resumen-header">
+                <div class="resumen-titulo">TODOENUNO_STORE</div>
+                <div class="resumen-subtitulo">RESUMEN DE VENTAS DEL DÍA</div>
+            </div>
+            <div class="resumen-info">
+                <p><strong>Fecha:</strong> ${hoy}</p>
+                <p><strong>Número de Ventas:</strong> ${resumen.numeroVentas}</p>
+                <p><strong>Sucursal:</strong> ${sucursalSeleccionada}</p>
+                <p><strong>Generado por:</strong> ${currentUser.nombre}</p>
+                <p><strong>Fecha de generación:</strong> ${new Date().toLocaleString()}</p>
+            </div>
+            <div class="resumen-totales">
+                <div class="resumen-total efectivo">
+                    <div class="stat-label">Efectivo</div>
+                    <div class="resumen-valor">${resumen.efectivo.toFixed(2)} Bs</div>
+                    <div class="stat-detail">${resumen.numeroVentasEfectivo} ventas</div>
+                </div>
+                <div class="resumen-total qr">
+                    <div class="stat-label">QR</div>
+                    <div class="resumen-valor">${resumen.qr.toFixed(2)} Bs</div>
+                    <div class="stat-detail">${resumen.numeroVentasQR} ventas</div>
+                </div>
+                <div class="resumen-total tarjeta">
+                    <div class="stat-label">Tarjeta</div>
+                    <div class="resumen-valor">${resumen.tarjeta.toFixed(2)} Bs</div>
+                    <div class="stat-detail">${resumen.numeroVentasTarjeta} ventas</div>
+                </div>
+                <div class="resumen-total mixto">
+                    <div class="stat-label">Mixto</div>
+                    <div class="resumen-valor">${resumen.mixto.toFixed(2)} Bs</div>
+                    <div class="stat-detail">${resumen.numeroVentasMixto} ventas</div>
+                </div>
+                <div class="resumen-total general">
+                    <div class="stat-label">Total General</div>
+                    <div class="resumen-valor">${resumen.total.toFixed(2)} Bs</div>
+                    <div class="stat-detail">${resumen.numeroVentas} ventas</div>
+                </div>
+            </div>
+            <div class="resumen-detalle">
+                <h3>Detalle de Ventas por Método de Pago</h3>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Método de Pago</th>
+                            <th>Número de Ventas</th>
+                            <th>Total Recaudado</th>
+                            <th>Porcentaje</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Efectivo</td>
+                            <td>${resumen.numeroVentasEfectivo}</td>
+                            <td>${resumen.efectivo.toFixed(2)} Bs</td>
+                            <td>${resumen.total > 0 ? ((resumen.efectivo / resumen.total) * 100).toFixed(1) : '0'}%</td>
+                        </tr>
+                        <tr>
+                            <td>QR</td>
+                            <td>${resumen.numeroVentasQR}</td>
+                            <td>${resumen.qr.toFixed(2)} Bs</td>
+                            <td>${resumen.total > 0 ? ((resumen.qr / resumen.total) * 100).toFixed(1) : '0'}%</td>
+                        </tr>
+                        <tr>
+                            <td>Tarjeta</td>
+                            <td>${resumen.numeroVentasTarjeta}</td>
+                            <td>${resumen.tarjeta.toFixed(2)} Bs</td>
+                            <td>${resumen.total > 0 ? ((resumen.tarjeta / resumen.total) * 100).toFixed(1) : '0'}%</td>
+                        </tr>
+                        <tr>
+                            <td>Mixto</td>
+                            <td>${resumen.numeroVentasMixto}</td>
+                            <td>${resumen.mixto.toFixed(2)} Bs</td>
+                            <td>${resumen.total > 0 ? ((resumen.mixto / resumen.total) * 100).toFixed(1) : '0'}%</td>
+                        </tr>
+                        <tr style="font-weight: bold; border-top: 2px solid #000;">
+                            <td>TOTAL</td>
+                            <td>${resumen.numeroVentas}</td>
+                            <td>${resumen.total.toFixed(2)} Bs</td>
+                            <td>100%</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </body>
+        </html>
+    `;
+
+    const iframeDoc = iframe.contentWindow.document;
+    iframeDoc.open();
+    iframeDoc.write(contenidoHTML);
+    iframeDoc.close();
+
+    setTimeout(function() {
+        try {
+            iframe.contentWindow.focus();
+            iframe.contentWindow.print();
+            setTimeout(function() {
+                document.body.removeChild(iframe);
+            }, 1000);
+        } catch (e) {
+            console.error('Error al imprimir:', e);
+            Notificaciones.mostrar('Error al intentar imprimir', 'error');
+            document.body.removeChild(iframe);
+        }
+    }, 500);
+}
+
+function resetSessionTimer() {
+    lastActivityTime = Date.now();
+    clearTimeout(timeoutTimer);
+    timeoutTimer = setTimeout(showSessionWarning, SESSION_TIMEOUT - (WARNING_TIME * 1000));
+}
+
+function showSessionWarning() {
+    sessionTimeoutOverlay.style.display = 'block';
+    sessionTimeoutWarning.style.display = 'block';
+    let seconds = WARNING_TIME;
+    countdownElement.textContent = seconds;
+    countdown = setInterval(() => {
+        seconds--;
+        countdownElement.textContent = seconds;
+        if (seconds <= 0) {
+            clearInterval(countdown);
+            cerrarSesionAutomatica();
+        }
+    }, 1000);
+}
+
+function hideSessionWarning() {
+    sessionTimeoutOverlay.style.display = 'none';
+    sessionTimeoutWarning.style.display = 'none';
+    clearInterval(countdown);
+    resetSessionTimer();
+}
+
+function cerrarSesionAutomatica() {
+    Notificaciones.mostrar('Sesión cerrada por inactividad', 'warning');
+    if (cajaAbierta) {
+        cerrarCaja();
+    }
+    localStorage.removeItem('currentUser');
+    localStorage.removeItem('sucursalSeleccionada');
+    localStorage.removeItem('montoApertura');
+    localStorage.removeItem('montoCierre');
+    localStorage.removeItem('cajaAbierta');
+    localStorage.removeItem('horaAperturaCaja');
+    localStorage.removeItem('ventasCajaActual');
+    currentUser = null;
+    sucursalSeleccionada = null;
+    mainScreen.style.display = 'none';
+    loginScreen.style.display = 'block';
+    usernameInput.value = '';
+    passwordInput.value = '';
+}
+
+function mostrarModalCambiarUsuario() {
+    usuarioActualNombre.textContent = currentUser.nombre + ' (' + currentUser.rol + ')';
+    nuevoUsuarioInput.value = '';
+    nuevaPasswordInput.value = '';
+    cambiarUsuarioModal.style.display = 'flex';
+    nuevoUsuarioInput.focus();
+}
+
+function cambiarUsuario() {
+    const nuevoUsuario = nuevoUsuarioInput.value.trim().toLowerCase();
+    const nuevaPassword = nuevaPasswordInput.value;
+
+    if (!nuevoUsuario || !nuevaPassword) {
+        Notificaciones.mostrar('Completa usuario y contraseña', 'warning');
+        return;
+    }
+
+    if (usuarios[nuevoUsuario] && usuarios[nuevoUsuario].password === nuevaPassword) {
+        const cajaAbiertaGuardada = cajaAbierta;
+        const horaAperturaGuardada = horaAperturaCaja;
+        const ventasCajaGuardadas = [...ventasCajaActual];
+        const montoAperturaGuardado = montoApertura;
+        const montoCierreGuardado = montoCierre;
+
+        currentUser = {
+            username: nuevoUsuario,
+            nombre: usuarios[nuevoUsuario].nombre,
+            rol: usuarios[nuevoUsuario].rol
+        };
+
+        cajaAbierta = cajaAbiertaGuardada;
+        horaAperturaCaja = horaAperturaGuardada;
+        ventasCajaActual = ventasCajaGuardadas;
+        montoApertura = montoAperturaGuardado;
+        montoCierre = montoCierreGuardado;
+
+        localStorage.setItem('currentUser', JSON.stringify(currentUser));
+        localStorage.setItem('cajaAbierta', cajaAbierta.toString());
+        localStorage.setItem('horaAperturaCaja', horaAperturaCaja || '');
+        localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
+        localStorage.setItem('montoApertura', montoApertura.toString());
+        localStorage.setItem('montoCierre', montoCierre.toString());
+
+        currentUserName.textContent = currentUser.nombre;
+        currentUserRole.textContent = `(${currentUser.rol})`;
+
+        if (currentUser.rol === 'admin') {
+            document.querySelectorAll('.permiso-admin').forEach(el => {
+                el.style.display = 'block';
+            });
+            document.querySelectorAll('.permiso-vendedor').forEach(el => {
+                el.style.display = 'none';
+            });
+        } else {
+            document.querySelectorAll('.permiso-admin').forEach(el => {
+                el.style.display = 'none';
+            });
+        }
+
+        actualizarEstadoCaja();
+        actualizarVentasDelDia();
+
+        cambiarUsuarioModal.style.display = 'none';
+        Notificaciones.mostrar(`Usuario cambiado a: ${currentUser.nombre}`, 'success');
+
+        resetSessionTimer();
+    } else {
+        Notificaciones.mostrar('Usuario o contraseña incorrectos', 'error');
+    }
+}
+
+function setupActivityListeners() {
+    const events = ['mousedown', 'mousemove', 'keypress', 'scroll', 'touchstart'];
+    events.forEach(event => {
+        document.addEventListener(event, resetSessionTimer, { passive: true });
+    });
+}
+
+inicializar();
+});
+</script>
+</body>
+</html>
