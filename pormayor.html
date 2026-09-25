@@ -1,0 +1,2947 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Todoenuno_store - Ventas al Por Mayor</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<style>
+/* ========== TODOS LOS ESTILOS ANTERIORES ========== */
+* {
+    box-sizing: border-box;
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+}
+body {
+    background: #ffffff;
+    min-height: 100vh;
+    padding: 20px;
+    display: flex;
+    justify-content: center;
+    align-items: flex-start;
+    width: 100%;
+    transition: background-color 0.4s ease, color 0.3s ease;
+    color: #2c3e50;
+}
+body.estado-whatsapp {
+    background: #FAD62D !important;
+    color: #2c3e50 !important;
+}
+body.estado-pagado {
+    background: #0BB045 !important;
+    color: #ffffff !important;
+}
+body.estado-whatsapp .container,
+body.estado-whatsapp .alistar-container,
+body.estado-whatsapp .estado-pago-container,
+body.estado-whatsapp .cargar-pedido-container,
+body.estado-whatsapp .preview-container,
+body.estado-whatsapp .instructions,
+body.estado-whatsapp .info-box,
+body.estado-whatsapp .nota-envio,
+body.estado-whatsapp .productos-lista,
+body.estado-whatsapp .modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    color: #2c3e50;
+}
+body.estado-pagado .container,
+body.estado-pagado .alistar-container,
+body.estado-pagado .estado-pago-container,
+body.estado-pagado .cargar-pedido-container,
+body.estado-pagado .preview-container,
+body.estado-pagado .instructions,
+body.estado-pagado .info-box,
+body.estado-pagado .nota-envio,
+body.estado-pagado .productos-lista,
+body.estado-pagado .modal-content {
+    background: rgba(255, 255, 255, 0.95);
+    color: #2c3e50;
+}
+body.estado-whatsapp input,
+body.estado-whatsapp select,
+body.estado-whatsapp textarea,
+body.estado-pagado input,
+body.estado-pagado select,
+body.estado-pagado textarea {
+    background-color: #f9f9f9;
+    color: #2c3e50;
+}
+.app-container {
+    display: flex;
+    width: 100%;
+    max-width: 1400px;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+.main-panel {
+    flex: 3;
+    min-width: 300px;
+}
+.side-panel {
+    flex: 1.5;
+    min-width: 280px;
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+.container, .alistar-container, .estado-pago-container, .cargar-pedido-container {
+    background-color: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    width: 100%;
+    padding: 30px;
+    margin-bottom: 20px;
+    transition: background 0.3s ease;
+}
+.cargar-pedido-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.cargar-pedido-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.cargar-pedido-textarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 15px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 14px;
+    resize: vertical;
+    margin-bottom: 20px;
+    font-family: 'Courier New', monospace;
+}
+.estado-pago-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.estado-pago-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.estado-pago-options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+    margin-top: 10px;
+}
+.estado-pago-option {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 15px;
+    background: #f8f9fa;
+    border-radius: 12px;
+    cursor: pointer;
+    transition: all 0.3s;
+    border-left: 4px solid transparent;
+}
+.estado-pago-option:hover {
+    background: #e9ecef;
+}
+.estado-pago-option input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    cursor: pointer;
+    accent-color: #4caf50;
+}
+.estado-pago-label {
+    font-weight: 600;
+    font-size: 16px;
+    color: #2c3e50;
+    cursor: pointer;
+}
+.estado-pago-option.pendiente {
+    border-left-color: #6c757d;
+}
+.estado-pago-option.whatsapp {
+    border-left-color: #FAD62D;
+}
+.estado-pago-option.pagado {
+    border-left-color: #28a745;
+}
+.badge-estado {
+    display: inline-block;
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 14px;
+    font-weight: bold;
+    margin-left: 10px;
+}
+.badge-pendiente {
+    background-color: #6c757d;
+    color: white;
+}
+.badge-whatsapp {
+    background-color: #FAD62D;
+    color: #2c3e50;
+}
+.badge-pagado {
+    background-color: #28a745;
+    color: white;
+}
+.alistar-container {
+    background: white;
+    border-radius: 20px;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
+    padding: 25px;
+    height: fit-content;
+}
+.alistar-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.alistar-title {
+    font-size: 24px;
+    font-weight: bold;
+    color: #2c3e50;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.alistar-items {
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    max-height: 400px;
+    overflow-y: auto;
+    padding-right: 10px;
+}
+.alistar-item {
+    background: #f8f9fa;
+    padding: 15px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    border: 2px solid #e0e0e0;
+    transition: all 0.3s;
+}
+.alistar-item.checked {
+    background: #e8f5e9;
+    border-color: #4caf50;
+    opacity: 0.9;
+}
+.alistar-item input[type="checkbox"] {
+    width: 22px;
+    height: 22px;
+    cursor: pointer;
+    accent-color: #4caf50;
+}
+.alistar-item-info {
+    flex: 1;
+}
+.alistar-item-name {
+    font-weight: 600;
+    color: #2c3e50;
+    margin-bottom: 5px;
+    word-break: break-word;
+}
+.alistar-item-price {
+    color: #ff7e5f;
+    font-weight: bold;
+}
+.alistar-progress {
+    margin-top: 20px;
+    padding: 20px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    text-align: center;
+}
+.progress-bar {
+    height: 12px;
+    background: #e0e0e0;
+    border-radius: 6px;
+    overflow: hidden;
+    margin: 15px 0;
+}
+.progress-fill {
+    height: 100%;
+    background: linear-gradient(135deg, #4caf50 0%, #2e7d32 100%);
+    width: 0%;
+    transition: width 0.5s ease;
+}
+.progress-text {
+    font-size: 16px;
+    font-weight: 600;
+    color: #2c3e50;
+}
+.alistar-empty {
+    text-align: center;
+    padding: 30px;
+    color: #888;
+}
+.alistar-empty i {
+    font-size: 48px;
+    margin-bottom: 15px;
+    color: #ddd;
+}
+.progress-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    justify-content: center;
+}
+.progress-actions button {
+    padding: 10px 20px;
+    font-size: 14px;
+    width: auto;
+}
+.header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    flex-wrap: wrap;
+    padding-bottom: 20px;
+    border-bottom: 2px solid #f0f0f0;
+}
+.store-name {
+    font-size: 32px;
+    font-weight: bold;
+    background: linear-gradient(135deg, #2c3e50, #4a90e2);
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+h1 {
+    text-align: center;
+    color: #2c3e50;
+    margin-bottom: 30px;
+    font-size: 28px;
+    position: relative;
+    padding-bottom: 15px;
+}
+h1:after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 100px;
+    height: 4px;
+    background: linear-gradient(to right, #ff7e5f, #feb47b);
+    border-radius: 2px;
+}
+h2 {
+    color: #2c3e50;
+    margin: 25px 0 20px;
+    padding-bottom: 10px;
+    border-bottom: 2px solid #ff7e5f;
+    font-size: 22px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.form-group {
+    margin-bottom: 25px;
+}
+label {
+    display: block;
+    margin-bottom: 12px;
+    font-weight: 600;
+    color: #34495e;
+    font-size: 16px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+.input-with-icon {
+    position: relative;
+}
+.input-with-icon i {
+    position: absolute;
+    left: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    color: #7f8c8d;
+    z-index: 1;
+}
+.input-with-icon input,
+.input-with-icon select,
+.input-with-icon textarea {
+    padding-left: 45px;
+}
+input, select, textarea {
+    width: 100%;
+    padding: 18px;
+    border: 2px solid #e0e0e0;
+    border-radius: 12px;
+    font-size: 16px;
+    transition: all 0.3s;
+    background-color: #f9f9f9;
+}
+input:focus, select:focus, textarea:focus {
+    border-color: #4a90e2;
+    outline: none;
+    box-shadow: 0 0 0 4px rgba(74, 144, 226, 0.2);
+    background-color: white;
+}
+.btn-group {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin: 20px 0;
+}
+button {
+    color: white;
+    border: none;
+    padding: 18px;
+    border-radius: 12px;
+    font-size: 18px;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.3s;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 10px;
+    width: 100%;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05);
+}
+button:hover {
+    transform: translateY(-3px);
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.1);
+}
+button:active {
+    transform: translateY(-1px);
+}
+.btn-primary {
+    background: linear-gradient(135deg, #ff7e5f 0%, #feb47b 100%);
+}
+.btn-success {
+    background: linear-gradient(135deg, #25D366 0%, #128C7E 100%);
+}
+.btn-info {
+    background: linear-gradient(135deg, #4a90e2 0%, #2c3e50 100%);
+}
+.btn-warning {
+    background: linear-gradient(135deg, #ffc107 0%, #ff9800 100%);
+    color: #333;
+}
+.btn-danger {
+    background: linear-gradient(135deg, #ff4757 0%, #ff3838 100%);
+}
+.btn-secondary {
+    background: linear-gradient(135deg, #6c757d 0%, #495057 100%);
+}
+.btn-purple {
+    background: linear-gradient(135deg, #9c27b0 0%, #673ab7 100%);
+}
+.instructions {
+    margin-top: 30px;
+    padding: 25px;
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    font-size: 16px;
+    color: #666;
+    border-left: 6px solid #ff7e5f;
+}
+.instructions h3 {
+    margin-bottom: 15px;
+    color: #2c3e50;
+    font-size: 20px;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+.instructions p {
+    margin-bottom: 12px;
+    line-height: 1.6;
+    padding-left: 5px;
+}
+.productos-container {
+    margin-bottom: 25px;
+}
+.producto-item {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 18px;
+    border-radius: 12px;
+    margin-bottom: 15px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 16px;
+    border-left: 4px solid #4a90e2;
+    transition: all 0.3s;
+    gap: 15px;
+}
+.producto-item:hover {
+    transform: translateX(5px);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+}
+.producto-info {
+    flex: 1;
+    font-weight: 500;
+    word-break: break-word;
+    max-width: 60%;
+}
+.producto-cantidad {
+    min-width: 80px;
+    text-align: center;
+    font-weight: bold;
+    color: #ff7e5f;
+    font-size: 18px;
+}
+.producto-actions {
+    display: flex;
+    gap: 10px;
+}
+.editar-btn, .eliminar-btn, .ver-detalle-btn {
+    background: #4a90e2;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    padding: 10px 16px;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 40px;
+    height: 40px;
+}
+.editar-btn:hover {
+    background: #2c3e50;
+    transform: scale(1.05);
+}
+.eliminar-btn {
+    background: #ff4757;
+}
+.eliminar-btn:hover {
+    background: #ff3838;
+    transform: scale(1.05);
+}
+.ver-detalle-btn {
+    background: #28a745;
+}
+.ver-detalle-btn:hover {
+    background: #1e7e34;
+    transform: scale(1.05);
+}
+.productos-lista {
+    max-height: 300px;
+    overflow-y: auto;
+    margin-bottom: 20px;
+    border: 2px solid #eee;
+    border-radius: 12px;
+    padding: 20px;
+    background-color: white;
+}
+.total-container {
+    background: linear-gradient(135deg, #ffe8e6 0%, #ffdbd9 100%);
+    padding: 25px;
+    border-radius: 15px;
+    margin: 25px 0;
+    text-align: right;
+    font-size: 22px;
+    font-weight: bold;
+    border: 2px solid #ff7e5f;
+}
+.envio-container {
+    background: linear-gradient(135deg, #e6f7ff 0%, #d1ecf1 100%);
+    padding: 20px;
+    border-radius: 15px;
+    margin: 20px 0;
+    text-align: right;
+    font-size: 20px;
+    font-weight: bold;
+    display: none;
+    border: 2px solid #4a90e2;
+}
+.empty-cart {
+    text-align: center;
+    padding: 40px;
+    color: #888;
+}
+.empty-cart i {
+    font-size: 56px;
+    margin-bottom: 20px;
+    color: #ddd;
+}
+.radio-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 10px;
+    background-color: #f8f9fa;
+    border-radius: 10px;
+    transition: all 0.3s;
+}
+.radio-group:hover {
+    background-color: #e9ecef;
+}
+.radio-group input[type="radio"] {
+    width: auto;
+    transform: scale(1.5);
+}
+.producto-mayor {
+    display: flex;
+    gap: 15px;
+    margin-bottom: 20px;
+    flex-direction: column;
+}
+@media (min-width: 768px) {
+    .producto-mayor {
+        flex-direction: row;
+    }
+}
+.descripcion-input {
+    flex: 3;
+}
+.monto-input {
+    flex: 1;
+}
+.agregar-btn {
+    background: linear-gradient(135deg, #4a90e2 0%, #2c3e50 100%);
+    margin-bottom: 25px;
+    max-width: 220px;
+    padding: 16px;
+}
+.provincia-container,
+.ciudad-container,
+.transportadora-provincia-container,
+.recoger-container {
+    display: none;
+    margin-top: 15px;
+    padding: 20px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, #f0f8ff 0%, #e3f2fd 100%);
+    border-left: 6px solid #4a90e2;
+    animation: fadeIn 0.5s ease;
+}
+.provincia-container {
+    border-left-color: #28a745;
+}
+.ciudad-container {
+    border-left-color: #ff9800;
+}
+.recoger-container {
+    border-left-color: #28a745;
+}
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.info-box {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    padding: 20px;
+    border-radius: 12px;
+    margin: 20px 0;
+    border-left: 6px solid #6c757d;
+    font-size: 15px;
+}
+.nota-envio {
+    background: linear-gradient(135deg, #f0f9ff 0%, #e3f2fd 100%);
+    padding: 15px;
+    border-radius: 10px;
+    margin-top: 15px;
+    border-left: 6px solid #17a2b8;
+    font-size: 15px;
+}
+.preview-container {
+    background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+    border-radius: 15px;
+    padding: 25px;
+    margin-top: 30px;
+    border-left: 6px solid #4a90e2;
+    display: none;
+    animation: slideUp 0.5s ease;
+}
+@keyframes slideUp {
+    from { opacity: 0; transform: translateY(20px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.preview-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+.preview-title {
+    font-size: 22px;
+    font-weight: bold;
+    color: #2c3e50;
+}
+.copy-btn {
+    width: auto;
+    padding: 12px 20px;
+    font-size: 15px;
+    border-radius: 10px;
+}
+.preview-content {
+    background-color: white;
+    padding: 20px;
+    border-radius: 12px;
+    border: 2px solid #ddd;
+    font-family: 'Courier New', monospace;
+    white-space: pre-wrap;
+    max-height: 500px;
+    overflow-y: auto;
+    line-height: 1.6;
+    font-size: 15px;
+}
+.preview-actions {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+    gap: 15px;
+    margin-top: 20px;
+}
+.notification-container {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 10000;
+    display: flex;
+    flex-direction: column;
+    align-items: flex-end;
+    gap: 5px;
+    max-height: 80vh;
+    overflow-y: auto;
+}
+.notification {
+    padding: 12px 15px;
+    border-radius: 6px;
+    color: white;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+    transform: translateX(120%);
+    transition: transform 0.3s ease;
+    max-width: 300px;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 13px;
+    margin-bottom: 5px;
+}
+.notification.show {
+    transform: translateX(0);
+}
+.notification.success {
+    background: #28a745;
+}
+.notification.error {
+    background: #dc3545;
+}
+.notification.warning {
+    background: #ffc107;
+    color: #212529;
+}
+.notification.info {
+    background: #17a2b8;
+}
+.notification-close {
+    background: none;
+    border: none;
+    color: inherit;
+    cursor: pointer;
+    font-size: 16px;
+    margin-left: auto;
+}
+.modal-overlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0,0,0,0.5);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 1000;
+    padding: 15px;
+}
+.modal-content {
+    background: white;
+    border-radius: 12px;
+    padding: 25px;
+    max-width: 600px;
+    width: 100%;
+    max-height: 85vh;
+    overflow-y: auto;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.3);
+}
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 12px;
+    border-bottom: 1px solid #e9ecef;
+}
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #6c757d;
+    width: auto;
+    padding: 5px;
+}
+.modal-actions {
+    display: flex;
+    gap: 10px;
+    margin-top: 20px;
+}
+.loader {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(255, 255, 255, 0.95);
+    z-index: 1000;
+    display: none;
+    justify-content: center;
+    align-items: center;
+    flex-direction: column;
+    gap: 20px;
+}
+.spinner {
+    width: 60px;
+    height: 60px;
+    border: 8px solid #f3f3f3;
+    border-top: 8px solid #4a90e2;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+@media (max-width: 768px) {
+    .app-container {
+        flex-direction: column;
+    }
+    .container, .alistar-container, .estado-pago-container, .cargar-pedido-container {
+        padding: 20px;
+    }
+    .store-name {
+        font-size: 24px;
+        justify-content: center;
+    }
+    h1 {
+        font-size: 22px;
+    }
+    .btn-group {
+        grid-template-columns: 1fr;
+    }
+    .producto-mayor {
+        flex-direction: column;
+    }
+    .producto-item {
+        flex-direction: column;
+        align-items: flex-start;
+    }
+    .producto-cantidad {
+        text-align: left;
+        min-width: auto;
+        width: 100%;
+        padding: 8px 0;
+        border-top: 1px solid #e9ecef;
+        border-bottom: 1px solid #e9ecef;
+        margin: 5px 0;
+    }
+    .producto-actions {
+        align-self: flex-end;
+    }
+}
+.detalle-alistar {
+    margin-top: 20px;
+    padding: 15px;
+    border-radius: 12px;
+    background: #f0f8ff;
+    border-left: 6px solid #4a90e2;
+    display: none;
+}
+.detalle-alistar.active {
+    display: block;
+}
+.detalle-alistar h4 {
+    margin-bottom: 10px;
+    color: #2c3e50;
+}
+.detalle-item {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    padding: 10px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+.detalle-item:last-child {
+    border-bottom: none;
+}
+.detalle-item img {
+    width: 60px;
+    height: 60px;
+    object-fit: cover;
+    border-radius: 8px;
+    cursor: pointer;
+    transition: transform 0.2s;
+}
+.detalle-item img:hover {
+    transform: scale(1.05);
+}
+.detalle-item .info {
+    flex: 1;
+}
+.detalle-item .info strong {
+    display: block;
+    font-size: 18px;
+    color: #2c3e50;
+}
+.detalle-item .info span {
+    font-size: 16px;
+    color: #ff7e5f;
+    font-weight: bold;
+}
+.detalle-item .info p {
+    font-size: 14px;
+    color: #666;
+}
+.lightbox {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 99999;
+    display: none;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0,0,0,0.85);
+}
+.lightbox.active {
+    display: flex;
+}
+.lightbox-content {
+    position: relative;
+    max-width: 90vw;
+    max-height: 90vh;
+}
+.lightbox-content img {
+    max-width: 90vw;
+    max-height: 90vh;
+    object-fit: contain;
+    border-radius: 8px;
+    box-shadow: 0 0 30px rgba(0,0,0,0.5);
+}
+.lightbox-close {
+    position: absolute;
+    top: -40px;
+    right: 0;
+    background: none;
+    border: none;
+    color: white;
+    font-size: 36px;
+    cursor: pointer;
+    width: auto;
+    padding: 0 10px;
+}
+.lightbox-close:hover {
+    color: #ccc;
+}
+</style>
+</head>
+<body>
+<!-- Loader -->
+<div class="loader" id="loader">
+    <div class="spinner"></div>
+    <p>Procesando pedido...</p>
+</div>
+<!-- Contenedor de notificaciones toast -->
+<div class="notification-container" id="notificationContainer"></div>
+<div class="app-container">
+    <div class="main-panel">
+        <div class="container">
+            <div class="header">
+                <div class="store-name">
+                    <i class="fas fa-store"></i> Todoenuno_store
+                </div>
+            </div>
+            <h1>Formulario de Ventas al Por Mayor</h1>
+            <form id="pedidoMayorForm">
+                <!-- Datos del cliente -->
+                <div class="form-group">
+                    <div class="input-with-icon">
+                        <i class="fas fa-user"></i>
+                        <input type="text" id="fullName" name="fullName" placeholder="Nombre completo del cliente" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-with-icon">
+                        <i class="fas fa-phone"></i>
+                        <input type="tel" id="phone" name="phone" placeholder="Teléfono" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <div class="input-with-icon">
+                        <i class="fas fa-map-marker-alt"></i>
+                        <input type="text" id="address" name="address" placeholder="Dirección" required>
+                    </div>
+                </div>
+                <!-- Departamento -->
+                <div class="form-group">
+                    <div class="input-with-icon">
+                        <i class="fas fa-globe-americas"></i>
+                        <select id="department" name="department" required>
+                            <option value="">Seleccione un departamento</option>
+                            <option value="Santa Cruz">Santa Cruz</option>
+                            <option value="La Paz">La Paz</option>
+                            <option value="Cochabamba">Cochabamba</option>
+                            <option value="Oruro">Oruro</option>
+                            <option value="Potosí">Potosí</option>
+                            <option value="Chuquisaca">Chuquisaca</option>
+                            <option value="Tarija">Tarija</option>
+                            <option value="Beni">Beni</option>
+                            <option value="Pando">Pando</option>
+                        </select>
+                    </div>
+                </div>
+                <!-- SECCIÓN SANTA CRUZ -->
+                <div class="form-group" id="santaCruzSection" style="display: none;">
+                    <h3><i class="fas fa-map-marked-alt"></i> ¿Dónde se entregará el pedido?</h3>
+                    <div class="radio-group">
+                        <input type="radio" id="provinciaSantaCruz" name="tipoSantaCruz" value="provincia">
+                        <label for="provinciaSantaCruz">Provincia (escribe el nombre)</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="ciudadSantaCruz" name="tipoSantaCruz" value="ciudad">
+                        <label for="ciudadSantaCruz">Ciudad de Santa Cruz</label>
+                    </div>
+                    <div class="radio-group">
+                        <input type="radio" id="recogerSantaCruz" name="tipoSantaCruz" value="recoger">
+                        <label for="recogerSantaCruz">Pasará a recoger el pedido</label>
+                    </div>
+                    <!-- Provincia -->
+                    <div class="provincia-container" id="provinciaContainer">
+                        <div class="input-with-icon">
+                            <i class="fas fa-map-pin"></i>
+                            <input type="text" id="provinciaInput" placeholder="Escribe el nombre de la provincia (ej. Guarayos, San Javier, etc.)">
+                        </div>
+                        <div class="transportadora-provincia-container" id="transportadoraProvinciaContainer" style="display: none;">
+                            <div class="input-with-icon">
+                                <i class="fas fa-truck-loading"></i>
+                                <select id="transportadoraProvincia" name="transportadoraProvincia">
+                                    <option value="">Seleccione una opción</option>
+                                    <option value="Terminal Bimodal Nueva (15 Bs)">Terminal Bimodal Nueva (15 Bs)</option>
+                                    <option value="Ex terminal antigua, primer anillo (25 Bs)">Ex terminal antigua, primer anillo (25 Bs)</option>
+                                    <option value="Doble vía La Guardia (50 Bs)">Doble vía La Guardia (50 Bs)</option>
+                                    <option value="Zona de los Pozos (20 Bs)">Zona de los Pozos (20 Bs)</option>
+                                </select>
+                            </div>
+                            <div class="info-box">
+                                <i class="fas fa-info-circle"></i> <strong>Nota:</strong> Este costo es para enviar el pedido hasta la terminal de buses. El envío a provincia se realiza bajo la modalidad de pago en destino (por pagar). Se contactará al cliente para informar el costo total del envío, en caso no se pueda enviar por pagar.
+                            </div>
+                        </div>
+                    </div>
+                    <!-- Ciudad -->
+                    <div class="ciudad-container" id="ciudadContainer">
+                        <div class="input-with-icon">
+                            <i class="fas fa-map-marker-alt"></i>
+                            <select id="zonaCiudad" name="zonaCiudad">
+                                <option value="">Seleccione una zona</option>
+                                <option value="Zona Norte">Zona Norte</option>
+                                <option value="Zona Sur">Zona Sur</option>
+                                <option value="Zona Este">Zona Este</option>
+                                <option value="Zona Oeste">Zona Oeste</option>
+                                <option value="Zona Centro">Zona Centro</option>
+                            </select>
+                        </div>
+                        <div class="nota-envio" style="background: #fff3cd; border-left-color: #ffc107;">
+                            <i class="fas fa-exclamation-triangle" style="color: #856404;"></i>
+                            <strong>Importante:</strong> Para poder alistar el pedido, requerimos el comprobante de pago. El costo de envío se cotizará cuando el paquete esté listo, ya que los precios de la empresa de delivery (Yango) varían durante el día. Si el cliente no recibe el paquete en el momento de la entrega, la empresa Yango tiene una política de espera de 5 a 10 minutos; si no hay recepción, el paquete será devuelto a nuestro origen y se generará un costo adicional del cual <strong>no nos responsabilizamos</strong>. Recomendamos coordinar bien la entrega.
+                        </div>
+                    </div>
+                    <!-- Recoger -->
+                    <div class="recoger-container" id="recogerContainer">
+                        <div class="form-group">
+                            <label for="diaRecogida"><i class="fas fa-calendar-day"></i> Día que pasará a recoger (opcional):</label>
+                            <input type="text" id="diaRecogida" placeholder="Ej: Lunes 10 de mayo, 3:00 PM (opcional)">
+                        </div>
+                        <div class="nota-envio">
+                            <i class="fas fa-info-circle"></i> El cliente pasará a recoger el pedido. No hay costo de envío.
+                        </div>
+                    </div>
+                </div>
+                <!-- SECCIÓN OTROS DEPARTAMENTOS -->
+                <div class="form-group" id="transportadoraSection" style="display: none;">
+                    <div class="info-box" style="background: #d1ecf1; border-left-color: #17a2b8;">
+                        <i class="fas fa-info-circle"></i> <strong>Información de envío:</strong> Los envíos a otros departamentos se realizan todos los días excepto <strong>miércoles, sábados y domingos</strong>. Para despachar el mismo día, el pago debe realizarse antes de las <strong>1:00 PM</strong>; de lo contrario, se agendará para el siguiente día hábil.
+                    </div>
+                    <div class="transportadora-fields">
+                        <h3><i class="fas fa-truck"></i> Información de Transportadora</h3>
+                        <div class="form-group">
+                            <div class="input-with-icon">
+                                <i class="fas fa-truck-loading"></i>
+                                <input type="text" id="transportadoraNombre" name="transportadoraNombre" placeholder="Ej: Mexicano, Transbol, etc.">
+                            </div>
+                        </div>
+                        <div class="form-group" id="envioSinCostoGroup" style="margin-top: 15px; padding: 15px; background: #f0f8ff; border-radius: 12px; border-left: 6px solid #17a2b8;">
+                            <div class="radio-group" style="background: transparent; padding: 0;">
+                                <input type="checkbox" id="envioSinCosto" name="envioSinCosto" style="width: 20px; height: 20px; transform: scale(1.2);">
+                                <label for="envioSinCosto" style="font-weight: 600; color: #2c3e50; cursor: pointer;">
+                                    <i class="fas fa-calendar-week"></i> Envío sin costo (viernes)
+                                </label>
+                            </div>
+                            <div style="font-size: 14px; color: #555; margin-top: 8px; padding-left: 10px;">
+                                <i class="fas fa-info-circle" style="color: #17a2b8;"></i> 
+                                Al marcar esta opción, el costo de envío será <strong>0 Bs</strong> y el pedido se despachará el <strong>viernes</strong>. 
+                                Si el pago se realiza después del jueves a las 4 PM, se enviará el <strong>viernes siguiente</strong>.
+                            </div>
+                        </div>
+                        <div class="info-box">
+                            <i class="fas fa-info-circle"></i> <strong>Nota:</strong> El costo de envío es de <strong>15 Bs</strong> (llevar a la terminal). El envío se realiza bajo modalidad de <strong>pago en destino (pagado)</strong>; se contactará al cliente para coordinar. En caso de que no sea posible el pago en destino, se le comunicará el costo adicional.
+                        </div>
+                    </div>
+                </div>
+                <!-- Nota del pedido -->
+                <div class="form-group">
+                    <label for="notaPedido"><i class="fas fa-edit"></i> Nota del Pedido (opcional):</label>
+                    <textarea id="notaPedido" rows="4" placeholder="Escribe aquí notas importantes sobre el pedido (opcional)"></textarea>
+                </div>
+                <h2><i class="fas fa-file-alt"></i> Descripción del Pedido</h2>
+                <!-- Agregar productos -->
+                <div class="form-group">
+                    <div class="producto-mayor">
+                        <div style="flex:3; position:relative;">
+                            <input type="text" class="descripcion-input" id="descripcionProducto" placeholder="Escribe el producto (mínimo 2 caracteres)" style="padding: 18px;" list="productosSugerencias" autocomplete="off">
+                            <datalist id="productosSugerencias"></datalist>
+                        </div>
+                        <input type="number" class="monto-input" id="montoProducto" placeholder="Monto Bs" min="0" step="1" style="padding: 18px;">
+                    </div>
+                    <button type="button" class="agregar-btn btn-info" id="agregarProductoBtn">
+                        <i class="fas fa-plus"></i> Agregar Item
+                    </button>
+                </div>
+                <!-- Lista de productos -->
+                <div class="form-group">
+                    <h3><i class="fas fa-list"></i> Items agregados:</h3>
+                    <div class="productos-container">
+                        <div class="productos-lista" id="productosLista">
+                            <div class="empty-cart">
+                                <i class="fas fa-shopping-cart"></i>
+                                <p>No hay items en el pedido</p>
+                            </div>
+                        </div>
+                        <div class="envio-container" id="envioContainer">
+                            <i class="fas fa-shipping-fast"></i> Costo de envío: <span id="costoEnvio">0</span> Bs
+                        </div>
+                        <div class="total-container">
+                            <i class="fas fa-receipt"></i> TOTAL: <span id="totalCompra">0</span> Bs
+                        </div>
+                    </div>
+                </div>
+                <!-- Botones de acción -->
+                <div class="btn-group">
+                    <button type="button" id="previsualizarBtn" class="btn-primary">
+                        <i class="fas fa-eye"></i> Previsualizar
+                    </button>
+                    <button type="button" id="imprimirBtn" class="btn-success">
+                        <i class="fas fa-print"></i> Imprimir Nota
+                    </button>
+                    <button type="button" id="imprimirDatosBtn" class="btn-purple">
+                        <i class="fas fa-print"></i> Imprimir Datos
+                    </button>
+                </div>
+            </form>
+            <!-- Previsualización -->
+            <div class="preview-container" id="previewContainer">
+                <div class="preview-header">
+                    <div class="preview-title">Previsualización del Pedido</div>
+                    <button type="button" class="copy-btn btn-info" id="copyBtn">
+                        <i class="fas fa-copy"></i> Copiar
+                    </button>
+                </div>
+                <div class="preview-content" id="previewContent"></div>
+                <div class="preview-actions">
+                    <button type="button" class="preview-btn btn-success" id="previewWhatsappBtn">
+                        <i class="fab fa-whatsapp"></i> Enviar por WhatsApp
+                    </button>
+                </div>
+            </div>
+        </div>
+        <div class="instructions">
+            <h3><i class="fas fa-info-circle"></i> Instrucciones:</h3>
+            <p><i class="fas fa-check-circle"></i> Completa los datos del cliente</p>
+            <p><i class="fas fa-check-circle"></i> Selecciona el departamento de destino</p>
+            <p><i class="fas fa-check-circle"></i> Si es Santa Cruz, elige provincia (escribe el nombre), ciudad o recoger</p>
+            <p><i class="fas fa-check-circle"></i> Para otros departamentos, escribe la transportadora</p>
+            <p><i class="fas fa-check-circle"></i> Agrega los productos con su descripción y monto</p>
+            <p><i class="fas fa-check-circle"></i> Puedes editar o eliminar productos con los botones</p>
+            <p><i class="fas fa-check-circle"></i> Marca los productos alistados en el panel derecho</p>
+            <p><i class="fas fa-check-circle"></i> Selecciona el estado de pago del pedido</p>
+            <p><i class="fas fa-check-circle"></i> Carga un pedido existente pegando el texto de WhatsApp</p>
+            <p><i class="fas fa-check-circle"></i> Previsualiza, imprime o envía por WhatsApp</p>
+        </div>
+    </div>
+    <!-- PANEL LATERAL -->
+    <div class="side-panel">
+        <!-- CARGAR PEDIDO -->
+        <div class="cargar-pedido-container">
+            <div class="cargar-pedido-header">
+                <div class="cargar-pedido-title">
+                    <i class="fas fa-upload"></i> Cargar Pedido
+                </div>
+            </div>
+            <textarea class="cargar-pedido-textarea" id="textoPedidoCargar" placeholder="Pega aquí el texto completo del pedido (de WhatsApp) para cargar automáticamente todos los datos..."></textarea>
+            <button type="button" id="cargarPedidoBtn" class="btn-success">
+                <i class="fas fa-cloud-upload-alt"></i> Cargar Pedido
+            </button>
+        </div>
+        <!-- AGENDAR OTRO PEDIDO -->
+        <div class="cargar-pedido-container">
+            <div class="cargar-pedido-header">
+                <div class="cargar-pedido-title">
+                    <i class="fas fa-calendar-plus"></i> Agendar Otro Pedido
+                </div>
+            </div>
+            <p style="color: #666; font-size: 14px; margin-bottom: 15px;">
+                <i class="fas fa-info-circle"></i> Abre una nueva pestaña para otro pedido
+            </p>
+            <button type="button" id="agendarOtroPedidoBtn" class="btn-info">
+                <i class="fas fa-external-link-alt"></i> Abrir Nueva Pestaña
+            </button>
+        </div>
+        <!-- ESTADO DE PAGO -->
+        <div class="estado-pago-container">
+            <div class="estado-pago-header">
+                <div class="estado-pago-title">
+                    <i class="fas fa-money-bill-wave"></i> Estado de Pago
+                </div>
+                <div id="estadoPagoBadge" class="badge-estado badge-pendiente">Pendiente</div>
+            </div>
+            <div class="estado-pago-options">
+                <div class="estado-pago-option pendiente">
+                    <input type="radio" id="estadoPendiente" name="estadoPago" value="Pendiente" checked>
+                    <label for="estadoPendiente" class="estado-pago-label">Pendiente</label>
+                </div>
+                <div class="estado-pago-option whatsapp">
+                    <input type="radio" id="estadoWhatsapp" name="estadoPago" value="Enviado a WhatsApp">
+                    <label for="estadoWhatsapp" class="estado-pago-label">Enviado a WhatsApp</label>
+                </div>
+                <div class="estado-pago-option pagado">
+                    <input type="radio" id="estadoPagado" name="estadoPago" value="Pago Recepcionado">
+                    <label for="estadoPagado" class="estado-pago-label">Pago Recepcionado</label>
+                </div>
+            </div>
+        </div>
+        <!-- ALISTAMIENTO con detalle (ahora lista) -->
+        <div class="alistar-container">
+            <div class="alistar-header">
+                <div class="alistar-title">
+                    <i class="fas fa-clipboard-check"></i> Alistar Pedido
+                </div>
+                <div class="alistar-stats" id="alistarStats">0/0 items</div>
+            </div>
+            <div class="alistar-items" id="alistarItems">
+                <div class="alistar-empty">
+                    <i class="fas fa-clipboard-list"></i>
+                    <p>No hay items para alistar</p>
+                    <p>Agrega productos al pedido</p>
+                </div>
+            </div>
+            <div class="alistar-progress">
+                <div class="progress-text" id="progressText">Progreso: 0%</div>
+                <div class="progress-bar">
+                    <div class="progress-fill" id="progressFill"></div>
+                </div>
+                <div class="progress-actions">
+                    <button type="button" id="marcarTodosBtn" class="btn-success" style="padding: 10px 20px; font-size: 14px;">
+                        <i class="fas fa-check-double"></i> Marcar Todos
+                    </button>
+                    <button type="button" id="desmarcarTodosBtn" class="btn-secondary" style="padding: 10px 20px; font-size: 14px;">
+                        <i class="fas fa-undo"></i> Desmarcar Todos
+                    </button>
+                </div>
+            </div>
+            <div class="detalle-alistar" id="detalleAlistar">
+                <h4><i class="fas fa-list"></i> Detalle de items</h4>
+                <div id="detalleLista"></div>
+            </div>
+        </div>
+    </div>
+</div>
+<!-- Modal para Imprimir Datos -->
+<div class="modal-overlay" id="imprimirDatosModal" style="display: none;">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h3>Completar Datos para Imprimir</h3>
+            <button class="modal-close" id="closeImprimirDatosModal">&times;</button>
+        </div>
+        <div>
+            <div class="form-group">
+                <label for="queContiene"><i class="fas fa-box"></i> ¿Qué contiene el paquete?</label>
+                <textarea id="queContiene" rows="4" placeholder="Ej: Ropa, zapatos, accesorios, etc."></textarea>
+            </div>
+            <div class="form-group">
+                <label for="transportadoraEspecifica"><i class="fas fa-truck"></i> Transportadora específica:</label>
+                <input type="text" id="transportadoraEspecifica" placeholder="Nombre de la transportadora">
+            </div>
+            <div class="info-box">
+                <i class="fas fa-info-circle"></i> Estos datos se usarán para el formato de impresión.
+            </div>
+            <div class="modal-actions">
+                <button type="button" id="cancelImprimirDatos" class="btn-danger">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+                <button type="button" id="confirmImprimirDatos" class="btn-success">
+                    <i class="fas fa-print"></i> Imprimir
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ========== MODAL PARA CANTIDAD DE PAQUETES (CON IMAGEN Y AVISO) ========== -->
+<div class="modal-overlay" id="modalCantidad" style="display: none;">
+    <div class="modal-content" style="max-width: 450px;">
+        <div class="modal-header">
+            <h3 id="modalCantidadTitulo"><i class="fas fa-cubes"></i> Cantidad de paquetes</h3>
+            <button class="modal-close" id="closeModalCantidad">&times;</button>
+        </div>
+        <div style="text-align: center; padding: 10px 0;">
+            <div style="margin-bottom: 15px;">
+                <img id="modalProductoImagen" src="" alt="Producto" style="max-width: 120px; max-height: 120px; border-radius: 8px; border: 1px solid #ddd; display: none;">
+            </div>
+            <p id="modalProductoNombre" style="font-weight: bold; font-size: 18px; color: #2c3e50; margin-bottom: 5px;"></p>
+            <p id="modalProductoDuplicado" style="font-size: 14px; color: #e67e22; margin-bottom: 15px; display: none;">
+                <i class="fas fa-info-circle"></i> <span id="mensajeDuplicado"></span>
+            </p>
+            <p id="modalCantidadDesc" style="margin-bottom: 20px; color: #555; font-size: 16px;">¿Cuántos paquetes deseas?</p>
+            <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
+                <button type="button" id="cantidadMenos" class="btn-secondary" style="width: 50px; padding: 10px; font-size: 24px; border-radius: 50%;">−</button>
+                <span id="cantidadValor" style="font-size: 32px; font-weight: bold; min-width: 70px;">1</span>
+                <button type="button" id="cantidadMas" class="btn-secondary" style="width: 50px; padding: 10px; font-size: 24px; border-radius: 50%;">+</button>
+            </div>
+            <div style="margin-top: 25px; display: flex; gap: 15px; justify-content: center;">
+                <button type="button" id="confirmarCantidad" class="btn-success" style="width: auto; padding: 12px 35px; font-size: 16px;">
+                    <i class="fas fa-check"></i> Aceptar
+                </button>
+                <button type="button" id="cancelarCantidad" class="btn-danger" style="width: auto; padding: 12px 35px; font-size: 16px;">
+                    <i class="fas fa-times"></i> Cancelar
+                </button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- LIGHTBOX -->
+<div id="imageLightbox" class="lightbox">
+    <div class="lightbox-content">
+        <button class="lightbox-close" id="lightboxCloseBtn">&times;</button>
+        <img id="lightboxImage" src="" alt="Vista ampliada">
+    </div>
+</div>
+<script>
+// ========== FUNCIONES GLOBALES DEL LIGHTBOX ==========
+function abrirLightbox(src) {
+    if (!src) return;
+    const lightbox = document.getElementById('imageLightbox');
+    const lightboxImg = document.getElementById('lightboxImage');
+    if (lightbox && lightboxImg) {
+        lightboxImg.src = src;
+        lightbox.classList.add('active');
+    }
+}
+function cerrarLightbox() {
+    const lightbox = document.getElementById('imageLightbox');
+    if (lightbox) {
+        lightbox.classList.remove('active');
+    }
+}
+
+// ========== FUNCIÓN PARA FORMATEAR PRECIOS SIN .00 ==========
+function formatearPrecio(valor) {
+    let entero = Math.round(valor);
+    return entero.toString();
+}
+
+// ========== INICIO DEL DOM ==========
+document.addEventListener('DOMContentLoaded', function() {
+
+    // ========== ELEMENTOS DEL DOM ==========
+    const departmentSelect = document.getElementById('department');
+    const provinciaRadio = document.getElementById('provinciaSantaCruz');
+    const ciudadRadio = document.getElementById('ciudadSantaCruz');
+    const recogerRadio = document.getElementById('recogerSantaCruz');
+    const provinciaContainer = document.getElementById('provinciaContainer');
+    const ciudadContainer = document.getElementById('ciudadContainer');
+    const recogerContainer = document.getElementById('recogerContainer');
+    const provinciaInput = document.getElementById('provinciaInput');
+    const transportadoraProvinciaContainer = document.getElementById('transportadoraProvinciaContainer');
+    const transportadoraProvinciaSelect = document.getElementById('transportadoraProvincia');
+    const zonaCiudadSelect = document.getElementById('zonaCiudad');
+    const transportadoraNombre = document.getElementById('transportadoraNombre');
+    const diaRecogida = document.getElementById('diaRecogida');
+    const descripcionProducto = document.getElementById('descripcionProducto');
+    const montoProducto = document.getElementById('montoProducto');
+    const agregarProductoBtn = document.getElementById('agregarProductoBtn');
+    const productosLista = document.getElementById('productosLista');
+    const envioContainer = document.getElementById('envioContainer');
+    const costoEnvioSpan = document.getElementById('costoEnvio');
+    const totalCompra = document.getElementById('totalCompra');
+    const previsualizarBtn = document.getElementById('previsualizarBtn');
+    const imprimirBtn = document.getElementById('imprimirBtn');
+    const imprimirDatosBtn = document.getElementById('imprimirDatosBtn');
+    const previewContainer = document.getElementById('previewContainer');
+    const previewContent = document.getElementById('previewContent');
+    const copyBtn = document.getElementById('copyBtn');
+    const previewWhatsappBtn = document.getElementById('previewWhatsappBtn');
+    const notaPedido = document.getElementById('notaPedido');
+    const textoPedidoCargar = document.getElementById('textoPedidoCargar');
+    const cargarPedidoBtn = document.getElementById('cargarPedidoBtn');
+    const estadoPendiente = document.getElementById('estadoPendiente');
+    const estadoWhatsapp = document.getElementById('estadoWhatsapp');
+    const estadoPagado = document.getElementById('estadoPagado');
+    const estadoPagoBadge = document.getElementById('estadoPagoBadge');
+    const alistarItems = document.getElementById('alistarItems');
+    const progressFill = document.getElementById('progressFill');
+    const progressText = document.getElementById('progressText');
+    const alistarStats = document.getElementById('alistarStats');
+    const marcarTodosBtn = document.getElementById('marcarTodosBtn');
+    const desmarcarTodosBtn = document.getElementById('desmarcarTodosBtn');
+    const imprimirDatosModal = document.getElementById('imprimirDatosModal');
+    const closeImprimirDatosModal = document.getElementById('closeImprimirDatosModal');
+    const cancelImprimirDatos = document.getElementById('cancelImprimirDatos');
+    const confirmImprimirDatos = document.getElementById('confirmImprimirDatos');
+    const queContieneInput = document.getElementById('queContiene');
+    const transportadoraEspecificaInput = document.getElementById('transportadoraEspecifica');
+    const loader = document.getElementById('loader');
+    const agendarOtroPedidoBtn = document.getElementById('agendarOtroPedidoBtn');
+    const detalleAlistar = document.getElementById('detalleAlistar');
+    const detalleLista = document.getElementById('detalleLista');
+    const lightbox = document.getElementById('imageLightbox');
+    const closeBtn = document.getElementById('lightboxCloseBtn');
+    const envioSinCostoCheck = document.getElementById('envioSinCosto');
+
+    // ========== ELEMENTOS DEL MODAL DE CANTIDAD ==========
+    const modalCantidad = document.getElementById('modalCantidad');
+    const modalProductoImagen = document.getElementById('modalProductoImagen');
+    const modalProductoNombre = document.getElementById('modalProductoNombre');
+    const modalProductoDuplicado = document.getElementById('modalProductoDuplicado');
+    const mensajeDuplicado = document.getElementById('mensajeDuplicado');
+    const closeModalCantidad = document.getElementById('closeModalCantidad');
+    const cantidadMenos = document.getElementById('cantidadMenos');
+    const cantidadMas = document.getElementById('cantidadMas');
+    const confirmarCantidad = document.getElementById('confirmarCantidad');
+    const cancelarCantidad = document.getElementById('cancelarCantidad');
+    const cantidadValor = document.getElementById('cantidadValor');
+
+    // ========== VARIABLES GLOBALES ==========
+    let items = [];
+    let total = 0;
+    let costoEnvio = 0;
+    let editingIndex = null;
+    let estadoPago = 'Pendiente';
+    let productosData = [];
+    let precioEditado = false;
+    let cantidadSeleccionada = 1;
+    let productoSeleccionado = null;
+    let unidadesPorPaquete = 0;
+    let textoUnidad = '';
+
+    // ========== CARGAR PRODUCTOS DESDE GOOGLE SHEETS ==========
+    function cargarProductosDesdeSheets() {
+        const url = 'https://docs.google.com/spreadsheets/d/1h7ZNyYRe6ZDIvbjbAuyiCYEvQ37IQmSI/export?format=csv';
+        fetch(url)
+            .then(response => {
+                if (!response.ok) throw new Error('Error al descargar la hoja');
+                return response.text();
+            })
+            .then(csv => {
+                const lines = csv.split('\n').filter(l => l.trim());
+                if (lines.length < 2) throw new Error('CSV vacío');
+                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+                const idxSeccion = headers.indexOf('seccion');
+                const idxNombre = headers.indexOf('nombre');
+                const idxPrecioPaquete = headers.indexOf('precio de paquete');
+                const idxPrecioMayor = headers.indexOf('precio por mayor');
+                const idxCantidad = headers.indexOf('cantidad');
+                const idxImagen = headers.indexOf('imagen');
+                if (idxSeccion === -1 || idxNombre === -1 || idxPrecioPaquete === -1 || idxCantidad === -1) {
+                    throw new Error('No se encontraron las columnas esperadas');
+                }
+                const productos = [];
+                for (let i = 1; i < lines.length; i++) {
+                    const cols = lines[i].split(',').map(c => c.trim());
+                    if (cols.length < Math.max(idxSeccion, idxNombre, idxPrecioPaquete, idxCantidad) + 1) continue;
+                    const seccion = cols[idxSeccion] || '';
+                    const nombre = cols[idxNombre] || '';
+                    const precioPaquete = parseFloat(cols[idxPrecioPaquete]) || 0;
+                    const precioMayor = parseFloat(cols[idxPrecioMayor]) || 0;
+                    const cantidadStr = cols[idxCantidad] || '';
+                    let numUnidades = 0;
+                    let textoUnidad = '';
+                    if (cantidadStr) {
+                        const limpio = cantidadStr.trim().toUpperCase();
+                        const match = limpio.match(/^(\d+)\s*(.+)$/);
+                        if (match) {
+                            numUnidades = parseInt(match[1]);
+                            textoUnidad = match[2].trim();
+                        } else {
+                            numUnidades = 1;
+                            textoUnidad = limpio;
+                        }
+                    }
+                    let imagen = cols[idxImagen] || '';
+                    if (imagen) {
+                        const match = imagen.match(/\/d\/([^\/]+)/);
+                        if (match) imagen = `https://drive.google.com/thumbnail?id=${match[1]}&sz=s0`;
+                    }
+                    if (nombre && precioPaquete > 0) {
+                        productos.push({
+                            seccion,
+                            nombre,
+                            precioPaquete,
+                            precioMayor,
+                            imagen,
+                            numUnidades,
+                            textoUnidad
+                        });
+                    }
+                }
+                productosData = productos;
+                console.log(`Cargados ${productosData.length} productos desde Sheets.`);
+                const datalist = document.getElementById('productosSugerencias');
+                datalist.innerHTML = '';
+                productosData.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p.nombre;
+                    option.dataset.precio = p.precioPaquete;
+                    option.dataset.imagen = p.imagen;
+                    option.dataset.seccion = p.seccion;
+                    option.dataset.numUnidades = p.numUnidades;
+                    option.dataset.textoUnidad = p.textoUnidad;
+                    datalist.appendChild(option);
+                });
+            })
+            .catch(err => {
+                console.error('Error al cargar productos:', err);
+                Notificaciones.mostrar('No se pudo cargar la lista de productos desde Google Sheets. Revisa la conexión.', 'error');
+                productosData = [
+                    { nombre: 'llavero porta retrato N°1', precioPaquete: 160, imagen: 'https://drive.google.com/thumbnail?id=1OJECBhkXd8N5tDuwE770KUrMBCenfYvx&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES' },
+                    { nombre: 'llavero porta retrato N°2 abridor', precioPaquete: 300, imagen: 'https://drive.google.com/thumbnail?id=1EkWdZm9t5pgBo_kGgCEA0bksSWyyKkk0&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES' }
+                ];
+                const datalist = document.getElementById('productosSugerencias');
+                datalist.innerHTML = '';
+                productosData.forEach(p => {
+                    const option = document.createElement('option');
+                    option.value = p.nombre;
+                    option.dataset.precio = p.precioPaquete;
+                    option.dataset.imagen = p.imagen;
+                    option.dataset.seccion = p.seccion;
+                    option.dataset.numUnidades = p.numUnidades;
+                    option.dataset.textoUnidad = p.textoUnidad;
+                    datalist.appendChild(option);
+                });
+            });
+    }
+
+    // ========== FUNCIÓN PARA BUSCAR PRODUCTO POR COINCIDENCIA PARCIAL ==========
+    function encontrarProductoEnDescripcion(descripcion) {
+        if (!descripcion) return null;
+        const lowerDesc = descripcion.toLowerCase();
+        let encontrado = null;
+        let mayorLongitud = 0;
+        for (const p of productosData) {
+            const nombreLower = p.nombre.toLowerCase();
+            if (lowerDesc.includes(nombreLower)) {
+                if (nombreLower.length > mayorLongitud) {
+                    mayorLongitud = nombreLower.length;
+                    encontrado = p;
+                }
+            }
+        }
+        return encontrado;
+    }
+
+    // ========== AUTOCOMPLETADO Y ASIGNACIÓN DE PRECIO ==========
+    const datalist = document.getElementById('productosSugerencias');
+
+    descripcionProducto.addEventListener('input', function(e) {
+        const texto = this.value.trim();
+        datalist.innerHTML = '';
+        if (texto.length >= 2) {
+            const filtrados = productosData.filter(p => 
+                p.nombre.toLowerCase().includes(texto.toLowerCase())
+            );
+            filtrados.slice(0, 15).forEach(p => {
+                const option = document.createElement('option');
+                option.value = p.nombre;
+                option.dataset.precio = p.precioPaquete;
+                option.dataset.imagen = p.imagen;
+                option.dataset.seccion = p.seccion;
+                option.dataset.numUnidades = p.numUnidades;
+                option.dataset.textoUnidad = p.textoUnidad;
+                datalist.appendChild(option);
+            });
+        }
+        const encontrado = encontrarProductoEnDescripcion(texto);
+        if (encontrado && !precioEditado) {
+            montoProducto.value = formatearPrecio(encontrado.precioPaquete);
+            precioEditado = false;
+        }
+    });
+
+    // ========== DETECTAR EDICIÓN MANUAL DEL PRECIO ==========
+    montoProducto.addEventListener('input', function() {
+        precioEditado = true;
+    });
+
+    // ========== FUNCIONES PARA EL MODAL DE CANTIDAD ==========
+    function mostrarModalCantidad(producto) {
+        productoSeleccionado = producto;
+        unidadesPorPaquete = producto.numUnidades || 1;
+        textoUnidad = producto.textoUnidad || 'UNIDADES';
+
+        if (producto.imagen) {
+            modalProductoImagen.src = producto.imagen;
+            modalProductoImagen.style.display = 'block';
+        } else {
+            modalProductoImagen.style.display = 'none';
+        }
+
+        modalProductoNombre.textContent = producto.nombre;
+
+        const nombreBase = producto.nombre.toLowerCase();
+        let cantidadAgregada = 0;
+        items.forEach(item => {
+            if (item.descripcion.toLowerCase().includes(nombreBase)) {
+                cantidadAgregada++;
+            }
+        });
+
+        if (cantidadAgregada > 0) {
+            modalProductoDuplicado.style.display = 'block';
+            mensajeDuplicado.textContent = `⚠️ Ya tienes agregado ${cantidadAgregada} paquete(s) de este producto.`;
+        } else {
+            modalProductoDuplicado.style.display = 'none';
+        }
+
+        document.getElementById('modalCantidadDesc').textContent = 
+            `¿Cuántos paquetes de ${unidadesPorPaquete} ${textoUnidad} deseas?`;
+
+        cantidadSeleccionada = 1;
+        cantidadValor.textContent = '1';
+        modalCantidad.style.display = 'flex';
+    }
+
+    function cerrarModalCantidad() {
+        modalCantidad.style.display = 'none';
+        productoSeleccionado = null;
+    }
+
+    // ========== EVENTOS DEL MODAL DE CANTIDAD ==========
+    function actualizarCantidadValor() {
+        cantidadValor.textContent = cantidadSeleccionada;
+    }
+
+    cantidadMenos.addEventListener('click', function() {
+        if (cantidadSeleccionada > 1) {
+            cantidadSeleccionada--;
+            actualizarCantidadValor();
+        }
+    });
+
+    cantidadMas.addEventListener('click', function() {
+        cantidadSeleccionada++;
+        actualizarCantidadValor();
+    });
+
+    closeModalCantidad.addEventListener('click', cerrarModalCantidad);
+    cancelarCantidad.addEventListener('click', cerrarModalCantidad);
+
+    confirmarCantidad.addEventListener('click', function() {
+        if (productoSeleccionado) {
+            const cantidad = cantidadSeleccionada;
+            const numUnidades = productoSeleccionado.numUnidades || 1;
+            const textoUnidad = productoSeleccionado.textoUnidad || 'UNIDADES';
+            const precioTotal = productoSeleccionado.precioPaquete * cantidad;
+            montoProducto.value = formatearPrecio(precioTotal);
+            const descripcionBase = productoSeleccionado.nombre;
+            const nuevaDesc = `${cantidad} paquetes de ${numUnidades} ${textoUnidad} ${descripcionBase}`;
+            descripcionProducto.value = nuevaDesc;
+            precioEditado = false;
+            cerrarModalCantidad();
+            montoProducto.focus();
+        } else {
+            cerrarModalCantidad();
+        }
+    });
+
+    modalCantidad.addEventListener('click', function(e) {
+        if (e.target === modalCantidad) {
+            cerrarModalCantidad();
+        }
+    });
+
+    // ========== EVENTO CHANGE DE DESCRIPCIÓN ==========
+    descripcionProducto.addEventListener('change', function(e) {
+        const texto = this.value.trim();
+        if (!texto) return;
+
+        const exacto = productosData.find(p => p.nombre === texto);
+        if (exacto) {
+            if (!precioEditado) {
+                mostrarModalCantidad(exacto);
+                return;
+            }
+            return;
+        }
+
+        if (!precioEditado) {
+            const encontrado = encontrarProductoEnDescripcion(texto);
+            if (encontrado) {
+                mostrarModalCantidad(encontrado);
+            }
+        }
+    });
+
+    // ========== NOTIFICACIONES ==========
+    class Notificaciones {
+        static mostrar(mensaje, tipo = 'success', duracion = 3000) {
+            let container = document.getElementById('notificationContainer');
+            if (!container) {
+                container = document.createElement('div');
+                container.id = 'notificationContainer';
+                container.className = 'notification-container';
+                document.body.appendChild(container);
+            }
+            const notification = document.createElement('div');
+            notification.className = `notification ${tipo}`;
+            notification.innerHTML = `
+                <i class="fas fa-${this.obtenerIcono(tipo)}"></i>
+                <span>${mensaje}</span>
+                <button class="notification-close">&times;</button>
+            `;
+            container.appendChild(notification);
+            setTimeout(() => notification.classList.add('show'), 10);
+            notification.querySelector('.notification-close').addEventListener('click', function() {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            });
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 300);
+            }, duracion);
+        }
+        static obtenerIcono(tipo) {
+            const iconos = {
+                'success': 'check-circle',
+                'error': 'exclamation-circle',
+                'warning': 'exclamation-triangle',
+                'info': 'info-circle'
+            };
+            return iconos[tipo] || 'info-circle';
+        }
+    }
+
+    // ========== ACTUALIZAR FONDO POR ESTADO DE PAGO ==========
+    function actualizarFondoPorEstadoPago() {
+        const body = document.body;
+        body.classList.remove('estado-whatsapp', 'estado-pagado');
+        if (estadoPendiente.checked) {
+            estadoPago = 'Pendiente';
+            estadoPagoBadge.textContent = 'Pendiente';
+            estadoPagoBadge.className = 'badge-estado badge-pendiente';
+        } else if (estadoWhatsapp.checked) {
+            estadoPago = 'Enviado a WhatsApp';
+            estadoPagoBadge.textContent = 'Enviado a WhatsApp';
+            estadoPagoBadge.className = 'badge-estado badge-whatsapp';
+            body.classList.add('estado-whatsapp');
+        } else if (estadoPagado.checked) {
+            estadoPago = 'Pago Recepcionado';
+            estadoPagoBadge.textContent = 'Pago Recepcionado';
+            estadoPagoBadge.className = 'badge-estado badge-pagado';
+            body.classList.add('estado-pagado');
+        }
+    }
+
+    function actualizarBadgeEstadoPago() {
+        if (estadoPendiente.checked) {
+            estadoPago = 'Pendiente';
+            estadoPagoBadge.textContent = 'Pendiente';
+            estadoPagoBadge.className = 'badge-estado badge-pendiente';
+        } else if (estadoWhatsapp.checked) {
+            estadoPago = 'Enviado a WhatsApp';
+            estadoPagoBadge.textContent = 'Enviado a WhatsApp';
+            estadoPagoBadge.className = 'badge-estado badge-whatsapp';
+        } else if (estadoPagado.checked) {
+            estadoPago = 'Pago Recepcionado';
+            estadoPagoBadge.textContent = 'Pago Recepcionado';
+            estadoPagoBadge.className = 'badge-estado badge-pagado';
+        }
+    }
+
+    estadoPendiente.addEventListener('change', function() {
+        actualizarBadgeEstadoPago();
+        actualizarFondoPorEstadoPago();
+    });
+    estadoWhatsapp.addEventListener('change', function() {
+        actualizarBadgeEstadoPago();
+        actualizarFondoPorEstadoPago();
+    });
+    estadoPagado.addEventListener('change', function() {
+        actualizarBadgeEstadoPago();
+        actualizarFondoPorEstadoPago();
+    });
+
+    // ========== ACTUALIZAR LISTA DE ITEMS ==========
+    function actualizarListaItems() {
+        productosLista.innerHTML = '';
+        let subtotal = 0;
+        if (items.length === 0) {
+            productosLista.innerHTML = `
+                <div class="empty-cart">
+                    <i class="fas fa-shopping-cart"></i>
+                    <p>No hay items en el pedido</p>
+                </div>
+            `;
+            totalCompra.textContent = '0';
+            envioContainer.style.display = 'none';
+        } else {
+            items.forEach((item, index) => {
+                const productoItem = document.createElement('div');
+                productoItem.className = 'producto-item';
+                productoItem.innerHTML = `
+                    <div class="producto-info">
+                        <strong>${item.descripcion}</strong>
+                    </div>
+                    <div class="producto-cantidad">${formatearPrecio(item.monto)} Bs</div>
+                    <div class="producto-actions">
+                        <button type="button" class="ver-detalle-btn" data-index="${index}" title="Ver detalle">
+                            <i class="fas fa-eye"></i>
+                        </button>
+                        <button type="button" class="editar-btn" data-index="${index}" title="Editar producto">
+                            <i class="fas fa-edit"></i>
+                        </button>
+                        <button type="button" class="eliminar-btn" data-index="${index}" title="Eliminar producto">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    </div>
+                `;
+                productosLista.appendChild(productoItem);
+                subtotal += item.monto;
+            });
+            document.querySelectorAll('.ver-detalle-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    mostrarDetalleCompleto();
+                });
+            });
+            document.querySelectorAll('.editar-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const index = parseInt(this.getAttribute('data-index'));
+                    editarProducto(index);
+                });
+            });
+            document.querySelectorAll('.eliminar-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const index = parseInt(this.getAttribute('data-index'));
+                    eliminarProducto(index);
+                });
+            });
+        }
+        const costo = calcularCostoEnvio();
+        total = subtotal + costo;
+        totalCompra.textContent = formatearPrecio(total);
+        actualizarAlistamiento();
+    }
+
+    // ========== MOSTRAR DETALLE COMPLETO ==========
+    function mostrarDetalleCompleto() {
+        if (items.length === 0) {
+            detalleAlistar.classList.remove('active');
+            detalleLista.innerHTML = '';
+            return;
+        }
+        detalleAlistar.classList.add('active');
+        let html = '';
+        items.forEach((item, idx) => {
+            let found = item.productoRef || null;
+            if (!found) {
+                found = encontrarProductoEnDescripcion(item.descripcion);
+            }
+            const imgSrc = found && found.imagen ? found.imagen : '';
+            const seccion = found ? found.seccion : '';
+            html += `
+                <div class="detalle-item">
+                    <img src="${imgSrc}" alt="${item.descripcion}" onclick="abrirLightbox('${imgSrc}')">
+                    <div class="info">
+                        <strong>${item.descripcion}</strong>
+                        <span>${formatearPrecio(item.monto)} Bs</span>
+                        ${seccion ? `<p>${seccion}</p>` : ''}
+                    </div>
+                </div>
+            `;
+        });
+        detalleLista.innerHTML = html;
+    }
+
+    // ========== ACTUALIZAR ALISTAMIENTO ==========
+    function actualizarAlistamiento() {
+        alistarItems.innerHTML = '';
+        if (items.length === 0) {
+            alistarItems.innerHTML = `
+                <div class="alistar-empty">
+                    <i class="fas fa-clipboard-list"></i>
+                    <p>No hay items para alistar</p>
+                    <p>Agrega productos al pedido</p>
+                </div>
+            `;
+            progressFill.style.width = '0%';
+            progressText.textContent = 'Progreso: 0%';
+            alistarStats.textContent = '0/0 items';
+            detalleAlistar.classList.remove('active');
+            detalleLista.innerHTML = '';
+            return;
+        }
+        items.forEach((item, index) => {
+            const itemDiv = document.createElement('div');
+            itemDiv.className = `alistar-item ${item.alistado ? 'checked' : ''}`;
+            itemDiv.setAttribute('data-index', index);
+            itemDiv.innerHTML = `
+                <input type="checkbox" class="alistar-checkbox" data-index="${index}" ${item.alistado ? 'checked' : ''}>
+                <div class="alistar-item-info">
+                    <div class="alistar-item-name">${item.descripcion}</div>
+                    <div class="alistar-item-price">${formatearPrecio(item.monto)} Bs</div>
+                </div>
+                <button type="button" class="ver-detalle-btn" data-index="${index}" style="width:auto; padding:5px 10px; background:#28a745; border-radius:8px; border:none; color:white; cursor:pointer;">
+                    <i class="fas fa-eye"></i>
+                </button>
+            `;
+            alistarItems.appendChild(itemDiv);
+            
+            const verBtn = itemDiv.querySelector('.ver-detalle-btn');
+            verBtn.addEventListener('click', function(e) {
+                e.stopPropagation();
+                const idx = parseInt(this.getAttribute('data-index'));
+                mostrarDetalleCompleto();
+                const checkbox = itemDiv.querySelector('.alistar-checkbox');
+                if (!checkbox.checked) {
+                    checkbox.checked = true;
+                    checkbox.dispatchEvent(new Event('change'));
+                }
+            });
+            
+            itemDiv.addEventListener('mouseenter', function(e) {
+                mostrarDetalleCompleto();
+            });
+            
+            const checkbox = itemDiv.querySelector('.alistar-checkbox');
+            checkbox.addEventListener('change', function(e) {
+                const idx = parseInt(this.dataset.index);
+                if (items[idx]) {
+                    items[idx].alistado = this.checked;
+                    itemDiv.className = `alistar-item ${items[idx].alistado ? 'checked' : ''}`;
+                    actualizarProgreso();
+                    mostrarDetalleCompleto();
+                }
+            });
+        });
+        actualizarProgreso();
+        mostrarDetalleCompleto();
+    }
+
+    function actualizarProgreso() {
+        const totalItems = items.length;
+        const alistados = items.filter(item => item.alistado).length;
+        const porcentaje = totalItems > 0 ? Math.round((alistados / totalItems) * 100) : 0;
+        progressFill.style.width = `${porcentaje}%`;
+        progressText.textContent = `Progreso: ${porcentaje}%`;
+        alistarStats.textContent = `${alistados}/${totalItems} items`;
+    }
+
+    // ========== ELIMINAR PRODUCTO ==========
+    function eliminarProducto(index) {
+        if (index >= 0 && index < items.length) {
+            items.splice(index, 1);
+            if (editingIndex === index) {
+                cancelarEdicion();
+            } else if (editingIndex !== null && index < editingIndex) {
+                editingIndex--;
+            }
+            actualizarListaItems();
+            Notificaciones.mostrar('Producto eliminado del pedido', 'info');
+        }
+    }
+
+    // ========== EDITAR PRODUCTO ==========
+    function editarProducto(index) {
+        const item = items[index];
+        if (!item) return;
+        descripcionProducto.value = item.descripcion;
+        montoProducto.value = item.monto;
+        precioEditado = true;
+        agregarProductoBtn.innerHTML = '<i class="fas fa-save"></i> Guardar Cambios';
+        agregarProductoBtn.classList.remove('btn-info');
+        agregarProductoBtn.classList.add('btn-warning');
+        editingIndex = index;
+        descripcionProducto.focus();
+        Notificaciones.mostrar('Editando producto. Modifica y guarda.', 'info');
+    }
+
+    function cancelarEdicion() {
+        agregarProductoBtn.innerHTML = '<i class="fas fa-plus"></i> Agregar Item';
+        agregarProductoBtn.classList.remove('btn-warning');
+        agregarProductoBtn.classList.add('btn-info');
+        descripcionProducto.value = '';
+        montoProducto.value = '';
+        editingIndex = null;
+        precioEditado = false;
+    }
+
+    function guardarCambiosProducto() {
+        if (editingIndex === null || editingIndex >= items.length) {
+            cancelarEdicion();
+            return;
+        }
+        const descripcion = descripcionProducto.value.trim();
+        const monto = parseFloat(montoProducto.value);
+        if (!descripcion) {
+            Notificaciones.mostrar('La descripción no puede estar vacía', 'error');
+            return;
+        }
+        if (isNaN(monto) || monto <= 0) {
+            Notificaciones.mostrar('El monto debe ser un número mayor a cero', 'error');
+            return;
+        }
+        const encontrado = encontrarProductoEnDescripcion(descripcion);
+        items[editingIndex].descripcion = descripcion;
+        items[editingIndex].monto = monto;
+        if (encontrado) {
+            items[editingIndex].productoRef = encontrado;
+        } else {
+            delete items[editingIndex].productoRef;
+        }
+        actualizarListaItems();
+        cancelarEdicion();
+        Notificaciones.mostrar('Producto actualizado correctamente', 'success');
+    }
+
+    function agregarProducto() {
+        const descripcion = descripcionProducto.value.trim();
+        const monto = parseFloat(montoProducto.value);
+        if (!descripcion) {
+            Notificaciones.mostrar('La descripción no puede estar vacía', 'error');
+            return;
+        }
+        if (isNaN(monto) || monto <= 0) {
+            Notificaciones.mostrar('El monto debe ser un número mayor a cero', 'error');
+            return;
+        }
+        const nuevoItem = {
+            descripcion: descripcion,
+            monto: monto,
+            alistado: false
+        };
+        const encontrado = encontrarProductoEnDescripcion(descripcion);
+        if (encontrado) {
+            nuevoItem.productoRef = encontrado;
+        }
+        items.push(nuevoItem);
+        actualizarListaItems();
+        descripcionProducto.value = '';
+        montoProducto.value = '';
+        precioEditado = false;
+        descripcionProducto.focus();
+        Notificaciones.mostrar('Producto agregado correctamente', 'success');
+    }
+
+    function marcarTodos() {
+        items.forEach(item => item.alistado = true);
+        actualizarAlistamiento();
+        Notificaciones.mostrar('Todos los productos marcados como alistados', 'success');
+    }
+
+    function desmarcarTodos() {
+        items.forEach(item => item.alistado = false);
+        actualizarAlistamiento();
+        Notificaciones.mostrar('Todos los productos desmarcados', 'info');
+    }
+
+    // ========== CARGAR PEDIDO DESDE TEXTO ==========
+    function cargarPedidoDesdeTexto() {
+        const texto = textoPedidoCargar.value.trim();
+        if (!texto) {
+            Notificaciones.mostrar('Pega el texto del pedido primero', 'error');
+            return;
+        }
+        try {
+            resetFormularioCompleto();
+            const lineas = texto.split('\n');
+            let datos = {
+                nombre: '',
+                telefono: '',
+                direccion: '',
+                departamento: '',
+                provincia: null,
+                transportadora: null,
+                zona: null,
+                recoger: false,
+                diaRecogida: '',
+                productos: [],
+                estadoPago: 'Pendiente',
+                envioSinCosto: false // ✅ CORRECCIÓN: propiedad para detectar envío sin costo
+            };
+            lineas.forEach(linea => {
+                linea = linea.trim();
+                linea = linea.replace(/\*/g, '');
+                if (linea.includes('👤 Nombre:')) {
+                    datos.nombre = linea.replace('👤 Nombre:', '').trim();
+                }
+                else if (linea.includes('📱 Teléfono:')) {
+                    datos.telefono = linea.replace('📱 Teléfono:', '').trim();
+                }
+                else if (linea.includes('📍 Dirección:')) {
+                    datos.direccion = linea.replace('📍 Dirección:', '').trim();
+                }
+                else if (linea.includes('🗺️ Departamento:')) {
+                    datos.departamento = linea.replace('🗺️ Departamento:', '').trim();
+                }
+                else if (linea.includes('🏘️ Provincia:')) {
+                    datos.provincia = linea.replace('🏘️ Provincia:', '').trim();
+                }
+                else if (linea.includes('🚚 Transportadora de salida:')) {
+                    datos.transportadora = linea.replace('🚚 Transportadora de salida:', '').trim();
+                }
+                else if (linea.includes('📍 Zona en ciudad:')) {
+                    datos.zona = linea.replace('📍 Zona en ciudad:', '').trim();
+                }
+                else if (linea.includes('📦 Modalidad: Cliente pasa a recoger')) {
+                    datos.recoger = true;
+                }
+                else if (linea.includes('📅 Día de recogida:')) {
+                    datos.diaRecogida = linea.replace('📅 Día de recogida:', '').trim();
+                }
+                else if (linea.includes('🚚 Transportadora:')) {
+                    datos.transportadora = linea.replace('🚚 Transportadora:', '').trim();
+                }
+                else if (linea.includes('💰 Estado de pago:')) {
+                    const estado = linea.replace('💰 Estado de pago:', '').trim();
+                    if (estado.includes('Enviado a WhatsApp')) datos.estadoPago = 'Enviado a WhatsApp';
+                    else if (estado.includes('Pago Recepcionado')) datos.estadoPago = 'Pago Recepcionado';
+                    else datos.estadoPago = 'Pendiente';
+                }
+                // ✅ CORRECCIÓN: detectar envío sin costo (viernes)
+                else if (linea.toLowerCase().includes('envío sin costo') || 
+                         linea.toLowerCase().includes('envio sin costo') ||
+                         linea.toLowerCase().includes('sin costo - viernes') ||
+                         linea.toLowerCase().includes('0 bs (envío sin costo') ||
+                         linea.toLowerCase().includes('0 bs (envio sin costo')) {
+                    datos.envioSinCosto = true;
+                }
+                else if (linea.includes('➡️')) {
+                    const partes = linea.split('➡️');
+                    if (partes.length >= 2) {
+                        let resto = partes[1].trim();
+                        resto = resto.replace(/^\([^)]*\)\s*/, '');
+                        const itemsPartes = resto.split(' - ');
+                        if (itemsPartes.length >= 2) {
+                            const descripcion = itemsPartes[0].trim();
+                            const montoTexto = itemsPartes[1].replace('Bs', '').trim();
+                            const monto = parseFloat(montoTexto);
+                            if (descripcion && !isNaN(monto)) {
+                                const nuevo = { descripcion, monto };
+                                const encontrado = encontrarProductoEnDescripcion(descripcion);
+                                if (encontrado) nuevo.productoRef = encontrado;
+                                datos.productos.push(nuevo);
+                            }
+                        }
+                    }
+                }
+            });
+            if (!datos.nombre || !datos.telefono || !datos.direccion || !datos.departamento) {
+                Notificaciones.mostrar('No se pudieron cargar todos los datos. Verifica el formato.', 'warning');
+                return;
+            }
+            document.getElementById('fullName').value = datos.nombre;
+            document.getElementById('phone').value = datos.telefono;
+            document.getElementById('address').value = datos.direccion;
+            document.getElementById('department').value = datos.departamento;
+            document.getElementById('department').dispatchEvent(new Event('change'));
+
+            if (datos.estadoPago === 'Enviado a WhatsApp') {
+                estadoWhatsapp.checked = true;
+            } else if (datos.estadoPago === 'Pago Recepcionado') {
+                estadoPagado.checked = true;
+            } else {
+                estadoPendiente.checked = true;
+            }
+            actualizarBadgeEstadoPago();
+            actualizarFondoPorEstadoPago();
+
+            if (datos.departamento === 'Santa Cruz') {
+                if (datos.provincia) {
+                    provinciaRadio.checked = true;
+                    provinciaRadio.dispatchEvent(new Event('change'));
+                    provinciaInput.value = datos.provincia;
+                    if (datos.transportadora) {
+                        const transportadoraOption = Array.from(transportadoraProvinciaSelect.options).find(opt =>
+                            opt.text.toLowerCase().includes(datos.transportadora.toLowerCase())
+                        );
+                        if (transportadoraOption) {
+                            transportadoraProvinciaSelect.value = transportadoraOption.value;
+                            transportadoraProvinciaSelect.dispatchEvent(new Event('change'));
+                        }
+                    }
+                } else if (datos.zona) {
+                    ciudadRadio.checked = true;
+                    ciudadRadio.dispatchEvent(new Event('change'));
+                    const zonaOption = Array.from(zonaCiudadSelect.options).find(opt =>
+                        opt.text.toLowerCase() === datos.zona.toLowerCase()
+                    );
+                    if (zonaOption) {
+                        zonaCiudadSelect.value = zonaOption.value;
+                        zonaCiudadSelect.dispatchEvent(new Event('change'));
+                    }
+                } else if (datos.recoger) {
+                    recogerRadio.checked = true;
+                    recogerRadio.dispatchEvent(new Event('change'));
+                    if (datos.diaRecogida) {
+                        diaRecogida.value = datos.diaRecogida;
+                    }
+                }
+            } else {
+                if (datos.transportadora) {
+                    transportadoraNombre.value = datos.transportadora;
+                }
+                // ✅ CORRECCIÓN: marcar el checkbox y disparar el evento change para recalcular
+                if (datos.envioSinCosto) {
+                    envioSinCostoCheck.checked = true;
+                    envioSinCostoCheck.dispatchEvent(new Event('change'));
+                }
+            }
+
+            if (datos.productos.length > 0) {
+                items = datos.productos.map(p => ({
+                    descripcion: p.descripcion,
+                    monto: p.monto,
+                    alistado: false,
+                    productoRef: p.productoRef || null
+                }));
+                actualizarListaItems();
+            }
+
+            Notificaciones.mostrar('Pedido cargado correctamente', 'success');
+            textoPedidoCargar.value = '';
+        } catch (error) {
+            console.error(error);
+            Notificaciones.mostrar('Error al cargar el pedido. Verifica el formato.', 'error');
+        }
+    }
+
+    // ========== CÁLCULO DE COSTO DE ENVÍO ==========
+    function calcularCostoEnvio() {
+        costoEnvio = 0;
+        envioContainer.style.display = 'none';
+        const department = departmentSelect.value;
+        if (department === 'Santa Cruz') {
+            if (provinciaRadio.checked && transportadoraProvinciaSelect.value) {
+                const optionText = transportadoraProvinciaSelect.options[transportadoraProvinciaSelect.selectedIndex].text;
+                const match = optionText.match(/\((\d+)\sBs\)/);
+                if (match && match[1]) {
+                    costoEnvio = parseInt(match[1]);
+                    envioContainer.style.display = 'block';
+                    costoEnvioSpan.textContent = formatearPrecio(costoEnvio);
+                }
+            } else if (ciudadRadio.checked || recogerRadio.checked) {
+                costoEnvio = 0;
+                envioContainer.style.display = 'none';
+            }
+        } else if (department && department !== 'Santa Cruz') {
+            if (envioSinCostoCheck && envioSinCostoCheck.checked) {
+                costoEnvio = 0;
+                envioContainer.style.display = 'block';
+                costoEnvioSpan.textContent = '0 (viernes)';
+            } else {
+                costoEnvio = 15;
+                envioContainer.style.display = 'block';
+                costoEnvioSpan.textContent = '15';
+            }
+        }
+        return costoEnvio;
+    }
+
+    // ========== EVENTO DEL CHECKBOX DE ENVÍO SIN COSTO ==========
+    envioSinCostoCheck.addEventListener('change', function() {
+        calcularCostoEnvio();
+        actualizarListaItems();
+    });
+
+    // ========== VALIDACIÓN ==========
+    function validarFormulario() {
+        if (items.length === 0) {
+            Notificaciones.mostrar('Agrega al menos un producto', 'error');
+            return false;
+        }
+        if (!document.getElementById('fullName').value) {
+            Notificaciones.mostrar('Ingresa el nombre del cliente', 'error');
+            return false;
+        }
+        if (!document.getElementById('phone').value) {
+            Notificaciones.mostrar('Ingresa el teléfono', 'error');
+            return false;
+        }
+        if (!document.getElementById('address').value) {
+            Notificaciones.mostrar('Ingresa la dirección', 'error');
+            return false;
+        }
+        if (!departmentSelect.value) {
+            Notificaciones.mostrar('Selecciona un departamento', 'error');
+            return false;
+        }
+        if (departmentSelect.value === 'Santa Cruz') {
+            if (!provinciaRadio.checked && !ciudadRadio.checked && !recogerRadio.checked) {
+                Notificaciones.mostrar('Selecciona una opción de entrega', 'error');
+                return false;
+            }
+            if (provinciaRadio.checked) {
+                if (!provinciaInput.value.trim()) {
+                    Notificaciones.mostrar('Escribe el nombre de la provincia', 'error');
+                    return false;
+                }
+                if (!transportadoraProvinciaSelect.value) {
+                    Notificaciones.mostrar('Selecciona una transportadora de salida', 'error');
+                    return false;
+                }
+            }
+            if (ciudadRadio.checked && !zonaCiudadSelect.value) {
+                Notificaciones.mostrar('Selecciona una zona', 'error');
+                return false;
+            }
+        }
+        if (departmentSelect.value !== 'Santa Cruz' && departmentSelect.value !== '') {
+            if (!transportadoraNombre.value.trim()) {
+                Notificaciones.mostrar('Escribe el nombre de la transportadora', 'error');
+                return false;
+            }
+        }
+        return true;
+    }
+
+    // ========== GENERAR MENSAJE ==========
+    function generarMensaje(paraWhatsapp = false, incluirNumeros = true) {
+        const fullName = document.getElementById('fullName').value;
+        const phone = document.getElementById('phone').value;
+        const address = document.getElementById('address').value;
+        const department = departmentSelect.value;
+        const nota = notaPedido.value;
+        let transportadora = 'No especificada', transportadoraProvincia = 'No aplica', provincia = 'No aplica', zonaCiudad = 'No aplica', notaEnvio = '', diaRecogidaTexto = '';
+        let saltoLinea = paraWhatsapp ? '%0A' : '\n';
+
+        if (department === 'Santa Cruz') {
+            if (provinciaRadio.checked) {
+                provincia = provinciaInput.value.trim() || 'No especificada';
+                transportadoraProvincia = transportadoraProvinciaSelect.value || 'No seleccionada';
+                notaEnvio = 'Nota: El costo de envío mostrado es para llevar el pedido hasta la terminal de buses. El envío a provincia se realiza bajo la modalidad de pago en destino (por pagar). Se contactará al cliente para informar el costo total del envío, en caso no se pueda enviar por pagar.';
+            } else if (ciudadRadio.checked) {
+                zonaCiudad = zonaCiudadSelect.value;
+                notaEnvio = `📌 IMPORTANTE: Para poder alistar el pedido, requerimos el comprobante de pago. El costo de envío se cotizará cuando el paquete esté listo, ya que los precios de la empresa de delivery (Yango) varían durante el día. Si el cliente no recibe el paquete en el momento de la entrega, la empresa Yango tiene una política de espera de 5 a 10 minutos; si no hay recepción, el paquete será devuelto a nuestro origen y se generará un costo adicional del cual NO NOS RESPONSABILIZAMOS. Recomendamos coordinar bien la entrega.`;
+            } else if (recogerRadio.checked) {
+                diaRecogidaTexto = diaRecogida.value.trim() || 'No especificado';
+                notaEnvio = 'Nota: El cliente pasará a recoger el pedido. No hay costo de envío.';
+            }
+        } else {
+            transportadora = transportadoraNombre.value || 'No especificada';
+            notaEnvio = 'Nota: Los envíos a otros departamentos se realizan todos los días excepto miércoles, sábados y domingos. Para despachar el mismo día, el pago debe realizarse antes de las 4:00 PM; de lo contrario, se agendará para el siguiente día hábil. El costo de envío es de 15 Bs (llevar a la terminal). El envío se realiza bajo modalidad de pago en destino (pagado); se contactará al cliente para coordinar. En caso de que no sea posible el pago en destino, se le comunicará el costo adicional.';
+            
+            if (envioSinCostoCheck && envioSinCostoCheck.checked) {
+                const ahora = new Date();
+                const dia = ahora.getDay();
+                const hora = ahora.getHours();
+                let notaViernes = ' (Envío sin costo - se despacha el viernes)';
+                if (dia === 4 && hora >= 16) {
+                    notaViernes = ' (Pago realizado después del jueves 4 PM, se enviará el viernes siguiente)';
+                } else if (dia === 5 || dia === 6 || dia === 0) {
+                    notaViernes = ' (Pago realizado después del jueves, se enviará el viernes siguiente)';
+                }
+                notaEnvio += notaViernes;
+            }
+        }
+
+        let subtotal = items.reduce((sum, item) => sum + item.monto, 0);
+        let totalFinal = total;
+
+        let textContent = paraWhatsapp ? `*PEDIDO AL POR MAYOR - Todoenuno_store*${saltoLinea}${saltoLinea}` : `PEDIDO AL POR MAYOR - Todoenuno_store${saltoLinea}${saltoLinea}`;
+        textContent += `👤 *Nombre:* ${fullName}${saltoLinea}`;
+        textContent += `📱 *Teléfono:* ${phone}${saltoLinea}`;
+        textContent += `📍 *Dirección:* ${address}${saltoLinea}`;
+        textContent += `🗺️ *Departamento:* ${department}${saltoLinea}`;
+        if (department === 'Santa Cruz') {
+            if (provinciaRadio.checked) {
+                textContent += `🏘️ *Provincia:* ${provincia}${saltoLinea}`;
+                textContent += `🚚 *Transportadora de salida:* ${transportadoraProvincia}${saltoLinea}`;
+            } else if (ciudadRadio.checked) {
+                textContent += `📍 *Zona en ciudad:* ${zonaCiudad}${saltoLinea}`;
+            } else if (recogerRadio.checked) {
+                textContent += `📦 *Modalidad:* Cliente pasa a recoger${saltoLinea}`;
+                textContent += `📅 *Día de recogida:* ${diaRecogidaTexto}${saltoLinea}`;
+            }
+        } else {
+            textContent += `🚚 *Transportadora:* ${transportadora}${saltoLinea}`;
+        }
+        textContent += `💰 *Estado de pago:* ${estadoPago}${saltoLinea}`;
+        if (nota) textContent += `📝 *Nota:* ${nota}${saltoLinea}`;
+        textContent += `${saltoLinea}📋 *DETALLE DEL PEDIDO:*${saltoLinea}`;
+        
+        items.forEach((item, idx) => {
+            if (incluirNumeros) {
+                textContent += `➡️ (${idx+1}) ${item.descripcion} - ${formatearPrecio(item.monto)} Bs${saltoLinea}`;
+            } else {
+                textContent += `➡️ ${item.descripcion} - ${formatearPrecio(item.monto)} Bs${saltoLinea}`;
+            }
+        });
+        
+        textContent += `${saltoLinea}💰 *Subtotal:* ${formatearPrecio(subtotal)} Bs${saltoLinea}`;
+        if (costoEnvio > 0 && !(department === 'Santa Cruz' && (ciudadRadio.checked || recogerRadio.checked))) {
+            textContent += `🚚 *Costo de envío (hasta terminal):* ${formatearPrecio(costoEnvio)} Bs${saltoLinea}`;
+        } else if (department === 'Santa Cruz' && ciudadRadio.checked) {
+            textContent += `🚚 *Costo de envío:* Se cotizará cuando el paquete esté listo${saltoLinea}`;
+        } else if (department === 'Santa Cruz' && recogerRadio.checked) {
+            textContent += `🚚 *Costo de envío:* Sin costo (cliente recoge)${saltoLinea}`;
+        } else if (department !== 'Santa Cruz' && envioSinCostoCheck && envioSinCostoCheck.checked) {
+            textContent += `🚚 *Costo de envío:* 0 Bs (envío sin costo - viernes)${saltoLinea}`;
+        }
+        textContent += `💵 *TOTAL:* ${formatearPrecio(totalFinal)} Bs${saltoLinea}`;
+        if (notaEnvio) textContent += `${saltoLinea}📝 ${notaEnvio}${saltoLinea}`;
+        textContent += `${saltoLinea}📅 *Fecha:* ${new Date().toLocaleString('es-BO')}${saltoLinea}`;
+        return textContent;
+    }
+
+    // ========== MOSTRAR PREVISUALIZACIÓN ==========
+    function mostrarPrevisualizacion() {
+        if (!validarFormulario()) return;
+        estadoWhatsapp.checked = true;
+        actualizarBadgeEstadoPago();
+        actualizarFondoPorEstadoPago();
+        previewContent.textContent = generarMensaje(false, true);
+        previewContainer.style.display = 'block';
+        previewContainer.scrollIntoView({ behavior: 'smooth' });
+    }
+
+    // ========== COPIAR ==========
+    function copiarAlPortapapeles(texto, mensaje) {
+        const textarea = document.createElement('textarea');
+        textarea.value = texto;
+        document.body.appendChild(textarea);
+        textarea.select();
+        document.execCommand('copy');
+        document.body.removeChild(textarea);
+        Notificaciones.mostrar(mensaje, 'success');
+    }
+
+    // ========== IMPRIMIR NOTA ==========
+    function imprimirNota() {
+        if (!validarFormulario()) return;
+        try {
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.left = '-9999px';
+            iframe.style.top = '0';
+            iframe.style.width = '80mm';
+            iframe.style.height = 'auto';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+            const notaVentaHTML = generarNotaVenta();
+            const iframeDoc = iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Nota de Venta - Todoenuno_store</title>
+                    <meta charset="UTF-8">
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 0; padding: 5mm; color: #000; font-size: 12px; width: 80mm; }
+                        .nota-venta { width: 100%; margin: 0 auto; }
+                        .nota-header { text-align: center; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+                        .nota-titulo { font-size: 16px; font-weight: bold; margin-bottom: 3px; }
+                        .nota-subtitulo { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+                        .nota-detalle { font-size: 10px; margin-bottom: 2px; }
+                        .nota-seccion-titulo { font-size: 12px; font-weight: bold; margin: 8px 0 5px 0; text-align: center; border-bottom: 1px solid #000; padding-bottom: 3px; }
+                        .nota-info-cliente { display: flex; flex-wrap: wrap; justify-content: space-between; margin-bottom: 8px; font-size: 10px; }
+                        .nota-tabla { width: 100%; border-collapse: collapse; margin-bottom: 8px; font-size: 10px; }
+                        .nota-tabla th { background-color: #f0f0f0; padding: 4px 2px; text-align: left; border-bottom: 1px solid #000; font-weight: bold; }
+                        .nota-tabla td { padding: 4px 2px; border-bottom: 1px solid #ddd; }
+                        .nota-total { text-align: right; font-weight: bold; font-size: 12px; margin-top: 8px; padding-top: 5px; border-top: 1px solid #000; }
+                        .nota-footer { text-align: center; margin-top: 8px; padding-top: 5px; border-top: 1px solid #000; font-size: 10px; }
+                        .nota-agradecimiento { font-weight: bold; margin-bottom: 2px; }
+                        @media print { body { margin: 0; padding: 5mm; } @page { margin: 0; size: 80mm auto; } }
+                    </style>
+                </head>
+                <body onload="window.print();">${notaVentaHTML}</body>
+                </html>
+            `);
+            iframeDoc.close();
+            setTimeout(() => {
+                if (iframe.contentWindow) iframe.contentWindow.print();
+                setTimeout(() => document.body.removeChild(iframe), 1000);
+            }, 500);
+        } catch (error) {
+            console.error(error);
+            Notificaciones.mostrar('Error al preparar la impresión', 'error');
+        }
+    }
+
+    function generarNotaVenta() {
+        const fullName = document.getElementById('fullName').value;
+        const phone = document.getElementById('phone').value;
+        const address = document.getElementById('address').value;
+        const department = departmentSelect.value;
+        const nota = notaPedido.value;
+        let tipoEntrega = '', detallesEntrega = '';
+        if (department === 'Santa Cruz') {
+            if (provinciaRadio.checked) {
+                tipoEntrega = 'Provincia';
+                detallesEntrega = `${provinciaInput.value.trim()} - ${transportadoraProvinciaSelect.value}`;
+            } else if (ciudadRadio.checked) {
+                tipoEntrega = 'Ciudad de Santa Cruz';
+                detallesEntrega = zonaCiudadSelect.value;
+            } else if (recogerRadio.checked) {
+                tipoEntrega = 'Cliente recoge';
+                detallesEntrega = `Día: ${diaRecogida.value.trim() || 'No especificado'}`;
+            }
+        } else {
+            tipoEntrega = 'Otro departamento';
+            detallesEntrega = transportadoraNombre.value;
+            if (envioSinCostoCheck && envioSinCostoCheck.checked) {
+                detallesEntrega += ' (Envío sin costo - viernes)';
+            }
+        }
+        let subtotal = items.reduce((sum, item) => sum + item.monto, 0);
+        let totalVenta = total;
+        let html = `<div class="nota-venta">
+            <div class="nota-header">
+                <div class="nota-titulo">TODOENUNO_STORE</div>
+                <div class="nota-subtitulo">VENTA AL POR MAYOR</div>
+                <div class="nota-detalle">Santa Cruz - Bolivia</div>
+                <div class="nota-detalle">Tel: 63439475</div>
+            </div>
+            <div class="nota-seccion">
+                <div class="nota-seccion-titulo">INFORMACIÓN DEL CLIENTE</div>
+                <div class="nota-info-cliente">
+                    <div><strong>Nombre:</strong> ${fullName}</div>
+                    <div><strong>Teléfono:</strong> ${phone}</div>
+                    <div><strong>Dirección:</strong> ${address}</div>
+                    <div><strong>Departamento:</strong> ${department}</div>
+                    <div><strong>Entrega:</strong> ${tipoEntrega}</div>
+                    <div><strong>Detalles:</strong> ${detallesEntrega}</div>
+                    <div><strong>Estado de pago:</strong> ${estadoPago}</div>`;
+        if (nota) html += `<div><strong>Nota:</strong> ${nota}</div>`;
+        html += `</div></div>
+            <div class="nota-seccion">
+                <div class="nota-seccion-titulo">DETALLE DEL PEDIDO</div>
+                <table class="nota-tabla">
+                    <thead>
+                        <tr>
+                            <th style="width:15%;">N°</th>
+                            <th style="width:50%;">DESCRIPCIÓN</th>
+                            <th style="width:15%;">CANT.</th>
+                            <th style="width:20%;">PRECIO</th>
+                        </tr>
+                    </thead>
+                    <tbody>`;
+        items.forEach((item, idx) => {
+            html += `<tr>
+                        <td>${idx+1}</td>
+                        <td>${item.descripcion}</td>
+                        <td>1</td>
+                        <td>${formatearPrecio(item.monto)} Bs</td>
+                    </tr>`;
+        });
+        html += `</tbody></table></div>
+            <div class="nota-total">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Subtotal:</span><span>${formatearPrecio(subtotal)} Bs</span></div>`;
+        if (costoEnvio > 0 && !(department === 'Santa Cruz' && (ciudadRadio.checked || recogerRadio.checked))) {
+            html += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Envío (hasta terminal):</span><span>${formatearPrecio(costoEnvio)} Bs</span></div>`;
+        } else if (department === 'Santa Cruz' && ciudadRadio.checked) {
+            html += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Envío:</span><span>Se cotizará cuando esté listo</span></div>`;
+        } else if (department === 'Santa Cruz' && recogerRadio.checked) {
+            html += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Envío:</span><span>Sin costo (cliente recoge)</span></div>`;
+        } else if (department !== 'Santa Cruz' && envioSinCostoCheck && envioSinCostoCheck.checked) {
+            html += `<div style="display: flex; justify-content: space-between; margin-bottom: 5px;"><span>Envío:</span><span>0 Bs (viernes)</span></div>`;
+        }
+        html += `<div style="display: flex; justify-content: space-between; font-size: 14px; font-weight: bold; margin-top: 10px; padding-top: 5px; border-top: 1px solid #000;">
+                    <span>TOTAL:</span><span>${formatearPrecio(totalVenta)} Bs</span>
+                </div>
+            </div>
+            <div class="nota-footer">
+                <div class="nota-agradecimiento">¡GRACIAS POR SU PREFERENCIA!</div>
+                <div style="font-size: 9px; margin-top: 3px;">Fecha: ${new Date().toLocaleString('es-BO')}</div>
+            </div>
+        </div>`;
+        return html;
+    }
+
+    // ========== IMPRIMIR DATOS ==========
+    function imprimirFormatoDatos() {
+        const fullName = document.getElementById('fullName').value;
+        const phone = document.getElementById('phone').value;
+        const destino = obtenerDestino();
+        const modalidad = obtenerModalidadEntrega();
+        const envioPorPagar = obtenerTipoEnvioPagar();
+        const queContiene = queContieneInput.value.trim();
+        const transportadora = transportadoraEspecificaInput.value.trim();
+        const nota = notaPedido.value.trim();
+        if (!queContiene || !transportadora) {
+            Notificaciones.mostrar('Completa todos los campos', 'warning');
+            return;
+        }
+        try {
+            const iframe = document.createElement('iframe');
+            iframe.style.position = 'absolute';
+            iframe.style.left = '-9999px';
+            iframe.style.top = '0';
+            iframe.style.width = '80mm';
+            iframe.style.height = 'auto';
+            iframe.style.border = 'none';
+            document.body.appendChild(iframe);
+            const datosHTML = generarFormatoDatos(fullName, phone, destino, modalidad, envioPorPagar, queContiene, transportadora, nota);
+            const iframeDoc = iframe.contentWindow.document;
+            iframeDoc.open();
+            iframeDoc.write(`
+                <!DOCTYPE html>
+                <html>
+                <head>
+                    <title>Datos de Envío - Todoenuno_store</title>
+                    <meta charset="UTF-8">
+                    <style>
+                        body { font-family: Arial, sans-serif; margin: 0; padding: 5mm; color: #000; font-size: 12px; width: 80mm; }
+                        .datos-container { width: 100%; margin: 0 auto; }
+                        .datos-header { text-align: center; margin-bottom: 8px; border-bottom: 1px solid #000; padding-bottom: 5px; }
+                        .datos-titulo { font-size: 16px; font-weight: bold; margin-bottom: 3px; }
+                        .datos-subtitulo { font-size: 12px; font-weight: bold; margin-bottom: 2px; }
+                        .datos-detalle { font-size: 10px; margin-bottom: 2px; }
+                        .datos-seccion { margin: 15px 0; }
+                        .datos-linea { display: flex; justify-content: space-between; margin-bottom: 8px; padding-bottom: 5px; border-bottom: 1px dashed #ccc; }
+                        .datos-etiqueta { font-weight: bold; min-width: 120px; }
+                        .datos-valor { flex: 1; text-align: right; word-break: break-word; }
+                        .datos-nota { margin-top: 15px; padding: 10px; background-color: #f0f0f0; border-radius: 5px; font-size: 10px; text-align: center; }
+                        .datos-footer { text-align: center; margin-top: 15px; padding-top: 8px; border-top: 1px solid #000; font-size: 10px; }
+                        .datos-agradecimiento { font-weight: bold; margin-bottom: 2px; }
+                        @media print { body { margin: 0; padding: 5mm; } @page { margin: 0; size: 80mm auto; } }
+                    </style>
+                </head>
+                <body onload="window.print();">${datosHTML}</body>
+                </html>
+            `);
+            iframeDoc.close();
+            setTimeout(() => {
+                if (iframe.contentWindow) iframe.contentWindow.print();
+                setTimeout(() => document.body.removeChild(iframe), 1000);
+            }, 500);
+        } catch (error) {
+            console.error(error);
+            Notificaciones.mostrar('Error al preparar la impresión', 'error');
+        }
+    }
+
+    function obtenerDestino() {
+        const department = departmentSelect.value;
+        if (department === 'Santa Cruz') {
+            if (provinciaRadio.checked) return `Provincia: ${provinciaInput.value.trim() || 'No especificada'}`;
+            if (ciudadRadio.checked) return `Ciudad de Santa Cruz - ${zonaCiudadSelect.value}`;
+            if (recogerRadio.checked) return 'Cliente recoge en local';
+        }
+        return `Departamento: ${department}`;
+    }
+
+    function obtenerModalidadEntrega() {
+        const department = departmentSelect.value;
+        if (department === 'Santa Cruz') {
+            if (provinciaRadio.checked) return 'Envío a Provincia';
+            if (ciudadRadio.checked) return 'Envío en Ciudad';
+            if (recogerRadio.checked) return 'Cliente recoge';
+        }
+        return 'Envío a otro Departamento';
+    }
+
+    function obtenerTipoEnvioPagar() {
+        const department = departmentSelect.value;
+        if (department === 'Santa Cruz') {
+            if (provinciaRadio.checked) return 'SÍ (Interprovincial)';
+            if (ciudadRadio.checked) return 'Se cotiza por zona';
+            if (recogerRadio.checked) return 'NO (Cliente recoge)';
+        }
+        return 'SÍ (Departamental)';
+    }
+
+    function generarFormatoDatos(nombre, telefono, destino, modalidad, envioPorPagar, queContiene, transportadora, nota) {
+        return `<div class="datos-container">
+            <div class="datos-header">
+                <div class="datos-titulo">TODOENUNO_STORE</div>
+                <div class="datos-subtitulo">DATOS DE ENVÍO</div>
+                <div class="datos-detalle">Santa Cruz - Bolivia</div>
+                <div class="datos-detalle">Tel: 63439475</div>
+            </div>
+            <div class="datos-seccion">
+                <div class="datos-linea"><div class="datos-etiqueta">Nombre:</div><div class="datos-valor">${nombre}</div></div>
+                <div class="datos-linea"><div class="datos-etiqueta">Teléfono:</div><div class="datos-valor">${telefono}</div></div>
+                <div class="datos-linea"><div class="datos-etiqueta">Destino:</div><div class="datos-valor">${destino}</div></div>
+                <div class="datos-linea"><div class="datos-etiqueta">Modalidad:</div><div class="datos-valor">${modalidad}</div></div>
+                <div class="datos-linea"><div class="datos-etiqueta">Envía:</div><div class="datos-valor">Todoenuno_store</div></div>
+                <div class="datos-linea"><div class="datos-etiqueta">Envío por pagar:</div><div class="datos-valor">${envioPorPagar}</div></div>
+                <div class="datos-linea"><div class="datos-etiqueta">Que contiene:</div><div class="datos-valor">${queContiene}</div></div>
+                <div class="datos-linea"><div class="datos-etiqueta">Transportadora:</div><div class="datos-valor">${transportadora}</div></div>
+                ${nota ? `<div class="datos-linea"><div class="datos-etiqueta">Nota:</div><div class="datos-valor">${nota}</div></div>` : ''}
+                <div class="datos-linea"><div class="datos-etiqueta">Estado de pago:</div><div class="datos-valor">${estadoPago}</div></div>
+            </div>
+            <div class="datos-nota"><strong>NOTA:</strong> Estos datos son para el etiquetado del paquete. Verificar información antes de enviar.</div>
+            <div class="datos-footer">
+                <div class="datos-agradecimiento">¡GRACIAS POR SU PREFERENCIA!</div>
+                <div style="font-size: 9px; margin-top: 3px;">Fecha: ${new Date().toLocaleString('es-BO')}</div>
+            </div>
+        </div>`;
+    }
+
+    // ========== ENVIAR WHATSAPP ==========
+    function enviarWhatsApp() {
+        if (!validarFormulario()) return;
+        const textContent = generarMensaje(true, true);
+        const whatsappNumber = "63439475";
+        const whatsappUrl = `https://wa.me/591${whatsappNumber}?text=${encodeURIComponent(textContent)}`;
+        loader.style.display = 'flex';
+        setTimeout(() => {
+            window.open(whatsappUrl, '_blank');
+            setTimeout(() => loader.style.display = 'none', 1000);
+        }, 500);
+        Notificaciones.mostrar('Redirigiendo a WhatsApp...', 'success');
+    }
+
+    // ========== RESET ==========
+    function resetFormularioCompleto() {
+        document.getElementById('fullName').value = '';
+        document.getElementById('phone').value = '';
+        document.getElementById('address').value = '';
+        document.getElementById('department').value = '';
+        provinciaRadio.checked = false;
+        ciudadRadio.checked = false;
+        recogerRadio.checked = false;
+        provinciaContainer.style.display = 'none';
+        ciudadContainer.style.display = 'none';
+        recogerContainer.style.display = 'none';
+        provinciaInput.value = '';
+        transportadoraProvinciaContainer.style.display = 'none';
+        transportadoraProvinciaSelect.value = '';
+        zonaCiudadSelect.value = '';
+        transportadoraNombre.value = '';
+        diaRecogida.value = '';
+        envioSinCostoCheck.checked = false;
+        items = [];
+        cancelarEdicion();
+        actualizarListaItems();
+        queContieneInput.value = '';
+        transportadoraEspecificaInput.value = '';
+        notaPedido.value = '';
+        document.getElementById('santaCruzSection').style.display = 'none';
+        document.getElementById('transportadoraSection').style.display = 'none';
+        previewContainer.style.display = 'none';
+        detalleAlistar.classList.remove('active');
+        detalleLista.innerHTML = '';
+        estadoPendiente.checked = true;
+        actualizarBadgeEstadoPago();
+        actualizarFondoPorEstadoPago();
+        precioEditado = false;
+        document.getElementById('fullName').focus();
+        Notificaciones.mostrar('Formulario limpiado completamente', 'success');
+    }
+
+    // ========== CONFIGURAR EVENT LISTENERS ==========
+    function configurarEventListeners() {
+        departmentSelect.addEventListener('change', function() {
+            const department = this.value;
+            if (department === 'Santa Cruz') {
+                document.getElementById('santaCruzSection').style.display = 'block';
+                document.getElementById('transportadoraSection').style.display = 'none';
+            } else if (department) {
+                document.getElementById('santaCruzSection').style.display = 'none';
+                document.getElementById('transportadoraSection').style.display = 'block';
+                provinciaRadio.checked = false;
+                ciudadRadio.checked = false;
+                recogerRadio.checked = false;
+                provinciaContainer.style.display = 'none';
+                ciudadContainer.style.display = 'none';
+                recogerContainer.style.display = 'none';
+            } else {
+                document.getElementById('santaCruzSection').style.display = 'none';
+                document.getElementById('transportadoraSection').style.display = 'none';
+            }
+            calcularCostoEnvio();
+            actualizarListaItems();
+        });
+
+        provinciaRadio.addEventListener('change', function() {
+            if (this.checked) {
+                provinciaContainer.style.display = 'block';
+                ciudadContainer.style.display = 'none';
+                recogerContainer.style.display = 'none';
+            }
+            calcularCostoEnvio();
+            actualizarListaItems();
+        });
+
+        ciudadRadio.addEventListener('change', function() {
+            if (this.checked) {
+                ciudadContainer.style.display = 'block';
+                provinciaContainer.style.display = 'none';
+                recogerContainer.style.display = 'none';
+            }
+            calcularCostoEnvio();
+            actualizarListaItems();
+        });
+
+        recogerRadio.addEventListener('change', function() {
+            if (this.checked) {
+                recogerContainer.style.display = 'block';
+                provinciaContainer.style.display = 'none';
+                ciudadContainer.style.display = 'none';
+            }
+            calcularCostoEnvio();
+            actualizarListaItems();
+        });
+
+        provinciaInput.addEventListener('input', function() {
+            transportadoraProvinciaContainer.style.display = this.value.trim() ? 'block' : 'none';
+            calcularCostoEnvio();
+            actualizarListaItems();
+        });
+
+        transportadoraProvinciaSelect.addEventListener('change', function() {
+            calcularCostoEnvio();
+            actualizarListaItems();
+        });
+
+        zonaCiudadSelect.addEventListener('change', function() {
+            calcularCostoEnvio();
+            actualizarListaItems();
+        });
+
+        agregarProductoBtn.addEventListener('click', function() {
+            if (editingIndex !== null) {
+                guardarCambiosProducto();
+            } else {
+                agregarProducto();
+            }
+        });
+
+        descripcionProducto.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                montoProducto.focus();
+            }
+        });
+
+        montoProducto.addEventListener('keydown', function(e) {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                if (editingIndex !== null) {
+                    guardarCambiosProducto();
+                } else {
+                    agregarProducto();
+                }
+            }
+        });
+
+        previsualizarBtn.addEventListener('click', mostrarPrevisualizacion);
+        imprimirBtn.addEventListener('click', imprimirNota);
+
+        imprimirDatosBtn.addEventListener('click', function() {
+            if (!document.getElementById('fullName').value || !document.getElementById('phone').value || !departmentSelect.value) {
+                Notificaciones.mostrar('Completa los datos básicos del pedido primero', 'warning');
+                return;
+            }
+            const transportadoraExistente = obtenerTransportadoraActual();
+            if (transportadoraExistente) transportadoraEspecificaInput.value = transportadoraExistente;
+            imprimirDatosModal.style.display = 'flex';
+            queContieneInput.focus();
+        });
+
+        closeImprimirDatosModal.addEventListener('click', () => imprimirDatosModal.style.display = 'none');
+        cancelImprimirDatos.addEventListener('click', () => imprimirDatosModal.style.display = 'none');
+
+        confirmImprimirDatos.addEventListener('click', function() {
+            imprimirDatosModal.style.display = 'none';
+            imprimirFormatoDatos();
+        });
+
+        copyBtn.addEventListener('click', function() {
+            const textoParaCopiar = generarMensaje(false, false);
+            copiarAlPortapapeles(textoParaCopiar, 'Texto copiado (sin números)');
+        });
+
+        previewWhatsappBtn.addEventListener('click', enviarWhatsApp);
+        pedidoMayorForm.addEventListener('submit', (e) => { e.preventDefault(); enviarWhatsApp(); });
+        marcarTodosBtn.addEventListener('click', marcarTodos);
+        desmarcarTodosBtn.addEventListener('click', desmarcarTodos);
+        cargarPedidoBtn.addEventListener('click', cargarPedidoDesdeTexto);
+
+        agendarOtroPedidoBtn.addEventListener('click', function() {
+            const TU_LINK_AQUI = "https://sites.google.com/view/todo1111/ventas-por-mayor";
+            window.open(TU_LINK_AQUI, '_blank');
+            Notificaciones.mostrar('Nueva pestaña abierta para otro pedido', 'success');
+        });
+    }
+
+    function obtenerTransportadoraActual() {
+        const department = departmentSelect.value;
+        if (department === 'Santa Cruz' && provinciaRadio.checked && transportadoraProvinciaSelect.value) {
+            return transportadoraProvinciaSelect.options[transportadoraProvinciaSelect.selectedIndex].text;
+        } else if (department && department !== 'Santa Cruz') {
+            return transportadoraNombre.value;
+        }
+        return '';
+    }
+
+    // ========== INICIALIZAR ==========
+    function inicializar() {
+        configurarEventListeners();
+        document.getElementById('santaCruzSection').style.display = 'none';
+        document.getElementById('transportadoraSection').style.display = 'none';
+        loader.style.display = 'none';
+        actualizarBadgeEstadoPago();
+        actualizarFondoPorEstadoPago();
+        document.getElementById('fullName').focus();
+        cargarProductosDesdeSheets();
+
+        document.addEventListener('keydown', function(e) {
+            if (e.key === 'Escape') cerrarLightbox();
+        });
+        lightbox.addEventListener('click', function(e) {
+            if (e.target === lightbox) cerrarLightbox();
+        });
+        closeBtn.addEventListener('click', cerrarLightbox);
+    }
+    inicializar();
+});
+</script>
+</body>
+</html>
