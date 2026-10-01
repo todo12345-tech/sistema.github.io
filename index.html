@@ -1351,6 +1351,48 @@ function cerrarSesionAutomatica() {
     usernameInput.value = ''; passwordInput.value = '';
 }
 
+
+function interpretarLineaProductoPedido(linea) {
+        let s = String(linea || '').replace(/\*/g, '').trim();
+        if (!s.includes('➡️')) return null;
+        s = s.replace(/^.*?➡️\s*/, '').replace(/^\(\s*\d+\s*\)\s*/, '').trim();
+
+        // Precio al final: acepta " - 25 Bs", " - Bs 25", " = 25 Bs".
+        let monto = 0;
+        const pm = s.match(/\s+(?:-|=)\s*(?:Bs\.?\s*)?(\d+(?:[.,]\d{1,2})?)\s*(?:Bs\.?)?\s*$/i);
+        if (pm) {
+            monto = parseFloat(pm[1].replace(',', '.')) || 0;
+            s = s.slice(0, pm.index).trim();
+        }
+
+        const limpio = s.replace(/\s+/g, ' ').trim();
+        let cajas = 0, paquetes = 0, unidades = 0;
+
+        // Formato actual: "2 caja(s) + 3 paquete(s) + 4 unidad(es) - Producto".
+        const mc = limpio.match(/(\d+(?:[.,]\d+)?)\s*caja(?:s|\(s\))?/i);
+        const mp = limpio.match(/(\d+(?:[.,]\d+)?)\s*paquete(?:s|\(s\))?/i);
+        const mu = limpio.match(/(\d+(?:[.,]\d+)?)\s*unidad(?:es|\(es\))?/i);
+        if (mc) cajas = Number(mc[1].replace(',', '.')) || 0;
+        if (mp) paquetes = Number(mp[1].replace(',', '.')) || 0;
+        if (mu) unidades = Number(mu[1].replace(',', '.')) || 0;
+
+        // Todo lo anterior al último " - " es presentación; lo posterior es nombre.
+        let nombre = limpio;
+        const sep = limpio.lastIndexOf(' - ');
+        if (sep !== -1) {
+            const izquierda = limpio.slice(0, sep).trim();
+            const derecha = limpio.slice(sep + 3).trim();
+            if (/(?:caja|paquete|unidad)/i.test(izquierda) && derecha) nombre = derecha;
+        }
+
+        return {
+            descripcion: limpio,
+            nombreProducto: nombre,
+            monto,
+            detalleFisico: { cajas, paquetes, unidades }
+        };
+    }
+
 function extraerDatosDelPedido() {
     const texto = cargarPedidoTextarea.value.trim();
     if (!texto) { Notificaciones.mostrar('Pega el texto del pedido primero', 'warning'); return; }
@@ -1371,16 +1413,38 @@ function extraerDatosDelPedido() {
         const lineasProductos = productosTexto.split('\n').filter(linea => linea.includes('➡️'));
         let productosEncontrados = 0;
         lineasProductos.forEach(linea => {
-            const lineaLimpia = linea.replace(/➡️\s*/, '').trim();
-            let descripcion = '', precio = 0;
-            const ultimoGuion = lineaLimpia.lastIndexOf(' - ');
-            if (ultimoGuion !== -1) {
-                descripcion = lineaLimpia.substring(0, ultimoGuion).trim();
-                const precioTexto = lineaLimpia.substring(ultimoGuion + 3).trim();
-                const precioMatch = precioTexto.match(/(\d+(?:[.,]\d{1,2})?)/);
-                if (precioMatch) precio = parseFloat(precioMatch[1].replace(',', '.'));
-            } else descripcion = lineaLimpia;
-            if (descripcion && precio > 0) { items.push({ id: Date.now() + productosEncontrados, descripcion, monto: precio }); productosEncontrados++; }
+            const prod = interpretarLineaProductoPedido(linea);
+            if (!prod || !prod.descripcion || !(prod.monto > 0)) return;
+
+            const d = prod.detalleFisico || {cajas:0, paquetes:0, unidades:0};
+            const encontrado = null;
+
+            let item = {
+                id: Date.now() + productosEncontrados,
+                descripcion: prod.descripcion,
+                monto: prod.monto,
+                productoCatalogo: false,
+                nombreProducto: prod.nombreProducto || prod.descripcion,
+                seccion: '',
+                presentacion: 'mixto',
+                cantidadFisica: 1,
+                detalleFisico: {...d},
+                ubicacionSalida: sucursalSeleccionada,
+                unidadesEquivalentes: (d.unidades||0)
+            };
+
+            if (encontrado) {
+                item.productoCatalogo = true;
+                item.nombreProducto = encontrado.nombre;
+                item.seccion = encontrado.seccion || '';
+                const upp = Number(encontrado.numUnidades || encontrado.unidades_por_paquete || 0);
+                const ppc = Number(encontrado.paquetes_por_caja || 0);
+                item.unidadesEquivalentes = upp
+                    ? ((d.unidades||0) + (d.paquetes||0)*upp + (ppc ? (d.cajas||0)*ppc*upp : 0))
+                    : (d.unidades||0);
+            }
+            items.push(item);
+            productosEncontrados++;
         });
         if (nombre) { nombreClienteActual = nombre; clienteNombreInput.value = nombre; }
         if (telefono) { telefonoClienteActual = telefono; clienteTelefonoInput.value = telefono; }
