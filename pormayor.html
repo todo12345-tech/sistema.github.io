@@ -1460,7 +1460,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let cantidadesPedido = { cajas: 0, paquetes: 0, unidades: 0 };
     let seleccionPedidoPendiente = null;
     let stockDataMayorista = [];
-    const STOCK_API_URL = 'https://sheetdb.io/api/v1/ls2s3slkkege5';
+    const STOCK_GOOGLE_SHEET_ID = '1Rx8QdmK61tsrP4xdNTjTxT9F2QbI4lCpzNJZhNcq-7g';
+    const STOCK_GOOGLE_CSV_URL = `https://docs.google.com/spreadsheets/d/${STOCK_GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('stock')}`;
     let productoSeleccionado = null;
     let unidadesPorPaquete = 0;
     let textoUnidad = '';
@@ -1675,14 +1676,57 @@ document.addEventListener('DOMContentLoaded', function() {
 
     async function cargarStockMayorista() {
         try {
-            const r = await fetch(`${STOCK_API_URL}?sheet=stock`);
-            if (!r.ok) throw new Error('Stock no disponible');
-            const data = await r.json();
-            stockDataMayorista = Array.isArray(data) ? data : [];
+            // Lectura DIRECTA desde Google Sheets.
+            // No consume ninguna operación GET de SheetDB.
+            const url = `${STOCK_GOOGLE_CSV_URL}&tq=${encodeURIComponent('select *')}&_=${Date.now()}`;
+            const r = await fetch(url, { cache: 'no-store', credentials: 'omit' });
+            if (!r.ok) throw new Error(`Stock Google no disponible (${r.status})`);
+            const csv = await r.text();
+            const inicio = csv.trim().slice(0, 160).toLowerCase();
+            if (!csv.trim() || inicio.includes('<html') || inicio.includes('<!doctype html')) {
+                throw new Error('Google Stock devolvió una respuesta inválida');
+            }
+
+            const filas = parseCSVStockMayorista(csv);
+            stockDataMayorista = Array.isArray(filas) ? filas : [];
         } catch (e) {
-            console.warn('No se pudo consultar stock:', e);
+            console.warn('No se pudo consultar stock desde Google Sheets:', e);
             stockDataMayorista = [];
         }
+    }
+
+    function parseCSVStockMayorista(csv) {
+        const filas = [];
+        let fila = [], campo = '', entreComillas = false;
+
+        for (let i = 0; i < csv.length; i++) {
+            const ch = csv[i];
+            if (ch === '"') {
+                if (entreComillas && csv[i + 1] === '"') { campo += '"'; i++; }
+                else entreComillas = !entreComillas;
+            } else if (ch === ',' && !entreComillas) {
+                fila.push(campo); campo = '';
+            } else if ((ch === '\n' || ch === '\r') && !entreComillas) {
+                if (ch === '\r' && csv[i + 1] === '\n') i++;
+                fila.push(campo); campo = '';
+                if (fila.some(v => String(v).trim() !== '')) filas.push(fila);
+                fila = [];
+            } else {
+                campo += ch;
+            }
+        }
+        if (campo.length || fila.length) {
+            fila.push(campo);
+            if (fila.some(v => String(v).trim() !== '')) filas.push(fila);
+        }
+        if (!filas.length) return [];
+
+        const headers = filas[0].map(h => String(h || '').trim());
+        return filas.slice(1).map(cols => {
+            const obj = {};
+            headers.forEach((h, i) => { obj[h] = cols[i] ?? ''; });
+            return obj;
+        }).filter(obj => Object.values(obj).some(v => String(v).trim() !== ''));
     }
 
     function stockDelProducto(producto) {
