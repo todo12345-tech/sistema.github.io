@@ -1397,12 +1397,19 @@ function extraerDatosDelPedido() {
 }
 
 async function probarConexionSheetDB() {
-    try {
-        const url = obtenerUrlSheetDB(sucursalSeleccionada);
-        const response = await fetch(url);
-        if (response.ok) { cloudStatus.innerHTML = '<i class="fas fa-circle online"></i> <span>Conectado a SheetDB</span>'; cloudStatus.className = 'right-sidebar-status online'; Notificaciones.mostrar('Conexión exitosa con SheetDB', 'success'); return true; }
-        else { cloudStatus.innerHTML = '<i class="fas fa-circle offline"></i> <span>Error de conexión</span>'; cloudStatus.className = 'right-sidebar-status offline'; return false; }
-    } catch (error) { cloudStatus.innerHTML = '<i class="fas fa-circle offline"></i> <span>Sin conexión</span>'; cloudStatus.className = 'right-sidebar-status offline'; return false; }
+    // IMPORTANTE: no hacemos GET a SheetDB para "probar conexión",
+    // porque cada consulta consume una operación del plan.
+    // La conexión real se comprueba cuando se realiza una operación necesaria
+    // (POST de venta, PATCH o DELETE).
+    const online = navigator.onLine;
+    if (online) {
+        cloudStatus.innerHTML = '<i class="fas fa-circle online"></i> <span>Internet disponible</span>';
+        cloudStatus.className = 'right-sidebar-status online';
+        return true;
+    }
+    cloudStatus.innerHTML = '<i class="fas fa-circle offline"></i> <span>Sin conexión</span>';
+    cloudStatus.className = 'right-sidebar-status offline';
+    return false;
 }
 
 async function sincronizarVentaIndividualANube(venta) {
