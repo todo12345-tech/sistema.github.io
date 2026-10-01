@@ -774,7 +774,7 @@ const sucursales = {
     "Centro Comercial Avenida Brasil": { nombre: "Centro Comercial Avenida Brasil", descripcion: "Puesto comercial fijo", ubicacion: "Puesto D2, Av. Brasil", telefono: "61439475", tipo: "centro", sheet: "comercial", icono: "fa-shopping-cart" }
 };
 
-const LINK_STOCK         = "https://todo12345-tech.github.io/sistema.github.io/stocktodoenuno";
+const LINK_STOCK         = "#CAMBIAR_POR_LINK_DE_STOCK";
 const LINK_VISUALIZACION = "https://todo12345-tech.github.io/sistema.github.io/visualizacion";
 const LINK_VENTAS_MAYOR  = "https://todo12345-tech.github.io/sistema.github.io/pormayor";
 
@@ -1368,6 +1368,19 @@ function interpretarLineaProductoPedido(linea) {
         const limpio = s.replace(/\s+/g, ' ').trim();
         let cajas = 0, paquetes = 0, unidades = 0;
 
+        // Formato abreviado usado en pedidos: 1p Producto, 2u Producto, 1c Producto.
+        // "p" = paquete, "u" = unidad, "c" = caja.
+        const abreviado = limpio.match(/^(\d+(?:[.,]\d+)?)\s*([puc])(?:\s+|(?=[A-Za-zÁÉÍÓÚÑáéíóúñ]))(.+)$/i);
+        let nombreAbreviado = '';
+        if (abreviado) {
+            const cantidad = Number(abreviado[1].replace(',', '.')) || 0;
+            const tipo = abreviado[2].toLowerCase();
+            nombreAbreviado = (abreviado[3] || '').trim();
+            if (tipo === 'p') paquetes = cantidad;
+            else if (tipo === 'u') unidades = cantidad;
+            else if (tipo === 'c') cajas = cantidad;
+        }
+
         // Formato actual: "2 caja(s) + 3 paquete(s) + 4 unidad(es) - Producto".
         const mc = limpio.match(/(\d+(?:[.,]\d+)?)\s*caja(?:s|\(s\))?/i);
         const mp = limpio.match(/(\d+(?:[.,]\d+)?)\s*paquete(?:s|\(s\))?/i);
@@ -1377,9 +1390,9 @@ function interpretarLineaProductoPedido(linea) {
         if (mu) unidades = Number(mu[1].replace(',', '.')) || 0;
 
         // Todo lo anterior al último " - " es presentación; lo posterior es nombre.
-        let nombre = limpio;
+        let nombre = nombreAbreviado || limpio;
         const sep = limpio.lastIndexOf(' - ');
-        if (sep !== -1) {
+        if (!nombreAbreviado && sep !== -1) {
             const izquierda = limpio.slice(0, sep).trim();
             const derecha = limpio.slice(sep + 3).trim();
             if (/(?:caja|paquete|unidad)/i.test(izquierda) && derecha) nombre = derecha;
@@ -1831,7 +1844,7 @@ async function guardarVentaConMetodoPago() {
             catch(invErr){ console.error(invErr); Notificaciones.mostrar('Venta guardada, pero hubo un problema al sincronizar Stock/Movimientos. Revisa conexión.', 'warning', 5000); }
             setTimeout(async () => await sincronizarVentaIndividualANube(ventaGuardada), 500);
         }
-    } catch (error) { Notificaciones.mostrar('Error al procesar la venta', 'error'); }
+    } catch (error) { console.error('Error real al procesar la venta:', error); Notificaciones.mostrar('Error al procesar la venta: ' + (error?.message || 'revisa los datos del pedido'), 'error', 6000); }
     finally {
         guardandoVenta = false;
         actionGuardarVenta.disabled = false;
@@ -1849,7 +1862,7 @@ function guardarVentaLocal() {
     else { metodoPagoData.monto_efectivo = ''; metodoPagoData.monto_qr = ''; }
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const diaSemana = dias[new Date().getDay()];
-    const datosVenta = { id: Date.now(), nombre_cliente: nombreClienteActual || 'Cliente General', telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => i.monto.toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'paquete',cantidad:i.cantidadFisica||1,ubicacion:i.ubicacionSalida||'',unidadesEquivalentes:i.unidadesEquivalentes||'', detalleFisico:i.detalleFisico||null})), total_venta: total.toFixed(2), numero_productos: items.length, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, ...metodoPagoData };
+    const datosVenta = { id: Date.now(), nombre_cliente: nombreClienteActual || 'Cliente General', telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'paquete',cantidad:i.cantidadFisica||1,ubicacion:i.ubicacionSalida||'',unidadesEquivalentes:i.unidadesEquivalentes||'', detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, ...metodoPagoData };
     ventasDelDia.push(datosVenta);
     localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
     ventasCajaActual.push(datosVenta);
