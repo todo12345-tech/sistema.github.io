@@ -1463,18 +1463,28 @@
         this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
         let ok = 0, err = 0;
         for (const id of [...seleccionados]) {
-            const [nombre, ubicacion, seccion] = id.split('|');
             try {
-                let url = `${API_URL}/nombre/${encodeURIComponent(nombre)}`;
-                const params = [];
-                if (ubicacion) params.push(`ubicacion=${encodeURIComponent(ubicacion)}`);
-                if (seccion) params.push(`seccion=${encodeURIComponent(seccion)}`);
-                params.push(`sheet=${encodeURIComponent(SHEET_STOCK)}`);
-            if (params.length > 0) url += '?' + params.join('&');
+                let url;
+                if (id && !id.includes('|')) {
+                    // Filas actuales: eliminar por ID único.
+                    url = `${API_URL}/id_stock/${encodeURIComponent(id)}?sheet=${encodeURIComponent(SHEET_STOCK)}`;
+                } else {
+                    // Compatibilidad con filas antiguas sin id_stock.
+                    const [nombre, ubicacion, seccion] = String(id || '').split('|');
+                    url = `${API_URL}/nombre/${encodeURIComponent(nombre)}`;
+                    const params = [];
+                    if (ubicacion) params.push(`ubicacion=${encodeURIComponent(ubicacion)}`);
+                    if (seccion) params.push(`seccion=${encodeURIComponent(seccion)}`);
+                    params.push(`sheet=${encodeURIComponent(SHEET_STOCK)}`);
+                    url += '?' + params.join('&');
+                }
                 const r = await fetch(url, { method: 'DELETE' });
-                if (r.ok) { const res = await r.json(); if (res.deleted && res.deleted > 0) ok++; else err++; }
-                else err++;
-            } catch (e) { err++; }
+                if (r.ok) {
+                    const res = await r.json();
+                    if (res.deleted && res.deleted > 0) ok++;
+                    else err++;
+                } else err++;
+            } catch (e) { console.error(e); err++; }
         }
         seleccionados.clear();
         actualizarBarraSeleccion();
@@ -1622,24 +1632,43 @@
         boton.disabled = true;
         boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
         try {
-            const [nom, ubicacion, seccion] = id.split('|');
-            let url = `${API_URL}/nombre/${encodeURIComponent(nom)}`;
-            const params = [];
-            if (ubicacion) params.push(`ubicacion=${encodeURIComponent(ubicacion)}`);
-            if (seccion) params.push(`seccion=${encodeURIComponent(seccion)}`);
-            params.push(`sheet=${encodeURIComponent(SHEET_STOCK)}`);
-            if (params.length > 0) url += '?' + params.join('&');
+            let url;
+            if (id && !id.includes('|')) {
+                // Filas actuales: id es id_stock, el identificador único.
+                url = `${API_URL}/id_stock/${encodeURIComponent(id)}?sheet=${encodeURIComponent(SHEET_STOCK)}`;
+            } else {
+                // Respaldo para filas antiguas que todavía no tengan id_stock.
+                const [nom, ubicacion, seccion] = String(id || '').split('|');
+                url = `${API_URL}/nombre/${encodeURIComponent(nom)}`;
+                const params = [];
+                if (ubicacion) params.push(`ubicacion=${encodeURIComponent(ubicacion)}`);
+                if (seccion) params.push(`seccion=${encodeURIComponent(seccion)}`);
+                params.push(`sheet=${encodeURIComponent(SHEET_STOCK)}`);
+                url += '?' + params.join('&');
+            }
+
             const r = await fetch(url, { method: 'DELETE' });
             if (r.ok) {
                 const res = await r.json();
                 if (res.deleted && res.deleted > 0) {
                     Notificaciones.mostrar(`✅ "${nombre}" eliminado`, 'success');
                     seleccionados.delete(id);
-                    setTimeout(cargarInventario, 2000);
-                } else Notificaciones.mostrar('No se encontró el producto', 'warning');
-            } else Notificaciones.mostrar('Error al eliminar', 'error', 6000);
-        } catch (e) { console.error(e); Notificaciones.mostrar('Error de conexión', 'error'); }
-        finally { boton.disabled = false; boton.innerHTML = '<i class="fas fa-trash"></i>'; }
+                    setTimeout(cargarInventario, 1200);
+                } else {
+                    Notificaciones.mostrar('No se encontró el producto para eliminar', 'warning', 6000);
+                }
+            } else {
+                const detalle = await r.text().catch(() => '');
+                console.error('Error DELETE stock:', r.status, detalle);
+                Notificaciones.mostrar(`Error al eliminar (${r.status})`, 'error', 6000);
+            }
+        } catch (e) {
+            console.error(e);
+            Notificaciones.mostrar('Error de conexión al eliminar', 'error', 6000);
+        } finally {
+            boton.disabled = false;
+            boton.innerHTML = '<i class="fas fa-trash"></i>';
+        }
     }
 
     // ============================================================
