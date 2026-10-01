@@ -1651,8 +1651,11 @@ async function descargarCSVGoogleVentas() {
     const hoja = esComercial ? 'comercial' : ((suc&&suc.sheet) ? suc.sheet : 'feria');
     const nonce = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
     const urls = [
-        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(hoja)}&tq=${encodeURIComponent('select *')}&_=${nonce}`,
-        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(hoja)}&_=${nonce}`
+        // PRIMERO CSV directo: conserva literalmente celdas como
+        // "84.00 | 72.00" de la columna montos.
+        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(hoja)}&_=${nonce}`,
+        // GViz queda solamente como respaldo.
+        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(hoja)}&tq=${encodeURIComponent('select *')}&_=${nonce}`
     ];
     let ultimoError=null;
     for(const url of urls){
@@ -2227,6 +2230,46 @@ function fechaComparableVentas(valor) {
     return s;
 }
 
+
+function obtenerMontosVenta(venta, cantidadProductos) {
+    let bruto = String((venta && venta.montos) || '').trim();
+
+    // Normaliza separadores y elimina símbolos que Google Sheets puede devolver.
+    let valores = bruto
+        .split(/\s*\|\s*/)
+        .map(v => {
+            const limpio = String(v || '')
+                .replace(/\s*Bs\.?\s*/gi, '')
+                .replace(/\s+/g, '')
+                .replace(',', '.');
+            const n = Number(limpio);
+            return Number.isFinite(n) ? n : NaN;
+        });
+
+    // Si el separador "|" no llegó bien desde GViz, extraemos todos los números.
+    if (!valores.length || valores.every(v => !Number.isFinite(v)) ||
+        (cantidadProductos > 1 && valores.length < cantidadProductos)) {
+        const encontrados = bruto
+            .replace(/\s*Bs\.?\s*/gi, '')
+            .match(/-?\d+(?:[.,]\d+)?/g) || [];
+        const extraidos = encontrados.map(v => Number(v.replace(',', '.')))
+            .filter(Number.isFinite);
+        if (extraidos.length) valores = extraidos;
+    }
+
+    valores = valores.map(v => Number.isFinite(v) ? v : 0);
+
+    // Nunca inventar importes individuales. Si no hay desglose, conservamos
+    // el total real de la venta como referencia en la última posición.
+    const totalReal = Number(String((venta && venta.total_venta) || '0').replace(',', '.')) || 0;
+    if (cantidadProductos === 1 && (!valores.length || valores[0] === 0) && totalReal) {
+        valores = [totalReal];
+    }
+
+    while (valores.length < cantidadProductos) valores.push(0);
+    return valores.slice(0, cantidadProductos);
+}
+
 function actualizarVentasDelDia() {
     const hoy = new Date().toLocaleDateString('es-ES');
     const hoyCmp = fechaComparableVentas(hoy);
@@ -2252,19 +2295,19 @@ function actualizarVentasDelDia() {
     let tablaHTML = '';
     todasVentasHoy.forEach(venta => {
         const productosArr = venta.productos.split(' | ');
-        const montosArr = venta.montos ? venta.montos.split(' | ') : [];
+        const montosArr = obtenerMontosVenta(venta, productosArr.length);
         const esAperturaCierre = venta.productos === 'APERTURA DE CAJA' || venta.productos === 'CIERRE DE CAJA';
         let productosHTML = '', montosHTML = '', totalVenta = 0;
         if (esAperturaCierre) { productosHTML = venta.productos; montosHTML = venta.monto_efectivo ? `${venta.monto_efectivo} Bs` : '-'; }
         else {
             productosHTML = productosArr.map(p => `<div>${p}</div>`).join('');
             let montosLista = '';
-            productosArr.forEach((p, i) => { const montoItem = parseFloat(montosArr[i] || 0) || 0; totalVenta += montoItem; montosLista += `<div>${montoItem.toFixed(2)}</div>`; });
+            productosArr.forEach((p, i) => { const montoItem = Number(montosArr[i]) || 0; totalVenta += montoItem; montosLista += `<div>${montoItem.toFixed(2)}</div>`; });
             montosHTML = `<div class="montos-cell"><div class="montos-lista">${montosLista}</div><div class="montos-total">${totalVenta.toFixed(2)} Bs</div></div>`;
         }
         const tieneObservaciones = venta.observaciones && venta.observaciones.trim() !== '';
         let metodoPagoDisplay = venta.metodo_pago || '';
-        if (venta.metodo_pago === 'Mixto') metodoPagoDisplay = `Mixto (Ef: ${venta.monto_efectivo || 0}, QR: ${venta.monto_qr || 0})`;
+        if (String(venta.metodo_pago || '').toLowerCase() === 'mixto') metodoPagoDisplay = `Mixto (Ef: ${venta.monto_efectivo || 0}, QR: ${venta.monto_qr || 0})`;
         const claseFila = esAperturaCierre ? 'fila-apertura-cierre' : '';
         let botonesVentasDia = `${!esAperturaCierre ? `<button class="accion-btn observacion-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-sticky-note"></i> Obs</button><button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : ''}<button class="accion-btn eliminar-btn-tabla" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-trash"></i> Eliminar</button>`;
         const nombreCliente = esAperturaCierre ? venta.usuario : (venta.nombre_cliente || 'Cliente General');
@@ -2402,8 +2445,8 @@ function generarNotaVentaGuardada(venta) {
     let notaHTML = `<div class="nota-venta"><div class="nota-header"><div class="nota-titulo">TODOENUNO_STORE</div><div class="nota-subtitulo">${venta.sucursal}</div><div class="nota-detalle">${venta.ubicacion}</div><div class="nota-detalle">TEL: 61439475</div><div class="nota-detalle">SANTA CRUZ - BOLIVIA</div></div><div class="nota-seccion"><div class="nota-seccion-titulo">NOTA DE VENTA</div><div class="nota-info-cliente"><div class="nota-info-item"><span class="nota-info-label">FECHA:</span> ${venta.fecha} ${venta.hora}</div><div class="nota-info-item"><span class="nota-info-label">ID:</span> ${venta.id}</div>${venta.nombre_cliente ? `<div class="nota-info-item"><span class="nota-info-label">CLIENTE:</span> ${venta.nombre_cliente}</div>` : ''}${venta.telefono ? `<div class="nota-info-item"><span class="nota-info-label">TELÉFONO:</span> ${venta.telefono}</div>` : ''}${venta.direccion ? `<div class="nota-info-item"><span class="nota-info-label">DIRECCIÓN:</span> ${venta.direccion}</div>` : ''}${venta.departamento ? `<div class="nota-info-item"><span class="nota-info-label">DEPARTAMENTO:</span> ${venta.departamento}</div>` : ''}${venta.cumpleaños ? `<div class="nota-info-item"><span class="nota-info-label">CUMPLEAÑOS:</span> ${venta.cumpleaños}</div>` : ''}</div></div><table class="nota-tabla"><thead><tr><th class="descripcion">DESCRIPCIÓN</th><th class="cantidad">CANT.</th><th class="precio">PRECIO</th></tr></thead><tbody>`;
     productos.forEach((producto, index) => { notaHTML += `<tr><td class="descripcion">${producto}</td><td class="cantidad">1</td><td class="precio">${montos[index]} Bs</td></tr>`; });
     notaHTML += `</tbody></table><div class="nota-total">TOTAL: ${venta.total_venta} Bs</div>`;
-    if (venta.metodo_pago === 'Mixto') notaHTML += `<div style="margin-top: 10px;"><p><strong>Método:</strong> Mixto</p><p><strong>Efectivo:</strong> ${venta.monto_efectivo || 0} Bs</p><p><strong>QR:</strong> ${venta.monto_qr || 0} Bs</p></div>`;
-    else notaHTML += `<div style="margin-top: 10px;"><p><strong>Método:</strong> ${venta.metodo_pago}</p></div>`;
+    if (String(venta.metodo_pago || '').toLowerCase() === 'mixto') notaHTML += `<div style="margin-top:10px;border:2px solid #000;padding:6px;"><p><strong>FORMA DE PAGO: MIXTO</strong></p><p><strong>Efectivo:</strong> ${venta.monto_efectivo || 0} Bs</p><p><strong>QR:</strong> ${venta.monto_qr || 0} Bs</p></div>`;
+    else notaHTML += `<div style="margin-top:10px;border:2px solid #000;padding:6px;"><p><strong>FORMA DE PAGO: ${venta.metodo_pago || 'No especificado'}</strong></p></div>`;
     if (venta.observaciones) notaHTML += `<div style="margin-top: 10px;"><p><strong>Observaciones:</strong> ${venta.observaciones}</p></div>`;
     notaHTML += `<div class="nota-footer"><div class="nota-agradecimiento">¡GRACIAS POR SU PREFERENCIA!</div><div>VUELVA PRONTO</div></div></div>`;
     return notaHTML;
@@ -2435,33 +2478,104 @@ function imprimirNotaVentaGuardada(venta) {
 
 function imprimirTodasVentasDia() {
     const hoy = new Date().toLocaleDateString('es-ES');
-    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy);
+    const hoyCmp = fechaComparableVentas(hoy);
+    const ventasHoy = ventasDelDia.filter(v =>
+        fechaComparableVentas(v.fecha) === hoyCmp &&
+        v.productos !== 'APERTURA DE CAJA' &&
+        v.productos !== 'CIERRE DE CAJA'
+    );
     if (ventasHoy.length === 0) { Notificaciones.mostrar('No hay ventas hoy', 'warning'); return; }
+
     const iframe = document.createElement('iframe');
     iframe.style.position = 'absolute'; iframe.style.left = '-9999px';
     document.body.appendChild(iframe);
-    let html = `<!DOCTYPE html><html><head><title>Ventas del Día</title><style>body{font-family:Arial,sans-serif;padding:20px;font-size:12px;}.header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px;}.venta{margin-bottom:20px;border:1px solid #000;padding:12px;page-break-inside:avoid;}table{width:100%;border-collapse:collapse;}th{background:#f0f0f0;padding:6px;text-align:left;border-bottom:1px solid #000;}td{padding:6px;border-bottom:1px solid #ddd;}.total{text-align:right;font-weight:bold;margin-top:8px;}</style></head><body><div class="header"><h1>TODOENUNO_STORE</h1><h2>Ventas del Día: ${hoy}</h2><p>Sucursal: ${sucursalSeleccionada}</p></div>`;
-    let totalGeneral = 0, totalEfectivoImp=0, totalQRImp=0;
+
+    let html = `<!DOCTYPE html><html><head><title>Ventas del Día</title><style>
+        body{font-family:Arial,sans-serif;padding:20px;font-size:12px;color:#111}
+        .header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px}
+        .venta{margin-bottom:20px;border:1px solid #000;padding:12px;page-break-inside:avoid}
+        .pago{margin:10px 0;padding:8px 10px;border:2px solid #000;font-size:13px;font-weight:bold}
+        table{width:100%;border-collapse:collapse}
+        th{background:#f0f0f0;padding:6px;text-align:left;border-bottom:1px solid #000}
+        td{padding:6px;border-bottom:1px solid #ddd}
+        .total{text-align:right;font-weight:bold;margin-top:8px;font-size:13px}
+        .resumen{margin-top:20px;border:2px solid #000;padding:15px;background:#f9f9f9}
+        @media print{.venta{break-inside:avoid}}
+    </style></head><body>
+    <div class="header"><h1>TODOENUNO_STORE</h1><h2>Ventas del Día: ${hoy}</h2><p>Sucursal: ${sucursalSeleccionada}</p></div>`;
+
+    let totalGeneral=0, totalEfectivoImp=0, totalQRImp=0, totalTarjetaImp=0, totalMixtoImp=0;
+
     ventasHoy.forEach((venta, i) => {
-        totalGeneral += parseFloat(venta.total_venta)||0; if(venta.metodo_pago==='Efectivo') totalEfectivoImp += parseFloat(venta.total_venta)||0; else if(venta.metodo_pago==='QR') totalQRImp += parseFloat(venta.total_venta)||0; else if(venta.metodo_pago==='Mixto'){totalEfectivoImp += parseFloat(venta.monto_efectivo)||0; totalQRImp += parseFloat(venta.monto_qr)||0;}
-        const productos = venta.productos.split(' | ');
-        const montos = venta.montos ? venta.montos.split(' | ') : [];
-        html += `<div class="venta"><div style="display:flex;justify-content:space-between;margin-bottom:8px"><div><strong>Venta #${i+1}</strong></div><div><strong>Hora:</strong> ${venta.hora}</div></div>`;
-        if (venta.nombre_cliente) html += `<p><strong>Cliente:</strong> ${venta.nombre_cliente}</p>`;
+        const totalVenta = Number(String(venta.total_venta || '0').replace(',','.')) || 0;
+        totalGeneral += totalVenta;
+
+        const metodo = String(venta.metodo_pago || '').trim();
+        const metodoNorm = metodo.toLowerCase();
+        let pagoTexto = metodo || 'No especificado';
+
+        if (metodoNorm === 'efectivo') {
+            totalEfectivoImp += totalVenta;
+            pagoTexto = 'EFECTIVO';
+        } else if (metodoNorm === 'qr') {
+            totalQRImp += totalVenta;
+            pagoTexto = 'QR';
+        } else if (metodoNorm === 'tarjeta') {
+            totalTarjetaImp += totalVenta;
+            pagoTexto = 'TARJETA';
+        } else if (metodoNorm === 'mixto') {
+            const ef = Number(String(venta.monto_efectivo || '0').replace(',','.')) || 0;
+            const qr = Number(String(venta.monto_qr || '0').replace(',','.')) || 0;
+            totalMixtoImp += totalVenta;
+            totalEfectivoImp += ef;
+            totalQRImp += qr;
+            pagoTexto = `MIXTO — EFECTIVO: ${ef.toFixed(2)} Bs | QR: ${qr.toFixed(2)} Bs`;
+        }
+
+        const productos = String(venta.productos || '').split(' | ');
+        const montos = obtenerMontosVenta(venta, productos.length);
+
+        html += `<div class="venta">
+            <div style="display:flex;justify-content:space-between;margin-bottom:8px">
+                <div><strong>Venta #${i+1}</strong></div>
+                <div><strong>Hora:</strong> ${venta.hora || '-'}</div>
+            </div>`;
+
+        html += `<p><strong>Cliente:</strong> ${venta.nombre_cliente || 'Cliente General'}</p>`;
         if (venta.telefono) html += `<p><strong>Teléfono:</strong> ${venta.telefono}</p>`;
         if (venta.direccion) html += `<p><strong>Dirección:</strong> ${venta.direccion}</p>`;
         if (venta.departamento) html += `<p><strong>Departamento:</strong> ${venta.departamento}</p>`;
-        if (venta.cumpleaños) html += `<p><strong>Cumpleaños:</strong> ${venta.cumpleaños}</p>`; const mp=venta.metodo_pago==='Mixto'?`Mixto — Efectivo: ${venta.monto_efectivo||0} Bs · QR: ${venta.monto_qr||0} Bs`:(venta.metodo_pago||'-'); html += `<p><strong>Método de pago:</strong> ${mp}</p>`;
+        if (venta.cumpleaños) html += `<p><strong>Cumpleaños:</strong> ${venta.cumpleaños}</p>`;
+
+        html += `<div class="pago">FORMA DE PAGO: ${pagoTexto}</div>`;
         html += `<table><thead><tr><th>Producto</th><th>Precio</th></tr></thead><tbody>`;
-        productos.forEach((p, idx) => { html += `<tr><td>${p}</td><td>${montos[idx] || ''} Bs</td></tr>`; });
-        html += `</tbody></table><div class="total">Total: ${venta.total_venta} Bs</div></div>`;
+
+        productos.forEach((p, idx) => {
+            const monto = Number(montos[idx]) || 0;
+            html += `<tr><td>${p}</td><td>${monto.toFixed(2)} Bs</td></tr>`;
+        });
+
+        html += `</tbody></table><div class="total">TOTAL: ${totalVenta.toFixed(2)} Bs</div></div>`;
     });
-    html += `<div style="margin-top:20px;border:2px solid #000;padding:15px;background:#f9f9f9"><h3>Resumen</h3><p><strong>Total Ventas:</strong> ${ventasHoy.length}</p><p><strong>Total Recaudado:</strong> ${totalGeneral.toFixed(2)} Bs</p><p><strong>Total Efectivo:</strong> ${totalEfectivoImp.toFixed(2)} Bs</p><p><strong>Total QR:</strong> ${totalQRImp.toFixed(2)} Bs</p><p><strong>Generado por:</strong> ${currentUser.nombre}</p></div></body></html>`;
+
+    html += `<div class="resumen">
+        <h3>RESUMEN POR FORMA DE PAGO</h3>
+        <p><strong>Total de ventas:</strong> ${ventasHoy.length}</p>
+        <p><strong>EFECTIVO:</strong> ${totalEfectivoImp.toFixed(2)} Bs</p>
+        <p><strong>QR:</strong> ${totalQRImp.toFixed(2)} Bs</p>
+        <p><strong>TARJETA:</strong> ${totalTarjetaImp.toFixed(2)} Bs</p>
+        <p><strong>Ventas MIXTAS (total):</strong> ${totalMixtoImp.toFixed(2)} Bs</p>
+        <p><strong>TOTAL RECAUDADO:</strong> ${totalGeneral.toFixed(2)} Bs</p>
+        <p><strong>Generado por:</strong> ${currentUser.nombre}</p>
+    </div></body></html>`;
+
     const iframeDoc = iframe.contentWindow.document;
     iframeDoc.open(); iframeDoc.write(html); iframeDoc.close();
-    setTimeout(() => { try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) {} setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 1000); }, 500);
+    setTimeout(() => {
+        try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) {}
+        setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 1000);
+    }, 500);
 }
-
 function obtenerDatosSucursal() { return sucursales[sucursalSeleccionada]; }
 function validarFormulario() { return items.length > 0; }
 function actualizarSeleccionSucursal() { if (items.length > 0) actualizarPrevisualizacion(); }
@@ -2706,7 +2820,7 @@ function imprimirResumenVentasDia() {
     const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA');
     if (ventasHoy.length === 0) { Notificaciones.mostrar('No hay ventas hoy', 'warning'); return; }
     let resumen = { efectivo: 0, qr: 0, mixto: 0, total: 0, numeroVentas: ventasHoy.length };
-    ventasHoy.forEach(venta => { const monto = parseFloat(venta.total_venta); resumen.total += monto; if (venta.metodo_pago === 'Efectivo') resumen.efectivo += monto; else if (venta.metodo_pago === 'QR') resumen.qr += monto; else if (venta.metodo_pago === 'Mixto') { resumen.mixto += monto; resumen.efectivo += venta.monto_efectivo || 0; resumen.qr += venta.monto_qr || 0; } });
+    ventasHoy.forEach(venta => { const monto = parseFloat(venta.total_venta); resumen.total += monto; if (venta.metodo_pago === 'Efectivo') resumen.efectivo += monto; else if (venta.metodo_pago === 'QR') resumen.qr += monto; else if (String(venta.metodo_pago || '').toLowerCase() === 'mixto') { resumen.mixto += monto; resumen.efectivo += venta.monto_efectivo || 0; resumen.qr += venta.monto_qr || 0; } });
     const iframe = document.createElement('iframe');
     iframe.style.position = 'absolute'; iframe.style.left = '-9999px';
     document.body.appendChild(iframe);
