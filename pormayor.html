@@ -242,6 +242,14 @@ body.estado-pagado textarea {
     word-break: break-word;
 }
 .alistar-item-price { color: #ff7e5f; font-weight: bold; }
+.alistar-item-img {
+    width: 68px; height: 68px; object-fit: cover; border-radius: 10px;
+    background: white; border: 1px solid #e1e5e9; flex: 0 0 68px; cursor: pointer;
+}
+.alistar-img-placeholder { display:flex; align-items:center; justify-content:center; color:#adb5bd; cursor:default; font-size:24px; }
+.alistar-item-section { margin-top:4px; font-size:12px; color:#6c757d; text-transform:uppercase; }
+.ver-detalle-btn { width:40px; height:40px; padding:0; background:#28a745; border-radius:9px; border:none; color:white; cursor:pointer; flex:0 0 40px; }
+.ver-detalle-btn:hover { background:#218838; transform:translateY(-1px); }
 .alistar-progress {
     margin-top: 20px;
     padding: 20px;
@@ -926,8 +934,30 @@ button:active { transform: translateY(-1px); }
     font-style: italic;
 }
 </style>
+
+<style id="loginMayorStyles">
+#loginMayorOverlay{position:fixed;inset:0;background:linear-gradient(135deg,#17324d,#244b6b);z-index:999999;display:flex;align-items:center;justify-content:center;padding:20px;font-family:inherit}
+.login-mayor-card{background:#fff;width:min(420px,100%);border-radius:22px;padding:30px;box-shadow:0 24px 70px rgba(0,0,0,.28)}
+.login-mayor-card h2{margin:0 0 6px;color:#17324d}.login-mayor-card p{margin:0 0 22px;color:#687888}
+.login-mayor-field{margin:12px 0}.login-mayor-field input{width:100%;box-sizing:border-box;padding:14px 15px;border:1px solid #d7dee5;border-radius:12px;font-size:15px}
+#loginMayorBtn{width:100%;border:0;border-radius:12px;padding:14px;background:#f4b400;color:#17324d;font-weight:800;font-size:15px;cursor:pointer;margin-top:8px}
+#loginMayorError{display:none;margin-top:12px;padding:10px 12px;border-radius:10px;background:#fff0f0;color:#b42318;font-size:13px}
+#usuarioMayorBar{display:none;align-items:center;justify-content:space-between;gap:10px;background:#eef6ff;border:1px solid #d6e8fa;border-radius:12px;padding:9px 12px;margin:10px 0 18px;color:#17324d;font-size:13px}
+#usuarioMayorBar button{border:0;background:#17324d;color:#fff;border-radius:9px;padding:7px 10px;cursor:pointer}
+</style>
 </head>
 <body>
+<div id="loginMayorOverlay">
+ <div class="login-mayor-card">
+  <h2><i class="fas fa-user-shield"></i> Iniciar sesión</h2>
+  <p>Sistema de Ventas al Por Mayor</p>
+  <div class="login-mayor-field"><input id="loginMayorUsuario" type="text" autocomplete="username" placeholder="Usuario"></div>
+  <div class="login-mayor-field"><input id="loginMayorClave" type="password" autocomplete="current-password" placeholder="Contraseña"></div>
+  <button id="loginMayorBtn" type="button">Ingresar</button>
+  <div id="loginMayorError"></div>
+ </div>
+</div>
+
 <div class="loader" id="loader">
     <div class="spinner"></div>
     <p>Procesando pedido...</p>
@@ -941,7 +971,7 @@ button:active { transform: translateY(-1px); }
                     <i class="fas fa-store"></i> Todoenuno_store
                 </div>
             </div>
-            <h1>Formulario de Ventas al Por Mayor</h1>
+            <h1>Formulario de Ventas al Por Mayor</h1><div id="usuarioMayorBar"><span><i class="fas fa-user-circle"></i> <strong id="usuarioMayorNombre"></strong> · <span id="usuarioMayorRol"></span></span><button id="logoutMayorBtn" type="button"><i class="fas fa-sign-out-alt"></i> Salir</button></div>
             <form id="pedidoMayorForm">
                 <div class="form-group">
                     <div class="input-with-icon">
@@ -1220,10 +1250,6 @@ button:active { transform: translateY(-1px); }
                     </button>
                 </div>
             </div>
-            <div class="detalle-alistar" id="detalleAlistar">
-                <h4><i class="fas fa-list"></i> Detalle de items</h4>
-                <div id="detalleLista"></div>
-            </div>
         </div>
     </div>
 </div>
@@ -1257,32 +1283,32 @@ button:active { transform: translateY(-1px); }
     </div>
 </div>
 <div class="modal-overlay" id="modalCantidad" style="display: none;">
-    <div class="modal-content" style="max-width: 450px;">
+    <div class="modal-content" style="max-width: 620px;">
         <div class="modal-header">
-            <h3 id="modalCantidadTitulo"><i class="fas fa-cubes"></i> Cantidad de paquetes</h3>
+            <h3 id="modalCantidadTitulo"><i class="fas fa-boxes"></i> Preparar producto del pedido</h3>
             <button class="modal-close" id="closeModalCantidad">&times;</button>
         </div>
-        <div style="text-align: center; padding: 10px 0;">
-            <div style="margin-bottom: 15px;">
-                <img id="modalProductoImagen" src="" alt="Producto" style="max-width: 120px; max-height: 120px; border-radius: 8px; border: 1px solid #ddd; display: none;">
+        <div style="padding: 10px 0;">
+            <div style="text-align:center;margin-bottom:12px;"><img id="modalProductoImagen" src="" alt="Producto" style="max-width:120px;max-height:120px;border-radius:8px;border:1px solid #ddd;display:none;margin:auto;"></div>
+            <p id="modalProductoNombre" style="font-weight:bold;font-size:18px;color:#2c3e50;margin-bottom:5px;text-align:center;"></p>
+            <p id="modalProductoDuplicado" style="font-size:14px;color:#e67e22;margin-bottom:12px;display:none;text-align:center;"><i class="fas fa-info-circle"></i> <span id="mensajeDuplicado"></span></p>
+            <div id="modalEquivalencias" style="background:#f7f9fa;border:1px solid #e3e8ec;border-radius:10px;padding:10px 12px;margin-bottom:12px;font-size:14px;color:#455a64;"></div>
+            <div id="stockConsultaBox" style="background:#fff8e1;border:1px solid #ffe082;border-radius:10px;padding:12px;margin-bottom:15px;">
+                <div style="font-weight:bold;color:#6d4c41;margin-bottom:7px;"><i class="fas fa-warehouse"></i> Dónde hay stock registrado</div>
+                <div id="stockConsultaContenido" style="font-size:14px;color:#555;">Consultando stock...</div>
+                <div style="font-size:12px;color:#777;margin-top:7px;">Solo informativo: este pedido no descuenta ni mueve mercadería.</div>
             </div>
-            <p id="modalProductoNombre" style="font-weight: bold; font-size: 18px; color: #2c3e50; margin-bottom: 5px;"></p>
-            <p id="modalProductoDuplicado" style="font-size: 14px; color: #e67e22; margin-bottom: 15px; display: none;">
-                <i class="fas fa-info-circle"></i> <span id="mensajeDuplicado"></span>
-            </p>
-            <p id="modalCantidadDesc" style="margin-bottom: 20px; color: #555; font-size: 16px;">¿Cuántos paquetes deseas?</p>
-            <div style="display: flex; justify-content: center; align-items: center; gap: 20px;">
-                <button type="button" id="cantidadMenos" class="btn-secondary" style="width: 50px; padding: 10px; font-size: 24px; border-radius: 50%;">−</button>
-                <span id="cantidadValor" style="font-size: 32px; font-weight: bold; min-width: 70px;">1</span>
-                <button type="button" id="cantidadMas" class="btn-secondary" style="width: 50px; padding: 10px; font-size: 24px; border-radius: 50%;">+</button>
+            <p id="modalCantidadDesc" style="margin-bottom:12px;color:#555;font-size:15px;text-align:center;">Indica cómo lo pidió el cliente</p>
+            <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
+                <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>CAJAS</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('cajas',-1)" style="padding:5px 10px;">−</button><span id="pedidoCajas" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('cajas',1)" style="padding:5px 10px;">+</button></div></div>
+                <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>PAQUETES</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('paquetes',-1)" style="padding:5px 10px;">−</button><span id="pedidoPaquetes" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('paquetes',1)" style="padding:5px 10px;">+</button></div></div>
+                <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>UNIDADES</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('unidades',-1)" style="padding:5px 10px;">−</button><span id="pedidoUnidades" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('unidades',1)" style="padding:5px 10px;">+</button></div></div>
             </div>
-            <div style="margin-top: 25px; display: flex; gap: 15px; justify-content: center;">
-                <button type="button" id="confirmarCantidad" class="btn-success" style="width: auto; padding: 12px 35px; font-size: 16px;">
-                    <i class="fas fa-check"></i> Aceptar
-                </button>
-                <button type="button" id="cancelarCantidad" class="btn-danger" style="width: auto; padding: 12px 35px; font-size: 16px;">
-                    <i class="fas fa-times"></i> Cancelar
-                </button>
+            <div id="medioPaqueteWrap" style="text-align:center;margin:8px 0 12px;display:none;"><button type="button" id="medioPaqueteBtn" class="btn-secondary" style="width:auto;padding:7px 14px;"><i class="fas fa-divide"></i> Agregar ½ paquete</button></div>
+            <div id="resumenPresentacionPedido" style="text-align:center;font-weight:bold;color:#2c3e50;min-height:22px;margin-bottom:12px;">Selecciona una cantidad</div>
+            <div style="margin-top:15px;display:flex;gap:15px;justify-content:center;">
+                <button type="button" id="confirmarCantidad" class="btn-success" style="width:auto;padding:12px 35px;font-size:16px;"><i class="fas fa-check"></i> Usar en pedido</button>
+                <button type="button" id="cancelarCantidad" class="btn-danger" style="width:auto;padding:12px 35px;font-size:16px;"><i class="fas fa-times"></i> Cancelar</button>
             </div>
         </div>
     </div>
@@ -1313,6 +1339,55 @@ function formatearPrecio(valor) {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
+    const LOGIN_SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok/export?format=csv';
+    let usuariosMayor = [];
+    let usuarioMayorActual = null;
+    const norm = v => String(v ?? '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+    const parseCSVLogin = csv => {
+        const rows=[]; let row=[], field='', q=false;
+        for(let i=0;i<csv.length;i++){ const c=csv[i], n=csv[i+1];
+            if(c==='"'){ if(q&&n==='"'){field+='"';i++;} else q=!q; }
+            else if(c===','&&!q){row.push(field.trim());field='';}
+            else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n')i++;row.push(field.trim());field='';if(row.some(Boolean))rows.push(row);row=[];}
+            else field+=c;
+        }
+        if(field||row.length){row.push(field.trim());if(row.some(Boolean))rows.push(row)} return rows;
+    };
+    function idxAny(headers, names){ for(const n of names){const i=headers.indexOf(n);if(i>=0)return i;} return -1; }
+    async function cargarUsuariosMayor(){
+        const r=await fetch(LOGIN_SHEET_CSV,{cache:'no-store'}); if(!r.ok) throw new Error('No se pudo leer el Sheet de usuarios');
+        const rows=parseCSVLogin(await r.text()); if(rows.length<2) throw new Error('El Sheet de usuarios está vacío');
+        const h=rows[0].map(norm);
+        const iu=idxAny(h,['usuario','user','username','nombre de usuario','nombre_usuario']);
+        const ip=idxAny(h,['contrasena','contraseña','clave','password','pass']);
+        const ir=idxAny(h,['rol','tipo','cargo','perfil']);
+        const inombre=idxAny(h,['nombre','nombre completo','nombre_completo','vendedor']);
+        if(iu<0||ip<0||ir<0) throw new Error('El Sheet debe tener columnas de usuario, contraseña/clave y rol');
+        usuariosMayor=rows.slice(1).filter(r=>r[iu]&&r[ip]).map(r=>({usuario:String(r[iu]).trim(),clave:String(r[ip]).trim(),rol:String(r[ir]||'Vendedor').trim(),nombre:String(inombre>=0&&r[inombre]?r[inombre]:r[iu]).trim()}));
+    }
+    function mostrarSesionMayor(u){
+        usuarioMayorActual=u; window.usuarioMayorActual=u;
+        document.getElementById('loginMayorOverlay').style.display='none';
+        document.getElementById('usuarioMayorBar').style.display='flex';
+        document.getElementById('usuarioMayorNombre').textContent=u.nombre||u.usuario;
+        document.getElementById('usuarioMayorRol').textContent=u.rol;
+    }
+    async function intentarLoginMayor(){
+        const err=document.getElementById('loginMayorError'), btn=document.getElementById('loginMayorBtn'); err.style.display='none'; btn.disabled=true; btn.textContent='Verificando...';
+        try{
+            if(!usuariosMayor.length) await cargarUsuariosMayor();
+            const usuario=document.getElementById('loginMayorUsuario').value.trim(), clave=document.getElementById('loginMayorClave').value;
+            const u=usuariosMayor.find(x=>norm(x.usuario)===norm(usuario)&&x.clave===clave);
+            if(!u) throw new Error('Usuario o contraseña incorrectos');
+            if(!['administrador','admin','vendedor'].includes(norm(u.rol))) throw new Error('Este usuario no tiene rol Administrador o Vendedor');
+            mostrarSesionMayor(u);
+        }catch(e){err.textContent=e.message||'No se pudo iniciar sesión';err.style.display='block';}
+        finally{btn.disabled=false;btn.textContent='Ingresar';}
+    }
+    document.getElementById('loginMayorBtn').addEventListener('click',intentarLoginMayor);
+    ['loginMayorUsuario','loginMayorClave'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')intentarLoginMayor()}));
+    document.getElementById('logoutMayorBtn').addEventListener('click',()=>{usuarioMayorActual=null;window.usuarioMayorActual=null;document.getElementById('usuarioMayorBar').style.display='none';document.getElementById('loginMayorClave').value='';document.getElementById('loginMayorOverlay').style.display='flex';document.getElementById('loginMayorUsuario').focus();});
+    cargarUsuariosMayor().catch(()=>{});
 
     const departmentSelect = document.getElementById('department');
     const provinciaRadio = document.getElementById('provinciaSantaCruz');
@@ -1362,8 +1437,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const transportadoraEspecificaInput = document.getElementById('transportadoraEspecifica');
     const loader = document.getElementById('loader');
     const agendarOtroPedidoBtn = document.getElementById('agendarOtroPedidoBtn');
-    const detalleAlistar = document.getElementById('detalleAlistar');
-    const detalleLista = document.getElementById('detalleLista');
     const lightbox = document.getElementById('imageLightbox');
     const closeBtn = document.getElementById('lightboxCloseBtn');
     const envioSinCostoCheck = document.getElementById('envioSinCosto');
@@ -1374,11 +1447,8 @@ document.addEventListener('DOMContentLoaded', function() {
     const modalProductoDuplicado = document.getElementById('modalProductoDuplicado');
     const mensajeDuplicado = document.getElementById('mensajeDuplicado');
     const closeModalCantidad = document.getElementById('closeModalCantidad');
-    const cantidadMenos = document.getElementById('cantidadMenos');
-    const cantidadMas = document.getElementById('cantidadMas');
     const confirmarCantidad = document.getElementById('confirmarCantidad');
     const cancelarCantidad = document.getElementById('cancelarCantidad');
-    const cantidadValor = document.getElementById('cantidadValor');
 
     let items = [];
     let total = 0;
@@ -1387,7 +1457,10 @@ document.addEventListener('DOMContentLoaded', function() {
     let estadoPago = 'Pendiente';
     let productosData = [];
     let precioEditado = false;
-    let cantidadSeleccionada = 1;
+    let cantidadesPedido = { cajas: 0, paquetes: 0, unidades: 0 };
+    let seleccionPedidoPendiente = null;
+    let stockDataMayorista = [];
+    const STOCK_API_URL = 'https://sheetdb.io/api/v1/ls2s3slkkege5';
     let productoSeleccionado = null;
     let unidadesPorPaquete = 0;
     let textoUnidad = '';
@@ -1595,89 +1668,129 @@ document.addEventListener('DOMContentLoaded', function() {
         precioEditado = true;
     });
 
-    // ========== MODAL CANTIDAD ==========
+    // ========== MODAL INTELIGENTE DE PRESENTACION + CONSULTA DE STOCK ==========
+    function normalizarNombreStock(t) {
+        return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
+    }
+
+    async function cargarStockMayorista() {
+        try {
+            const r = await fetch(`${STOCK_API_URL}?sheet=stock`);
+            if (!r.ok) throw new Error('Stock no disponible');
+            const data = await r.json();
+            stockDataMayorista = Array.isArray(data) ? data : [];
+        } catch (e) {
+            console.warn('No se pudo consultar stock:', e);
+            stockDataMayorista = [];
+        }
+    }
+
+    function stockDelProducto(producto) {
+        const n = normalizarNombreStock(producto.nombre);
+        return stockDataMayorista.filter(x => normalizarNombreStock(x.nombre) === n);
+    }
+
+    function nStock(v) { const n = parseFloat(String(v ?? '').replace(',','.')); return isNaN(n) ? 0 : n; }
+
+    function renderStockConsulta(producto) {
+        const box = document.getElementById('stockConsultaContenido');
+        const filas = stockDelProducto(producto);
+        if (!filas.length) {
+            box.innerHTML = '<b>Sin stock registrado todavía.</b><br><span style="color:#777">Puedes continuar tomando el pedido normalmente.</span>';
+            return;
+        }
+        box.innerHTML = filas.map(x => {
+            const partes=[];
+            if(nStock(x.cajas)) partes.push(`${nStock(x.cajas)} caja(s)`);
+            if(nStock(x.paquetes)) partes.push(`${nStock(x.paquetes)} paquete(s)`);
+            if(nStock(x.unidades)) partes.push(`${nStock(x.unidades)} unidad(es)`);
+            return `<div style="padding:5px 0;border-bottom:1px solid #f0e4bd"><b>${x.ubicacion || 'Sin ubicación'}</b>: ${partes.length ? partes.join(' · ') : '0'}</div>`;
+        }).join('');
+    }
+
+    function obtenerEmpaqueProducto(producto) {
+        const filas = stockDelProducto(producto);
+        const up = filas.map(x=>nStock(x.unidades_por_paquete)).find(Boolean) || producto.numUnidades || 0;
+        const pc = filas.map(x=>nStock(x.paquetes_por_caja)).find(Boolean) || 0;
+        return { unidadesPorPaquete: up, paquetesPorCaja: pc };
+    }
+
+    function actualizarModalPedido() {
+        document.getElementById('pedidoCajas').textContent = cantidadesPedido.cajas;
+        document.getElementById('pedidoPaquetes').textContent = cantidadesPedido.paquetes;
+        document.getElementById('pedidoUnidades').textContent = cantidadesPedido.unidades;
+        if (!productoSeleccionado) return;
+        const e = obtenerEmpaqueProducto(productoSeleccionado);
+        const partes=[];
+        if(cantidadesPedido.cajas) partes.push(`${cantidadesPedido.cajas} caja(s)`);
+        if(cantidadesPedido.paquetes) partes.push(`${cantidadesPedido.paquetes} paquete(s)`);
+        if(cantidadesPedido.unidades) partes.push(`${cantidadesPedido.unidades} unidad(es)`);
+        let eq = 0;
+        if(e.unidadesPorPaquete) {
+            eq += cantidadesPedido.paquetes * e.unidadesPorPaquete + cantidadesPedido.unidades;
+            if(e.paquetesPorCaja) eq += cantidadesPedido.cajas * e.paquetesPorCaja * e.unidadesPorPaquete;
+        }
+        document.getElementById('resumenPresentacionPedido').textContent = partes.length ? `${partes.join(' + ')}${eq ? ` = ${eq} unidades equivalentes` : ''}` : 'Selecciona una cantidad';
+    }
+
+    window.cambiarPresentacionPedido = function(tipo, delta) {
+        cantidadesPedido[tipo] = Math.max(0, (cantidadesPedido[tipo] || 0) + delta);
+        actualizarModalPedido();
+    };
+
     function mostrarModalCantidad(producto) {
         productoSeleccionado = producto;
-        unidadesPorPaquete = producto.numUnidades || 1;
+        unidadesPorPaquete = producto.numUnidades || 0;
         textoUnidad = producto.textoUnidad || 'UNIDADES';
-
-        if (producto.imagen) {
-            modalProductoImagen.src = producto.imagen;
-            modalProductoImagen.style.display = 'block';
-        } else {
-            modalProductoImagen.style.display = 'none';
-        }
-
+        cantidadesPedido = { cajas:0, paquetes:0, unidades:0 };
+        seleccionPedidoPendiente = null;
+        if (producto.imagen) { modalProductoImagen.src = producto.imagen; modalProductoImagen.style.display='block'; } else modalProductoImagen.style.display='none';
         modalProductoNombre.textContent = producto.nombre;
-
-        const nombreBase = producto.nombre.toLowerCase();
-        let cantidadAgregada = 0;
-        items.forEach(item => {
-            if (item.descripcion.toLowerCase().includes(nombreBase)) {
-                cantidadAgregada++;
-            }
-        });
-
-        if (cantidadAgregada > 0) {
-            modalProductoDuplicado.style.display = 'block';
-            mensajeDuplicado.textContent = `⚠️ Ya tienes agregado ${cantidadAgregada} paquete(s) de este producto.`;
-        } else {
-            modalProductoDuplicado.style.display = 'none';
-        }
-
-        document.getElementById('modalCantidadDesc').textContent = 
-            `¿Cuántos paquetes de ${unidadesPorPaquete} ${textoUnidad} deseas?`;
-
-        cantidadSeleccionada = 1;
-        cantidadValor.textContent = '1';
-        modalCantidad.style.display = 'flex';
+        const repetidos = items.filter(item => item.productoRef && normalizarNombreStock(item.productoRef.nombre) === normalizarNombreStock(producto.nombre)).length;
+        if (repetidos) { modalProductoDuplicado.style.display='block'; mensajeDuplicado.textContent=`Ya tienes este producto agregado ${repetidos} vez/veces en el pedido.`; } else modalProductoDuplicado.style.display='none';
+        const e = obtenerEmpaqueProducto(producto);
+        const equivalencias=[];
+        if(e.unidadesPorPaquete) equivalencias.push(`1 paquete = ${e.unidadesPorPaquete} unidades`);
+        if(e.paquetesPorCaja) equivalencias.push(`1 caja = ${e.paquetesPorCaja} paquetes${e.unidadesPorPaquete ? ` = ${e.paquetesPorCaja*e.unidadesPorPaquete} unidades` : ''}`);
+        document.getElementById('modalEquivalencias').innerHTML = equivalencias.length ? `<b>Presentación registrada:</b> ${equivalencias.join(' · ')}` : '<b>Presentación:</b> todavía sin equivalencias registradas en Stock.';
+        const medio = document.getElementById('medioPaqueteWrap');
+        medio.style.display = e.unidadesPorPaquete >= 2 ? 'block' : 'none';
+        renderStockConsulta(producto);
+        actualizarModalPedido();
+        modalCantidad.style.display='flex';
     }
 
-    function cerrarModalCantidad() {
-        modalCantidad.style.display = 'none';
-        productoSeleccionado = null;
-    }
-
-    function actualizarCantidadValor() {
-        cantidadValor.textContent = cantidadSeleccionada;
-    }
-
-    cantidadMenos.addEventListener('click', function() {
-        if (cantidadSeleccionada > 1) {
-            cantidadSeleccionada--;
-            actualizarCantidadValor();
-        }
-    });
-
-    cantidadMas.addEventListener('click', function() {
-        cantidadSeleccionada++;
-        actualizarCantidadValor();
-    });
-
+    function cerrarModalCantidad() { modalCantidad.style.display='none'; productoSeleccionado=null; }
     closeModalCantidad.addEventListener('click', cerrarModalCantidad);
     cancelarCantidad.addEventListener('click', cerrarModalCantidad);
+    document.getElementById('medioPaqueteBtn').addEventListener('click', function(){
+        if(!productoSeleccionado) return;
+        const e=obtenerEmpaqueProducto(productoSeleccionado);
+        if(e.unidadesPorPaquete >= 2) { cantidadesPedido.unidades += Math.floor(e.unidadesPorPaquete/2); actualizarModalPedido(); }
+    });
 
     confirmarCantidad.addEventListener('click', function() {
-        if (productoSeleccionado) {
-            const cantidad = cantidadSeleccionada;
-            const numUnidades = productoSeleccionado.numUnidades || 1;
-            const textoUnidad = productoSeleccionado.textoUnidad || 'UNIDADES';
-            const precioTotal = productoSeleccionado.precioPaquete * cantidad;
-            montoProducto.value = formatearPrecio(precioTotal);
-            const descripcionBase = productoSeleccionado.nombre;
-            const nuevaDesc = `${cantidad} paquetes de ${numUnidades} ${textoUnidad} ${descripcionBase}`;
-            descripcionProducto.value = nuevaDesc;
-            precioEditado = false;
-            cerrarModalCantidad();
-            montoProducto.focus();
-        } else {
-            cerrarModalCantidad();
+        if(!productoSeleccionado) return cerrarModalCantidad();
+        const c=cantidadesPedido.cajas, p=cantidadesPedido.paquetes, u=cantidadesPedido.unidades;
+        if(c+p+u <= 0) { Notificaciones.mostrar('Selecciona al menos una caja, paquete o unidad', 'error'); return; }
+        const e=obtenerEmpaqueProducto(productoSeleccionado);
+        const partes=[];
+        if(c) partes.push(`${c} caja(s)`); if(p) partes.push(`${p} paquete(s)`); if(u) partes.push(`${u} unidad(es)`);
+        const precioPaquete=productoSeleccionado.precioPaquete || 0;
+        let precioTotal=0;
+        if(precioPaquete) {
+            precioTotal += p*precioPaquete;
+            if(e.unidadesPorPaquete) precioTotal += u*(precioPaquete/e.unidadesPorPaquete);
+            if(e.paquetesPorCaja) precioTotal += c*e.paquetesPorCaja*precioPaquete;
         }
+        montoProducto.value = precioTotal ? formatearPrecio(precioTotal) : '';
+        descripcionProducto.value = `${partes.join(' + ')} - ${productoSeleccionado.nombre}`;
+        seleccionPedidoPendiente = { cajas:c, paquetes:p, unidades:u, unidades_por_paquete:e.unidadesPorPaquete||0, paquetes_por_caja:e.paquetesPorCaja||0, unidades_equivalentes:e.unidadesPorPaquete ? (u + p*e.unidadesPorPaquete + (e.paquetesPorCaja ? c*e.paquetesPorCaja*e.unidadesPorPaquete : 0)) : 0 };
+        precioEditado=false;
+        cerrarModalCantidad();
+        montoProducto.focus();
     });
-
-    modalCantidad.addEventListener('click', function(e) {
-        if (e.target === modalCantidad) cerrarModalCantidad();
-    });
+    modalCantidad.addEventListener('click', function(e){ if(e.target===modalCantidad) cerrarModalCantidad(); });
 
     class Notificaciones {
         static mostrar(mensaje, tipo = 'success', duracion = 3000) {
@@ -1771,8 +1884,15 @@ document.addEventListener('DOMContentLoaded', function() {
                 productosLista.appendChild(productoItem);
                 subtotal += item.monto;
             });
-            document.querySelectorAll('.ver-detalle-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) { e.preventDefault(); mostrarDetalleCompleto(); });
+            productosLista.querySelectorAll('.ver-detalle-btn').forEach(btn => {
+                btn.addEventListener('click', function(e) {
+                    e.preventDefault();
+                    const index = parseInt(this.getAttribute('data-index'));
+                    const item = items[index];
+                    if (!item) return;
+                    let found = item.productoRef || encontrarProductoEnDescripcion(item.descripcion);
+                    if (found && found.imagen) abrirLightbox(found.imagen);
+                });
             });
             document.querySelectorAll('.editar-btn').forEach(btn => {
                 btn.addEventListener('click', function(e) {
@@ -1795,33 +1915,6 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarAlistamiento();
     }
 
-    function mostrarDetalleCompleto() {
-        if (items.length === 0) {
-            detalleAlistar.classList.remove('active');
-            detalleLista.innerHTML = '';
-            return;
-        }
-        detalleAlistar.classList.add('active');
-        let html = '';
-        items.forEach((item, idx) => {
-            let found = item.productoRef || null;
-            if (!found) found = encontrarProductoEnDescripcion(item.descripcion);
-            const imgSrc = found && found.imagen ? found.imagen : '';
-            const seccion = found ? found.seccion : '';
-            html += `
-                <div class="detalle-item">
-                    <img src="${imgSrc}" alt="${item.descripcion}" onclick="abrirLightbox('${imgSrc}')">
-                    <div class="info">
-                        <strong>${item.descripcion}</strong>
-                        <span>${formatearPrecio(item.monto)} Bs</span>
-                        ${seccion ? `<p>${seccion}</p>` : ''}
-                    </div>
-                </div>
-            `;
-        });
-        detalleLista.innerHTML = html;
-    }
-
     function actualizarAlistamiento() {
         alistarItems.innerHTML = '';
         if (items.length === 0) {
@@ -1829,49 +1922,42 @@ document.addEventListener('DOMContentLoaded', function() {
             progressFill.style.width = '0%';
             progressText.textContent = 'Progreso: 0%';
             alistarStats.textContent = '0/0 items';
-            detalleAlistar.classList.remove('active');
-            detalleLista.innerHTML = '';
             return;
         }
         items.forEach((item, index) => {
+            let found = item.productoRef || null;
+            if (!found) found = encontrarProductoEnDescripcion(item.descripcion);
+            const imgSrc = found && found.imagen ? found.imagen : '';
+            const seccion = found ? found.seccion : '';
             const itemDiv = document.createElement('div');
             itemDiv.className = `alistar-item ${item.alistado ? 'checked' : ''}`;
             itemDiv.setAttribute('data-index', index);
             itemDiv.innerHTML = `
                 <input type="checkbox" class="alistar-checkbox" data-index="${index}" ${item.alistado ? 'checked' : ''}>
+                ${imgSrc ? `<img class="alistar-item-img" src="${imgSrc}" alt="${item.descripcion}">` : `<div class="alistar-item-img alistar-img-placeholder"><i class="fas fa-box"></i></div>`}
                 <div class="alistar-item-info">
                     <div class="alistar-item-name">${item.descripcion}</div>
                     <div class="alistar-item-price">${formatearPrecio(item.monto)} Bs</div>
+                    ${seccion ? `<div class="alistar-item-section">${seccion}</div>` : ''}
                 </div>
-                <button type="button" class="ver-detalle-btn" data-index="${index}" style="width:auto; padding:5px 10px; background:#28a745; border-radius:8px; border:none; color:white; cursor:pointer;">
-                    <i class="fas fa-eye"></i>
-                </button>
+                ${imgSrc ? `<button type="button" class="ver-detalle-btn" data-index="${index}" title="Ver imagen"><i class="fas fa-eye"></i></button>` : ''}
             `;
             alistarItems.appendChild(itemDiv);
+            const img = itemDiv.querySelector('.alistar-item-img:not(.alistar-img-placeholder)');
+            if (img) img.addEventListener('click', () => abrirLightbox(imgSrc));
             const verBtn = itemDiv.querySelector('.ver-detalle-btn');
-            verBtn.addEventListener('click', function(e) {
-                e.stopPropagation();
-                mostrarDetalleCompleto();
-                const checkbox = itemDiv.querySelector('.alistar-checkbox');
-                if (!checkbox.checked) {
-                    checkbox.checked = true;
-                    checkbox.dispatchEvent(new Event('change'));
-                }
-            });
-            itemDiv.addEventListener('mouseenter', function(e) { mostrarDetalleCompleto(); });
+            if (verBtn) verBtn.addEventListener('click', function(e) { e.stopPropagation(); abrirLightbox(imgSrc); });
             const checkbox = itemDiv.querySelector('.alistar-checkbox');
-            checkbox.addEventListener('change', function(e) {
+            checkbox.addEventListener('change', function() {
                 const idx = parseInt(this.dataset.index);
                 if (items[idx]) {
                     items[idx].alistado = this.checked;
                     itemDiv.className = `alistar-item ${items[idx].alistado ? 'checked' : ''}`;
                     actualizarProgreso();
-                    mostrarDetalleCompleto();
                 }
             });
         });
         actualizarProgreso();
-        mostrarDetalleCompleto();
     }
 
     function actualizarProgreso() {
@@ -1915,6 +2001,7 @@ document.addEventListener('DOMContentLoaded', function() {
         montoProducto.value = '';
         editingIndex = null;
         precioEditado = false;
+        seleccionPedidoPendiente = null;
     }
 
     function guardarCambiosProducto() {
@@ -1941,7 +2028,9 @@ document.addEventListener('DOMContentLoaded', function() {
         const nuevoItem = { descripcion, monto, alistado: false };
         const encontrado = encontrarProductoEnDescripcion(descripcion);
         if (encontrado) nuevoItem.productoRef = encontrado;
+        if (seleccionPedidoPendiente) nuevoItem.salidaPedido = { ...seleccionPedidoPendiente };
         items.push(nuevoItem);
+        seleccionPedidoPendiente = null;
         actualizarListaItems();
         descripcionProducto.value = '';
         montoProducto.value = '';
@@ -2427,8 +2516,6 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('santaCruzSection').style.display = 'none';
         document.getElementById('transportadoraSection').style.display = 'none';
         previewContainer.style.display = 'none';
-        detalleAlistar.classList.remove('active');
-        detalleLista.innerHTML = '';
         estadoPendiente.checked = true;
         actualizarBadgeEstadoPago();
         actualizarFondoPorEstadoPago();
@@ -2571,6 +2658,7 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarFondoPorEstadoPago();
         document.getElementById('fullName').focus();
         cargarProductosDesdeSheets();
+        cargarStockMayorista();
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') cerrarLightbox();
