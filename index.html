@@ -309,6 +309,13 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 </style>
 </head>
 <body>
+<div id="imageLightbox" class="lightbox" aria-hidden="true">
+  <div class="lightbox-content">
+    <button type="button" class="lightbox-close" id="lightboxCloseBtn" aria-label="Cerrar">&times;</button>
+    <img id="lightboxImage" src="" alt="Vista ampliada">
+  </div>
+</div>
+
 
 <div id="loginScreen" class="login-container">
     <h1 class="login-title"><i class="fas fa-store"></i> Todoenuno_store</h1>
@@ -762,7 +769,7 @@ async function procesarMovimientosVenta(venta){
         if(!d.productoCatalogo) continue;
         const row=stockCoincidente(d.nombre,d.ubicacion);
         const now=new Date(), fecha=now.toLocaleDateString('es-ES'), hora=now.toLocaleTimeString('es-ES');
-        const base={id:`MOV-${venta.id}-${Math.random().toString(36).slice(2,7).toUpperCase()}`,fecha,hora,producto:d.nombre,seccion:d.seccion||'',tipo:'SALIDA',presentacion:d.presentacion,cantidad:d.cantidad,unidades_equivalentes:d.unidadesEquivalentes||'',origen:d.ubicacion||venta.sucursal,destino:'CLIENTE',motivo:'VENTA',usuario:venta.usuario||'',sucursal:venta.sucursal||'',referencia:`VENTA-${venta.id}`};
+        const base={id:`MOV-${venta.referencia_venta || venta.id}-${Math.random().toString(36).slice(2,7).toUpperCase()}`,fecha,hora,producto:d.nombre,seccion:d.seccion||'',tipo:'SALIDA',presentacion:d.presentacion,cantidad:d.cantidad,unidades_equivalentes:d.unidadesEquivalentes||'',origen:d.ubicacion||venta.sucursal,destino:'CLIENTE',motivo:'VENTA',usuario:venta.usuario||'',sucursal:venta.sucursal||'',referencia:`VENTA-${venta.referencia_venta || venta.id}`};
         if(!row){ await postMovimiento({...base,cajas_anterior:'',paquetes_anterior:'',unidades_anterior:'',cajas_nueva:'',paquetes_nueva:'',unidades_nueva:'',estado:'PENDIENTE_STOCK'}); continue; }
         let nuevo;
         if(d.presentacion==='mixto' && d.detalleFisico){
@@ -1879,7 +1886,9 @@ function guardarVentaLocal() {
     else { metodoPagoData.monto_efectivo = ''; metodoPagoData.monto_qr = ''; }
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const diaSemana = dias[new Date().getDay()];
-    const datosVenta = { id: Date.now(), nombre_cliente: (String(nombreClienteActual || '').trim() || 'Cliente General'), telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'paquete',cantidad:i.cantidadFisica||1,ubicacion:i.ubicacionSalida||'',unidadesEquivalentes:i.unidadesEquivalentes||'', detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, ...metodoPagoData };
+    const idVentaInterno = Date.now();
+    const clienteVenta = String(nombreClienteActual || '').trim() || 'Cliente General';
+    const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'paquete',cantidad:i.cantidadFisica||1,ubicacion:i.ubicacionSalida||'',unidadesEquivalentes:i.unidadesEquivalentes||'', detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, ...metodoPagoData };
     ventasDelDia.push(datosVenta);
     localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
     ventasCajaActual.push(datosVenta);
@@ -2621,14 +2630,18 @@ function abrirLightbox(src) {
     if (!src) return;
     const lightbox = document.getElementById('imageLightbox');
     const lightboxImg = document.getElementById('lightboxImage');
-    if (lightbox && lightboxImg) {
-        lightboxImg.src = src;
-        lightbox.classList.add('active');
-    }
+    if (!lightbox || !lightboxImg) return;
+    lightboxImg.src = src;
+    lightbox.classList.add('active');
+    lightbox.style.display = 'flex';
+    lightbox.setAttribute('aria-hidden', 'false');
 }
 function cerrarLightbox() {
     const lightbox = document.getElementById('imageLightbox');
-    if (lightbox) lightbox.classList.remove('active');
+    if (!lightbox) return;
+    lightbox.classList.remove('active');
+    lightbox.style.display = 'none';
+    lightbox.setAttribute('aria-hidden', 'true');
 }
 
 function actualizarListaItems() {
