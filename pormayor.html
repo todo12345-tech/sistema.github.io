@@ -1300,11 +1300,14 @@ button:active { transform: translateY(-1px); }
             </div>
             <p id="modalCantidadDesc" style="margin-bottom:12px;color:#555;font-size:15px;text-align:center;">Indica cómo lo pidió el cliente</p>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
-                <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>CAJAS</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('cajas',-1)" style="padding:5px 10px;">−</button><span id="pedidoCajas" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('cajas',1)" style="padding:5px 10px;">+</button></div></div>
-                <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>PAQUETES</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('paquetes',-1)" style="padding:5px 10px;">−</button><span id="pedidoPaquetes" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('paquetes',1)" style="padding:5px 10px;">+</button></div></div>
-                <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>UNIDADES</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('unidades',-1)" style="padding:5px 10px;">−</button><span id="pedidoUnidades" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" onclick="cambiarPresentacionPedido('unidades',1)" style="padding:5px 10px;">+</button></div></div>
+                <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>CAJAS</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" data-ptipo="cajas" data-pdelta="-1" onclick="cambiarPresentacionPedido('cajas',-1)" style="padding:5px 10px;">−</button><span id="pedidoCajas" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" data-ptipo="cajas" data-pdelta="1" onclick="cambiarPresentacionPedido('cajas',1)" style="padding:5px 10px;">+</button></div></div>
+                <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>PAQUETES</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" data-ptipo="paquetes" data-pdelta="-1" onclick="cambiarPresentacionPedido('paquetes',-1)" style="padding:5px 10px;">−</button><span id="pedidoPaquetes" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" data-ptipo="paquetes" data-pdelta="1" onclick="cambiarPresentacionPedido('paquetes',1)" style="padding:5px 10px;">+</button></div></div>
+                <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>UNIDADES</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" data-ptipo="unidades" data-pdelta="-1" onclick="cambiarPresentacionPedido('unidades',-1)" style="padding:5px 10px;">−</button><span id="pedidoUnidades" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" data-ptipo="unidades" data-pdelta="1" onclick="cambiarPresentacionPedido('unidades',1)" style="padding:5px 10px;">+</button></div></div>
             </div>
-            <div id="medioPaqueteWrap" style="text-align:center;margin:8px 0 12px;display:none;"><button type="button" id="medioPaqueteBtn" class="btn-secondary" style="width:auto;padding:7px 14px;"><i class="fas fa-divide"></i> Agregar ½ paquete</button></div>
+            <div style="display:flex;gap:10px;flex-wrap:wrap;justify-content:center;margin:8px 0 12px;">
+                <div id="medioPaqueteWrap" style="display:none;"><button type="button" id="medioPaqueteBtn" class="btn-secondary" style="width:auto;padding:7px 14px;"><i class="fas fa-divide"></i> Agregar ½ paquete</button></div>
+                <button type="button" id="resetCantidadPedidoBtn" class="btn-danger" style="width:auto;padding:7px 14px;"><i class="fas fa-rotate-left"></i> Resetear</button>
+            </div>
             <div id="resumenPresentacionPedido" style="text-align:center;font-weight:bold;color:#2c3e50;min-height:22px;margin-bottom:12px;">Selecciona una cantidad</div>
             <div style="margin-top:15px;display:flex;gap:15px;justify-content:center;">
                 <button type="button" id="confirmarCantidad" class="btn-success" style="width:auto;padding:12px 35px;font-size:16px;"><i class="fas fa-check"></i> Usar en pedido</button>
@@ -1465,6 +1468,7 @@ document.addEventListener('DOMContentLoaded', function() {
     let productoSeleccionado = null;
     let unidadesPorPaquete = 0;
     let textoUnidad = '';
+    let tipoPedidoActivo = 'unidades';
 
     // ========== CARGAR PRODUCTOS DESDE GOOGLE SHEETS ==========
     function cargarProductosDesdeSheets() {
@@ -1788,6 +1792,7 @@ document.addEventListener('DOMContentLoaded', function() {
         textoUnidad = producto.textoUnidad || 'UNIDADES';
         cantidadesPedido = { cajas:0, paquetes:0, unidades:0 };
         seleccionPedidoPendiente = null;
+        tipoPedidoActivo = 'unidades';
         if (producto.imagen) { modalProductoImagen.src = producto.imagen; modalProductoImagen.style.display='block'; } else modalProductoImagen.style.display='none';
         modalProductoNombre.textContent = producto.nombre;
         const repetidos = items.filter(item => item.productoRef && normalizarNombreStock(item.productoRef.nombre) === normalizarNombreStock(producto.nombre)).length;
@@ -1802,6 +1807,10 @@ document.addEventListener('DOMContentLoaded', function() {
         renderStockConsulta(producto);
         actualizarModalPedido();
         modalCantidad.style.display='flex';
+        setTimeout(function(){
+            const btn = modalCantidad.querySelector('[data-ptipo="unidades"][data-pdelta="1"]');
+            if (btn) btn.focus();
+        }, 0);
     }
 
     function cerrarModalCantidad() { modalCantidad.style.display='none'; productoSeleccionado=null; }
@@ -1811,6 +1820,51 @@ document.addEventListener('DOMContentLoaded', function() {
         if(!productoSeleccionado) return;
         const e=obtenerEmpaqueProducto(productoSeleccionado);
         if(e.unidadesPorPaquete >= 2) { cantidadesPedido.unidades += Math.floor(e.unidadesPorPaquete/2); actualizarModalPedido(); }
+    });
+
+    document.getElementById('resetCantidadPedidoBtn').addEventListener('click', function(){
+        cantidadesPedido = { cajas:0, paquetes:0, unidades:0 };
+        seleccionPedidoPendiente = null;
+        actualizarModalPedido();
+    });
+
+    document.querySelectorAll('[data-ptipo]').forEach(function(btn){
+        btn.addEventListener('focus', function(){ tipoPedidoActivo = btn.dataset.ptipo; });
+        btn.addEventListener('click', function(){ tipoPedidoActivo = btn.dataset.ptipo; });
+    });
+
+    modalCantidad.addEventListener('keydown', function(e){
+        if (modalCantidad.style.display !== 'flex') return;
+        if (['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) return;
+
+        if (e.key === 'ArrowRight') {
+            e.preventDefault();
+            cambiarPresentacionPedido(tipoPedidoActivo, 1);
+        } else if (e.key === 'ArrowLeft') {
+            e.preventDefault();
+            cambiarPresentacionPedido(tipoPedidoActivo, -1);
+        } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
+            e.preventDefault();
+            const tipos = ['cajas','paquetes','unidades'];
+            let i = tipos.indexOf(tipoPedidoActivo);
+            i = (i + (e.key === 'ArrowDown' ? 1 : -1) + tipos.length) % tipos.length;
+            tipoPedidoActivo = tipos[i];
+            const btn = modalCantidad.querySelector(`[data-ptipo="${tipoPedidoActivo}"][data-pdelta="1"]`);
+            if (btn) btn.focus();
+        } else if (e.key === 'Enter') {
+            e.preventDefault();
+            confirmarCantidad.click();
+        } else if (e.key.toLowerCase() === 'r') {
+            e.preventDefault();
+            document.getElementById('resetCantidadPedidoBtn').click();
+        } else if (e.key === 'Escape') {
+            e.preventDefault();
+            cerrarModalCantidad();
+        }
+    });
+
+    modalCantidad.addEventListener('click', function(e){
+        if (e.target === modalCantidad) cerrarModalCantidad();
     });
 
     confirmarCantidad.addEventListener('click', function() {
@@ -2086,6 +2140,48 @@ document.addEventListener('DOMContentLoaded', function() {
     function marcarTodos() { items.forEach(item => item.alistado = true); actualizarAlistamiento(); Notificaciones.mostrar('Todos los productos marcados como alistados', 'success'); }
     function desmarcarTodos() { items.forEach(item => item.alistado = false); actualizarAlistamiento(); Notificaciones.mostrar('Todos los productos desmarcados', 'info'); }
 
+
+    function interpretarLineaProductoPedido(linea) {
+        let s = String(linea || '').replace(/\*/g, '').trim();
+        if (!s.includes('➡️')) return null;
+        s = s.replace(/^.*?➡️\s*/, '').replace(/^\(\s*\d+\s*\)\s*/, '').trim();
+
+        // Precio al final: acepta " - 25 Bs", " - Bs 25", " = 25 Bs".
+        let monto = 0;
+        const pm = s.match(/\s+(?:-|=)\s*(?:Bs\.?\s*)?(\d+(?:[.,]\d{1,2})?)\s*(?:Bs\.?)?\s*$/i);
+        if (pm) {
+            monto = parseFloat(pm[1].replace(',', '.')) || 0;
+            s = s.slice(0, pm.index).trim();
+        }
+
+        const limpio = s.replace(/\s+/g, ' ').trim();
+        let cajas = 0, paquetes = 0, unidades = 0;
+
+        // Formato actual: "2 caja(s) + 3 paquete(s) + 4 unidad(es) - Producto".
+        const mc = limpio.match(/(\d+(?:[.,]\d+)?)\s*caja(?:s|\(s\))?/i);
+        const mp = limpio.match(/(\d+(?:[.,]\d+)?)\s*paquete(?:s|\(s\))?/i);
+        const mu = limpio.match(/(\d+(?:[.,]\d+)?)\s*unidad(?:es|\(es\))?/i);
+        if (mc) cajas = Number(mc[1].replace(',', '.')) || 0;
+        if (mp) paquetes = Number(mp[1].replace(',', '.')) || 0;
+        if (mu) unidades = Number(mu[1].replace(',', '.')) || 0;
+
+        // Todo lo anterior al último " - " es presentación; lo posterior es nombre.
+        let nombre = limpio;
+        const sep = limpio.lastIndexOf(' - ');
+        if (sep !== -1) {
+            const izquierda = limpio.slice(0, sep).trim();
+            const derecha = limpio.slice(sep + 3).trim();
+            if (/(?:caja|paquete|unidad)/i.test(izquierda) && derecha) nombre = derecha;
+        }
+
+        return {
+            descripcion: limpio,
+            nombreProducto: nombre,
+            monto,
+            detalleFisico: { cajas, paquetes, unidades }
+        };
+    }
+
     function cargarPedidoDesdeTexto() {
         const texto = textoPedidoCargar.value.trim();
         if (!texto) { Notificaciones.mostrar('Pega el texto del pedido primero', 'error'); return; }
@@ -2114,22 +2210,26 @@ document.addEventListener('DOMContentLoaded', function() {
                 }
                 else if (linea.toLowerCase().includes('envío sin costo') || linea.toLowerCase().includes('envio sin costo') || linea.toLowerCase().includes('sin costo - viernes') || linea.toLowerCase().includes('0 bs (envío sin costo') || linea.toLowerCase().includes('0 bs (envio sin costo')) datos.envioSinCosto = true;
                 else if (linea.includes('➡️')) {
-                    const partes = linea.split('➡️');
-                    if (partes.length >= 2) {
-                        let resto = partes[1].trim();
-                        resto = resto.replace(/^\([^)]*\)\s*/, '');
-                        const itemsPartes = resto.split(' - ');
-                        if (itemsPartes.length >= 2) {
-                            const descripcion = itemsPartes[0].trim();
-                            const montoTexto = itemsPartes[1].replace('Bs', '').trim();
-                            const monto = parseFloat(montoTexto);
-                            if (descripcion && !isNaN(monto)) {
-                                const nuevo = { descripcion, monto };
-                                const encontrado = encontrarProductoEnDescripcion(descripcion);
-                                if (encontrado) nuevo.productoRef = encontrado;
-                                datos.productos.push(nuevo);
-                            }
+                    const prod = interpretarLineaProductoPedido(linea);
+                    if (prod && prod.descripcion && prod.monto > 0) {
+                        const encontrado = encontrarProductoEnDescripcion(prod.nombreProducto || prod.descripcion);
+                        const nuevo = { descripcion: prod.descripcion, monto: prod.monto };
+                        if (encontrado) {
+                            nuevo.productoRef = encontrado;
+                            const e = obtenerEmpaqueProducto(encontrado);
+                            const d = prod.detalleFisico || {cajas:0, paquetes:0, unidades:0};
+                            nuevo.salidaPedido = {
+                                cajas: d.cajas || 0,
+                                paquetes: d.paquetes || 0,
+                                unidades: d.unidades || 0,
+                                unidades_por_paquete: e.unidadesPorPaquete || 0,
+                                paquetes_por_caja: e.paquetesPorCaja || 0,
+                                unidades_equivalentes: e.unidadesPorPaquete
+                                    ? ((d.unidades||0) + (d.paquetes||0)*e.unidadesPorPaquete + (e.paquetesPorCaja ? (d.cajas||0)*e.paquetesPorCaja*e.unidadesPorPaquete : 0))
+                                    : 0
+                            };
                         }
+                        datos.productos.push(nuevo);
                     }
                 }
             });
@@ -2171,7 +2271,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 if (datos.envioSinCosto) { envioSinCostoCheck.checked = true; envioSinCostoCheck.dispatchEvent(new Event('change')); }
             }
             if (datos.productos.length > 0) {
-                items = datos.productos.map(p => ({ descripcion: p.descripcion, monto: p.monto, alistado: false, productoRef: p.productoRef || null }));
+                items = datos.productos.map(p => ({ descripcion: p.descripcion, monto: p.monto, alistado: false, productoRef: p.productoRef || null, salidaPedido: p.salidaPedido || null }));
                 actualizarListaItems();
             }
             Notificaciones.mostrar('Pedido cargado correctamente', 'success');
