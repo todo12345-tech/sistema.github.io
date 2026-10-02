@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<title>Sistema de Ventas - Móvil Optimizado</title>
+<title>Todoenuno_store - Visualización V2 · Dashboard Dinámico</title>
 <style>
 * {
 margin: 0;
@@ -972,6 +972,11 @@ right: auto;
 display: inline-flex;
 margin-top: 5px;
 }
+
+/* VISUALIZACION V2 */
+.quick-filters{display:flex;gap:8px;flex-wrap:wrap}.quick-filter-btn{border:1px solid #d9e2ec;background:#fff;color:#34495e;padding:9px 13px;border-radius:20px;cursor:pointer;font-weight:700;font-size:12px}.quick-filter-btn.active,.quick-filter-btn:hover{background:#34495e;color:#fff}
+.dynamic-dashboard{padding:15px;background:#f8fafc;border-top:1px solid #e5e7eb}.dynamic-title{font-size:17px;font-weight:800;color:#2c3e50;margin-bottom:12px}.dynamic-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.dynamic-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}.dynamic-card .k{font-size:11px;color:#7f8c8d;text-transform:uppercase;font-weight:800;margin-bottom:5px}.dynamic-card .v{font-size:20px;color:#2c3e50;font-weight:900}.dynamic-card .sub{font-size:11px;color:#7f8c8d;margin-top:4px}.dynamic-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rank-list{margin-top:8px;display:flex;flex-direction:column;gap:7px}.rank-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed #e5e7eb;padding-bottom:6px;font-size:12px}.rank-name{font-weight:700;color:#34495e;overflow:hidden;text-overflow:ellipsis}.rank-value{font-weight:900;color:#27ae60;white-space:nowrap}.branch-comparison{display:grid;grid-template-columns:1fr 1fr;gap:10px}.branch-box{padding:12px;border-radius:10px;background:#f8f9fa;border-left:4px solid #3498db}.branch-box.feria{border-left-color:#e74c3c}.branch-box strong{display:block;font-size:18px;margin-top:4px}.sheet-ambas{background:#8e44ad;color:#fff}@media(max-width:900px){.dynamic-grid{grid-template-columns:repeat(2,1fr)}.dynamic-two{grid-template-columns:1fr}}@media(max-width:480px){.dynamic-grid,.branch-comparison{grid-template-columns:1fr}}
+
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -1073,9 +1078,16 @@ margin-top: 5px;
 <select id="sheetSelector">
 <option value="comercial">Comercial</option>
 <option value="feria">Feria</option>
+<option value="ambas">Ambas sucursales</option>
 </select>
 <input type="date" id="dateFilter">
 <input type="text" id="searchInput" placeholder="Buscar en todo el historial (producto, usuario...)">
+<div class="quick-filters" id="quickFilters">
+<button type="button" class="quick-filter-btn active" data-range="hoy">Hoy</button>
+<button type="button" class="quick-filter-btn" data-range="ayer">Ayer</button>
+<button type="button" class="quick-filter-btn" data-range="semana">Esta semana</button>
+<button type="button" class="quick-filter-btn" data-range="mes">Este mes</button>
+</div>
 </div>
 <div class="buttons-row">
 <button class="btn btn-primary" onclick="filterData()">
@@ -1124,7 +1136,20 @@ margin-top: 5px;
     <div class="stat-label">Cierre Efectivo</div>
   </div>
 </div>
-
+<div class="dynamic-dashboard" id="dynamicDashboard">
+<div class="dynamic-title"><i class="fas fa-chart-pie"></i> Resumen inteligente</div>
+<div class="dynamic-grid">
+<div class="dynamic-card"><div class="k">Ventas QR</div><div class="v" id="dashQR">Bs. 0.00</div><div class="sub">Cobros registrados por QR</div></div>
+<div class="dynamic-card"><div class="k">Ventas Efectivo</div><div class="v" id="dashEfectivo">Bs. 0.00</div><div class="sub">Solo ventas, sin apertura</div></div>
+<div class="dynamic-card"><div class="k">N.º de ventas</div><div class="v" id="dashCantidad">0</div><div class="sub">No cuenta apertura/cierre</div></div>
+<div class="dynamic-card"><div class="k">Ticket promedio</div><div class="v" id="dashPromedio">Bs. 0.00</div><div class="sub">Promedio por venta</div></div>
+</div>
+<div class="dynamic-two">
+<div class="dynamic-card"><div class="k">Comparación por sucursal</div><div class="branch-comparison"><div class="branch-box"><span>Comercial</span><strong id="dashComercial">Bs. 0.00</strong><small id="dashComercialCount">0 ventas</small></div><div class="branch-box feria"><span>Feria</span><strong id="dashFeria">Bs. 0.00</strong><small id="dashFeriaCount">0 ventas</small></div></div></div>
+<div class="dynamic-card"><div class="k">Vendedores</div><div class="rank-list" id="dashVendedores"></div></div>
+<div class="dynamic-card"><div class="k">Productos con mayor movimiento</div><div class="rank-list" id="dashProductos"></div></div>
+<div class="dynamic-card"><div class="k">Fuente de datos</div><div style="font-size:13px;line-height:1.6;color:#34495e">Google Sheets directo<br><strong id="dashFuente">Comercial</strong><br><span style="color:#7f8c8d">Visualización no edita ventas.</span></div></div>
+</div></div>
 <div class="nav-buttons" id="navButtons">
 <button class="nav-btn" id="btnAtras" onclick="changeDay(-1)">
 <i class="fas fa-chevron-left"></i> Atrás
@@ -1163,6 +1188,7 @@ Adelante <i class="fas fa-chevron-right"></i>
 <table id="salesTable">
 <thead>
 <tr>
+<th>Sucursal</th>
 <th>ID</th>
 <th>Fecha</th>
 <th>Hora</th>
@@ -1210,18 +1236,12 @@ Siguiente <i class="fas fa-chevron-right"></i>
 <div class="notification-container" id="notificationContainer"></div>
 <script>
 // ===================== SISTEMA DE LOGIN =====================
-const usuarios = {
-"milan": {
-password: "tigre1234.A",
-nombre: "Milan",
-rol: "admin"
-},
-"admin": {
-password: "admin",
-nombre: "Administrador",
-rol: "admin"
-}
-};
+const usuarios = {};
+const LOGIN_SHEET_ID = '1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok';
+const LOGIN_CSV_URL = `https://docs.google.com/spreadsheets/d/${LOGIN_SHEET_ID}/export?format=csv`;
+function normLogin(v=''){return String(v).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim();}
+function parseLoginCSV(csv){const rows=[];let row=[],f='',q=false;for(let i=0;i<csv.length;i++){const c=csv[i],n=csv[i+1];if(c==='"'){if(q&&n==='"'){f+='"';i++;}else q=!q;}else if(c===','&&!q){row.push(f);f='';}else if((c==='\n'||c==='\r')&&!q){if(c==='\r'&&n==='\n')i++;row.push(f);f='';if(row.some(v=>String(v).trim()!==''))rows.push(row);row=[];}else f+=c;}if(f||row.length){row.push(f);if(row.some(v=>String(v).trim()!==''))rows.push(row);}return rows;}
+async function cargarUsuariosCompartidos(){const r=await fetch(LOGIN_CSV_URL,{cache:'no-store'});if(!r.ok)throw new Error('No se pudo leer usuarios');const rows=parseLoginCSV(await r.text());if(rows.length<2)throw new Error('Hoja usuarios vacía');const h=rows[0].map(x=>normLogin(x).replace(/\s+/g,'_'));const ix=(...n)=>h.findIndex(x=>n.includes(x));const iu=ix('usuario','username','user','nombre_de_usuario'),ip=ix('contraseña','contrasena','clave','password'),ir=ix('rol','tipo','perfil','cargo'),inn=ix('nombre','nombre_completo','vendedor');if(iu<0||ip<0)throw new Error('Columnas login no reconocidas');rows.slice(1).forEach(v=>{const u=String(v[iu]||'').trim().toLowerCase(),p=String(v[ip]||''),nombre=String((inn>=0?v[inn]:'')||u),rr=normLogin(ir>=0?v[ir]:'vendedor');if(u&&p)usuarios[u]={password:p,nombre,rol:rr.includes('admin')?'admin':'vendedor'};});return Object.keys(usuarios).length>0;}
 const loginScreen = document.getElementById('loginScreen');
 const appScreen = document.getElementById('appScreen');
 const loginForm = document.getElementById('loginForm');
@@ -1321,7 +1341,7 @@ function matchesSearch(item, searchTerm) {
         (item.montos || '') + ' ' +
         (item.total || '') + ' ' +
         (item.metodo_pago || '') + ' ' +
-        (item.usuario || '')
+        (item.usuario || '') + ' ' + (item.hoja_origen || item.sucursal || '')
     );
     if (text.includes(searchNorm)) {
         return true;
@@ -1355,13 +1375,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if (savedUser) {
         try {
             const parsed = JSON.parse(savedUser);
-            // ✅ VALIDAR: el usuario debe existir en la lista local Y ser admin
-            if (parsed && parsed.username && usuarios[parsed.username] && usuarios[parsed.username].rol === 'admin') {
-                currentUser = {
-                    username: parsed.username,
-                    nombre: usuarios[parsed.username].nombre,
-                    rol: usuarios[parsed.username].rol
-                };
+            if (parsed && parsed.username && String(parsed.rol || '').toLowerCase().includes('admin')) {
+                currentUser = {username:parsed.username,nombre:parsed.nombre||parsed.username,rol:'admin'};
                 showApp();
             } else {
                 // ❌ Usuario no autorizado en esta página → forzar login
@@ -1382,37 +1397,13 @@ document.addEventListener('DOMContentLoaded', function() {
     if (backToTableBtn) backToTableBtn.addEventListener('click', hideLiquidityAndShowTable);
 });
 
-function handleLogin(e) {
-    e.preventDefault();
-    const username = usernameInput.value.trim();
-    const password = passwordInput.value.trim();
-    if (!username || !password) {
-        showError("Por favor ingresa usuario y contraseña");
-        return;
-    }
-    showLoading(true);
-    setTimeout(() => {
-        if (usuarios[username] && usuarios[username].password === password) {
-            // ✅ Solo admins pueden entrar a visualización
-            if (usuarios[username].rol !== 'admin') {
-                showError("No tienes permiso para acceder a este sistema");
-                showLoading(false);
-                return;
-            }
-            currentUser = {
-                username: username,
-                nombre: usuarios[username].nombre,
-                rol: usuarios[username].rol
-            };
-            localStorage.setItem(SESSION_KEY, JSON.stringify(currentUser));
-            showApp();
-        } else {
-            showError("Usuario o contraseña incorrectos");
-            showLoading(false);
-        }
-    }, 500);
+async function handleLogin(e) {
+e.preventDefault();const username=usernameInput.value.trim().toLowerCase(),password=passwordInput.value.trim();
+if(!username||!password){showError("Por favor ingresa usuario y contraseña");return;}
+showLoading(true);
+try{await cargarUsuariosCompartidos();if(!usuarios[username]||usuarios[username].password!==password){showError("Usuario o contraseña incorrectos");showLoading(false);return;}if(usuarios[username].rol!=='admin'){showError("Visualización es exclusiva para administradores");showLoading(false);return;}currentUser={username,nombre:usuarios[username].nombre,rol:'admin'};localStorage.setItem(SESSION_KEY,JSON.stringify(currentUser));showApp();}
+catch(err){console.error(err);showError("No se pudo validar el acceso. Revisa la conexión.");showLoading(false);}
 }
-
 function togglePasswordVisibility() {
     const type = passwordInput.getAttribute('type') === 'password' ? 'text' : 'password';
     passwordInput.setAttribute('type', type);
@@ -1463,15 +1454,14 @@ function handleLogout() {
 }
 
 // ===================== SISTEMA DE VENTAS =====================
-const SHEETS_IDS = {
-comercial: '1gfjpdEUnx5h83xjnVDaU_BbLvj-EMYtPLOHxjmFaMAg',
-feria: '1TEvsrUoPCRhzvxyP7U3FGg80XTSxwKMqvoqjS6F3EAc'
-};
+const VENTAS_SHEET_ID='1gfjpdEUnx5h83xjnVDaU_BbLvj-EMYtPLOHxjmFaMAg';
+const SHEETS_IDS={comercial:VENTAS_SHEET_ID,feria:VENTAS_SHEET_ID};
 let allData = [];
 let filteredData = [];
 let currentPage = 1;
 const recordsPerPage = 1000;
-let currentSheet = 'comercial';
+let currentSheet='comercial';
+let quickRange='hoy';
 const ventasElements = {
 dayName: document.getElementById('dayName'),
 currentDate: document.getElementById('currentDate'),
@@ -1530,50 +1520,50 @@ setTimeout(() => notification.remove(), 300);
 }
 
 async function loadDataFromGoogleSheets(sheetType) {
-try {
-const sheetId = SHEETS_IDS[sheetType];
-if (!sheetId) throw new Error(`No hay ID configurado para ${sheetType}`);
-const csvUrl = `https://docs.google.com/spreadsheets/d/${sheetId}/export?format=csv`;
-const response = await fetch(csvUrl);
-if (!response.ok) throw new Error(`Error HTTP ${response.status}`);
-const csvText = await response.text();
-if (!csvText.trim()) throw new Error('El archivo CSV está vacío');
-const parsedData = parseCSV(csvText);
-if (parsedData.length === 0) throw new Error('No se encontraron datos en el CSV');
-return processData(parsedData, sheetType);
-} catch (error) {
-console.error(error);
-throw error;
+    if (!['comercial','feria'].includes(sheetType)) throw new Error(`Hoja inválida: ${sheetType}`);
+    const urls = [
+        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(sheetType)}&_=${Date.now()}`,
+        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetType)}&_=${Date.now()}`
+    ];
+    let ultimoError = null;
+    for (const csvUrl of urls) {
+        try {
+            const response = await fetch(csvUrl, {cache:'no-store'});
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const csvText = await response.text();
+            if (!csvText.trim()) throw new Error('CSV vacío');
+            const parsedData = parseCSV(csvText);
+            if (!parsedData.length) throw new Error('Sin filas reconocibles');
+            return processData(parsedData, sheetType);
+        } catch (e) {
+            ultimoError = e;
+            console.warn(`Lectura ${sheetType} falló con una ruta; probando alternativa`, e);
+        }
+    }
+    throw ultimoError || new Error(`No se pudo leer ${sheetType}`);
 }
-}
-
 function parseCSV(csvText) {
-const lines = csvText.split('\n').filter(line => line.trim() !== '');
-if (lines.length < 2) return [];
-const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-const result = [];
-for (let i = 1; i < lines.length; i++) {
-const line = lines[i];
-const values = [];
-let currentValue = '', insideQuotes = false;
-for (let j = 0; j < line.length; j++) {
-const char = line[j];
-if (char === '"') insideQuotes = !insideQuotes;
-else if (char === ',' && !insideQuotes) { values.push(currentValue); currentValue = ''; }
-else currentValue += char;
-}
-values.push(currentValue);
-const obj = {};
-headers.forEach((header, index) => {
-if (values[index] !== undefined) {
-let value = values[index].trim();
-if (value.startsWith('"') && value.endsWith('"')) value = value.substring(1, value.length - 1);
-obj[header] = value;
-}
-});
-if (Object.values(obj).some(val => val && val.trim() !== '')) result.push(obj);
-}
-return result;
+    const rows=[]; let row=[], field='', quoted=false;
+    for(let i=0;i<csvText.length;i++){
+        const c=csvText[i], next=csvText[i+1];
+        if(c==='"'){
+            if(quoted && next==='"'){ field+='"'; i++; }
+            else quoted=!quoted;
+        } else if(c===',' && !quoted){
+            row.push(field); field='';
+        } else if((c==='\n' || c==='\r') && !quoted){
+            if(c==='\r' && next==='\n') i++;
+            row.push(field); field='';
+            if(row.some(v=>String(v).trim()!=='')) rows.push(row);
+            row=[];
+        } else field+=c;
+    }
+    if(field || row.length){ row.push(field); if(row.some(v=>String(v).trim()!=='')) rows.push(row); }
+    if(rows.length<2) return [];
+    const headers=rows[0].map(h=>String(h).replace(/^\uFEFF/,'').trim().toLowerCase());
+    return rows.slice(1).map(vals=>{
+        const obj={}; headers.forEach((h,i)=>obj[h]=String(vals[i]??'').trim()); return obj;
+    }).filter(obj=>Object.values(obj).some(v=>v!==''));
 }
 
 function processData(rawData, sheetType) {
@@ -1587,6 +1577,7 @@ const metodoPagoField = Object.keys(item).find(k => k.trim().toLowerCase() === '
 const usuarioField = Object.keys(item).find(k => k.trim().toLowerCase() === 'usuario');
 const tipoSucursalField = Object.keys(item).find(k => k.trim().toLowerCase() === 'tipo_sucursal');
 const montoEfectivoField = Object.keys(item).find(k => k.trim().toLowerCase() === 'monto_efectivo');
+const montoQrField = Object.keys(item).find(k => k.trim().toLowerCase() === 'monto_qr');
 const aperturaCajaField = Object.keys(item).find(k => k.trim().toLowerCase() === 'apertura_caja');
 const cierreCajaField = Object.keys(item).find(k => k.trim().toLowerCase() === 'cierre_caja');
 const montosField = Object.keys(item).find(k => k.trim().toLowerCase() === 'montos');
@@ -1604,6 +1595,7 @@ fechaFiltro = fechaOriginal.split(' ')[0];
 }
 const total = totalVentaField ? parseFloat(item[totalVentaField]) || 0 : 0;
 const montoEfectivo = montoEfectivoField ? parseFloat(item[montoEfectivoField]) || 0 : 0;
+const montoQr = montoQrField ? parseFloat(item[montoQrField]) || 0 : 0;
 const aperturaCajaValor = aperturaCajaField ? (item[aperturaCajaField] || '').toUpperCase().trim() : '';
 const cierreCajaValor = cierreCajaField ? (item[cierreCajaField] || '').toUpperCase().trim() : '';
 let tipo = 'venta';
@@ -1615,7 +1607,7 @@ return {
 id: idReal, fecha: fechaOriginal, fechaFiltro, hora: horaField ? item[horaField] || '' : '',
 productos: productosField ? item[productosField] || '' : '', total, metodo_pago: metodoPagoField ? item[metodoPagoField] || '' : '',
 usuario: usuarioField ? item[usuarioField] || '' : '', sucursal: tipoSucursalField ? item[tipoSucursalField] || sheetType : sheetType,
-tipo, monto_efectivo: montoEfectivo, apertura_caja: aperturaCajaValor, cierre_caja: cierreCajaValor,
+tipo, monto_efectivo:montoEfectivo, monto_qr:montoQr, hoja_origen:sheetType, apertura_caja:aperturaCajaValor, cierre_caja:cierreCajaValor,
 montos: montosField ? (item[montosField] || '') : ''
 };
 });
@@ -1630,19 +1622,19 @@ const todayStr = `${year}-${month}-${day}`;
 ventasElements.dateFilter.value = todayStr;
 updateDayPanel(todayStr);
 updateSheetSourceIndicator();
-ventasElements.dateFilter.addEventListener('change', function() { updateDayPanel(this.value); filterData(); });
+ventasElements.dateFilter.addEventListener('change',function(){quickRange='personalizado';document.querySelectorAll('.quick-filter-btn').forEach(b=>b.classList.remove('active'));updateDayPanel(this.value);filterData();});
 ventasElements.searchInput.addEventListener('input', filterData);
 ventasElements.sheetSelector.addEventListener('change', function() { currentSheet = this.value; updateSheetIndicator(); updateSheetSourceIndicator(); loadData(); });
+document.querySelectorAll('.quick-filter-btn').forEach(btn=>btn.addEventListener('click',()=>{quickRange=btn.dataset.range;document.querySelectorAll('.quick-filter-btn').forEach(b=>b.classList.toggle('active',b===btn));aplicarFechaRapida(quickRange);}));
 loadData();
 }
 
 function updateSheetIndicator() {
-sheetIndicator.textContent = currentSheet === 'comercial' ? 'Comercial' : 'Feria';
-sheetIndicator.className = 'sheet-indicator ' + (currentSheet === 'comercial' ? 'sheet-comercial' : 'sheet-feria');
+const l={comercial:'Comercial',feria:'Feria',ambas:'Ambas'};sheetIndicator.textContent=l[currentSheet]||'Comercial';sheetIndicator.className='sheet-indicator '+(currentSheet==='comercial'?'sheet-comercial':currentSheet==='feria'?'sheet-feria':'sheet-ambas');
 }
 
 function updateSheetSourceIndicator() {
-currentSheetName.textContent = currentSheet === 'comercial' ? 'Comercial' : 'Feria';
+const l={comercial:'Comercial',feria:'Feria',ambas:'Comercial + Feria'};currentSheetName.textContent=l[currentSheet]||'Comercial';const d=document.getElementById('dashFuente');if(d)d.textContent=currentSheetName.textContent;
 }
 
 function updateSyncBadge(type, message) {
@@ -1660,26 +1652,40 @@ syncBadge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
 }
 
 async function loadData() {
-updateSyncBadge('loading', 'Actualizando...');
-try {
-const data = await loadDataFromGoogleSheets(currentSheet);
-allData = data;
-allData.sort((a,b) => {
-try { return new Date(b.fechaFiltro) - new Date(a.fechaFiltro); } catch(e) { return 0; }
-});
-lastSyncTime = new Date();
-updateSyncBadge('success', 'Conectado');
-showUpdateNotification('Lista actualizada', 2000);
-filterData();
-updateNavButtons();
-} catch (error) {
-console.error(error);
-ventasElements.dataError.style.display = 'block';
-updateSyncBadge('error', 'Error de conexión');
-if (allData.length === 0) setTimeout(loadSampleData, 500);
+    updateSyncBadge('loading','Actualizando...');
+    ventasElements.dataError.style.display='none';
+    try {
+        let data=[];
+        if(currentSheet==='ambas'){
+            const resultados=await Promise.allSettled([
+                loadDataFromGoogleSheets('comercial'),
+                loadDataFromGoogleSheets('feria')
+            ]);
+            const c=resultados[0].status==='fulfilled'?resultados[0].value:[];
+            const f=resultados[1].status==='fulfilled'?resultados[1].value:[];
+            data=[...c,...f];
+            if(resultados.some(r=>r.status==='rejected')){
+                showNotification('warning','Lectura parcial','Una sucursal no respondió, pero se muestran los datos disponibles.',5000);
+            }
+            if(!data.length) throw new Error('Ninguna sucursal devolvió registros');
+        } else {
+            data=await loadDataFromGoogleSheets(currentSheet);
+        }
+        allData=data;
+        allData.sort((a,b)=>`${b.fechaFiltro||''}T${b.hora||''}`.localeCompare(`${a.fechaFiltro||''}T${a.hora||''}`));
+        lastSyncTime=new Date();
+        updateSyncBadge('success',`${data.length} registros`);
+        showUpdateNotification(`${data.length} registros cargados`,1800);
+        filterData();
+        updateNavButtons();
+    } catch(error){
+        console.error(error);
+        ventasElements.dataError.style.display='block';
+        ventasElements.dataError.innerHTML=`<i class="fas fa-exclamation-triangle"></i> No se pudieron leer los datos de Google Sheets. `;
+        updateSyncBadge('error','Error de conexión');
+        allData=[]; filteredData=[]; filterData();
+    }
 }
-}
-
 function updateDayPanel(dateString) {
 try {
 const [year, month, day] = dateString.split('-').map(Number);
@@ -1689,46 +1695,14 @@ ventasElements.currentDate.textContent = date.toLocaleDateString('es-ES');
 } catch(e) { ventasElements.dayName.textContent = '---'; ventasElements.currentDate.textContent = '--/--/----'; }
 }
 
+function fechaEnRangoRapido(fecha,range){if(!fecha)return false;const d=new Date(fecha+'T12:00:00'),h=new Date();h.setHours(12,0,0,0);if(range==='ayer'){const a=new Date(h);a.setDate(a.getDate()-1);return d.toDateString()===a.toDateString();}if(range==='semana'){const ini=new Date(h),dow=(ini.getDay()+6)%7;ini.setDate(ini.getDate()-dow);const fin=new Date(ini);fin.setDate(fin.getDate()+6);return d>=ini&&d<=fin;}if(range==='mes')return d.getFullYear()===h.getFullYear()&&d.getMonth()===h.getMonth();return d.toDateString()===h.toDateString();}
+function aplicarFechaRapida(range){const d=new Date();if(range==='ayer')d.setDate(d.getDate()-1);const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;ventasElements.dateFilter.value=ds;updateDayPanel(ds);filterData();}
 function filterData() {
-    const selectedDate = ventasElements.dateFilter.value;
-    const searchTerm = ventasElements.searchInput.value.trim();
-    let dataSource = allData;
-    if (!searchTerm) {
-        if (selectedDate) {
-            dataSource = dataSource.filter(item => item.fechaFiltro === selectedDate);
-        }
-    } else {
-        dataSource = dataSource.filter(item => matchesSearch(item, searchTerm));
-        showNotification('info', '🔍 Búsqueda global', 'Mostrando resultados de todas las fechas', 3000);
-    }
-    filteredData = dataSource;
-    allUsers.clear();
-    filteredData.forEach(item => { if(item.usuario) allUsers.add(item.usuario); });
-    if (filteredData.length > 0 && searchTerm) {
-        const firstDate = filteredData[0].fechaFiltro;
-        if (firstDate) {
-            updateDayPanel(firstDate);
-            ventasElements.dateFilter.value = firstDate;
-        }
-    } else if (!searchTerm && selectedDate) {
-        updateDayPanel(selectedDate);
-    } else {
-        const today = new Date();
-        const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
-        updateDayPanel(todayStr);
-        ventasElements.dateFilter.value = todayStr;
-    }
-    findAttendanceHours(ventasElements.dateFilter.value);
-    findCashControl(ventasElements.dateFilter.value);
-    checkMultipleOpenClose(ventasElements.dateFilter.value);
-    calculateTotalVentasDia();
-    calculateStatistics();
-    updateMobileSummary(ventasElements.dateFilter.value);
-    currentPage = 1;
-    displayData();
-    updateNavButtons();
+const selectedDate=ventasElements.dateFilter.value,searchTerm=ventasElements.searchInput.value.trim();let dataSource=allData;
+if(searchTerm)dataSource=dataSource.filter(i=>matchesSearch(i,searchTerm));else if(quickRange==='semana'||quickRange==='mes')dataSource=dataSource.filter(i=>fechaEnRangoRapido(i.fechaFiltro,quickRange));else if(selectedDate)dataSource=dataSource.filter(i=>i.fechaFiltro===selectedDate);
+filteredData=dataSource;allUsers.clear();filteredData.forEach(i=>{if(i.usuario&&i.tipo==='venta')allUsers.add(i.usuario);});
+if(selectedDate)updateDayPanel(selectedDate);findAttendanceHours(selectedDate);findCashControl(selectedDate);if(quickRange==='hoy'||quickRange==='ayer')checkMultipleOpenClose(selectedDate);calculateTotalVentasDia();calculateStatistics();updateMobileSummary(selectedDate);updateDynamicDashboard();currentPage=1;displayData();updateNavButtons();
 }
-
 function findAttendanceHours(date) {
 let horaApertura = '--:--', horaCierre = '--:--', usuarioOperando = '--', hayCierre = false;
 const sortedData = [...filteredData].sort((a,b) => (a.hora||'00:00').localeCompare(b.hora||'00:00'));
@@ -1840,6 +1814,9 @@ function calculateStatistics() {
     ventasElements.cierreEfectivoValue.textContent = cierre.toFixed(2);
 }
 
+function escV2(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
+function updateDynamicDashboard(){const ventas=filteredData.filter(i=>i.tipo==='venta'),total=ventas.reduce((a,v)=>a+(+v.total||0),0);let qr=0,ef=0;ventas.forEach(v=>{const m=(v.metodo_pago||'').toLowerCase(),q=+v.monto_qr||0,e=+v.monto_efectivo||0;if(q>0)qr+=q;else if(m.includes('qr'))qr+=+v.total||0;if(e>0)ef+=e;else if(m.includes('efectivo'))ef+=+v.total||0;});const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('dashQR','Bs. '+qr.toFixed(2));set('dashEfectivo','Bs. '+ef.toFixed(2));set('dashCantidad',ventas.length);set('dashPromedio','Bs. '+(ventas.length?total/ventas.length:0).toFixed(2));const c=ventas.filter(v=>v.hoja_origen==='comercial'),f=ventas.filter(v=>v.hoja_origen==='feria');set('dashComercial','Bs. '+c.reduce((a,v)=>a+v.total,0).toFixed(2));set('dashFeria','Bs. '+f.reduce((a,v)=>a+v.total,0).toFixed(2));set('dashComercialCount',c.length+' ventas');set('dashFeriaCount',f.length+' ventas');const vm=new Map();ventas.forEach(v=>{const k=(v.usuario||'Sin usuario').trim(),o=vm.get(k)||{t:0,n:0};o.t+=v.total;o.n++;vm.set(k,o)});document.getElementById('dashVendedores').innerHTML=[...vm].sort((a,b)=>b[1].t-a[1].t).slice(0,5).map(([k,o])=>`<div class="rank-row"><span class="rank-name">${escV2(k)} · ${o.n}</span><span class="rank-value">Bs. ${o.t.toFixed(2)}</span></div>`).join('')||'<div class="rank-row">Sin ventas</div>';const pm=new Map();ventas.forEach(v=>String(v.productos||'').split('|').map(x=>x.trim()).filter(Boolean).forEach(p=>{const k=p.replace(/^\d+\s*(unidad(?:es)?|paquete(?:s)?|caja(?:s)?|dc|docena(?:s)?)?\s*[-–:]?\s*/i,'').trim()||p;pm.set(k,(pm.get(k)||0)+1)}));document.getElementById('dashProductos').innerHTML=[...pm].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,n])=>`<div class="rank-row"><span class="rank-name">${escV2(k)}</span><span class="rank-value">${n} mov.</span></div>`).join('')||'<div class="rank-row">Sin productos</div>';}
+
 function updateMobileSummary(date) {
 const formattedDate = date ? date.split('-').reverse().join('/') : '--/--/----';
 let dayName = '';
@@ -1903,7 +1880,9 @@ if (item.tipo === 'apertura') rowClass = 'class="row-apertura"';
 else if (item.tipo === 'cierre') rowClass = 'class="row-cierre"';
 const productosHTML = item.productos ? item.productos.replace(/\|/g, '<br>') : '--';
 const montosHTML = item.montos ? item.montos.replace(/\|/g, '<br>') : '—';
+const sucLabel=item.hoja_origen==='feria'?'Feria':'Comercial';
 html += `<tr ${rowClass}>
+<td><span class="sheet-indicator ${item.hoja_origen==='feria'?'sheet-feria':'sheet-comercial'}">${sucLabel}</span></td>
 <td>${item.id}</td>
 <td>${item.fecha || '--/--/----'}</td>
 <td>${horaFormateada}</td>
@@ -1921,6 +1900,7 @@ totalFinalAmount.textContent = 'Bs. ' + total.toFixed(2);
 }
 
 function showToday() {
+quickRange='hoy';document.querySelectorAll('.quick-filter-btn').forEach(b=>b.classList.toggle('active',b.dataset.range==='hoy'));
 const today = new Date();
 const todayStr = `${today.getFullYear()}-${String(today.getMonth()+1).padStart(2,'0')}-${String(today.getDate()).padStart(2,'0')}`;
 ventasElements.dateFilter.value = todayStr;
@@ -1932,10 +1912,10 @@ filterData();
 function exportToExcel() {
 if (filteredData.length === 0) { alert('No hay datos para exportar'); return; }
 let csvContent = "text/csv;charset=utf-8,";
-const headers = ["ID","Fecha","Hora","Productos","Montos","Total Venta","Método","Usuario"];
+const headers = ["Sucursal","ID","Fecha","Hora","Productos","Montos","Total Venta","Método","Usuario"];
 csvContent += headers.join(",") + "\n";
 filteredData.forEach(item => {
-const row = [item.id, `"${item.fecha}"`, `"${item.hora}"`, `"${item.productos}"`, `"${item.montos}"`, item.total.toFixed(2), `"${item.metodo_pago}"`, `"${item.usuario}"`];
+const row = [`"${item.hoja_origen||item.sucursal||""}"`,item.id,`"${item.fecha}"`,`"${item.hora}"`,`"${item.productos}"`,`"${item.montos}"`,item.total.toFixed(2),`"${item.metodo_pago}"`,`"${item.usuario}"`];
 csvContent += row.join(",") + "\n";
 });
 const link = document.createElement('a');
@@ -2040,10 +2020,10 @@ function displayLiquidityData(ventasPeriodo) {
 const salesByDay = new Map();
 ventasPeriodo.forEach(venta => {
 const dayKey = venta.fechaFiltro;
-if (!salesByDay.has(dayKey)) salesByDay.set(dayKey, { total: 0, profit: 0 });
+if (!salesByDay.has(dayKey)) salesByDay.set(dayKey, { total: 0 });
 const dayData = salesByDay.get(dayKey);
 dayData.total += venta.total;
-dayData.profit = dayData.total * 0.10;
+
 });
 const sortedDays = Array.from(salesByDay.keys()).sort();
 calendarGrid.innerHTML = '';
@@ -2056,11 +2036,11 @@ const dateObj = new Date(year, month-1, day);
 const displayDate = dateObj.toLocaleDateString('es-ES', { weekday: 'short', day:'2-digit', month:'short' });
 const card = document.createElement('div');
 card.className = 'calendar-day-card';
-card.innerHTML = `<div class="calendar-day-date">${displayDate}</div><div class="calendar-day-sales">Bs. ${data.total.toFixed(2)}</div><div class="calendar-day-profit">10% Ganancia: Bs. ${data.profit.toFixed(2)}</div>`;
+card.innerHTML = `<div class="calendar-day-date">${displayDate}</div><div class="calendar-day-sales">Bs. ${data.total.toFixed(2)}</div><div class="calendar-day-profit">Ventas registradas</div>`;
 calendarGrid.appendChild(card);
 });
-const totalProfitPeriod = totalSalesPeriod * 0.10;
-liquiditySummaryDiv.innerHTML = `<div style="font-size:16px;margin-bottom:8px;">📊 Resumen del período</div><div style="font-size:22px;font-weight:bold;">Total Ventas: Bs. ${totalSalesPeriod.toFixed(2)}</div><div style="font-size:18px;margin-top:5px;">💰 Ganancia (10%): Bs. ${totalProfitPeriod.toFixed(2)}</div>`;
+
+liquiditySummaryDiv.innerHTML = `<div style="font-size:16px;margin-bottom:8px;">📊 Resumen del período</div><div style="font-size:22px;font-weight:bold;">Total Ventas: Bs. ${totalSalesPeriod.toFixed(2)}</div><div style="font-size:18px;margin-top:5px;">Fuente: ${currentSheet==="ambas"?"Comercial + Feria":currentSheet}</div>`;
 if (sortedDays.length === 0) calendarGrid.innerHTML = '<div style="text-align:center;padding:20px;">No hay ventas en este período</div>';
 }
 
