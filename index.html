@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Gestión de Ventas</title>
+<title>Todoenuno_store - Gestión de Ventas V20</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -306,7 +306,30 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .lightbox-close{position:absolute;top:-40px;right:0;background:none;border:none;color:white;font-size:36px;cursor:pointer;width:auto;padding:0 10px}
 .lightbox-close:hover{color:#ccc}
 
+
+/* ===== V20 · PANEL OPERATIVO DE INICIO ===== */
+.panel-operativo-v20{margin-top:18px;display:grid;gap:14px}
+.operativo-bloque{background:#fff;border:1px solid #dfe6ec;border-radius:14px;overflow:hidden;box-shadow:0 3px 12px rgba(22,40,60,.07)}
+.operativo-head{display:flex;justify-content:space-between;align-items:center;gap:12px;padding:12px 14px;background:#f7f9fb;border-bottom:1px solid #e5eaee}
+.operativo-head h3{margin:0;font-size:14px;color:#263d50;display:flex;align-items:center;gap:8px}
+.operativo-contador{min-width:28px;text-align:center;background:#e67e22;color:#fff;border-radius:20px;padding:3px 9px;font-size:11px;font-weight:800}
+.operativo-sub{font-size:10px;color:#72808c;margin-top:3px}
+.operativo-slider{display:flex;gap:10px;overflow-x:auto;padding:12px;scroll-snap-type:x proximity}
+.operativo-card{scroll-snap-align:start;flex:0 0 225px;min-height:112px;border:1px solid #e1e7ec;border-radius:11px;padding:11px;background:#fff;position:relative}
+.operativo-card img{width:48px;height:48px;object-fit:contain;border:1px solid #e8ecef;border-radius:8px;background:#fff;float:left;margin-right:9px}
+.operativo-nombre{font-size:12px;font-weight:800;color:#263d50;line-height:1.25}
+.operativo-meta{font-size:10px;color:#75828d;margin-top:4px;line-height:1.35}
+.operativo-badge{display:inline-block;margin-top:7px;padding:3px 7px;border-radius:10px;font-size:9px;font-weight:800;background:#fff1d6;color:#9a6200}
+.operativo-badge.rojo{background:#ffe5e2;color:#b53b2d}.operativo-badge.verde{background:#e5f6ed;color:#17744b}.operativo-badge.azul{background:#e8f2ff;color:#2868a5}
+.operativo-vacio{padding:22px 14px;text-align:center;color:#6e7c87;font-size:11px;width:100%}
+.operativo-link{border:0;background:#3498db;color:#fff;border-radius:8px;padding:7px 10px;font-size:10px;font-weight:700;cursor:pointer;white-space:nowrap}
+.operativo-link.stock{background:#16835f}
+.operativo-refresh{border:0;background:#e9eef2;color:#415466;border-radius:8px;padding:7px 9px;font-size:10px;cursor:pointer}
+.operativo-actions{display:flex;gap:6px;align-items:center}
+@media(max-width:650px){.operativo-card{flex-basis:190px}.operativo-head{align-items:flex-start}.operativo-actions{flex-wrap:wrap;justify-content:flex-end}}
+
 </style>
+<!-- V20: V19 + panel productos pendientes catálogo + stock bajo por sucursal + salidas pendientes + anti doble procesamiento + link Stock -->
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -421,7 +444,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                         </div>
                         <div id="ventaFisicaBox" style="display:none"></div>
                         <div id="stockVentaInfo" style="display:none"></div>
-                        <p class="autocomplete-hint"><i class="fas fa-info-circle"></i> Escribe 2+ letras y elige del catálogo para que el nombre sea exacto</p>
+                        <p class="autocomplete-hint"><i class="fas fa-info-circle"></i> Escribe 2+ letras. Busca en Catálogo, Productos Agregados y Stock. El precio de esta venta siempre puede modificarse.</p>
                         <button type="button" class="agregar-btn" id="agregarProductoBtn"><i class="fas fa-plus"></i> Agregar Producto</button>
                     </div>
                     <div class="collapsible-section">
@@ -446,6 +469,43 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                         <div class="collapsible-content" id="previewContent">
                             <div class="empty-cart"><i class="fas fa-receipt"></i><p>Agrega productos para ver la nota de venta</p></div>
                         </div>
+
+                    <div class="panel-operativo-v20" id="panelOperativoV20">
+                        <div class="operativo-bloque">
+                            <div class="operativo-head">
+                                <div>
+                                    <h3><i class="fas fa-images"></i> Productos pendientes de catálogo <span class="operativo-contador" id="cntPendCatalogo">0</span></h3>
+                                    <div class="operativo-sub">Productos Agregados que todavía no aparecen en el catálogo oficial o necesitan foto.</div>
+                                </div>
+                                <div class="operativo-actions">
+                                    <button class="operativo-refresh" type="button" id="refrescarPanelOperativo"><i class="fas fa-sync-alt"></i></button>
+                                    <button class="operativo-link" type="button" id="abrirProductosAgregados"><i class="fas fa-table"></i> Ver Excel</button>
+                                </div>
+                            </div>
+                            <div class="operativo-slider" id="sliderPendCatalogo"><div class="operativo-vacio"><i class="fas fa-spinner fa-spin"></i> Revisando productos...</div></div>
+                        </div>
+
+                        <div class="operativo-bloque">
+                            <div class="operativo-head">
+                                <div>
+                                    <h3><i class="fas fa-box-open"></i> Stock bajo en esta sucursal <span class="operativo-contador" id="cntStockSucursal">0</span></h3>
+                                    <div class="operativo-sub" id="stockSucursalSub">Solo muestra la ubicación física correspondiente a esta sesión.</div>
+                                </div>
+                                <button class="operativo-link stock" type="button" id="abrirStockPublicado"><i class="fas fa-boxes"></i> Abrir Stock</button>
+                            </div>
+                            <div class="operativo-slider" id="sliderStockSucursal"><div class="operativo-vacio"><i class="fas fa-spinner fa-spin"></i> Revisando stock...</div></div>
+                        </div>
+
+                        <div class="operativo-bloque">
+                            <div class="operativo-head">
+                                <div>
+                                    <h3><i class="fas fa-exclamation-triangle"></i> Salidas pendientes de definir <span class="operativo-contador" id="cntSalidasPendientes">0</span></h3>
+                                    <div class="operativo-sub">Ventas con PENDIENTE_ORIGEN o PENDIENTE_STOCK. Solo informa: nunca descuenta automáticamente.</div>
+                                </div>
+                            </div>
+                            <div class="operativo-slider" id="sliderSalidasPendientes"><div class="operativo-vacio"><i class="fas fa-spinner fa-spin"></i> Revisando movimientos...</div></div>
+                        </div>
+                    </div>
                     </div>
                 </div>
             </div>
@@ -622,7 +682,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     <button class="venta-smart-close" id="ventaSmartClose">&times;</button>
     <div class="venta-smart-product"><img id="ventaSmartImg" alt="Producto"><h3 id="ventaSmartNombre">Producto</h3></div>
     <div class="venta-equivalencia" id="ventaSmartEquiv">Presentación registrada</div>
-    <div class="venta-stock-box"><div class="venta-stock-title"><i class="fas fa-warehouse"></i> Dónde hay stock registrado</div><div id="ventaSmartStock"></div></div>
+    <div class="venta-stock-box"><div class="venta-stock-title"><i class="fas fa-warehouse"></i> Stock registrado (elige origen solo si realmente salió de ahí)</div><div id="ventaSmartStock"></div></div>
     <div class="venta-counters-title">Indica cómo salió la mercadería</div>
     <div class="venta-counters">
       <div class="venta-counter"><b>CAJAS</b><div class="venta-counter-row"><button type="button" data-vtipo="cajas" data-delta="-1">−</button><span id="ventaCntCajas">0</span><button type="button" data-vtipo="cajas" data-delta="1">+</button></div></div>
@@ -659,6 +719,10 @@ const INVENTARIO_API = 'https://sheetdb.io/api/v1/ls2s3slkkege5';
 let usuariosCargados = false;
 let productoCatalogoSeleccionado = null;
 let stockCache = [];
+let productosAgregadosCache = [];
+const PRODUCTOS_AGREGADOS_GID = '359082301';
+const PRODUCTOS_AGREGADOS_LINK = 'https://docs.google.com/spreadsheets/d/1Rx8QdmK61tsrP4xdNTjTxT9F2QbI4lCpzNJZhNcq-7g/edit?gid=359082301#gid=359082301';
+const MOVIMIENTOS_SHEET_NAME = 'movimientos';
 let ventaSmartProducto = null, ventaSmartFilas = [], ventaSmartOrigen = '', ventaSmartCant = {cajas:0,paquetes:0,unidades:0};
 function normalizarRolSistema(rol) {
     const r = normalizarTextoCatalogo(rol || '');
@@ -739,6 +803,63 @@ async function cargarStockInventario() {
         throw e;
     }
 }
+
+async function cargarProductosAgregadosVenta(){
+    try{
+        const nonce=`${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const url=`https://docs.google.com/spreadsheets/d/${STOCK_GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${PRODUCTOS_AGREGADOS_GID}&_=${nonce}`;
+        const r=await fetch(url,{cache:'no-store',credentials:'omit'});
+        if(!r.ok) throw new Error(`Google productos_agregados HTTP ${r.status}`);
+        const filas=objCsvInicio(await r.text());
+        productosAgregadosCache=filas.filter(p=>normalizarTextoCatalogo(p.estado||'ACTIVO')!=='inactivo');
+        return productosAgregadosCache;
+    }catch(e){
+        console.warn('productos_agregados no disponible',e);
+        productosAgregadosCache=[];
+        return [];
+    }
+}
+function productoVentaDesdeAux(p){
+    return {
+        nombre:String(p.nombre||'').trim(),
+        seccion:String(p.seccion||'').trim(),
+        imagen:convertirImagenDrive(p.imagen||''),
+        precioPaquete:0,
+        precioMayor:0,
+        numUnidades:Math.max(1,nStock(p.unidades_por_paquete)||1),
+        paquetesPorCaja:Math.max(0,nStock(p.paquetes_por_caja)||0),
+        origenDatos:'PRODUCTOS AGREGADOS',
+        _busqueda:normalizarTextoCatalogo(`${p.nombre||''} ${p.seccion||''}`)
+    };
+}
+function productoVentaDesdeStock(p){
+    return {
+        nombre:String(p.nombre||'').trim(),
+        seccion:String(p.seccion||'').trim(),
+        imagen:convertirImagenDrive(p.imagen||''),
+        precioPaquete:0,
+        precioMayor:0,
+        numUnidades:Math.max(1,nStock(p.unidades_por_paquete)||1),
+        paquetesPorCaja:Math.max(0,nStock(p.paquetes_por_caja)||0),
+        origenDatos:'STOCK',
+        _busqueda:normalizarTextoCatalogo(`${p.nombre||''} ${p.seccion||''}`)
+    };
+}
+function fuentesProductosVenta(){
+    const salida=[], vistos=new Set();
+    const agregar=(p,origen)=>{
+        const key=normalizarTextoCatalogo(p.nombre||'');
+        if(!key||vistos.has(key))return;
+        vistos.add(key);
+        salida.push({...p,origenDatos:p.origenDatos||origen,_busqueda:p._busqueda||normalizarTextoCatalogo(`${p.nombre||''} ${p.seccion||''}`)});
+    };
+    // Prioridad exacta: Catálogo -> productos_agregados -> Stock.
+    catalogoProductos.forEach(p=>agregar(p,'CATÁLOGO'));
+    productosAgregadosCache.map(productoVentaDesdeAux).forEach(p=>agregar(p,'PRODUCTOS AGREGADOS'));
+    stockCache.map(productoVentaDesdeStock).forEach(p=>agregar(p,'STOCK'));
+    return salida;
+}
+
 function nStock(v){ const n=parseInt(String(v??'').replace(/[^0-9-]/g,''),10); return isNaN(n)?0:n; }
 function stockCoincidente(nombre,ubicacion){
     const nn=normalizarTextoCatalogo(nombre||'');
@@ -762,15 +883,24 @@ async function actualizarFilaStock(id_stock,data){
     const r=await fetch(`${INVENTARIO_API}/id_stock/${encodeURIComponent(id_stock)}?sheet=stock`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})});
     if(!r.ok) throw new Error('No se pudo actualizar stock'); return r.json().catch(()=>({}));
 }
+const movimientosVentaEnProceso=new Set();
+const movimientosVentaCompletados=new Set(JSON.parse(localStorage.getItem('movimientosVentaCompletadosV20')||'[]'));
 async function procesarMovimientosVenta(venta){
-    const detalles=venta.detalles_stock||[]; if(!detalles.length)return;
+    const ref=String(venta?.referencia_venta||venta?.timestamp||'').trim();
+    if(ref && (movimientosVentaEnProceso.has(ref)||movimientosVentaCompletados.has(ref))) {
+        console.warn('Movimiento de venta duplicado bloqueado:',ref);
+        return;
+    }
+    if(ref)movimientosVentaEnProceso.add(ref);
+    const detalles=venta.detalles_stock||[]; if(!detalles.length){if(ref)movimientosVentaEnProceso.delete(ref);return;}
     await cargarStockInventario();
     for(const d of detalles){
         if(!d.productoCatalogo) continue;
-        const row=stockCoincidente(d.nombre,d.ubicacion);
         const now=new Date(), fecha=now.toLocaleDateString('es-ES'), hora=now.toLocaleTimeString('es-ES');
-        const base={id:`MOV-${venta.referencia_venta || venta.id}-${Math.random().toString(36).slice(2,7).toUpperCase()}`,fecha,hora,producto:d.nombre,seccion:d.seccion||'',tipo:'SALIDA',presentacion:d.presentacion,cantidad:d.cantidad,unidades_equivalentes:d.unidadesEquivalentes||'',origen:d.ubicacion||venta.sucursal,destino:'CLIENTE',motivo:'VENTA',usuario:venta.usuario||'',sucursal:venta.sucursal||'',referencia:`VENTA-${venta.referencia_venta || venta.id}`};
-        if(!row){ await postMovimiento({...base,cajas_anterior:'',paquetes_anterior:'',unidades_anterior:'',cajas_nueva:'',paquetes_nueva:'',unidades_nueva:'',estado:'PENDIENTE_STOCK'}); continue; }
+        const baseSinOrigen=!String(d.ubicacion||'').trim();
+        const row=baseSinOrigen?null:stockCoincidente(d.nombre,d.ubicacion);
+        const base={id:`MOV-${venta.referencia_venta || venta.id}-${Math.random().toString(36).slice(2,7).toUpperCase()}`,fecha,hora,producto:d.nombre,seccion:d.seccion||'',tipo:'SALIDA',presentacion:d.presentacion,cantidad:d.cantidad,unidades_equivalentes:d.unidadesEquivalentes||'',origen:d.ubicacion||'',destino:'CLIENTE',motivo:'VENTA',usuario:venta.usuario||'',sucursal:venta.sucursal||'',referencia:`VENTA-${venta.referencia_venta || venta.id}`};
+        if(!row){ await postMovimiento({...base,cajas_anterior:'',paquetes_anterior:'',unidades_anterior:'',cajas_nueva:'',paquetes_nueva:'',unidades_nueva:'',motivo:baseSinOrigen?'VENTA - STOCK PENDIENTE DE DEFINIR':'VENTA - STOCK NO DISPONIBLE EN ORIGEN',estado:baseSinOrigen?'PENDIENTE_ORIGEN':'PENDIENTE_STOCK'}); continue; }
         let nuevo;
         if(d.presentacion==='mixto' && d.detalleFisico){
             nuevo={cajas:nStock(row.cajas),paquetes:nStock(row.paquetes),unidades:nStock(row.unidades),upp:Math.max(1,nStock(row.unidades_por_paquete)||1),ppc:Math.max(1,nStock(row.paquetes_por_caja)||1)};
@@ -782,6 +912,12 @@ async function procesarMovimientosVenta(venta){
         await postMovimiento({...base,unidades_equivalentes:d.presentacion==='caja'?d.cantidad*nuevo.ppc*nuevo.upp:d.presentacion==='paquete'?d.cantidad*nuevo.upp:d.cantidad,cajas_anterior:row.cajas||0,paquetes_anterior:row.paquetes||0,unidades_anterior:row.unidades||0,cajas_nueva:nuevo.cajas,paquetes_nueva:nuevo.paquetes,unidades_nueva:nuevo.unidades,estado:'APLICADO'});
         Object.assign(row,{cajas:nuevo.cajas,paquetes:nuevo.paquetes,unidades:nuevo.unidades});
     }
+    if(ref){
+        movimientosVentaEnProceso.delete(ref);
+        movimientosVentaCompletados.add(ref);
+        const ultimos=[...movimientosVentaCompletados].slice(-500);
+        localStorage.setItem('movimientosVentaCompletadosV20',JSON.stringify(ultimos));
+    }
 }
 
 
@@ -790,7 +926,7 @@ const sucursales = {
     "Centro Comercial Avenida Brasil": { nombre: "Centro Comercial Avenida Brasil", descripcion: "Puesto comercial fijo", ubicacion: "Puesto D2, Av. Brasil", telefono: "61439475", tipo: "centro", sheet: "comercial", icono: "fa-shopping-cart" }
 };
 
-const LINK_STOCK         = "#CAMBIAR_POR_LINK_DE_STOCK";
+const LINK_STOCK         = "https://todo12345-tech.github.io/sistema.github.io/stocktodoenuno";
 const LINK_VISUALIZACION = "https://todo12345-tech.github.io/sistema.github.io/visualizacion";
 const LINK_VENTAS_MAYOR  = "https://todo12345-tech.github.io/sistema.github.io/pormayor";
 
@@ -1103,6 +1239,7 @@ function cargarCatalogo() {
                         imagen,
                         numUnidades,
                         textoUnidad,
+                        origenDatos: 'CATÁLOGO',
                         _busqueda: normalizarTextoCatalogo(`${nombre} ${seccion}`)
                     });
                 }
@@ -1118,8 +1255,8 @@ function cargarCatalogo() {
             Notificaciones.mostrar('No se pudo cargar la lista de productos desde Google Sheets. Revisa la conexión.', 'error');
             // Mismo respaldo que tiene el código que ya funciona.
             catalogoProductos = [
-                { nombre: 'llavero porta retrato N°1', precioPaquete: 160, imagen: 'https://drive.google.com/thumbnail?id=1OJECBhkXd8N5tDuwE770KUrMBCenfYvx&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES', _busqueda: 'llavero porta retrato n°1 llaveros acrilicos' },
-                { nombre: 'llavero porta retrato N°2 abridor', precioPaquete: 300, imagen: 'https://drive.google.com/thumbnail?id=1EkWdZm9t5pgBo_kGgCEA0bksSWyyKkk0&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES', _busqueda: 'llavero porta retrato n°2 abridor llaveros acrilicos' }
+                { nombre: 'llavero porta retrato N°1', precioPaquete: 160, imagen: 'https://drive.google.com/thumbnail?id=1OJECBhkXd8N5tDuwE770KUrMBCenfYvx&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES', origenDatos:'CATÁLOGO', _busqueda: 'llavero porta retrato n°1 llaveros acrilicos' },
+                { nombre: 'llavero porta retrato N°2 abridor', precioPaquete: 300, imagen: 'https://drive.google.com/thumbnail?id=1EkWdZm9t5pgBo_kGgCEA0bksSWyyKkk0&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES', origenDatos:'CATÁLOGO', _busqueda: 'llavero porta retrato n°2 abridor llaveros acrilicos' }
             ];
             if (descripcionProducto && descripcionProducto.value.trim().length >= 2) {
                 mostrarSugerencias(descripcionProducto.value.trim());
@@ -1142,19 +1279,20 @@ function mostrarSugerencias(query) {
     }
     const q = normalizarTextoCatalogo(query);
 
-    if (catalogoProductos.length === 0) {
-        autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">No se encontraron productos</div>';
+    const fuentes=fuentesProductosVenta();
+    if (fuentes.length === 0) {
+        autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">No se encontraron productos todavía. Puedes escribirlo manualmente.</div>';
         autocompleteList.classList.add('active');
         return;
     }
 
-    sugerenciasActuales = catalogoProductos.filter(p => {
+    sugerenciasActuales = fuentes.filter(p => {
         const textoBusqueda = p._busqueda || normalizarTextoCatalogo(`${p.nombre || ''} ${p.seccion || ''}`);
         return textoBusqueda.includes(q);
     }).slice(0, 30);
 
     if (sugerenciasActuales.length === 0) {
-        autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">No se encontraron productos en el catálogo</div>';
+        autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">No está en Catálogo, Productos Agregados ni Stock. Puedes venderlo manualmente escribiendo el nombre y precio.</div>';
         autocompleteList.classList.add('active');
         return;
     }
@@ -1170,7 +1308,7 @@ function mostrarSugerencias(query) {
             ${imgHtml}
             <div class="autocomplete-item-info">
                 <div class="autocomplete-item-nombre">${p.nombre || ''}</div>
-                <div class="autocomplete-item-seccion">${p.seccion || ''}</div>
+                <div class="autocomplete-item-seccion">${p.seccion || ''} · ${p.origenDatos || 'CATÁLOGO'}</div>
             </div>
             <div class="autocomplete-item-precio">${precio > 0 ? formatearPrecio(precio) + ' Bs' : '—'}</div>
         </div>`;
@@ -1197,10 +1335,32 @@ function empaqueVentaSmart(){const f=ventaSmartFilas[0]||{};return {upp:Math.max
 function ventaSmartUE(){const e=empaqueVentaSmart();return ventaSmartCant.unidades+ventaSmartCant.paquetes*e.upp+ventaSmartCant.cajas*e.ppc*e.upp}
 function ventaSmartFilaOrigen(){return ventaSmartFilas.find(r=>normalizarTextoCatalogo(r.ubicacion||'')===normalizarTextoCatalogo(ventaSmartOrigen||''))||null}
 function ventaSmartPrecioSugerido(){const e=empaqueVentaSmart(), pp=Number(ventaSmartProducto?.precioPaquete||0);if(!pp)return 0;return ventaSmartCant.paquetes*pp+(e.upp?ventaSmartCant.unidades*(pp/e.upp):0)+(e.ppc?ventaSmartCant.cajas*e.ppc*pp:0)}
-function renderVentaSmartStock(){const box=document.getElementById('ventaSmartStock');if(!ventaSmartFilas.length){box.innerHTML='<b>Sin stock registrado todavía.</b><br><span style="color:#777;font-size:12px">Puedes continuar con la venta. El movimiento quedará PENDIENTE_STOCK.</span>';return}box.innerHTML='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen);return `<div class="venta-stock-card ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${u}</div><div class="qty">${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${unidadesTotalesFilaVenta(r)} unidades equivalentes</div><div class="pick">${sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación'}</div></div>`}).join('')+'</div>';box.querySelectorAll('[data-vstock]').forEach(el=>el.onclick=()=>{ventaSmartOrigen=ventaSmartFilas[Number(el.dataset.vstock)].ubicacion||'';renderVentaSmartStock();actualizarVentaSmart()})}
-function actualizarVentaSmart(){document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=part.length?`${part.join(' + ')} = ${ventaSmartUE()} unidades equivalentes`:'Selecciona una cantidad';document.getElementById('ventaHalfBtn').style.display=e.upp>1?'inline-block':'none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> Selecciona la ubicación de donde saldrá la mercadería.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. Puedes continuar, pero el movimiento quedará pendiente y no se descontará stock.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual)price.value=ventaSmartPrecioSugerido()?ventaSmartPrecioSugerido().toFixed(2):(Number(ventaSmartProducto?.precioPaquete||0)||'');document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0}
-async function abrirVentaSmart(producto){ventaSmartProducto=producto;ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen='';document.getElementById('ventaSmartPrecio').dataset.manual='';document.getElementById('ventaSmartNombre').textContent=producto.nombre||'Producto';const img=document.getElementById('ventaSmartImg');if(producto.imagen){img.src=producto.imagen;img.style.display='inline-block'}else img.style.display='none';document.getElementById('ventaSmartModal').style.display='flex';ventaSmartTipoActivo='unidades';setTimeout(()=>{const b=document.querySelector('[data-vtipo="unidades"][data-delta="1"]');if(b)b.focus()},50);document.getElementById('ventaSmartStock').innerHTML='<span><i class="fas fa-spinner fa-spin"></i> Consultando stock...</span>';await cargarStockInventario();ventaSmartFilas=filasStockProductoVenta(producto);const e=empaqueVentaSmart();const eq=[];if(e.upp>1)eq.push(`1 paquete = ${e.upp} unidades`);if(e.ppc>0)eq.push(`1 caja = ${e.ppc} paquetes = ${e.ppc*e.upp} unidades`);document.getElementById('ventaSmartEquiv').innerHTML='<b>Presentación registrada:</b> '+(eq.length?eq.join(' · '):'venta por unidad / sin equivalencia registrada');if(ventaSmartFilas.length===1)ventaSmartOrigen=ventaSmartFilas[0].ubicacion||'';renderVentaSmartStock();actualizarVentaSmart()}
-function cerrarVentaSmart(){document.getElementById('ventaSmartModal').style.display='none';ventaSmartProducto=null;ventaSmartFilas=[];ventaSmartOrigen='';ventaSmartCant={cajas:0,paquetes:0,unidades:0}}
+function renderVentaSmartStock(){const box=document.getElementById('ventaSmartStock');if(!ventaSmartFilas.length){box.innerHTML='<b>Sin stock registrado todavía.</b><br><span style="color:#777;font-size:12px">Puedes continuar con la venta. La venta se guardará y el stock quedará pendiente de definir; no se descontará automáticamente de inventario agregado después.</span>';return}box.innerHTML='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen);return `<div class="venta-stock-card ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${u}</div><div class="qty">${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${unidadesTotalesFilaVenta(r)} unidades equivalentes</div><div class="pick">${sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación'}</div></div>`}).join('')+'</div>';box.querySelectorAll('[data-vstock]').forEach(el=>el.onclick=()=>{ventaSmartOrigen=ventaSmartFilas[Number(el.dataset.vstock)].ubicacion||'';renderVentaSmartStock();actualizarVentaSmart()})}
+function actualizarVentaSmart(){document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=part.length?`${part.join(' + ')} = ${ventaSmartUE()} unidades equivalentes`:'Selecciona una cantidad';document.getElementById('ventaHalfBtn').style.display=e.upp>1?'inline-block':'none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> <b>Stock pendiente de definir.</b> Si sabes de dónde salió físicamente, selecciona la ubicación. Si no lo sabes, puedes continuar: la venta se guardará pero NO se descontará de ninguna ubicación.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. Puedes continuar, pero el movimiento quedará pendiente y no se descontará stock.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual)price.value=ventaSmartPrecioSugerido()?ventaSmartPrecioSugerido().toFixed(2):(Number(ventaSmartProducto?.precioPaquete||0)||'');document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0}
+async function abrirVentaSmart(producto){ventaSmartProducto=producto;ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen='';document.getElementById('ventaSmartPrecio').dataset.manual='';document.getElementById('ventaSmartNombre').textContent=producto.nombre||'Producto';const img=document.getElementById('ventaSmartImg');if(producto.imagen){img.src=producto.imagen;img.style.display='inline-block'}else img.style.display='none';document.getElementById('ventaSmartModal').style.display='flex';ventaSmartTipoActivo='unidades';setTimeout(()=>{const b=document.querySelector('[data-vtipo="unidades"][data-delta="1"]');if(b)b.focus()},50);document.getElementById('ventaSmartStock').innerHTML='<span><i class="fas fa-spinner fa-spin"></i> Consultando stock...</span>';await cargarStockInventario();ventaSmartFilas=filasStockProductoVenta(producto);const e=empaqueVentaSmart();const eq=[];if(e.upp>1)eq.push(`1 paquete = ${e.upp} unidades`);if(e.ppc>0)eq.push(`1 caja = ${e.ppc} paquetes = ${e.ppc*e.upp} unidades`);document.getElementById('ventaSmartEquiv').innerHTML='<b>Presentación registrada:</b> '+(eq.length?eq.join(' · '):'venta por unidad / sin equivalencia registrada');renderVentaSmartStock();actualizarVentaSmart()}
+function limpiarCapturaProductoVenta(){
+    descripcionProducto.value='';
+    montoProducto.value='';
+    productoCatalogoSeleccionado=null;
+    precioEditado=false;
+    sugerenciasActuales=[];
+    indiceHighlight=-1;
+    autocompleteList.classList.remove('active');
+    autocompleteList.innerHTML='';
+}
+function cerrarVentaSmart(limpiarFormulario=false){
+    document.getElementById('ventaSmartModal').style.display='none';
+    ventaSmartProducto=null;
+    ventaSmartFilas=[];
+    ventaSmartOrigen='';
+    ventaSmartCant={cajas:0,paquetes:0,unidades:0};
+    ventaSmartTipoActivo='unidades';
+    const precio=document.getElementById('ventaSmartPrecio');
+    if(precio){precio.value='';precio.dataset.manual='';}
+    ['ventaCntCajas','ventaCntPaquetes','ventaCntUnidades'].forEach(id=>{const e=document.getElementById(id);if(e)e.textContent='0';});
+    const resumen=document.getElementById('ventaSmartResumen'); if(resumen)resumen.textContent='Selecciona una cantidad';
+    if(limpiarFormulario){limpiarCapturaProductoVenta();setTimeout(()=>descripcionProducto.focus(),0);}
+}
 function seleccionarSugerencia(idx) {
     const p = sugerenciasActuales[idx];
     if (!p) return;
@@ -1214,6 +1374,10 @@ function seleccionarSugerencia(idx) {
 
 descripcionProducto.addEventListener('input', function() {
     precioEditado = false;
+    // Si el usuario vuelve a escribir, la selección anterior deja de ser válida.
+    if(productoCatalogoSeleccionado && normalizarTextoCatalogo(this.value)!==normalizarTextoCatalogo(productoCatalogoSeleccionado.nombre||'')){
+        productoCatalogoSeleccionado=null;
+    }
     mostrarSugerencias(this.value.trim());
 });
 descripcionProducto.addEventListener('focus', function() {
@@ -1248,16 +1412,16 @@ montoProducto.addEventListener('input', function() { precioEditado = true; });
 
 document.querySelectorAll('[data-vtipo]').forEach(btn=>btn.addEventListener('click',()=>{const t=btn.dataset.vtipo,d=Number(btn.dataset.delta);ventaSmartCant[t]=Math.max(0,(ventaSmartCant[t]||0)+d);document.getElementById('ventaSmartPrecio').dataset.manual='';actualizarVentaSmart()}));
 document.getElementById('ventaHalfBtn').addEventListener('click',()=>{const e=empaqueVentaSmart();ventaSmartCant.unidades+=Math.floor(e.upp/2);document.getElementById('ventaSmartPrecio').dataset.manual='';actualizarVentaSmart()});
-document.getElementById('ventaResetBtn').addEventListener('click',()=>{ventaSmartCant={cajas:0,paquetes:0,unidades:0};document.getElementById('ventaSmartPrecio').dataset.manual='';actualizarVentaSmart()});
+document.getElementById('ventaResetBtn').addEventListener('click',()=>{ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen='';const p=document.getElementById('ventaSmartPrecio');p.dataset.manual='';p.value='';renderVentaSmartStock();actualizarVentaSmart()});
 let ventaSmartTipoActivo='unidades';
 document.querySelectorAll('[data-vtipo]').forEach(btn=>btn.addEventListener('focus',()=>{ventaSmartTipoActivo=btn.dataset.vtipo}));
-document.getElementById('ventaSmartModal').addEventListener('keydown',function(e){if(this.style.display!=='flex')return;if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)&&document.activeElement?.id==='ventaSmartPrecio')return;if(e.key==='ArrowRight'){e.preventDefault();ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)+1);actualizarVentaSmart();}else if(e.key==='ArrowLeft'){e.preventDefault();ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)-1);actualizarVentaSmart();}else if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();const a=['cajas','paquetes','unidades'];let i=a.indexOf(ventaSmartTipoActivo);i=(i+(e.key==='ArrowDown'?1:-1)+a.length)%a.length;ventaSmartTipoActivo=a[i];const b=document.querySelector(`[data-vtipo="${ventaSmartTipoActivo}"][data-delta="1"]`);if(b)b.focus();}else if(e.key==='Enter'){e.preventDefault();document.getElementById('ventaSmartConfirm').click();}else if(e.key.toLowerCase()==='r'){e.preventDefault();document.getElementById('ventaResetBtn').click();}else if(e.key==='Escape'){e.preventDefault();cerrarVentaSmart();}});
+document.getElementById('ventaSmartModal').addEventListener('keydown',function(e){if(this.style.display!=='flex')return;if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)&&document.activeElement?.id==='ventaSmartPrecio')return;if(e.key==='ArrowRight'){e.preventDefault();ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)+1);actualizarVentaSmart();}else if(e.key==='ArrowLeft'){e.preventDefault();ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)-1);actualizarVentaSmart();}else if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();const a=['cajas','paquetes','unidades'];let i=a.indexOf(ventaSmartTipoActivo);i=(i+(e.key==='ArrowDown'?1:-1)+a.length)%a.length;ventaSmartTipoActivo=a[i];const b=document.querySelector(`[data-vtipo="${ventaSmartTipoActivo}"][data-delta="1"]`);if(b)b.focus();}else if(e.key==='Enter'){e.preventDefault();document.getElementById('ventaSmartConfirm').click();}else if(e.key.toLowerCase()==='r'){e.preventDefault();document.getElementById('ventaResetBtn').click();}else if(e.key==='Escape'){e.preventDefault();cerrarVentaSmart(true);}});
 document.getElementById('ventaSmartPrecio').addEventListener('input',function(){this.dataset.manual='1'});
-document.getElementById('ventaSmartClose').addEventListener('click',cerrarVentaSmart);document.getElementById('ventaSmartCancel').addEventListener('click',cerrarVentaSmart);document.getElementById('ventaSmartModal').addEventListener('click',e=>{if(e.target.id==='ventaSmartModal')cerrarVentaSmart()});
-document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),descripcion:`${part.join(' + ')} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:'mixto',cantidadFisica:1,detalleFisico:{...ventaSmartCant},ubicacionSalida:ventaSmartOrigen||sucursalSeleccionada,unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
+document.getElementById('ventaSmartClose').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartCancel').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartModal').addEventListener('click',e=>{if(e.target.id==='ventaSmartModal')cerrarVentaSmart(true)});
+document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!ventaSmartOrigen)estadoPrev='PENDIENTE_ORIGEN';else if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),descripcion:`${part.join(' + ')} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:'mixto',cantidadFisica:1,detalleFisico:{...ventaSmartCant},ubicacionSalida:ventaSmartOrigen||'',unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
         productosContent.classList.add('expanded');
         const iconoProductosSmart = productosHeader.querySelector('.collapsible-icon');
-        if (iconoProductosSmart) iconoProductosSmart.classList.add('rotated');descripcionProducto.value='';montoProducto.value='';productoCatalogoSeleccionado=null;if(!productosContent.classList.contains('expanded')){productosContent.classList.add('expanded');productosHeader.querySelector('.collapsible-icon').classList.add('rotated')}cerrarVentaSmart();descripcionProducto.focus();Notificaciones.mostrar('Producto agregado a la venta','success',2000)});
+        if (iconoProductosSmart) iconoProductosSmart.classList.add('rotated');if(!productosContent.classList.contains('expanded')){productosContent.classList.add('expanded');productosHeader.querySelector('.collapsible-icon').classList.add('rotated')}cerrarVentaSmart(true);Notificaciones.mostrar('Producto agregado a la venta','success',2000)});
 
 function generarTarjetasSucursales() {
     sucursalesContainer.innerHTML = '';
@@ -1596,6 +1760,97 @@ function perteneceVentaASucursal(venta) {
 }
 
 
+
+// ===== V20 · PANEL OPERATIVO =====
+let movimientosPendientesCache=[];
+let cargandoPanelOperativoV20=false;
+
+function ubicacionFisicaSesionV20(){
+    const actual=normalizarTextoCatalogo(sucursalSeleccionada||'');
+    const datos=sucursales[sucursalSeleccionada]||{};
+    const nombre=normalizarTextoCatalogo(datos.nombre||'');
+    if(actual.includes('feria')||nombre.includes('feria')) return 'Tienda Feria';
+    if(actual.includes('comercial')||actual.includes('brasil')||nombre.includes('comercial')||nombre.includes('brasil')) return 'Tienda Comercial';
+    return datos.nombre||sucursalSeleccionada||'';
+}
+function productoEstaEnCatalogoV20(nombre){
+    const n=normalizarTextoCatalogo(nombre||'');
+    return !!n && catalogoProductos.some(p=>normalizarTextoCatalogo(p.nombre||'')===n);
+}
+function renderPendientesCatalogoV20(){
+    const box=document.getElementById('sliderPendCatalogo'),cnt=document.getElementById('cntPendCatalogo');
+    if(!box||!cnt)return;
+    const pendientes=productosAgregadosCache.filter(p=>{
+        const faltaCatalogo=!productoEstaEnCatalogoV20(p.nombre);
+        const faltaFoto=!String(p.imagen||'').trim();
+        return faltaCatalogo||faltaFoto;
+    });
+    cnt.textContent=pendientes.length;
+    if(!pendientes.length){box.innerHTML='<div class="operativo-vacio"><i class="fas fa-check-circle"></i> Todos los Productos Agregados revisados ya están completos para catálogo.</div>';return}
+    box.innerHTML=pendientes.map(p=>{
+        const enCat=productoEstaEnCatalogoV20(p.nombre),foto=convertirImagenDrive(p.imagen||'');
+        const badges=[];
+        if(!enCat)badges.push('<span class="operativo-badge">PENDIENTE DE CATÁLOGO</span>');
+        if(!String(p.imagen||'').trim())badges.push('<span class="operativo-badge rojo">FALTA FOTO</span>');
+        return `<div class="operativo-card">${foto?`<img src="${escInicio(foto)}" alt="">`:''}<div class="operativo-nombre">${escInicio(p.nombre||'Sin nombre')}</div><div class="operativo-meta">${escInicio(p.seccion||'Sin sección')}</div><div style="clear:both"></div>${badges.join(' ')}</div>`;
+    }).join('');
+}
+function renderStockSucursalV20(){
+    const box=document.getElementById('sliderStockSucursal'),cnt=document.getElementById('cntStockSucursal'),sub=document.getElementById('stockSucursalSub');
+    if(!box||!cnt)return;
+    const ubic=ubicacionFisicaSesionV20(),nu=normalizarTextoCatalogo(ubic);
+    if(sub)sub.textContent=`Ubicación revisada: ${ubic||'sin ubicación definida'}. No mezcla stock de otras sucursales.`;
+    const filas=stockCache.filter(x=>normalizarTextoCatalogo(x.ubicacion||'')===nu);
+    const bajos=filas.map(x=>({...x,_s:stockFisicoInicio(x)})).filter(x=>x._s<=UMBRAL_STOCK_BAJO_INICIO).sort((a,b)=>a._s-b._s);
+    cnt.textContent=bajos.length;
+    if(!bajos.length){box.innerHTML=`<div class="operativo-vacio"><i class="fas fa-check-circle"></i> No hay alertas de stock bajo registradas en <b>${escInicio(ubic)}</b>.</div>`;return}
+    box.innerHTML=bajos.map(x=>`<div class="operativo-card"><div class="operativo-nombre">${escInicio(x.nombre||'Sin nombre')}</div><div class="operativo-meta">${escInicio(x.ubicacion||'')}<br>${nStock(x.cajas)} caja(s) · ${nStock(x.paquetes)} paquete(s) · ${nStock(x.unidades)} unidad(es)</div><span class="operativo-badge ${x._s===0?'rojo':''}">${x._s===0?'SIN STOCK':x._s+' disp. equivalentes'}</span></div>`).join('');
+}
+async function cargarMovimientosPendientesV20(){
+    try{
+        const nonce=`${Date.now()}_${Math.random().toString(36).slice(2)}`;
+        const urls=[
+            `https://docs.google.com/spreadsheets/d/${STOCK_GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(MOVIMIENTOS_SHEET_NAME)}&tq=${encodeURIComponent('select *')}&_=${nonce}`,
+            `https://docs.google.com/spreadsheets/d/${STOCK_GOOGLE_SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(MOVIMIENTOS_SHEET_NAME)}&_=${nonce}`
+        ];
+        let ultimo=null;
+        for(const url of urls){
+            try{
+                const r=await fetch(url,{cache:'no-store',credentials:'omit'});if(!r.ok)throw new Error(`Google Movimientos HTTP ${r.status}`);
+                const filas=objCsvInicio(await r.text());
+                movimientosPendientesCache=filas.filter(m=>['pendiente_origen','pendiente_stock'].includes(normalizarTextoCatalogo(m.estado||'').replace(/ /g,'_')));
+                return movimientosPendientesCache;
+            }catch(e){ultimo=e}
+        }
+        throw ultimo||new Error('No se pudo leer movimientos');
+    }catch(e){console.warn('Movimientos pendientes:',e);movimientosPendientesCache=[];throw e}
+}
+function movimientoPerteneceSesionV20(m){
+    const suc=normalizarTextoCatalogo(m.sucursal||'');
+    if(!suc)return true;
+    const actual=normalizarTextoCatalogo(sucursalSeleccionada||'');
+    const datos=normalizarTextoCatalogo((sucursales[sucursalSeleccionada]||{}).nombre||'');
+    if(actual.includes('feria')||datos.includes('feria'))return suc.includes('feria');
+    if(actual.includes('comercial')||actual.includes('brasil')||datos.includes('comercial')||datos.includes('brasil'))return suc.includes('comercial')||suc.includes('brasil')||suc.includes('centro');
+    return true;
+}
+function renderSalidasPendientesV20(){
+    const box=document.getElementById('sliderSalidasPendientes'),cnt=document.getElementById('cntSalidasPendientes');if(!box||!cnt)return;
+    const arr=movimientosPendientesCache.filter(m=>movimientoPerteneceSesionV20(m)).slice().reverse();
+    cnt.textContent=arr.length;
+    if(!arr.length){box.innerHTML='<div class="operativo-vacio"><i class="fas fa-check-circle"></i> No hay salidas pendientes para esta sesión.</div>';return}
+    box.innerHTML=arr.map(m=>`<div class="operativo-card"><div class="operativo-nombre">${escInicio(m.producto||'Producto')}</div><div class="operativo-meta">Venta ${escInicio(m.fecha||'')} ${escInicio(m.hora||'')}<br>${escInicio(m.presentacion||'')} · ${escInicio(m.cantidad||'')} ${m.origen?`· ${escInicio(m.origen)}`:''}</div><span class="operativo-badge ${normalizarTextoCatalogo(m.estado).includes('origen')?'rojo':'azul'}">${escInicio(m.estado||'PENDIENTE')}</span></div>`).join('');
+}
+async function cargarPanelOperativoV20({forzar=false}={}){
+    if(cargandoPanelOperativoV20)return;
+    cargandoPanelOperativoV20=true;
+    try{
+        if(forzar){productosAgregadosCache=[];stockCache=[]}
+        await Promise.allSettled([cargarProductosAgregadosVenta(),cargarStockInventario(),cargarMovimientosPendientesV20()]);
+        renderPendientesCatalogoV20();renderStockSucursalV20();renderSalidasPendientesV20();
+    }finally{cargandoPanelOperativoV20=false}
+}
+
 let ultimaCargaAlertasInicio=0, firmaAlertasInicio='';
 function nInicio(v){const n=parseFloat(String(v??'').replace(',','.'));return Number.isFinite(n)?n:0}
 function hInicio(s){return String(s??'').trim().toLowerCase().replace(/^\ufeff/,'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,'_')}
@@ -1844,7 +2099,10 @@ async function guardarVentaCompleta() {
 }
 
 async function guardarVentaConMetodoPago() {
-    if (guardandoVenta) return;
+    if (guardandoVenta) {
+        Notificaciones.mostrar('Esta venta ya se está procesando. Espera un momento.', 'warning', 2500);
+        return;
+    }
     guardandoVenta = true;
     confirmMetodoPago.disabled = true;
     confirmMetodoPago.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
@@ -1864,7 +2122,7 @@ async function guardarVentaConMetodoPago() {
         const ventaGuardada = guardarVentaLocal();
         if (ventaGuardada) {
             Notificaciones.mostrar('Venta guardada. Actualizando inventario...', 'info', 2500);
-            try { await procesarMovimientosVenta(ventaGuardada); Notificaciones.mostrar('Venta y movimiento procesados correctamente', 'success', 3500); }
+            try { await procesarMovimientosVenta(ventaGuardada); Notificaciones.mostrar('Venta y movimiento procesados correctamente', 'success', 3500); setTimeout(()=>cargarPanelOperativoV20({forzar:true}),900); }
             catch(invErr){ console.error(invErr); Notificaciones.mostrar('Venta guardada, pero hubo un problema al sincronizar Stock/Movimientos. Revisa conexión.', 'warning', 5000); }
             setTimeout(async () => await sincronizarVentaIndividualANube(ventaGuardada), 500);
         }
@@ -1879,6 +2137,14 @@ async function guardarVentaConMetodoPago() {
     }
 }
 
+let ultimoTimestampVentaMs = 0;
+function generarTimestampVentaUnico(){
+    let ms=Date.now();
+    if(ms<=ultimoTimestampVentaMs) ms=ultimoTimestampVentaMs+1;
+    ultimoTimestampVentaMs=ms;
+    return new Date(ms).toISOString();
+}
+
 function guardarVentaLocal() {
     const datosSucursal = obtenerDatosSucursal();
     let metodoPagoData = { metodo_pago: metodoPagoSeleccionado };
@@ -1886,9 +2152,9 @@ function guardarVentaLocal() {
     else { metodoPagoData.monto_efectivo = ''; metodoPagoData.monto_qr = ''; }
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const diaSemana = dias[new Date().getDay()];
-    const idVentaInterno = Date.now();
+    const idVentaInterno = `${Date.now()}-${Math.random().toString(36).slice(2,8).toUpperCase()}`;
     const clienteVenta = String(nombreClienteActual || '').trim() || 'Cliente General';
-    const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'paquete',cantidad:i.cantidadFisica||1,ubicacion:i.ubicacionSalida||'',unidadesEquivalentes:i.unidadesEquivalentes||'', detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, ...metodoPagoData };
+    const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'paquete',cantidad:i.cantidadFisica||1,ubicacion:i.ubicacionSalida||'',unidadesEquivalentes:i.unidadesEquivalentes||'', detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: generarTimestampVentaUnico(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, ...metodoPagoData };
     ventasDelDia.push(datosVenta);
     localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
     ventasCajaActual.push(datosVenta);
@@ -1919,6 +2185,11 @@ function inicializar() {
     // IMPORTANTE: cargar el catálogo PRIMERO.
     // Así un error posterior en sesión/caja/estadísticas no puede bloquear el buscador.
     cargarCatalogo();
+    // Lecturas auxiliares directas desde Google Sheets: NO consumen GET de SheetDB.
+    Promise.allSettled([cargarProductosAgregadosVenta(),cargarStockInventario()]).then(()=>{
+        if(descripcionProducto && descripcionProducto.value.trim().length>=2) mostrarSugerencias(descripcionProducto.value.trim());
+        cargarPanelOperativoV20();
+    });
 
     generarTarjetasSucursales();
     configurarEventListeners();
@@ -2065,7 +2336,7 @@ function configurarEventListeners() {
         const descripcion=descripcionProducto.value.trim(), monto=parseFloat(montoProducto.value);
         if(!descripcion){Notificaciones.mostrar('Selecciona un producto o escribe una descripción','warning');return}
         if(isNaN(monto)||monto<=0){Notificaciones.mostrar('Ingresa un monto válido','warning');return}
-        items.push({id:Date.now(),descripcion,monto,productoCatalogo:false,nombreProducto:descripcion,seccion:'',imagen:'',presentacion:'unidad',cantidadFisica:1,ubicacionSalida:sucursalSeleccionada,unidadesEquivalentes:1});
+        items.push({id:Date.now(),descripcion,monto,productoCatalogo:false,nombreProducto:descripcion,seccion:'',imagen:'',presentacion:'unidad',cantidadFisica:1,ubicacionSalida:'',unidadesEquivalentes:1});
         actualizarListaItems();
         actualizarPrevisualizacion();
 
@@ -2396,62 +2667,134 @@ async function confirmarAutorizacionEliminar() {
     }
 }
 
+
+function normalizarComparacionVenta(v){
+    return String(v ?? '').trim().replace(/\s+/g,' ').toLowerCase();
+}
+function obtenerSheetDeVenta(venta){
+    const sucVenta=normalizarComparacionVenta(venta?.sucursal);
+    for(const [clave,datos] of Object.entries(sucursales||{})){
+        if(normalizarComparacionVenta(datos?.nombre)===sucVenta) return datos.sheet || clave;
+    }
+    // Fallback compatible con las dos sucursales actuales.
+    if(sucVenta.includes('feria')) return 'feria';
+    return 'comercial';
+}
+function firmaVisibleVenta(venta){
+    return {
+        cliente: normalizarComparacionVenta(venta?.nombre_cliente || venta?.id || 'Cliente General'),
+        fecha: normalizarComparacionVenta(venta?.fecha),
+        hora: normalizarComparacionVenta(venta?.hora),
+        sucursal: normalizarComparacionVenta(venta?.sucursal)
+    };
+}
+function ventaCoincideConFirma(venta,firma){
+    const f=firmaVisibleVenta(venta);
+    return f.cliente===firma.cliente && f.fecha===firma.fecha && f.hora===firma.hora && f.sucursal===firma.sucursal;
+}
+function referenciaSeguraVenta(venta){
+    // timestamp es único por venta y ya existe como columna real en el Sheet.
+    return String(venta?.timestamp || '').trim();
+}
+
 async function eliminarVenta(index) {
     const venta = ventasDelDia[index];
     if (!venta) return;
 
+    const firma = firmaVisibleVenta(venta);
+    const timestampSeguro = referenciaSeguraVenta(venta);
+    const clienteVisible = venta.nombre_cliente || venta.id || 'Cliente General';
+    const sheetVenta = obtenerSheetDeVenta(venta);
+
+    // Doble seguridad local: la fila que se va a tocar debe seguir siendo exactamente
+    // la que el usuario seleccionó: cliente + fecha + hora + sucursal.
+    if (!ventaCoincideConFirma(ventasDelDia[index], firma)) {
+        Notificaciones.mostrar('Seguridad: la venta cambió desde que fue seleccionada. Actualiza Ventas del Día e inténtalo nuevamente.', 'error', 7000);
+        return;
+    }
+
+    // Una venta sincronizada debe tener una llave realmente única.
+    // NUNCA se permite borrar del Sheet usando "Cliente General" como identificador.
+    if (venta.sincronizada && !timestampSeguro) {
+        await Swal.fire({
+            title: 'No se puede eliminar con seguridad',
+            html: `<div style="text-align:left;font-size:14px;">
+                <p>Esta venta no tiene una <strong>referencia única (timestamp)</strong>.</p>
+                <p>Por seguridad <strong>no se enviará ningún DELETE</strong> al Sheet.</p>
+                <p style="color:#c0392b">Así evitamos borrar por error otras ventas de <strong>${clienteVisible}</strong>.</p>
+            </div>`,
+            icon: 'error',
+            confirmButtonText: 'Entendido'
+        });
+        return;
+    }
+
     const result = await Swal.fire({
-        title: '¿Eliminar este registro?',
-        html: `<div style="text-align:left;font-size:14px;">
-            <p><strong>Registro:</strong> ${venta.productos || '-'}</p>
+        title: '¿Eliminar únicamente esta venta?',
+        html: `<div style="text-align:left;font-size:14px;line-height:1.65">
+            <p><strong>Cliente:</strong> ${clienteVisible}</p>
+            <p><strong>Fecha:</strong> ${venta.fecha || '-'}</p>
+            <p><strong>Hora:</strong> ${venta.hora || '-'}</p>
+            <p><strong>Sucursal:</strong> ${venta.sucursal || '-'}</p>
+            <p><strong>Productos:</strong> ${venta.productos || '-'}</p>
             <p><strong>Total:</strong> ${venta.total_venta || 0} Bs</p>
-            <p style="color:#c0392b"><strong>Esta acción eliminará también la fila del Sheet.</strong></p>
+            <hr style="margin:10px 0;border:0;border-top:1px solid #ddd">
+            <p style="color:#176b4d"><strong>Seguridad:</strong> se verificará Cliente + Fecha + Hora + Sucursal.</p>
+            <p style="color:#176b4d"><strong>Llave de eliminación:</strong> referencia interna única de esta venta.</p>
+            <p style="color:#c0392b"><strong>Nunca se eliminará usando “Cliente General” como llave.</strong></p>
         </div>`,
         icon: 'warning',
         showCancelButton: true,
         confirmButtonColor: '#d33',
         cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar',
+        confirmButtonText: 'Sí, eliminar solo esta venta',
         cancelButtonText: 'Cancelar'
     });
     if (!result.isConfirmed) return;
 
-    // Si la fila vino del Sheet, no fingimos borrado local: primero debe borrarse en la nube.
-    if (venta.sincronizada && venta.id) {
+    // Verificación final justo antes de escribir.
+    const actual = ventasDelDia[index];
+    if (!actual || !ventaCoincideConFirma(actual, firma) || referenciaSeguraVenta(actual)!==timestampSeguro) {
+        Notificaciones.mostrar('Seguridad: los datos ya no coinciden. No se eliminó nada.', 'error', 7000);
+        return;
+    }
+
+    // Si vino del Sheet, DELETE exclusivamente por timestamp único.
+    // SheetDB se usa solo para esta escritura; NO hacemos GET.
+    if (venta.sincronizada) {
         try {
-            const suc = sucursales[sucursalSeleccionada];
-            const sheet = suc ? suc.sheet : 'comercial';
-            const url = `${API_URL_BASE}/id/${encodeURIComponent(venta.id)}?sheet=${encodeURIComponent(sheet)}`;
+            const url = `${API_URL_BASE}/timestamp/${encodeURIComponent(timestampSeguro)}?sheet=${encodeURIComponent(sheetVenta)}`;
             const r = await fetch(url, { method: 'DELETE' });
             if (!r.ok) throw new Error(`SheetDB HTTP ${r.status}`);
         } catch (e) {
-            console.error('No se pudo eliminar del Sheet:', e);
-            Notificaciones.mostrar('No se eliminó: la conexión de escritura con el Sheet no está disponible.', 'error', 6000);
+            console.error('No se pudo eliminar la venta exacta del Sheet:', e);
+            Notificaciones.mostrar('No se eliminó nada: falló la escritura de la venta exacta en el Sheet.', 'error', 6500);
             return;
         }
     }
 
     crearBackupAutomatico();
 
-    // Quita inmediatamente la misma fila del respaldo local.
-    const idEliminado = String(venta.id ?? '');
-    const tsEliminado = String(venta.timestamp ?? '');
+    // El respaldo local también se elimina SOLO por la misma referencia única.
+    // Si por alguna razón no hay timestamp (venta aún no sincronizada), se elimina
+    // únicamente el índice exacto que el usuario confirmó.
     ventasDelDia = ventasDelDia.filter((v, i) => {
-        if (i === index) return false;
-        if (idEliminado && String(v.id ?? '') === idEliminado) {
-            if (!tsEliminado || String(v.timestamp ?? '') === tsEliminado) return false;
-        }
-        return true;
+        if (timestampSeguro) return String(v.timestamp ?? '').trim() !== timestampSeguro;
+        return i !== index;
     });
+    ventasCajaActual = (ventasCajaActual || []).filter(v => {
+        if (timestampSeguro) return String(v.timestamp ?? '').trim() !== timestampSeguro;
+        return !(ventaCoincideConFirma(v,firma) && String(v.productos||'')===String(venta.productos||'') && String(v.total_venta||'')===String(venta.total_venta||''));
+    });
+
     localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+    localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
     if (typeof actualizarContadorVentas === 'function') actualizarContadorVentas();
     actualizarEstadisticas();
     actualizarVentasDelDia();
-    Notificaciones.mostrar('Registro eliminado del Sheet', 'success');
+    Notificaciones.mostrar(`Venta de ${clienteVisible} eliminada de forma segura`, 'success', 4000);
 
-    // No hacemos GET a SheetDB después de eliminar.
-    // La fila ya se quitó localmente. La próxima lectura/actualización vendrá
-    // directamente desde Google Sheets sin consumir la cuota GET de SheetDB.
+    // No GET a SheetDB. La próxima lectura se hace directamente desde Google Sheets.
 }
 
 function generarNotaVenta() {
@@ -2919,7 +3262,15 @@ function setupActivityListeners() {
     events.forEach(event => { document.addEventListener(event, () => { lastActivityTime = Date.now(); }, { passive: true }); });
 }
 
-inicializar();
+
+    const btnProdAg=document.getElementById('abrirProductosAgregados');
+    if(btnProdAg)btnProdAg.addEventListener('click',()=>window.open(PRODUCTOS_AGREGADOS_LINK,'_blank','noopener'));
+    const btnStockPub=document.getElementById('abrirStockPublicado');
+    if(btnStockPub)btnStockPub.addEventListener('click',()=>window.open(LINK_STOCK,'_blank','noopener'));
+    const btnRefPanel=document.getElementById('refrescarPanelOperativo');
+    if(btnRefPanel)btnRefPanel.addEventListener('click',async()=>{btnRefPanel.disabled=true;btnRefPanel.innerHTML='<i class="fas fa-spinner fa-spin"></i>';await cargarPanelOperativoV20({forzar:true});btnRefPanel.disabled=false;btnRefPanel.innerHTML='<i class="fas fa-sync-alt"></i>'});
+
+    inicializar();
 });
 
 window.addEventListener('load',()=>setTimeout(()=>{actualizarResumenHoyInicio();cargarAlertasNegocioInicio({forzar:true})},1200));
