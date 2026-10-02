@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Gestión de Ventas V21 · Permisos por Rol</title>
+<title>Todoenuno_store - Gestión de Ventas V23 · Sincronización Feria Corregida</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -329,7 +329,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 @media(max-width:650px){.operativo-card{flex-basis:190px}.operativo-head{align-items:flex-start}.operativo-actions{flex-wrap:wrap;justify-content:flex-end}}
 
 </style>
-<!-- V21: V20 + permisos reforzados: vendedor consulta/opera; accesos directos a Excel solo administrador -->
+<!-- V23: V22 corregido. Una API SheetDB, escritura a feria/comercial según la sucursal de CADA venta; lecturas directas desde Google Sheets. -->
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -946,11 +946,29 @@ const UMBRAL_STOCK_BAJO_INICIO=5;
 const DIAS_PROXIMO_VENCIMIENTO_INICIO=30;
 
 
-const API_URL_BASE = 'https://sheetdb.io/api/v1/kh5t9g90zly1x';
+const API_URL_BASE = 'https://sheetdb.io/api/v1/kh5t9g90zly1x'; // V22: API única para comercial + feria
+    function obtenerHojaVentasV22() {
+        const suc = String(sucursalActual || '').toLowerCase();
+        return suc.includes('feria') ? 'feria' : 'comercial';
+    }
+    function obtenerHojaVentasPorSucursal(sucursalNombre) {
+        const nombre = String(sucursalNombre || '').trim().toLowerCase();
+        const suc = sucursales[sucursalNombre];
+        const tipo = String((suc && suc.tipo) || '').trim().toLowerCase();
+
+        // La hoja se decide por la venta que se está sincronizando,
+        // NO por la sucursal actualmente seleccionada en pantalla.
+        if (nombre.includes('feria') || tipo.includes('feria')) return 'feria';
+        return 'comercial';
+    }
+
+    function obtenerApiVentasV22(sucursalNombre) {
+        const hoja = obtenerHojaVentasPorSucursal(sucursalNombre || sucursalActual);
+        return `${API_URL_BASE}?sheet=${encodeURIComponent(hoja)}`;
+    }
+
 function obtenerUrlSheetDB(sucursalNombre) {
-    const suc = sucursales[sucursalNombre];
-    if (!suc) return `${API_URL_BASE}?sheet=feria`;
-    return `${API_URL_BASE}?sheet=${suc.sheet}`;
+    return obtenerApiVentasV22(sucursalNombre);
 }
 
 const loginScreen = document.getElementById('loginScreen');
@@ -1685,13 +1703,23 @@ async function sincronizarVentaIndividualANube(venta) {
         Object.keys(datosParaSheetDB).forEach(key => { if (datosParaSheetDB[key] === undefined) datosParaSheetDB[key] = ''; });
         const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: datosParaSheetDB }) });
         if (response.ok) {
-            const ventaIndex = ventasDelDia.findIndex(v => v.id === venta.id);
-            if (ventaIndex !== -1) { ventasDelDia[ventaIndex].sincronizada = true; localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia)); }
-            cloudStatus.innerHTML = '<i class="fas fa-circle online"></i> <span>Sincronizado</span>'; cloudStatus.className = 'right-sidebar-status online';
+            const ventaIndex = ventasDelDia.findIndex(v =>
+                (v.timestamp && venta.timestamp && v.timestamp === venta.timestamp) ||
+                (v.referencia_venta && venta.referencia_venta && v.referencia_venta === venta.referencia_venta) ||
+                (v.id === venta.id && v.fecha === venta.fecha && v.hora === venta.hora)
+            );
+            if (ventaIndex !== -1) {
+                ventasDelDia[ventaIndex].sincronizada = true;
+                localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+            }
+            cloudStatus.innerHTML = '<i class="fas fa-circle online"></i> <span>Sincronizado</span>';
+            cloudStatus.className = 'right-sidebar-status online';
             return true;
         }
+        const detalleError = await response.text().catch(()=>'');
+        console.error('SheetDB rechazó la venta:', response.status, detalleError, 'URL:', url, 'Venta:', venta);
         return false;
-    } catch (error) { console.error('Error SheetDB:', error); return false; }
+    } catch (error) { console.error('Error SheetDB:', error, 'Venta:', venta); return false; }
 }
 
 async function sincronizarVentasANube() {
