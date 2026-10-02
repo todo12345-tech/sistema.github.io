@@ -211,6 +211,77 @@
         .btn-traspaso{background:#8e44ad}.btn-traspaso:hover{background:#71368a;transform:scale(1.1)}
         .mov-resumen{background:#f7f4fb;border:1px solid #ded0e8;border-radius:10px;padding:12px;margin-bottom:14px;font-size:13px}.mov-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:10px}.mov-grid .form-group{margin:0}.stock-disponible{font-size:11px;color:#6c757d;margin-top:4px}
         @media(max-width:650px){.mov-grid{grid-template-columns:1fr}.ubicacion-card{min-width:205px}}
+
+
+
+
+
+        /* V13: inventario progresivo simultáneo en la misma ubicación */
+        .modo-suma-aviso{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:9px;padding:10px 12px;margin-top:10px;font-size:12px;line-height:1.5}
+        .modo-suma-aviso strong{color:#256029}
+        /* V12: maestro auxiliar productos_agregados */
+        .producto-nuevo-aviso{grid-column:1/-1;background:#eef8ff;border:1px solid #b9dcf5;border-radius:10px;padding:11px 13px;font-size:11px;line-height:1.5;display:none}
+        .producto-nuevo-aviso.visible{display:block}
+        .origen-producto-badge{display:inline-block;padding:3px 7px;border-radius:10px;background:#e8f5e9;color:#256029;font-size:9px;font-weight:800;margin-left:5px}
+        .btn-productos-aux{background:#607d8b}.btn-productos-aux:hover{background:#546e7a}
+        .aux-lista{max-height:420px;overflow:auto;border:1px solid #eee;border-radius:8px}
+        .aux-row{display:grid;grid-template-columns:1.5fr 1fr 100px 100px;gap:8px;padding:9px;border-bottom:1px solid #eee;font-size:11px;align-items:center}
+        .aux-row:nth-child(even){background:#fafafa}
+        @media(max-width:700px){.aux-row{grid-template-columns:1fr 1fr}}
+        /* V11: alertas, buscador de movimientos y resumen por ubicación */
+        .resumen-ubicaciones{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin:12px 0 18px}
+        .resumen-ubi-card{background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
+        .resumen-ubi-card strong{display:block;font-size:13px;margin-bottom:5px}
+        .resumen-ubi-num{font-size:21px;font-weight:800}
+        .resumen-ubi-sub{font-size:10px;color:#7f8c8d;margin-top:3px}
+        .stock-bajo{background:#fff8e1!important}
+        .stock-critico{background:#ffebee!important}
+        .badge-stock{display:inline-block;padding:3px 7px;border-radius:12px;font-size:9px;font-weight:800;margin-left:5px}
+        .badge-bajo{background:#ffe082;color:#6d5700}.badge-critico{background:#ffcdd2;color:#8e1b1b}
+        .mov-buscador{display:flex;gap:8px;align-items:center;flex-wrap:wrap;margin:10px 0}
+        .mov-buscador input{flex:1;min-width:220px;padding:9px 11px;border:1px solid #ddd;border-radius:7px}
+        .mov-resultados{max-height:430px;overflow:auto;border:1px solid #eee;border-radius:8px}
+        .mov-row{display:grid;grid-template-columns:125px 1fr 90px 1fr 1fr;gap:8px;padding:9px;border-bottom:1px solid #eee;font-size:11px;align-items:center}
+        .mov-row:nth-child(even){background:#fafafa}
+        @media(max-width:750px){.mov-row{grid-template-columns:1fr 1fr}.mov-row>*:nth-child(2){font-weight:700}}
+        /* V10: registro guiado para personal */
+        .guia-registro{grid-column:1/-1;background:linear-gradient(135deg,#fff9df,#fff);border:1px solid #f1d875;border-radius:12px;padding:14px 16px;margin-bottom:2px}
+        .guia-registro h3{margin:0 0 8px;font-size:15px;color:#5d4b00}
+        .guia-pasos{display:grid;grid-template-columns:repeat(5,1fr);gap:7px;margin-top:10px}
+        .guia-paso{background:white;border:1px solid #eee3b1;border-radius:8px;padding:8px;font-size:11px;line-height:1.35}
+        .guia-paso strong{display:block;font-size:12px;margin-bottom:3px}
+        .campo-ayuda{font-size:10px;color:#6c757d;line-height:1.4;margin-top:4px;display:block}
+        .campo-alerta{font-size:10px;color:#9a6700;line-height:1.4;margin-top:4px;display:block;font-weight:600}
+        .btn-guia-form{border:0;border-radius:7px;background:#f4c542;color:#3b330d;padding:7px 10px;font-weight:700;cursor:pointer;margin-top:8px}
+        .resumen-registro{background:#f8fbff;border:1px solid #cfe3f6;border-radius:10px;padding:12px;margin-top:10px;font-size:12px;line-height:1.55}
+        .resumen-registro strong{color:#1f4e79}
+        .confirm-registro-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-top:10px}
+        .confirm-registro-item{background:#f8f9fa;border-radius:7px;padding:8px}
+        @media(max-width:700px){.guia-pasos{grid-template-columns:1fr}.confirm-registro-grid{grid-template-columns:1fr}}
+        /* V9: ubicaciones, entradas, traslados, ajustes y trazabilidad */
+        .btn-ajuste{background:#e67e22}.btn-ajuste:hover{background:#ca6f1e}
+        .ajuste-resumen{display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin:12px 0}
+        .ajuste-box{background:#f8f9fa;border:1px solid #e9ecef;border-radius:8px;padding:10px;text-align:center}
+        .ajuste-box strong{display:block;font-size:17px;margin-top:4px}
+        .alerta-regla{background:#fff8e1;border:1px solid #ffe082;padding:12px;border-radius:8px;font-size:12px;line-height:1.55;margin:10px 0}
+        .ubicacion-inicio{font-size:10px;color:#7f8c8d;margin-top:3px}
+        /* V6: ubicaciones dinámicas, entradas y traspasos múltiples */
+        .btn-secundario{background:#17a2b8}.btn-secundario:hover{background:#138496}
+        .btn-entrada{background:#28a745}.btn-entrada:hover{background:#218838}
+        .btn-mover-multiple{background:#8e44ad}.btn-mover-multiple:hover{background:#71368a}
+        .ubicaciones-acciones{display:flex;gap:8px;flex-wrap:wrap}
+        .ubicaciones-acciones button{width:auto;grid-column:auto;margin:0;padding:9px 13px;font-size:12px}
+        .tabla-multiple{width:100%;border-collapse:collapse;margin-top:12px}
+        .tabla-multiple th,.tabla-multiple td{padding:8px;border-bottom:1px solid #e9ecef;vertical-align:middle}
+        .tabla-multiple input{padding:7px;min-width:70px}
+        .tabla-multiple .prod{font-weight:700;min-width:180px}
+        .tabla-multiple .origen{font-size:11px;color:#6c757d}
+        .ref-operacion{background:#eef6ff;border:1px solid #cfe4ff;padding:10px 12px;border-radius:8px;font-size:12px;margin-bottom:12px}
+        .ubicacion-lista-admin{display:flex;flex-direction:column;gap:8px;margin-top:12px}
+        .ubicacion-admin-row{display:grid;grid-template-columns:1fr 150px 100px auto;gap:8px;align-items:center;padding:10px;border:1px solid #e9ecef;border-radius:8px}
+        .ubicacion-admin-row small{color:#6c757d}
+        @media(max-width:700px){.ubicacion-admin-row{grid-template-columns:1fr}.tabla-multiple{font-size:11px}}
+
     </style>
 </head>
 <body>
@@ -291,6 +362,18 @@
 
         <h2><i class="fas fa-plus-circle"></i> Registrar Nuevo Producto</h2>
         <form id="stockForm" class="form-grid" novalidate>
+            <div class="guia-registro">
+                <h3><i class="fas fa-graduation-cap"></i> Registro guiado — antes de empezar</h3>
+                <div style="font-size:12px;line-height:1.5">Registra <strong>lo que físicamente tienes y puedes vender hoy</strong>. No copies solamente lo que dice una caja si está abierta, incompleta o tiene producto roto.</div>
+                <div class="guia-pasos">
+                    <div class="guia-paso"><strong>1. Producto</strong>Busca el nombre correcto.</div>
+                    <div class="guia-paso"><strong>2. Ubicación</strong>Indica dónde está físicamente.</div>
+                    <div class="guia-paso"><strong>3. Cuenta</strong>Cajas, paquetes y unidades reales.</div>
+                    <div class="guia-paso"><strong>4. Equivalencias</strong>Cómo viene empacado y cómo se vende.</div>
+                    <div class="guia-paso"><strong>5. Revisa</strong>El sistema te mostrará un resumen antes de guardar.</div>
+                </div>
+                <button type="button" class="btn-guia-form" id="btnGuiaRegistro"><i class="fas fa-question-circle"></i> Ver ejemplos antes de registrar</button>
+            </div>
             <div class="form-group full">
                 <label for="nombre"><i class="fas fa-search"></i> Nombre del Producto <span class="req">*</span></label>
                 <div class="autocomplete-wrapper">
@@ -305,23 +388,23 @@
             </div>
             <div class="form-group">
                 <label for="cajas"><i class="fas fa-box"></i> Cajas</label>
-                <input type="number" id="cajas" name="data[cajas]" placeholder="0" min="0" step="1" value="0">
+                <input type="number" id="cajas" name="data[cajas]" placeholder="0" min="0" step="1" value="0"><span class="campo-ayuda">Cajas completas que realmente tienes. Si una caja está abierta/incompleta, no la cuentes como caja cerrada: registra su contenido real en paquetes/unidades.</span>
             </div>
             <div class="form-group">
                 <label for="paquetes"><i class="fas fa-boxes-stacked"></i> Paquetes</label>
-                <input type="number" id="paquetes" name="data[paquetes]" placeholder="0" min="0" step="1" value="0">
+                <input type="number" id="paquetes" name="data[paquetes]" placeholder="0" min="0" step="1" value="0"><span class="campo-ayuda">Paquetes completos fuera de una caja cerrada. No vuelvas a contar aquí los paquetes que ya están dentro de las cajas registradas arriba.</span>
             </div>
             <div class="form-group">
                 <label for="unidades"><i class="fas fa-cubes"></i> Unidades sueltas</label>
-                <input type="number" id="unidades" name="data[unidades]" placeholder="0" min="0" step="1" value="0">
+                <input type="number" id="unidades" name="data[unidades]" placeholder="0" min="0" step="1" value="0"><span class="campo-alerta">UNIDAD = la cantidad mínima que vendemos, no siempre una pieza física. Ej.: si vendemos 2 pilas juntas, esas 2 pilas = 1 unidad de venta.</span>
             </div>
             <div class="form-group">
                 <label for="unidades_por_paquete"><i class="fas fa-layer-group"></i> Unidades por paquete</label>
-                <input type="number" id="unidades_por_paquete" name="data[unidades_por_paquete]" placeholder="Ej: 100" min="0" step="1">
+                <input type="number" id="unidades_por_paquete" name="data[unidades_por_paquete]" placeholder="Ej: 20" min="0" step="1"><span class="campo-ayuda">¿Cuántas unidades DE VENTA completas contiene 1 paquete? TOSHIBA: 40 pilas físicas vendidas de 2 en 2 = 20 unidades de venta.</span>
             </div>
             <div class="form-group">
                 <label for="paquetes_por_caja"><i class="fas fa-box-open"></i> Paquetes por caja</label>
-                <input type="number" id="paquetes_por_caja" name="data[paquetes_por_caja]" placeholder="Ej: 12" min="0" step="1">
+                <input type="number" id="paquetes_por_caja" name="data[paquetes_por_caja]" placeholder="Ej: 5" min="0" step="1"><span class="campo-ayuda">¿Cuántos paquetes completos trae normalmente una caja/cajón cerrado? Si no existe esta presentación, déjalo vacío.</span>
             </div>
             <div class="form-group">
                 <label for="fecha_vencimiento"><i class="fas fa-calendar-alt"></i> Fecha de Vencimiento</label>
@@ -342,6 +425,7 @@
                     <option>Tienda Comercial</option>
                     <option>Tienda Feria</option>
                 </select>
+                <span class="campo-alerta">Elige dónde está físicamente este producto ahora. No elijas una ubicación solo porque allí normalmente se vende.</span>
             </div>
             <div class="form-group">
                 <label for="imagen"><i class="fas fa-image"></i> URL de la Imagen</label>
@@ -358,8 +442,11 @@
             </div>
 
             <div class="form-group full" style="background:#eaf4ff;border:1px solid #b8dcff;border-radius:8px;padding:12px;color:#2c3e50;font-size:12px;">
-                <strong><i class="fas fa-brain"></i> Stock inteligente:</strong>
-                llena solamente las presentaciones que realmente maneja el producto. Ej.: 300 paquetes + 100 unidades por paquete; o 2 cajas; o 57 unidades sueltas.
+                <strong><i class="fas fa-brain"></i> Regla para no duplicar stock:</strong>
+                cada cosa se cuenta una sola vez. Una caja cerrada va en <strong>Cajas</strong>; los paquetes que están fuera de cajas cerradas van en <strong>Paquetes</strong>; y lo que está suelto va en <strong>Unidades</strong>.
+            </div>
+            <div style="grid-column:1/-1;background:#eef7ff;border:1px solid #cfe7ff;border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.5;color:#34495e">
+                <strong>Inventario contado:</strong> lo que registres aquí será el stock real desde esta fecha/hora. Las ventas anteriores no se descontarán retroactivamente.
             </div>
             <button type="submit" id="btnSubmit"><i class="fas fa-save"></i> Registrar Producto</button>
         </form>
@@ -367,7 +454,18 @@
 
     <div class="container">
         <div class="ubicaciones-panel">
-            <div class="ubicaciones-panel-head"><h3><i class="fas fa-map-marked-alt"></i> Stock por ubicación</h3><small>Desliza para ver dónde está tu mercadería</small></div>
+            <div class="ubicaciones-panel-head">
+                <div><h3><i class="fas fa-map-marked-alt"></i> Stock por ubicación</h3><small>Desliza para ver dónde está tu mercadería</small></div>
+                <div class="ubicaciones-acciones">
+                    <button type="button" class="btn-mover-multiple" id="btnMoverMercaderiaPrincipal"><i class="fas fa-truck-loading"></i> Mover mercadería</button>
+                    <button type="button" class="btn-secundario" id="btnComoFunciona"><i class="fas fa-question-circle"></i> ¿Cómo funciona?</button>
+                    <button type="button" class="btn-secundario" id="btnAdministrarUbicaciones"><i class="fas fa-map-marker-alt"></i> Ubicaciones</button>
+                    <button type="button" class="btn-entrada" id="btnEntradaExterna"><i class="fas fa-plus-circle"></i> Entrada externa / compra</button>
+                    <button type="button" class="btn-ajuste" id="btnAjustarStock"><i class="fas fa-balance-scale"></i> Ajustar stock</button>
+                    <button type="button" class="btn-info" id="btnHistorialProducto"><i class="fas fa-history"></i> Historial de producto</button>
+                    <button type="button" class="btn-productos-aux" id="btnProductosAgregados"><i class="fas fa-box-open"></i> Productos agregados</button>
+                </div>
+            </div>
             <div class="ubicaciones-slider" id="ubicacionesSlider"></div>
         </div>
         <h2><i class="fas fa-list-alt"></i> Inventario Actual</h2>
@@ -411,6 +509,7 @@
         <div class="acciones-bar oculto" id="accionesBar">
             <span class="acciones-bar-info"><i class="fas fa-check-square"></i> <span id="contadorSeleccionados">0</span> producto(s) seleccionado(s)</span>
             <button class="btn-accion-masiva pdf" id="btnPdfSeleccionados"><i class="fas fa-file-pdf"></i> PDF seleccionados</button>
+            <button class="btn-accion-masiva btn-mover-multiple" id="btnMoverSeleccionados"><i class="fas fa-exchange-alt"></i> Mover seleccionados</button>
             <button class="btn-accion-masiva" id="btnEliminarSeleccionados"><i class="fas fa-trash"></i> Eliminar seleccionados</button>
             <button class="btn-accion-masiva info" id="btnDeseleccionar"><i class="fas fa-times"></i> Deseleccionar</button>
         </div>
@@ -544,6 +643,197 @@
     <div class="modal-footer"><button class="modal-btn modal-btn-cancel" id="cancelarTraspasoBtn">Cancelar</button><button class="modal-btn modal-btn-save" id="confirmarTraspasoBtn"><i class="fas fa-exchange-alt"></i> Confirmar traspaso</button></div>
   </div>
 </div>
+
+
+<!-- ============ MODAL GUÍA ============ -->
+<div class="modal-overlay" id="modalComoFunciona">
+  <div class="modal-card" style="max-width:850px">
+    <div class="modal-header"><h3><i class="fas fa-question-circle"></i> ¿Cómo funciona el Stock?</h3><button class="modal-close" id="cerrarComoFuncionaBtn">&times;</button></div>
+    <div class="modal-body">
+      <div class="ref-operacion"><strong>Regla principal:</strong> vender, tener stock y mover mercadería son cosas diferentes. El sistema no debe inventar de dónde salió un producto.</div>
+      <div style="background:#fff8e1;border:1px solid #ffe082;padding:12px;border-radius:8px;margin:12px 0;font-size:13px;line-height:1.55">
+        <strong>⚠️ Inventario progresivo:</strong> cuando cuentas y registras stock en una ubicación, esa cantidad es la fotografía real de lo que existe <strong>desde ese momento</strong>. 
+        Las ventas realizadas antes de ese registro <strong>NO se descuentan después</strong> de ese stock. No hay descuentos retroactivos.
+      </div>
+      <div style="background:#eef7ff;border:1px solid #cfe7ff;border-radius:9px;padding:12px;margin:10px 0;font-size:13px;line-height:1.6">
+        <strong>👩‍💼 Para la persona que carga el inventario:</strong><br>
+        No necesitas calcular todo el negocio. Tu tarea es registrar lo que <strong>ves y cuentas físicamente</strong> en la ubicación elegida. Si tienes dudas entre caja, paquete o unidad, usa estas reglas y revisa el resumen antes de confirmar.
+      </div>
+      <h4 style="margin:16px 0 6px">1. Registrar inventario — paso a paso</h4>
+      <p style="font-size:13px;line-height:1.6"><strong>Paso 1:</strong> busca el producto. <strong>Paso 2:</strong> elige dónde está físicamente. <strong>Paso 3:</strong> cuenta cajas cerradas, paquetes completos fuera de esas cajas y unidades sueltas. <strong>Paso 4:</strong> indica las equivalencias del empaque. <strong>Paso 5:</strong> revisa el resumen y recién confirma.</p>
+      <div style="background:#fff8e1;border-left:4px solid #f1c40f;padding:10px 12px;border-radius:6px;font-size:12px;line-height:1.6;margin-bottom:10px">
+        <strong>No dupliques:</strong> si registras 1 caja cerrada que contiene 5 paquetes, NO escribas también esos mismos 5 en “Paquetes”. “Paquetes” es para paquetes completos que están fuera de las cajas cerradas.
+      </div>
+      <p style="font-size:13px;line-height:1.6">Usa <strong>Registrar Producto</strong> cuando estás haciendo inventario o ingresando por primera vez un producto a una ubicación. Ejemplo: 1 caja en Depósito 1 y 2 cajas en Tienda Feria.</p>
+      <h4 style="margin:16px 0 6px">2. Mover mercadería</h4>
+      <p style="font-size:13px;line-height:1.6">Usa <strong>Mover mercadería</strong> cuando la mercadería ya existe en tu Stock y físicamente la llevas a otro lugar. Ejemplo: 2 paquetes de Depósito 1 → Tienda Feria. No crea mercadería nueva: resta del origen y suma al destino.</p>
+      <h4 style="margin:16px 0 6px">3. Preparar varios productos para Feria o Comercial</h4>
+      <p style="font-size:13px;line-height:1.6">Marca los productos con sus casillas y pulsa <strong>Mover mercadería</strong>. Cada producto conserva su origen real y tú indicas cuántas cajas, paquetes o unidades mover. Todos pueden ir a un mismo destino aunque unos salgan de Depósito 1, otros de Depósito 2 y otros de Comercial.</p>
+      <h4 style="margin:16px 0 6px">4. Compra nueva o mercadería de mamá</h4>
+      <p style="font-size:13px;line-height:1.6">Si esa mercadería <strong>no salió de una ubicación de tu Stock</strong>, no uses Traspaso. Usa <strong>Entrada externa / compra</strong> y elige Compra nueva, Mercadería de mamá, Devolución, Ajuste u Otro. Se suma directamente al lugar donde físicamente recibiste o llevaste la mercadería.</p>
+      <h4 style="margin:16px 0 6px">5. Ubicaciones temporales</h4>
+      <p style="font-size:13px;line-height:1.6">En <strong>Ubicaciones</strong> puedes crear una feria temporal. Cuando termine, puedes desactivarla sin borrar su historial.</p>
+      <h4 style="margin:16px 0 6px">6. Caja de mamá, compra o caja incompleta</h4>
+      <p style="font-size:13px;line-height:1.6">Si recibes una caja de tu mamá o una compra nueva y <strong>ya sabes que está incompleta</strong>, registra directamente lo que físicamente recibiste. No registres primero una caja completa para después restarla. Si la diferencia se descubre después de haberla registrado, usa <strong>Ajustar stock</strong> y el sistema conservará la fecha/hora de la entrada y la fecha/hora del ajuste.</p>
+      <p style="font-size:13px;line-height:1.6">Si una caja está cerrada y no fue revisada, puede registrarse como caja. Cuando se abre, si aparece un faltante o producto roto, se registra el ajuste correspondiente.</p>
+      <h4 style="margin:16px 0 6px">13. Cómo entender Cajas, Paquetes y Unidades</h4>
+      <p style="font-size:13px;line-height:1.6"><strong>Unidad</strong> significa la cantidad mínima en la que realmente vendes el producto; no necesariamente una sola pieza física.</p>
+      <div style="background:#f8f9fa;border-left:4px solid #8e44ad;padding:12px 14px;border-radius:6px;font-size:13px;line-height:1.65">
+        <strong>Ejemplo real: Pilas AAA TOSHIBA</strong><br>
+        • Una caja/paquete trae <strong>40 pilas físicas</strong>.<br>
+        • Pero se venden de <strong>2 pilas por venta</strong>.<br>
+        • Entonces ese paquete tiene <strong>20 unidades de venta</strong> (40 ÷ 2 = 20).<br>
+        • Si vendes 1 unidad, entregas 2 pilas físicas y el sistema baja de 20 a 19.<br>
+        • Si un cajón contiene 5 de esos paquetes/cajas, se registra <strong>5 paquetes por caja</strong> y <strong>20 unidades por paquete</strong>.<br><br>
+        <strong>Regla:</strong> registra el producto según cómo realmente lo vendes. Así una “unidad” del sistema representa exactamente una venta mínima real.
+      </div>
+      <h4 style="margin:16px 0 6px">7. ¿Qué pasa mientras todavía estoy inventariando?</h4>
+      <p style="font-size:13px;line-height:1.6">Puedes vender aunque todavía no hayas contado una ubicación. Si el sistema conoce stock en Depósito 1 pero tú estás vendiendo en Comercial y todavía no registraste Comercial, <strong>no debe asumir que salió de Depósito 1</strong>. La venta puede existir sin modificar ese stock.</p>
+      <p style="font-size:13px;line-height:1.6">Si dos semanas después cuentas Comercial y registras 30 unidades, esas 30 quedan como punto de partida real de Comercial. <strong>No se descuentan las ventas de las dos semanas anteriores.</strong> Desde ese momento, las nuevas salidas cuyo origen sea Comercial sí pueden descontarse de esas 30.</p>
+      <h4 style="margin:16px 0 6px">8. Diferencias, daños, pérdidas y correcciones</h4>
+      <p style="font-size:13px;line-height:1.6">Si el sistema dice 25 pero físicamente cuentas 23, usa <strong>Ajustar stock</strong>. También sirve para producto dañado, perdido, vencido, uso interno o para corregir un movimiento mal registrado. El sistema guarda cuánto había antes, cuánto quedó después, motivo, usuario, fecha y referencia; no borra el historial.</p>
+      <h4 style="margin:16px 0 6px">9. Mercadería que regresa de una feria</h4>
+      <p style="font-size:13px;line-height:1.6">No es una entrada nueva. Usa <strong>Mover mercadería</strong>: Feria → Depósito o Comercial. Así el stock total del negocio no aumenta artificialmente.</p>
+      <h4 style="margin:16px 0 6px">10. Una venta no debe elegir otra ubicación por ti</h4>
+      <p style="font-size:13px;line-height:1.6">Que exista stock en Depósito 1 no significa que una venta hecha en Comercial salió de allí. El origen físico debe ser conocido o elegido expresamente. También puede existir una venta que no descuente tu stock propio, por ejemplo si el producto fue suministrado externamente.</p>
+      <h4 style="margin:16px 0 6px">11. Ubicaciones temporales e inicio confiable</h4>
+      <p style="font-size:13px;line-height:1.6">Una feria temporal se crea como ubicación, recibe mercadería mediante traslados o entradas, y al terminar se devuelve lo restante mediante traslados. Luego se desactiva, no se elimina. La fecha de creación sirve como referencia de cuándo comenzó esa ubicación dentro del inventario progresivo.</p>
+      <h4 style="margin:16px 0 6px">12. Historial</h4>
+      <p style="font-size:13px;line-height:1.6">Los movimientos llevan una referencia legible como <strong>TRASPASO-02-10-2026-09-20-26</strong>. En un traslado múltiple, todos los productos de la misma preparación comparten esa referencia.</p>
+    </div>
+    <div class="modal-footer"><button class="modal-btn modal-btn-save" id="entendidoComoFuncionaBtn">Entendido</button></div>
+  </div>
+</div>
+
+<!-- ============ MODAL TRASPASO MÚLTIPLE ============ -->
+<div class="modal-overlay" id="modalTraspasoMultiple">
+  <div class="modal-card" style="max-width:1050px">
+    <div class="modal-header"><h3><i class="fas fa-truck-loading"></i> Mover productos seleccionados</h3><button class="modal-close" id="cerrarTraspasoMultipleBtn">&times;</button></div>
+    <div class="modal-body">
+      <div class="ref-operacion">Referencia: <strong id="refTraspasoMultiple">-</strong></div>
+      <div class="form-group"><label>Destino común</label><select id="traspasoMultipleDestino" class="ubicacion-select"></select></div>
+      <div style="overflow-x:auto"><table class="tabla-multiple"><thead><tr><th>Producto / origen</th><th>Cajas</th><th>Paquetes</th><th>Unidades</th></tr></thead><tbody id="traspasoMultipleBody"></tbody></table></div>
+      <div class="form-group" style="margin-top:14px"><label>Motivo / nota</label><input type="text" id="traspasoMultipleMotivo" placeholder="Ej: Alistado para Feria"></div>
+      <p style="font-size:11px;color:#7f8c8d;margin-top:10px">Cada fila conserva su origen real. El sistema no inventa de dónde salió la mercadería.</p>
+    </div>
+    <div class="modal-footer"><button class="modal-btn modal-btn-cancel" id="cancelarTraspasoMultipleBtn">Cancelar</button><button class="modal-btn modal-btn-save" id="confirmarTraspasoMultipleBtn"><i class="fas fa-exchange-alt"></i> Confirmar traslado</button></div>
+  </div>
+</div>
+
+<!-- ============ MODAL UBICACIONES ============ -->
+<div class="modal-overlay" id="modalUbicaciones">
+  <div class="modal-card" style="max-width:800px">
+    <div class="modal-header"><h3><i class="fas fa-map-marked-alt"></i> Administrar ubicaciones</h3><button class="modal-close" id="cerrarUbicacionesBtn">&times;</button></div>
+    <div class="modal-body">
+      <div class="form-grid">
+        <div class="form-group"><label>Nombre</label><input id="nuevaUbicacionNombre" placeholder="Ej: Feria Expo Navidad 2026"></div>
+        <div class="form-group"><label>Tipo</label><select id="nuevaUbicacionTipo"><option>DEPOSITO</option><option>TIENDA</option><option>FERIA_TEMPORAL</option><option>OTRO</option></select></div>
+        <button type="button" id="guardarNuevaUbicacionBtn"><i class="fas fa-plus"></i> Crear ubicación</button>
+      </div>
+      <div class="ubicacion-lista-admin" id="listaUbicacionesAdmin"></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL ENTRADA EXTERNA ============ -->
+<div class="modal-overlay" id="modalEntradaExterna">
+  <div class="modal-card" style="max-width:750px">
+    <div class="modal-header"><h3><i class="fas fa-box-open"></i> Entrada externa / compra</h3><button class="modal-close" id="cerrarEntradaExternaBtn">&times;</button></div>
+    <div class="modal-body">
+      <div class="ref-operacion">Esta opción suma mercadería físicamente recibida sin inventar un depósito de origen.</div>
+      <div class="form-group"><label>Producto</label><select id="entradaProducto"></select></div>
+      <div class="form-group"><label>Destino físico</label><select id="entradaDestino" class="ubicacion-select"></select></div>
+      <div class="form-group"><label>Origen / motivo</label><select id="entradaOrigenTipo"><option value="COMPRA NUEVA">Compra nueva</option><option value="MERCADERIA DE MAMA">Mercadería de mamá</option><option value="DEVOLUCION">Devolución</option><option value="AJUSTE">Ajuste</option><option value="OTRO">Otro</option></select></div>
+      <div class="mov-grid" style="margin-top:12px">
+        <div class="form-group"><label>Cajas</label><input type="number" id="entradaCajas" min="0" step="1" value="0"></div>
+        <div class="form-group"><label>Paquetes</label><input type="number" id="entradaPaquetes" min="0" step="1" value="0"></div>
+        <div class="form-group"><label>Unidades</label><input type="number" id="entradaUnidades" min="0" step="1" value="0"></div>
+      </div>
+      <div class="form-group" style="margin-top:12px"><label>Nota</label><input id="entradaNota" placeholder="Opcional"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn modal-btn-cancel" id="cancelarEntradaExternaBtn">Cancelar</button><button class="modal-btn modal-btn-save" id="confirmarEntradaExternaBtn"><i class="fas fa-plus-circle"></i> Registrar entrada</button></div>
+  </div>
+</div>
+
+
+
+
+
+<!-- ============ MODAL PRODUCTOS AGREGADOS ============ -->
+<div class="modal-overlay" id="modalProductosAgregados">
+  <div class="modal-card" style="max-width:900px">
+    <div class="modal-header"><h3><i class="fas fa-box-open"></i> Productos agregados</h3><button class="modal-close" id="cerrarProductosAgregadosBtn">&times;</button></div>
+    <div class="modal-body">
+      <div style="font-size:12px;line-height:1.55;margin-bottom:10px">Estos productos todavía no dependen del Catálogo oficial. Sirven como maestro auxiliar para que Stock y, después, Ventas puedan reconocerlos sin volver a crearlos.</div>
+      <div class="mov-buscador"><input id="buscarProductoAux" placeholder="Buscar por nombre o sección..."></div>
+      <div id="listaProductosAgregados" class="aux-lista"><div style="padding:18px;text-align:center;color:#888">Cargando...</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL HISTORIAL POR PRODUCTO ============ -->
+<div class="modal-overlay" id="modalHistorialProducto">
+  <div class="modal-card" style="max-width:1000px">
+    <div class="modal-header"><h3><i class="fas fa-history"></i> Historial de movimientos por producto</h3><button class="modal-close" id="cerrarHistorialProductoBtn">&times;</button></div>
+    <div class="modal-body">
+      <div class="mov-buscador">
+        <input id="buscarMovimientoProducto" placeholder="Escribe TOSHIBA, labial, pestañas...">
+        <button type="button" class="btn-info" id="ejecutarBuscarMovimientos"><i class="fas fa-search"></i> Buscar</button>
+      </div>
+      <div style="font-size:11px;color:#6c757d;margin-bottom:8px">Muestra entradas, traslados, ajustes y demás movimientos registrados. La lectura se hace directamente desde Google Sheets.</div>
+      <div id="resultadoMovimientosProducto" class="mov-resultados"><div style="padding:18px;text-align:center;color:#888">Escribe el nombre de un producto para ver su historia.</div></div>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL CONFIRMAR REGISTRO GUIADO ============ -->
+<div class="modal-overlay" id="modalConfirmarRegistro">
+  <div class="modal-card" style="max-width:720px">
+    <div class="modal-header"><h3><i class="fas fa-clipboard-check"></i> Revisa antes de registrar</h3><button class="modal-close" id="cerrarConfirmarRegistroBtn">&times;</button></div>
+    <div class="modal-body">
+      <div class="alerta-regla"><strong>Importante:</strong> este registro será la fotografía real del inventario desde esta fecha y hora. Las ventas anteriores no se descontarán después.</div>
+      <div id="confirmarRegistroContenido" class="resumen-registro"></div><div id="avisoSumaExistente"></div>
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:8px;padding:10px;margin-top:12px;font-size:12px;line-height:1.5">
+        <strong>Antes de confirmar:</strong> ¿contaste lo que realmente está completo y vendible? Si una caja está incompleta o tiene piezas rotas, registra la cantidad real y no la cantidad impresa en el empaque.
+      </div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn modal-btn-cancel" id="volverEditarRegistroBtn"><i class="fas fa-arrow-left"></i> Volver y corregir</button><button class="modal-btn modal-btn-save" id="guardarRegistroConfirmadoBtn"><i class="fas fa-check"></i> Sí, registrar este stock</button></div>
+  </div>
+</div>
+
+<!-- ============ MODAL AJUSTAR STOCK ============ -->
+<div class="modal-overlay" id="modalAjustarStock">
+  <div class="modal-card" style="max-width:820px">
+    <div class="modal-header"><h3><i class="fas fa-balance-scale"></i> Ajustar stock físico</h3><button class="modal-close" id="cerrarAjustarStockBtn">&times;</button></div>
+    <div class="modal-body">
+      <div class="alerta-regla"><strong>No borra el pasado.</strong> Esta función registra una corrección trazable cuando el conteo físico no coincide, hay daño, pérdida, vencimiento, uso interno o una corrección de movimiento.</div>
+      <div class="form-group"><label>Producto y ubicación</label><select id="ajusteProducto"></select></div>
+      <div class="form-group"><label>Motivo</label><select id="ajusteMotivo">
+        <option value="CONTEO FISICO">Conteo físico / diferencia encontrada</option>
+        <option value="DANADO">Producto dañado</option>
+        <option value="PERDIDO">Producto perdido</option>
+        <option value="VENCIDO">Producto vencido</option>
+        <option value="USO INTERNO">Uso interno</option>
+        <option value="CORRECCION DE MOVIMIENTO">Corrección de movimiento</option>
+        <option value="OTRO">Otro</option>
+      </select></div>
+      <div class="ajuste-resumen">
+        <div class="ajuste-box">Actual<br><strong id="ajusteActualC">0 C</strong></div>
+        <div class="ajuste-box">Actual<br><strong id="ajusteActualP">0 P</strong></div>
+        <div class="ajuste-box">Actual<br><strong id="ajusteActualU">0 U</strong></div>
+      </div>
+      <p style="font-size:12px;color:#6c757d;margin-bottom:8px">Escribe lo que físicamente quedó después del conteo o corrección:</p>
+      <div class="mov-grid">
+        <div class="form-group"><label>Cajas reales</label><input type="number" id="ajusteCajas" min="0" step="1"></div>
+        <div class="form-group"><label>Paquetes reales</label><input type="number" id="ajustePaquetes" min="0" step="1"></div>
+        <div class="form-group"><label>Unidades reales</label><input type="number" id="ajusteUnidades" min="0" step="1"></div>
+      </div>
+      <div class="form-group" style="margin-top:12px"><label>Nota / explicación</label><input id="ajusteNota" placeholder="Ej: al contar encontré 2 unidades menos"></div>
+    </div>
+    <div class="modal-footer"><button class="modal-btn modal-btn-cancel" id="cancelarAjustarStockBtn">Cancelar</button><button class="modal-btn modal-btn-save" id="confirmarAjustarStockBtn"><i class="fas fa-check"></i> Registrar ajuste</button></div>
+  </div>
+</div>
+
 <div class="modal-overlay" id="modalPdf">
     <div class="modal-card" style="max-width: 550px;">
         <div class="modal-header">
@@ -604,9 +894,15 @@
     // 🔥 CATÁLOGO
     const CATALOGO_ID = '1h7ZNyYRe6ZDIvbjbAuyiCYEvQ37IQmSI';
     const URL_CATALOGO = `https://docs.google.com/spreadsheets/d/${CATALOGO_ID}/export?format=csv`;
-    const UBICACIONES_FIJAS = ['Depósito 1 - Planta baja','Depósito 2 - Piso 1','Depósito 2 - Piso 2','Depósito Comercial','Tienda Comercial','Tienda Feria'];
+    const UBICACIONES_INICIALES = ['Depósito 1 - Planta baja','Depósito 2 - Piso 1','Depósito 2 - Piso 2','Depósito Comercial','Tienda Comercial','Tienda Feria'];
+    const UBICACIONES_GID = '95509632';
+    const URL_UBICACIONES = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${UBICACIONES_GID}`;
+    const SHEET_UBICACIONES = 'ubicaciones';
     const SHEET_STOCK = 'stock';
     const SHEET_MOVIMIENTOS = 'movimientos';
+    const SHEET_PRODUCTOS_AGREGADOS = 'productos_agregados';
+    const PRODUCTOS_AGREGADOS_GID = '359082301';
+    let productosAgregados = [];
 
     // 🔐 USUARIOS
     const USUARIOS_ID = '1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok';
@@ -623,6 +919,7 @@
     let productosFiltrados = [];
     let catalogoProductos = [];
     let usuariosSistema = [];
+    let ubicacionesSistema = [];
     let paginaActual = 1;
     let seleccionados = new Set();
     let currentUser = null;
@@ -885,7 +1182,15 @@
         return `${get('day')}/${get('month')}/${get('year')}`;
     }
     function obtenerHoraBolivia() {
-        return new Intl.DateTimeFormat('es-BO',{timeZone:'America/La_Paz',hour:'2-digit',minute:'2-digit',hour12:false}).format(new Date());
+        return new Intl.DateTimeFormat('es-BO',{timeZone:'America/La_Paz',hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false}).format(new Date());
+    }
+    function generarReferenciaOperacion(prefijo='TRASPASO') {
+        const partes = new Intl.DateTimeFormat('es-BO',{
+            timeZone:'America/La_Paz',day:'2-digit',month:'2-digit',year:'numeric',
+            hour:'2-digit',minute:'2-digit',second:'2-digit',hour12:false
+        }).formatToParts(new Date());
+        const g=t=>partes.find(p=>p.type===t)?.value||'00';
+        return `${prefijo}-${g('day')}-${g('month')}-${g('year')}-${g('hour')}-${g('minute')}-${g('second')}`;
     }
     function generarIdStock() { return 'STK-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase(); }
     function generarIdMovimiento() { return 'MOV-' + Date.now().toString(36).toUpperCase() + '-' + Math.random().toString(36).slice(2,6).toUpperCase(); }
@@ -951,6 +1256,7 @@
         iniciarListenersActividad();
         Notificaciones.mostrar(`Bienvenido, ${user.username}`, 'success', 3000);
         cargarCatalogo();
+        cargarUbicaciones();
         cargarInventario();
         console.log('✅ Sesión iniciada:', user);
     }
@@ -1097,7 +1403,7 @@
         autocompleteList.classList.remove('active');
         autocompleteList.innerHTML = '';
         Notificaciones.mostrar(`✅ Datos autocompletados: ${p.nombre}`, 'success', 2500);
-        document.getElementById('cantidad').focus();
+        document.getElementById('cajas').focus();
     }
 
     nombreInput.addEventListener('input', function() { mostrarSugerencias(this.value.trim()); });
@@ -1125,6 +1431,79 @@
     document.addEventListener('click', function(e) {
         if (!e.target.closest('.autocomplete-wrapper')) autocompleteList.classList.remove('active');
     });
+
+
+    // ============================================================
+    // 📍 UBICACIONES DINÁMICAS
+    // ============================================================
+    function ubicacionesActivas() {
+        const desdeHoja = ubicacionesSistema.filter(u => String(u.estado||'ACTIVA').toUpperCase() !== 'INACTIVA').map(u => u.nombre).filter(Boolean);
+        const existentes = todosProductos.map(p => getUbicacion(p)).filter(Boolean);
+        return [...new Set([...UBICACIONES_INICIALES, ...desdeHoja, ...existentes])].sort();
+    }
+
+    async function cargarUbicaciones() {
+        try {
+            const r = await fetch(URL_UBICACIONES + '&_t=' + Date.now());
+            if (!r.ok) throw new Error('Status '+r.status);
+            const datos = parsearCSV(await r.text());
+            ubicacionesSistema = datos.filter(u => u.nombre && u.nombre.trim());
+        } catch(e) {
+            console.warn('No se pudo leer ubicaciones; se conservan las iniciales.', e);
+            ubicacionesSistema = [];
+        }
+        refrescarSelectsUbicacion();
+    }
+
+    function refrescarSelectsUbicacion() {
+        const lista = ubicacionesActivas();
+        const principal = document.getElementById('ubicacion');
+        if (principal) {
+            const v=principal.value;
+            principal.innerHTML='<option value="">Selecciona ubicación...</option>'+lista.map(u=>`<option value="${u}">${u}</option>`).join('');
+            if(lista.includes(v)) principal.value=v;
+        }
+        const destinoEntrada=document.getElementById('entradaDestino');
+        if(destinoEntrada) destinoEntrada.innerHTML='<option value="">Selecciona destino...</option>'+lista.map(u=>`<option value="${u}">${u}</option>`).join('');
+    }
+
+    function renderizarAdminUbicaciones(){
+        const c=document.getElementById('listaUbicacionesAdmin'); if(!c)return;
+        if(!ubicacionesSistema.length){c.innerHTML='<div class="no-datos">Todavía no hay filas en la hoja ubicaciones. Las ubicaciones históricas siguen disponibles.</div>';return;}
+        c.innerHTML=ubicacionesSistema.map((u,i)=>`<div class="ubicacion-admin-row">
+            <div><strong>${u.nombre||''}</strong><br><small>${u.id_ubicacion||''}</small><div class="ubicacion-inicio">Inicio confiable: ${u.fecha_creacion||'sin fecha registrada'}</div></div>
+            <div>${u.tipo||'OTRO'}</div><div><span class="badge ${String(u.estado).toUpperCase()==='INACTIVA'?'badge-danger':'badge-success'}">${u.estado||'ACTIVA'}</span></div>
+            <button type="button" class="modal-btn ${String(u.estado).toUpperCase()==='INACTIVA'?'modal-btn-save':'modal-btn-cancel'}" onclick="cambiarEstadoUbicacion(${i})">${String(u.estado).toUpperCase()==='INACTIVA'?'Activar':'Desactivar'}</button>
+        </div>`).join('');
+    }
+
+    async function crearUbicacion(){
+        const nombre=document.getElementById('nuevaUbicacionNombre').value.trim();
+        const tipo=document.getElementById('nuevaUbicacionTipo').value;
+        if(!nombre){Notificaciones.mostrar('Escribe el nombre de la ubicación','warning');return;}
+        if(ubicacionesActivas().some(x=>x.toLowerCase()===nombre.toLowerCase())){Notificaciones.mostrar('Esa ubicación ya existe','warning');return;}
+        const data={id_ubicacion:'UBI-'+Date.now().toString(36).toUpperCase(),nombre,tipo,estado:'ACTIVA',fecha_creacion:obtenerFechaHoraBolivia(),usuario:currentUser.username};
+        try{
+            await sheetdbPost(SHEET_UBICACIONES,data);
+            Notificaciones.mostrar(`✅ Ubicación creada: ${nombre}`,'success');
+            document.getElementById('nuevaUbicacionNombre').value='';
+            await cargarUbicaciones(); renderizarAdminUbicaciones(); actualizarFiltrosYDatalists(); renderizarSliderUbicaciones();
+        }catch(e){Notificaciones.mostrar('No se pudo crear ubicación: '+e.message,'error',7000);}
+    }
+
+    window.cambiarEstadoUbicacion=async function(i){
+        const u=ubicacionesSistema[i]; if(!u)return;
+        const nuevo=String(u.estado).toUpperCase()==='INACTIVA'?'ACTIVA':'INACTIVA';
+        if(nuevo==='INACTIVA' && todosProductos.some(p=>getUbicacion(p)===u.nombre && !estaAgotado(p))){
+            if(!confirm(`"${u.nombre}" todavía tiene stock. ¿Desactivarla de todos modos? El historial no se borrará.`))return;
+        }
+        try{
+            const url=`${API_URL}/id_ubicacion/${encodeURIComponent(u.id_ubicacion)}?sheet=${encodeURIComponent(SHEET_UBICACIONES)}`;
+            const r=await fetch(url,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:{estado:nuevo}})});
+            if(!r.ok)throw new Error('HTTP '+r.status);
+            await cargarUbicaciones(); renderizarAdminUbicaciones(); actualizarFiltrosYDatalists(); renderizarSliderUbicaciones();
+        }catch(e){Notificaciones.mostrar('No se pudo cambiar el estado','error');}
+    };
 
     // ============================================================
     // 📊 ESTADÍSTICAS
@@ -1159,14 +1538,14 @@
             const ev=estadoVencimiento(getFechaVencimiento(p)); if(ev && (ev.clase==='proximo'||ev.clase==='vencido')) m.vencer++;
         });
         const filtro=document.getElementById('filtroUbicacion')?.value || '';
-        const nombres=[...new Set([...UBICACIONES_FIJAS,...Object.keys(mapa)])];
+        const nombres=[...new Set([...ubicacionesActivas(),...Object.keys(mapa)])];
         cont.innerHTML=nombres.map(u=>{const m=mapa[u]||{filas:0,cajas:0,paquetes:0,unidades:0,bajos:0,vencer:0}; return `<div class="ubicacion-card ${filtro===u?'activa':''}" data-ubicacion="${u.replace(/"/g,'&quot;')}"><div class="u-titulo">${u}</div><div class="u-total">${m.filas} registro(s)</div><div class="u-stock">${m.cajas} cajas · ${m.paquetes} paquetes · ${m.unidades} unidades</div><div class="u-alerta">${m.bajos?`⚠ ${m.bajos} stock bajo/ag.: `:''}${m.vencer?`⏳ ${m.vencer} por vencer`:''}</div></div>`}).join('');
         cont.querySelectorAll('.ubicacion-card').forEach(c=>c.addEventListener('click',()=>{document.getElementById('filtroUbicacion').value=c.dataset.ubicacion; paginaActual=1; aplicarFiltros(); renderizarSliderUbicaciones(); document.querySelector('.tabla-container').scrollIntoView({behavior:'smooth',block:'start'});}));
     }
 
     function actualizarFiltrosYDatalists() {
         const secciones = [...new Set(todosProductos.map(p => getSeccion(p)))].filter(s => s).sort();
-        const ubicaciones = [...new Set([...UBICACIONES_FIJAS, ...todosProductos.map(p => getUbicacion(p)).filter(Boolean)])].sort();
+        const ubicaciones = ubicacionesActivas();
         // Ubicaciones controladas en selector fijo
         const fs = document.getElementById('filtroSeccion');
         const vs = fs.value;
@@ -1255,6 +1634,7 @@
             const texto = await r.text();
             todosProductos = parsearCSV(texto).filter(p => p.nombre && p.nombre.trim() !== '');
             console.log('✅ Inventario cargado:', todosProductos.length);
+            await cargarUbicaciones();
             actualizarFiltrosYDatalists();
             actualizarEstadisticas();
             renderizarSliderUbicaciones();
@@ -1500,7 +1880,7 @@
     function llenarSelectDestino(origen) {
         const sel=document.getElementById('traspasoDestino');
         const existentes=[...new Set(todosProductos.map(getUbicacion).filter(Boolean))];
-        const lista=[...new Set([...UBICACIONES_FIJAS,...existentes])].filter(u=>u!==origen);
+        const lista=[...new Set([...ubicacionesActivas(),...existentes])].filter(u=>u!==origen);
         sel.innerHTML='<option value="">Selecciona destino...</option>'+lista.map(u=>`<option>${u}</option>`).join('');
     }
     function abrirModalTraspaso(item) {
@@ -1538,10 +1918,365 @@
             if(destinoItem){ await sheetdbPatchStock(destinoItem,{cajas:String(despuesD.c),paquetes:String(despuesD.p),unidades:String(despuesD.u),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()}); }
             else { await sheetdbPost(SHEET_STOCK,{id_stock:generarIdStock(),seccion,nombre,cajas:String(c),paquetes:String(p),unidades:String(u),unidades_por_paquete:String(getUnidadesPorPaquete(origenItem)||''),paquetes_por_caja:String(getPaquetesPorCaja(origenItem)||''),ubicacion:destino,imagen:getImagen(origenItem),precio_de_compra_china:esAdmin()?getPrecioChina(origenItem):'',usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:'',fecha_de_agregacion:obtenerFechaHoraBolivia(),vencimiento:getFechaVencimiento(origenItem)}); }
             const pres=[c?`${c} caja(s)`:null,p?`${p} paquete(s)`:null,u?`${u} unidad(es)`:null].filter(Boolean).join(' + ');
-            await sheetdbPost(SHEET_MOVIMIENTOS,{id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),producto:nombre,seccion,tipo:'TRASPASO',presentacion:pres,cantidad:String(c+p+u),unidades_equivalentes:'',origen,destino,cajas_anterior:String(antesO.c),paquetes_anterior:String(antesO.p),unidades_anterior:String(antesO.u),cajas_nueva:String(despuesO.c),paquetes_nueva:String(despuesO.p),unidades_nueva:String(despuesO.u),motivo:document.getElementById('traspasoMotivo').value.trim()||'TRASPASO DE MERCADERIA',estado:'APLICADO',usuario:currentUser.username,sucursal:origen,referencia:id||''});
+            await sheetdbPost(SHEET_MOVIMIENTOS,{id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),producto:nombre,seccion,tipo:'TRASPASO',presentacion:pres,cantidad:String(c+p+u),unidades_equivalentes:'',origen,destino,cajas_anterior:String(antesO.c),paquetes_anterior:String(antesO.p),unidades_anterior:String(antesO.u),cajas_nueva:String(despuesO.c),paquetes_nueva:String(despuesO.p),unidades_nueva:String(despuesO.u),motivo:document.getElementById('traspasoMotivo').value.trim()||'TRASPASO DE MERCADERIA',estado:'APLICADO',usuario:currentUser.username,sucursal:origen,referencia:generarReferenciaOperacion('TRASPASO')});
             Notificaciones.mostrar(`✅ Traspaso registrado: ${origen} → ${destino}`,'success',5000); cerrarModalTraspaso(); setTimeout(cargarInventario,1200);
         }catch(e){console.error(e);Notificaciones.mostrar('El traspaso no pudo completarse: '+e.message,'error',7000);}
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-exchange-alt"></i> Confirmar traspaso';}
+    }
+
+
+    // ============================================================
+    // 🚚 TRASPASO MÚLTIPLE
+    // ============================================================
+    function obtenerSeleccionadosActuales(){
+        return todosProductos.filter(p=>seleccionados.has(generarIdentificador(p)));
+    }
+    function abrirTraspasoMultiple(){
+        const items=obtenerSeleccionadosActuales();
+        if(!items.length){Notificaciones.mostrar('Selecciona al menos un producto','warning');return;}
+        const ref=generarReferenciaOperacion('TRASPASO');
+        document.getElementById('refTraspasoMultiple').textContent=ref;
+        const destinos=ubicacionesActivas();
+        document.getElementById('traspasoMultipleDestino').innerHTML='<option value="">Selecciona destino...</option>'+destinos.map(u=>`<option value="${u}">${u}</option>`).join('');
+        document.getElementById('traspasoMultipleBody').innerHTML=items.map((item,i)=>`<tr data-id="${generarIdentificador(item).replace(/"/g,'&quot;')}">
+            <td><div class="prod">${getNombre(item)}</div><div class="origen">Origen: ${getUbicacion(item)} · Disp: ${getCajas(item)}C / ${getPaquetes(item)}P / ${getUnidades(item)}U</div></td>
+            <td><input class="multi-c" type="number" min="0" max="${getCajas(item)}" value="0"></td>
+            <td><input class="multi-p" type="number" min="0" max="${getPaquetes(item)}" value="0"></td>
+            <td><input class="multi-u" type="number" min="0" max="${getUnidades(item)}" value="0"></td>
+        </tr>`).join('');
+        document.getElementById('traspasoMultipleMotivo').value='';
+        document.getElementById('modalTraspasoMultiple').classList.add('active');
+    }
+    function cerrarTraspasoMultiple(){document.getElementById('modalTraspasoMultiple').classList.remove('active');}
+
+    async function aplicarTraspasoItem(origenItem,destino,c,p,u,ref,motivo){
+        const nombre=getNombre(origenItem), seccion=getSeccion(origenItem), origen=getUbicacion(origenItem);
+        if(destino===origen) throw new Error(`${nombre}: origen y destino son iguales`);
+        if(c>getCajas(origenItem)||p>getPaquetes(origenItem)||u>getUnidades(origenItem)) throw new Error(`${nombre}: cantidad mayor al disponible`);
+        const destinoItem=todosProductos.find(x=>getNombre(x)===nombre&&getUbicacion(x)===destino);
+        const antesO={c:getCajas(origenItem),p:getPaquetes(origenItem),u:getUnidades(origenItem)}, despuesO={c:antesO.c-c,p:antesO.p-p,u:antesO.u-u};
+        const antesD={c:destinoItem?getCajas(destinoItem):0,p:destinoItem?getPaquetes(destinoItem):0,u:destinoItem?getUnidades(destinoItem):0};
+        await sheetdbPatchStock(origenItem,{cajas:String(despuesO.c),paquetes:String(despuesO.p),unidades:String(despuesO.u),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()});
+        if(destinoItem){
+            await sheetdbPatchStock(destinoItem,{cajas:String(antesD.c+c),paquetes:String(antesD.p+p),unidades:String(antesD.u+u),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()});
+        }else{
+            await sheetdbPost(SHEET_STOCK,{id_stock:generarIdStock(),seccion,nombre,cajas:String(c),paquetes:String(p),unidades:String(u),unidades_por_paquete:String(getUnidadesPorPaquete(origenItem)||''),paquetes_por_caja:String(getPaquetesPorCaja(origenItem)||''),ubicacion:destino,imagen:getImagen(origenItem),precio_de_compra_china:esAdmin()?getPrecioChina(origenItem):'',usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:'',fecha_de_agregacion:obtenerFechaHoraBolivia(),vencimiento:getFechaVencimiento(origenItem)});
+        }
+        const pres=[c?`${c} caja(s)`:null,p?`${p} paquete(s)`:null,u?`${u} unidad(es)`:null].filter(Boolean).join(' + ');
+        await sheetdbPost(SHEET_MOVIMIENTOS,{id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),producto:nombre,seccion,tipo:'TRASPASO',presentacion:pres,cantidad:String(c+p+u),unidades_equivalentes:'',origen,destino,cajas_anterior:String(antesO.c),paquetes_anterior:String(antesO.p),unidades_anterior:String(antesO.u),cajas_nueva:String(despuesO.c),paquetes_nueva:String(despuesO.p),unidades_nueva:String(despuesO.u),motivo:motivo||'TRASPASO DE MERCADERIA',estado:'APLICADO',usuario:currentUser.username,sucursal:origen,referencia:ref});
+    }
+
+    async function confirmarTraspasoMultiple(){
+        const destino=document.getElementById('traspasoMultipleDestino').value;
+        if(!destino){Notificaciones.mostrar('Selecciona el destino','warning');return;}
+        const ref=document.getElementById('refTraspasoMultiple').textContent;
+        const motivo=document.getElementById('traspasoMultipleMotivo').value.trim()||'ALISTADO / TRASPASO MULTIPLE';
+        const filas=[...document.querySelectorAll('#traspasoMultipleBody tr')];
+        const ops=[];
+        for(const fila of filas){
+            const item=todosProductos.find(p=>generarIdentificador(p)===fila.dataset.id); if(!item)continue;
+            const c=numeroStock(fila.querySelector('.multi-c').value),p=numeroStock(fila.querySelector('.multi-p').value),u=numeroStock(fila.querySelector('.multi-u').value);
+            if(c+p+u>0)ops.push({item,c,p,u});
+        }
+        if(!ops.length){Notificaciones.mostrar('Indica cantidades para al menos un producto','warning');return;}
+        const btn=document.getElementById('confirmarTraspasoMultipleBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Moviendo...';
+        let ok=0,errores=[];
+        for(const op of ops){
+            try{await aplicarTraspasoItem(op.item,destino,op.c,op.p,op.u,ref,motivo);ok++;}
+            catch(e){console.error(e);errores.push(e.message);}
+        }
+        btn.disabled=false;btn.innerHTML='<i class="fas fa-exchange-alt"></i> Confirmar traslado';
+        if(ok)Notificaciones.mostrar(`✅ ${ok} producto(s) movidos · ${ref}`,'success',6500);
+        if(errores.length)Notificaciones.mostrar(`${errores.length} error(es): ${errores.slice(0,2).join(' / ')}`,'warning',8000);
+        cerrarTraspasoMultiple();seleccionados.clear();actualizarBarraSeleccion();setTimeout(cargarInventario,1500);
+    }
+
+    // ============================================================
+    // 📥 ENTRADA EXTERNA / COMPRA / MAMÁ
+    // ============================================================
+    function abrirEntradaExterna(){
+        const mapa=new Map();
+        todosProductos.forEach(p=>{const k=getNombre(p);if(k&&!mapa.has(k))mapa.set(k,p);});
+        document.getElementById('entradaProducto').innerHTML='<option value="">Selecciona producto...</option>'+[...mapa.keys()].sort().map(n=>`<option value="${n}">${n}</option>`).join('');
+        document.getElementById('entradaDestino').innerHTML='<option value="">Selecciona destino...</option>'+ubicacionesActivas().map(u=>`<option value="${u}">${u}</option>`).join('');
+        ['entradaCajas','entradaPaquetes','entradaUnidades'].forEach(id=>document.getElementById(id).value='0');
+        document.getElementById('entradaNota').value='';
+        document.getElementById('modalEntradaExterna').classList.add('active');
+    }
+    function cerrarEntradaExterna(){document.getElementById('modalEntradaExterna').classList.remove('active');}
+    async function confirmarEntradaExterna(){
+        const nombre=document.getElementById('entradaProducto').value,destino=document.getElementById('entradaDestino').value,origen=document.getElementById('entradaOrigenTipo').value;
+        const c=numeroStock(document.getElementById('entradaCajas').value),p=numeroStock(document.getElementById('entradaPaquetes').value),u=numeroStock(document.getElementById('entradaUnidades').value);
+        if(!nombre||!destino){Notificaciones.mostrar('Selecciona producto y destino','warning');return;}
+        if(c+p+u<=0){Notificaciones.mostrar('Indica la cantidad recibida','warning');return;}
+        const base=todosProductos.find(x=>getNombre(x)===nombre),dest=todosProductos.find(x=>getNombre(x)===nombre&&getUbicacion(x)===destino);
+        if(!base){Notificaciones.mostrar('Para esta versión, el producto debe existir al menos una vez en Stock. Si es nuevo, regístralo arriba directamente en su destino.','warning',7000);return;}
+        const antes={c:dest?getCajas(dest):0,p:dest?getPaquetes(dest):0,u:dest?getUnidades(dest):0};
+        const btn=document.getElementById('confirmarEntradaExternaBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Registrando...';
+        try{
+            if(dest)await sheetdbPatchStock(dest,{cajas:String(antes.c+c),paquetes:String(antes.p+p),unidades:String(antes.u+u),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()});
+            else await sheetdbPost(SHEET_STOCK,{id_stock:generarIdStock(),seccion:getSeccion(base),nombre,cajas:String(c),paquetes:String(p),unidades:String(u),unidades_por_paquete:String(getUnidadesPorPaquete(base)||''),paquetes_por_caja:String(getPaquetesPorCaja(base)||''),ubicacion:destino,imagen:getImagen(base),precio_de_compra_china:esAdmin()?getPrecioChina(base):'',usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:'',fecha_de_agregacion:obtenerFechaHoraBolivia(),vencimiento:getFechaVencimiento(base)});
+            const ref=generarReferenciaOperacion('ENTRADA');
+            await sheetdbPost(SHEET_MOVIMIENTOS,{id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),producto:nombre,seccion:getSeccion(base),tipo:'ENTRADA',presentacion:[c?`${c} caja(s)`:null,p?`${p} paquete(s)`:null,u?`${u} unidad(es)`:null].filter(Boolean).join(' + '),cantidad:String(c+p+u),unidades_equivalentes:'',origen,destino,cajas_anterior:String(antes.c),paquetes_anterior:String(antes.p),unidades_anterior:String(antes.u),cajas_nueva:String(antes.c+c),paquetes_nueva:String(antes.p+p),unidades_nueva:String(antes.u+u),motivo:document.getElementById('entradaNota').value.trim()||origen,estado:'APLICADO',usuario:currentUser.username,sucursal:destino,referencia:ref});
+            Notificaciones.mostrar(`✅ Entrada registrada · ${ref}`,'success',6000);cerrarEntradaExterna();setTimeout(cargarInventario,1200);
+        }catch(e){Notificaciones.mostrar('No se pudo registrar entrada: '+e.message,'error',7000);}
+        finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-plus-circle"></i> Registrar entrada';}
+    }
+
+
+
+
+
+
+    // ============================================================
+    // 👥 INVENTARIO PROGRESIVO: varias personas / misma ubicación
+    // ============================================================
+    function mismaClaveStock(p,nombre,ubicacion){
+        return normalizarMayus(getNombre(p))===normalizarMayus(nombre) &&
+               normalizarMayus(getUbicacion(p))===normalizarMayus(ubicacion);
+    }
+    function buscarStockMismaUbicacionLocal(nombre,ubicacion){
+        return todosProductos.find(p=>mismaClaveStock(p,nombre,ubicacion));
+    }
+    async function leerStockActualDirecto(nombre,ubicacion){
+        // Relee Google Sheets inmediatamente antes de sumar. No consume GET de SheetDB.
+        const url=`https://docs.google.com/spreadsheets/d/${INVENTARIO_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_STOCK)}&_=${Date.now()}`;
+        const r=await fetch(url); if(!r.ok)throw new Error('No se pudo verificar el stock actual');
+        const rows=parseCsvSimple(await r.text());
+        if(rows.length<2)return null;
+        const hs=rows[0].map(h=>h.trim().toLowerCase());
+        const arr=rows.slice(1).filter(a=>a.some(Boolean)).map(a=>Object.fromEntries(hs.map((h,i)=>[h,a[i]||''])));
+        return arr.find(p=>normalizarMayus(p.nombre)===normalizarMayus(nombre)&&normalizarMayus(p.ubicacion)===normalizarMayus(ubicacion))||null;
+    }
+    async function sumarHallazgoAStockExistente(dataObj){
+        const actual=await leerStockActualDirecto(dataObj.nombre,dataObj.ubicacion);
+        if(!actual)return false; // apareció como nuevo: se deja continuar con POST normal.
+        const ac=numeroStock(actual.cajas),ap=numeroStock(actual.paquetes),au=numeroStock(actual.unidades);
+        const sc=numeroStock(dataObj.cajas),sp=numeroStock(dataObj.paquetes),su=numeroStock(dataObj.unidades);
+        const nc=ac+sc,np=ap+sp,nu=au+su;
+        const ref=generarReferenciaOperacion('CONTEO');
+        await sheetdbPatchStock(actual,{
+            cajas:String(nc),paquetes:String(np),unidades:String(nu),
+            // Conserva la fecha original de agregación; esto es un hallazgo posterior, no un reinicio del stock.
+            usuario_quien_agrego_o_edito:currentUser.username,
+            fecha_de_edicion:obtenerFechaHoraBolivia()
+        });
+        await sheetdbPost(SHEET_MOVIMIENTOS,{
+            id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),
+            producto:normalizarMayus(dataObj.nombre),seccion:normalizarMayus(dataObj.seccion),
+            tipo:'ENTRADA',presentacion:'inventario progresivo',cantidad:String(sc+sp+su),unidades_equivalentes:'',
+            origen:'CONTEO FISICO',destino:dataObj.ubicacion,
+            cajas_anterior:String(ac),paquetes_anterior:String(ap),unidades_anterior:String(au),
+            cajas_nueva:String(nc),paquetes_nueva:String(np),unidades_nueva:String(nu),
+            motivo:'MERCADERIA ENCONTRADA EN INVENTARIO PROGRESIVO',
+            estado:'APLICADO',usuario:currentUser.username,sucursal:dataObj.ubicacion,referencia:ref
+        });
+        return {actual,antes:{c:ac,p:ap,u:au},nuevo:{c:nc,p:np,u:nu},ref};
+    }
+
+    // ============================================================
+    // 🧾 PRODUCTOS AGREGADOS - maestro auxiliar
+    // ============================================================
+    function normalizarMayus(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');}
+    function idProductoAux(){return 'PROD-'+Date.now()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();}
+    async function cargarProductosAgregados(){
+        try{
+            const url=`https://docs.google.com/spreadsheets/d/${INVENTARIO_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${PRODUCTOS_AGREGADOS_GID}&_=${Date.now()}`;
+            const r=await fetch(url); if(!r.ok)throw new Error('No se pudo leer productos_agregados');
+            const rows=parseCsvSimple(await r.text());
+            if(rows.length<1){productosAgregados=[];return;}
+            const hs=rows[0].map(h=>h.trim().toLowerCase());
+            productosAgregados=rows.slice(1).filter(a=>a.some(Boolean)).map(a=>Object.fromEntries(hs.map((h,i)=>[h,a[i]||''])));
+            renderProductosAgregados();
+        }catch(e){console.warn('productos_agregados:',e);productosAgregados=[];}
+    }
+    function existeProductoAux(nombre){
+        const n=normalizarMayus(nombre);
+        return productosAgregados.find(p=>normalizarMayus(p.nombre)===n && normalizarMayus(p.estado||'ACTIVO')!=='INACTIVO');
+    }
+    function existeProductoStock(nombre){
+        const n=normalizarMayus(nombre);
+        return todosProductos.find(p=>normalizarMayus(getNombre(p))===n);
+    }
+    async function guardarProductoAuxiliar(data){
+        if(existeProductoAux(data.nombre))return existeProductoAux(data.nombre);
+        const aux={
+          id_producto:idProductoAux(),
+          nombre:normalizarMayus(data.nombre),
+          seccion:normalizarMayus(data.seccion),
+          imagen:String(data.imagen||'').trim(),
+          unidades_por_paquete:String(data.unidades_por_paquete||''),
+          paquetes_por_caja:String(data.paquetes_por_caja||''),
+          fecha_creacion:obtenerFechaHoraBolivia(),
+          usuario:currentUser.username,
+          estado:'ACTIVO'
+        };
+        const r=await fetch(`${API_URL}?sheet=${encodeURIComponent(SHEET_PRODUCTOS_AGREGADOS)}`,{
+          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:aux})
+        });
+        if(!r.ok)throw new Error('No se pudo crear el producto auxiliar');
+        productosAgregados.push(aux); renderProductosAgregados(); return aux;
+    }
+    function renderProductosAgregados(){
+        const out=document.getElementById('listaProductosAgregados'); if(!out)return;
+        const q=normalizarMayus(document.getElementById('buscarProductoAux')?.value||'');
+        const arr=productosAgregados.filter(p=>!q||normalizarMayus(p.nombre).includes(q)||normalizarMayus(p.seccion).includes(q));
+        out.innerHTML=arr.length?arr.map(p=>`<div class="aux-row">
+          <div><strong>${p.nombre||''}</strong><br><small>${p.id_producto||''}</small></div>
+          <div>${p.seccion||''}</div>
+          <div>${p.unidades_por_paquete||'—'} U/P</div>
+          <div>${p.estado||'ACTIVO'}</div>
+        </div>`).join(''):'<div style="padding:18px;text-align:center;color:#888">No hay productos agregados que coincidan.</div>';
+    }
+    function abrirProductosAgregados(){renderProductosAgregados();document.getElementById('modalProductosAgregados').classList.add('active');}
+    function cerrarProductosAgregados(){document.getElementById('modalProductosAgregados').classList.remove('active');}
+    function evaluarProductoNuevo(){
+        const input=document.getElementById('nombre'); const aviso=document.getElementById('avisoProductoNuevo'); if(!input||!aviso)return;
+        const n=normalizarMayus(input.value);
+        if(!n){aviso.classList.remove('visible');return;}
+        // Si ya está en Stock o en productos_agregados, no hace falta volver a crearlo.
+        const conocido=existeProductoStock(n)||existeProductoAux(n);
+        aviso.classList.toggle('visible',!conocido);
+    }
+
+    // ============================================================
+    // 📊 RESUMEN POR UBICACIÓN + ALERTAS DE STOCK
+    // ============================================================
+    function equivalentesAprox(p){
+        const c=getCajas(p),pa=getPaquetes(p),u=getUnidades(p);
+        const upp=numeroStock(p.unidades_por_paquete),ppc=numeroStock(p.paquetes_por_caja);
+        if(upp>0 && ppc>0)return c*ppc*upp+pa*upp+u;
+        if(upp>0)return pa*upp+u+c;
+        return c+pa+u;
+    }
+    function nivelStock(p){
+        const eq=equivalentesAprox(p);
+        if(eq<=0)return 'critico';
+        // Alerta orientativa sin nuevas columnas: no bloquea operaciones.
+        if(eq<=5)return 'critico';
+        if(eq<=15)return 'bajo';
+        return 'normal';
+    }
+    function renderResumenUbicaciones(){
+        const el=document.getElementById('resumenUbicaciones'); if(!el)return;
+        const mapa={};
+        todosProductos.forEach(p=>{
+            const u=getUbicacion(p)||'Sin ubicación';
+            if(!mapa[u])mapa[u]={filas:0,bajo:0,critico:0};
+            mapa[u].filas++;
+            const n=nivelStock(p); if(n==='bajo')mapa[u].bajo++; if(n==='critico')mapa[u].critico++;
+        });
+        el.innerHTML=Object.entries(mapa).sort((a,b)=>a[0].localeCompare(b[0])).map(([u,d])=>`
+          <div class="resumen-ubi-card">
+            <strong>${u}</strong><span class="resumen-ubi-num">${d.filas}</span>
+            <div class="resumen-ubi-sub">productos registrados · ${d.bajo} bajos · ${d.critico} críticos</div>
+          </div>`).join('') || '<div style="font-size:12px;color:#888">Todavía no hay stock registrado.</div>';
+    }
+    function aplicarAlertasVisuales(){
+        document.querySelectorAll('[data-product-id]').forEach(row=>{
+            const id=row.getAttribute('data-product-id');
+            const p=todosProductos.find(x=>generarIdentificador(x)===id);
+            if(!p)return;
+            const n=nivelStock(p);
+            row.classList.remove('stock-bajo','stock-critico');
+            if(n==='bajo')row.classList.add('stock-bajo');
+            if(n==='critico')row.classList.add('stock-critico');
+        });
+    }
+
+    // ============================================================
+    // 🔎 HISTORIAL DE MOVIMIENTOS POR PRODUCTO (Google Sheets directo)
+    // ============================================================
+    function abrirHistorialProducto(){
+        document.getElementById('modalHistorialProducto').classList.add('active');
+        setTimeout(()=>document.getElementById('buscarMovimientoProducto').focus(),80);
+    }
+    function cerrarHistorialProducto(){document.getElementById('modalHistorialProducto').classList.remove('active');}
+    function parseCsvSimple(text){
+        const rows=[];let row=[],cell='',q=false;
+        for(let i=0;i<text.length;i++){const ch=text[i];
+          if(ch==='"'){if(q&&text[i+1]==='"'){cell+='"';i++;}else q=!q;}
+          else if(ch===','&&!q){row.push(cell);cell='';}
+          else if((ch==='\n'||ch==='\r')&&!q){if(ch==='\r'&&text[i+1]==='\n')i++;row.push(cell);cell='';if(row.some(x=>x!==''))rows.push(row);row=[];}
+          else cell+=ch;
+        } if(cell||row.length){row.push(cell);rows.push(row)} return rows;
+    }
+    async function buscarMovimientosProducto(){
+        const q=document.getElementById('buscarMovimientoProducto').value.trim().toLowerCase();
+        const out=document.getElementById('resultadoMovimientosProducto');
+        if(!q){out.innerHTML='<div style="padding:18px;text-align:center">Escribe un producto.</div>';return;}
+        out.innerHTML='<div style="padding:18px;text-align:center"><i class="fas fa-spinner fa-spin"></i> Buscando...</div>';
+        try{
+            const url=`https://docs.google.com/spreadsheets/d/${INVENTARIO_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_MOVIMIENTOS)}&_=${Date.now()}`;
+            const r=await fetch(url); if(!r.ok)throw new Error('No se pudo leer Movimientos');
+            const rows=parseCsvSimple(await r.text()); if(rows.length<2)throw new Error('Sin movimientos');
+            const headers=rows[0].map(h=>h.trim().toLowerCase());
+            const idx=n=>headers.indexOf(n);
+            const objs=rows.slice(1).map(a=>Object.fromEntries(headers.map((h,i)=>[h,a[i]||''])))
+              .filter(m=>String(m.producto||'').toLowerCase().includes(q));
+            if(!objs.length){out.innerHTML='<div style="padding:18px;text-align:center;color:#888">No encontré movimientos para esa búsqueda.</div>';return;}
+            out.innerHTML=objs.reverse().map(m=>`<div class="mov-row">
+              <div><strong>${m.fecha||''}</strong><br>${m.hora||''}</div>
+              <div>${m.producto||''}<br><small>${m.referencia||''}</small></div>
+              <div><strong>${m.tipo||''}</strong><br><small>${m.estado||''}</small></div>
+              <div>${m.origen||'—'} → ${m.destino||'—'}</div>
+              <div>${m.motivo||''}<br><small>${m.cajas_anterior||0}C/${m.paquetes_anterior||0}P/${m.unidades_anterior||0}U → ${m.cajas_nueva||0}C/${m.paquetes_nueva||0}P/${m.unidades_nueva||0}U</small></div>
+            </div>`).join('');
+        }catch(e){console.error(e);out.innerHTML='<div style="padding:18px;text-align:center;color:#c0392b">No se pudo leer el historial. Verifica que la pestaña movimientos sea pública/legible.</div>';}
+    }
+
+    // ============================================================
+    // ⚖️ AJUSTE DE STOCK CON HISTORIAL
+    // ============================================================
+    function abrirAjustarStock(){
+        const sel=document.getElementById('ajusteProducto');
+        sel.innerHTML='<option value="">Selecciona producto / ubicación...</option>'+todosProductos
+          .slice().sort((a,b)=>(getNombre(a)+getUbicacion(a)).localeCompare(getNombre(b)+getUbicacion(b)))
+          .map(p=>`<option value="${generarIdentificador(p).replace(/"/g,'&quot;')}">${getNombre(p)} — ${getUbicacion(p)} (${getCajas(p)}C / ${getPaquetes(p)}P / ${getUnidades(p)}U)</option>`).join('');
+        ['ajusteActualC','ajusteActualP','ajusteActualU'].forEach((id,i)=>document.getElementById(id).textContent='0 '+['C','P','U'][i]);
+        ['ajusteCajas','ajustePaquetes','ajusteUnidades'].forEach(id=>document.getElementById(id).value='0');
+        document.getElementById('ajusteNota').value='';
+        document.getElementById('modalAjustarStock').classList.add('active');
+    }
+    function cerrarAjustarStock(){document.getElementById('modalAjustarStock').classList.remove('active');}
+    function itemAjusteSeleccionado(){
+        const id=document.getElementById('ajusteProducto').value;
+        return todosProductos.find(p=>generarIdentificador(p)===id);
+    }
+    function cargarActualAjuste(){
+        const p=itemAjusteSeleccionado(); if(!p)return;
+        document.getElementById('ajusteActualC').textContent=getCajas(p)+' C';
+        document.getElementById('ajusteActualP').textContent=getPaquetes(p)+' P';
+        document.getElementById('ajusteActualU').textContent=getUnidades(p)+' U';
+        document.getElementById('ajusteCajas').value=getCajas(p);
+        document.getElementById('ajustePaquetes').value=getPaquetes(p);
+        document.getElementById('ajusteUnidades').value=getUnidades(p);
+    }
+    async function confirmarAjusteStock(){
+        const item=itemAjusteSeleccionado();
+        if(!item){Notificaciones.mostrar('Selecciona un producto','warning');return;}
+        const nc=numeroStock(document.getElementById('ajusteCajas').value),np=numeroStock(document.getElementById('ajustePaquetes').value),nu=numeroStock(document.getElementById('ajusteUnidades').value);
+        const ac=getCajas(item),ap=getPaquetes(item),au=getUnidades(item);
+        if(nc===ac&&np===ap&&nu===au){Notificaciones.mostrar('No hay ninguna diferencia para ajustar','info');return;}
+        const motivo=document.getElementById('ajusteMotivo').value;
+        const nota=document.getElementById('ajusteNota').value.trim();
+        if(!nota && motivo==='OTRO'){Notificaciones.mostrar('Escribe una explicación','warning');return;}
+        const ref=generarReferenciaOperacion('AJUSTE');
+        const btn=document.getElementById('confirmarAjustarStockBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Ajustando...';
+        try{
+            await sheetdbPatchStock(item,{cajas:String(nc),paquetes:String(np),unidades:String(nu),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()});
+            await sheetdbPost(SHEET_MOVIMIENTOS,{
+                id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),producto:getNombre(item),seccion:getSeccion(item),
+                tipo:'AJUSTE',presentacion:'conteo físico',cantidad:String(Math.abs((nc+np+nu)-(ac+ap+au))),unidades_equivalentes:'',
+                origen:getUbicacion(item),destino:getUbicacion(item),
+                cajas_anterior:String(ac),paquetes_anterior:String(ap),unidades_anterior:String(au),
+                cajas_nueva:String(nc),paquetes_nueva:String(np),unidades_nueva:String(nu),
+                motivo:(motivo+(nota?' - '+nota:'')),estado:'APLICADO',usuario:currentUser.username,sucursal:getUbicacion(item),referencia:ref
+            });
+            Notificaciones.mostrar(`✅ Ajuste registrado sin borrar historial · ${ref}`,'success',6500);
+            cerrarAjustarStock();setTimeout(cargarInventario,1200);
+        }catch(e){console.error(e);Notificaciones.mostrar('No se pudo registrar el ajuste: '+e.message,'error',7000);}
+        finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Registrar ajuste';}
     }
 
     function abrirModalEdicion(item) {
@@ -1674,53 +2409,117 @@
     // ============================================================
     // 📤 REGISTRAR PRODUCTO
     // ============================================================
-    document.getElementById('stockForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const btnSubmit = document.getElementById('btnSubmit');
-        btnSubmit.classList.add('vibrar');
-        setTimeout(() => btnSubmit.classList.remove('vibrar'), 400);
+    let registroPendienteConfirmacion = null;
 
-        const formData = new FormData(e.target);
-        const dataObj = {};
-        formData.forEach((value, key) => {
-            const match = key.match(/data\[(.*)\]/);
-            if (match) dataObj[match[1]] = value.trim();
+    function cerrarConfirmarRegistro(){
+        document.getElementById('modalConfirmarRegistro').classList.remove('active');
+    }
+
+    function prepararRegistroDesdeFormulario(){
+        const form=document.getElementById('stockForm');
+        const formData=new FormData(form);
+        const dataObj={};
+        formData.forEach((value,key)=>{
+            const match=key.match(/data\[(.*)\]/);
+            if(match)dataObj[match[1]]=String(value).trim();
         });
+        const faltantes=[];
+        dataObj.nombre=normalizarMayus(dataObj.nombre);
+        dataObj.seccion=normalizarMayus(dataObj.seccion);
+        if(!dataObj.nombre)faltantes.push('Nombre');
+        if(!dataObj.seccion)faltantes.push('Sección');
+        if(!dataObj.ubicacion)faltantes.push('Ubicación');
+        dataObj.cajas=dataObj.cajas||'0'; dataObj.paquetes=dataObj.paquetes||'0'; dataObj.unidades=dataObj.unidades||'0';
+        if((numeroStock(dataObj.cajas)+numeroStock(dataObj.paquetes)+numeroStock(dataObj.unidades))<=0)faltantes.push('al menos una existencia');
+        if(faltantes.length){Notificaciones.mostrar('Completa: '+faltantes.join(', '),'warning',5000);return null;}
+        dataObj.id_stock=generarIdStock();
+        dataObj.usuario_quien_agrego_o_edito=currentUser.username;
+        dataObj.fecha_de_agregacion=obtenerFechaHoraBolivia();
+        dataObj.fecha_de_edicion='';
+        if(!esAdmin())delete dataObj.precio_de_compra_china;
+        dataObj.__crear_auxiliar = !existeProductoAux(dataObj.nombre) && !existeProductoStock(dataObj.nombre);
+        return dataObj;
+    }
 
-        dataObj['id_stock'] = generarIdStock();
-        dataObj['usuario_quien_agrego_o_edito'] = currentUser.username;
-        dataObj['fecha_de_agregacion'] = obtenerFechaHoraBolivia();
-        dataObj['fecha_de_edicion'] = '';
+    function mostrarConfirmacionRegistro(dataObj){
+        const upp=numeroStock(dataObj.unidades_por_paquete);
+        const ppc=numeroStock(dataObj.paquetes_por_caja);
+        const existenteMismaUbicacion=buscarStockMismaUbicacionLocal(dataObj.nombre,dataObj.ubicacion);
+        const avisoSuma=document.getElementById('avisoSumaExistente');
+        avisoSuma.innerHTML=existenteMismaUbicacion?`<div class="modo-suma-aviso"><strong>Este producto ya tiene stock en ${dataObj.ubicacion}.</strong><br>Lo que estás registrando se interpretará como <strong>mercadería adicional encontrada</strong>. No reemplazará lo anterior. Antes de guardar, el sistema volverá a consultar Google Sheets y sumará sobre el valor más reciente.</div>`:'';
+        dataObj.__sumar_existente=!!existenteMismaUbicacion;
+        document.getElementById('confirmarRegistroContenido').innerHTML=`
+          <div style="font-size:16px;font-weight:800;margin-bottom:8px">${dataObj.nombre}</div>
+          <div class="confirm-registro-grid">
+            <div class="confirm-registro-item"><strong>📍 Ubicación</strong><br>${dataObj.ubicacion}</div>
+            <div class="confirm-registro-item"><strong>📂 Sección</strong><br>${dataObj.seccion}</div>
+            <div class="confirm-registro-item"><strong>📦 Stock contado</strong><br>${numeroStock(dataObj.cajas)} cajas + ${numeroStock(dataObj.paquetes)} paquetes + ${numeroStock(dataObj.unidades)} unidades</div>
+            <div class="confirm-registro-item"><strong>🧩 Equivalencias</strong><br>${ppc?ppc+' paquetes por caja':'Sin paquetes/caja'} · ${upp?upp+' unidades de venta por paquete':'Sin unidades/paquete'}</div>
+            <div class="confirm-registro-item"><strong>👤 Registrado por</strong><br>${currentUser.username}</div>
+            <div class="confirm-registro-item"><strong>🕒 Fecha y hora</strong><br>${dataObj.fecha_de_agregacion}</div>
+          </div>
+          ${dataObj.__crear_auxiliar?`<div style="margin-top:10px;background:#eef8ff;padding:9px;border-radius:7px"><strong>Producto nuevo:</strong> además de registrar su Stock, se guardará una sola vez en <strong>productos_agregados</strong>.</div>`:`<div style="margin-top:10px"><span class="origen-producto-badge">PRODUCTO YA CONOCIDO</span> No se duplicará en productos_agregados.</div>`}
+          ${upp?`<div style="margin-top:10px"><strong>Recuerda:</strong> esas ${upp} son unidades DE VENTA por paquete, no necesariamente piezas físicas.</div>`:''}`;
+        document.getElementById('modalConfirmarRegistro').classList.add('active');
+    }
 
-        if (!esAdmin()) {
-            delete dataObj['precio_de_compra_china'];
-        }
-
-        const faltantes = [];
-        if (!dataObj.nombre) faltantes.push('Nombre');
-        if (!dataObj.seccion) faltantes.push('Sección');
-        if (!dataObj.ubicacion) faltantes.push('Ubicación');
-        dataObj.cajas = dataObj.cajas || '0';
-        dataObj.paquetes = dataObj.paquetes || '0';
-        dataObj.unidades = dataObj.unidades || '0';
-        if ((numeroStock(dataObj.cajas) + numeroStock(dataObj.paquetes) + numeroStock(dataObj.unidades)) <= 0)
-            faltantes.push('al menos una existencia (cajas, paquetes o unidades)');
-        if (faltantes.length > 0) { Notificaciones.mostrar('Completa: ' + faltantes.join(', '), 'warning', 5000); return; }
-
-        btnSubmit.disabled = true;
-        btnSubmit.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
-
-        try {
-            const r = await fetch(`${API_URL}?sheet=${encodeURIComponent(SHEET_STOCK)}`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: dataObj }) });
-            if (!r.ok) { Notificaciones.mostrar('Error ' + r.status, 'error', 6000); return; }
-            Notificaciones.mostrar(`✅ "${dataObj.nombre}" registrado por ${currentUser.username}`, 'success', 4000);
-            e.target.reset();
-            document.getElementById('previewContainer').style.display = 'none';
-            document.getElementById('nombre').focus();
-            setTimeout(cargarInventario, 2000);
-        } catch (err) { console.error(err); Notificaciones.mostrar('Error de conexión', 'error', 6000); }
-        finally { btnSubmit.disabled = false; btnSubmit.innerHTML = '<i class="fas fa-save"></i> Registrar Producto'; }
+    document.getElementById('stockForm').addEventListener('submit',(e)=>{
+        e.preventDefault();
+        const btn=document.getElementById('btnSubmit');
+        btn.classList.add('vibrar'); setTimeout(()=>btn.classList.remove('vibrar'),400);
+        const data=prepararRegistroDesdeFormulario();
+        if(!data)return;
+        registroPendienteConfirmacion=data;
+        mostrarConfirmacionRegistro(data);
     });
+
+    async function guardarRegistroConfirmado(){
+        const dataObj=registroPendienteConfirmacion;
+        if(!dataObj)return;
+        const btn=document.getElementById('guardarRegistroConfirmadoBtn');
+        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Registrando...';
+        try{
+            if(dataObj.__crear_auxiliar) await guardarProductoAuxiliar(dataObj);
+            // Regla V13: si el mismo producto ya existe en la misma ubicación,
+            // este formulario representa un HALLAZGO ADICIONAL, no un reemplazo.
+            // Se relee Google Sheets justo antes de sumar para reducir choques entre dos personas.
+            const suma=await sumarHallazgoAStockExistente(dataObj);
+            if(suma){
+                Notificaciones.mostrar(`✅ Hallazgo sumado: ${dataObj.nombre} · ${suma.ref}`,'success',5500);
+            }else{
+                const stockPayload={...dataObj}; delete stockPayload.__crear_auxiliar; delete stockPayload.__sumar_existente;
+                const r=await fetch(`${API_URL}?sheet=${encodeURIComponent(SHEET_STOCK)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:stockPayload})});
+                if(!r.ok){Notificaciones.mostrar('Error '+r.status,'error',6000);return;}
+                // Registrar también el primer conteo como movimiento de entrada/inicio.
+                try{
+                    await sheetdbPost(SHEET_MOVIMIENTOS,{
+                      id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),
+                      producto:dataObj.nombre,seccion:dataObj.seccion,tipo:'ENTRADA',presentacion:'inventario inicial',
+                      cantidad:String(numeroStock(dataObj.cajas)+numeroStock(dataObj.paquetes)+numeroStock(dataObj.unidades)),unidades_equivalentes:'',
+                      origen:'CONTEO FISICO',destino:dataObj.ubicacion,
+                      cajas_anterior:'0',paquetes_anterior:'0',unidades_anterior:'0',
+                      cajas_nueva:String(numeroStock(dataObj.cajas)),paquetes_nueva:String(numeroStock(dataObj.paquetes)),unidades_nueva:String(numeroStock(dataObj.unidades)),
+                      motivo:'INICIO DE INVENTARIO EN UBICACION',estado:'APLICADO',usuario:currentUser.username,sucursal:dataObj.ubicacion,
+                      referencia:generarReferenciaOperacion('INVENTARIO')
+                    });
+                }catch(movErr){console.warn('Stock guardado; no se pudo registrar movimiento inicial',movErr);}
+                Notificaciones.mostrar(`✅ "${dataObj.nombre}" registrado por ${currentUser.username}`,'success',4500);
+            }
+            cerrarConfirmarRegistro();
+            registroPendienteConfirmacion=null;
+            document.getElementById('stockForm').reset();
+            document.getElementById('previewContainer').style.display='none';
+            document.getElementById('nombre').focus();
+            setTimeout(cargarInventario,1800);
+        }catch(err){console.error(err);Notificaciones.mostrar('Error de conexión','error',6000);}
+        finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Sí, registrar este stock';}
+    }
+
+    document.getElementById('guardarRegistroConfirmadoBtn').addEventListener('click',guardarRegistroConfirmado);
+    document.getElementById('volverEditarRegistroBtn').addEventListener('click',cerrarConfirmarRegistro);
+    document.getElementById('cerrarConfirmarRegistroBtn').addEventListener('click',cerrarConfirmarRegistro);
+    document.getElementById('modalConfirmarRegistro').addEventListener('click',e=>{if(e.target===e.currentTarget)cerrarConfirmarRegistro();});
+    document.getElementById('btnGuiaRegistro').addEventListener('click',()=>document.getElementById('modalComoFunciona').classList.add('active'));
 
     // ============================================================
     // 📄 PDF
@@ -1853,6 +2652,58 @@
         }
     });
 
+
+    document.getElementById('btnMoverSeleccionados').addEventListener('click', abrirTraspasoMultiple);
+    document.getElementById('btnMoverMercaderiaPrincipal').addEventListener('click', function(){
+        if(seleccionados.size>0){ abrirTraspasoMultiple(); return; }
+        const tabla=document.getElementById('tablaProductos');
+        if(tabla) tabla.scrollIntoView({behavior:'smooth',block:'start'});
+        Notificaciones.mostrar('Marca uno o varios productos con la casilla ✓ y luego pulsa “Mover mercadería”. También puedes usar ↔ en una fila para mover solo ese producto.','info',8000);
+    });
+    document.getElementById('btnComoFunciona').addEventListener('click',()=>document.getElementById('modalComoFunciona').classList.add('active'));
+    document.getElementById('cerrarComoFuncionaBtn').addEventListener('click',()=>document.getElementById('modalComoFunciona').classList.remove('active'));
+    document.getElementById('entendidoComoFuncionaBtn').addEventListener('click',()=>document.getElementById('modalComoFunciona').classList.remove('active'));
+    document.getElementById('modalComoFunciona').addEventListener('click',e=>{if(e.target===e.currentTarget)e.currentTarget.classList.remove('active');});
+    document.getElementById('cerrarTraspasoMultipleBtn').addEventListener('click', cerrarTraspasoMultiple);
+    document.getElementById('cancelarTraspasoMultipleBtn').addEventListener('click', cerrarTraspasoMultiple);
+    document.getElementById('confirmarTraspasoMultipleBtn').addEventListener('click', confirmarTraspasoMultiple);
+    document.getElementById('modalTraspasoMultiple').addEventListener('click',e=>{if(e.target===e.currentTarget)cerrarTraspasoMultiple();});
+
+    document.getElementById('btnAdministrarUbicaciones').addEventListener('click',()=>{renderizarAdminUbicaciones();document.getElementById('modalUbicaciones').classList.add('active');});
+    document.getElementById('cerrarUbicacionesBtn').addEventListener('click',()=>document.getElementById('modalUbicaciones').classList.remove('active'));
+    document.getElementById('guardarNuevaUbicacionBtn').addEventListener('click',crearUbicacion);
+
+    document.getElementById('btnEntradaExterna').addEventListener('click',abrirEntradaExterna);
+    document.getElementById('btnAjustarStock').addEventListener('click',abrirAjustarStock);
+    document.getElementById('btnHistorialProducto').addEventListener('click',abrirHistorialProducto);
+    document.getElementById('btnProductosAgregados').addEventListener('click',abrirProductosAgregados);
+    document.getElementById('cerrarProductosAgregadosBtn').addEventListener('click',cerrarProductosAgregados);
+    document.getElementById('modalProductosAgregados').addEventListener('click',e=>{if(e.target===e.currentTarget)cerrarProductosAgregados();});
+    document.getElementById('buscarProductoAux').addEventListener('input',renderProductosAgregados);
+    document.getElementById('nombre').addEventListener('input',()=>{evaluarProductoNuevo();});
+    document.getElementById('nombre').addEventListener('blur',()=>{
+        const n=document.getElementById('nombre'); n.value=normalizarMayus(n.value);
+        const sec=document.getElementById('seccion'); if(sec)sec.value=normalizarMayus(sec.value);
+        evaluarProductoNuevo();
+    });
+    document.getElementById('seccion').addEventListener('blur',e=>e.target.value=normalizarMayus(e.target.value));
+    cargarProductosAgregados();
+
+    document.getElementById('cerrarHistorialProductoBtn').addEventListener('click',cerrarHistorialProducto);
+    document.getElementById('ejecutarBuscarMovimientos').addEventListener('click',buscarMovimientosProducto);
+    document.getElementById('buscarMovimientoProducto').addEventListener('keydown',e=>{if(e.key==='Enter')buscarMovimientosProducto();});
+    document.getElementById('modalHistorialProducto').addEventListener('click',e=>{if(e.target===e.currentTarget)cerrarHistorialProducto();});
+
+    document.getElementById('cerrarAjustarStockBtn').addEventListener('click',cerrarAjustarStock);
+    document.getElementById('cancelarAjustarStockBtn').addEventListener('click',cerrarAjustarStock);
+    document.getElementById('confirmarAjustarStockBtn').addEventListener('click',confirmarAjusteStock);
+    document.getElementById('ajusteProducto').addEventListener('change',cargarActualAjuste);
+    document.getElementById('modalAjustarStock').addEventListener('click',e=>{if(e.target===e.currentTarget)cerrarAjustarStock();});
+
+    document.getElementById('cerrarEntradaExternaBtn').addEventListener('click',cerrarEntradaExterna);
+    document.getElementById('cancelarEntradaExternaBtn').addEventListener('click',cerrarEntradaExterna);
+    document.getElementById('confirmarEntradaExternaBtn').addEventListener('click',confirmarEntradaExterna);
+
     document.getElementById('cerrarTraspasoBtn').addEventListener('click', cerrarModalTraspaso);
     document.getElementById('cancelarTraspasoBtn').addEventListener('click', cerrarModalTraspaso);
     document.getElementById('confirmarTraspasoBtn').addEventListener('click', confirmarTraspaso);
@@ -1873,7 +2724,7 @@
         document.querySelector('input[name="pdfOpcion"][value="seleccionados"]').closest('.pdf-opcion').classList.add('selected');
     });
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { cerrarModalEdicion(); cerrarModalPdf(); document.getElementById('lightbox').classList.remove('active'); autocompleteList.classList.remove('active'); }
+        if (e.key === 'Escape') { cerrarModalEdicion(); cerrarModalPdf(); cerrarModalTraspaso(); cerrarTraspasoMultiple(); cerrarEntradaExterna(); cerrarAjustarStock(); cerrarConfirmarRegistro(); cerrarHistorialProducto(); cerrarProductosAgregados(); document.getElementById('modalUbicaciones').classList.remove('active'); document.getElementById('modalComoFunciona').classList.remove('active'); document.getElementById('lightbox').classList.remove('active'); autocompleteList.classList.remove('active'); }
     });
     document.getElementById('recargarTablaBtn').addEventListener('click', async function() {
         this.disabled = true;
@@ -1926,6 +2777,7 @@
                     iniciarListenersActividad();
                     Notificaciones.mostrar(`Bienvenido de vuelta, ${user.username}`, 'success', 3000);
                     cargarCatalogo();
+                    cargarUbicaciones();
                     cargarInventario();
                     console.log('✅ Sesión restaurada:', user);
                     return;
@@ -1942,6 +2794,8 @@
         document.getElementById('appContainer').style.display = 'none';
         document.getElementById('loginUsuario').focus();
     };
+
+    setInterval(()=>{if(typeof todosProductos!=='undefined'&&todosProductos.length)renderResumenUbicaciones();},5000);
 </script>
 </body>
 </html>
