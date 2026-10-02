@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Ventas al Por Mayor</title>
+<title>Todoenuno_store - Ventas al Por Mayor · V4 Ajuste Pedido Pagado Corregido</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -933,6 +933,37 @@ button:active { transform: translateY(-1px); }
     font-size: 13px;
     font-style: italic;
 }
+
+/* ===== V2 · AJUSTE INTELIGENTE DEL PEDIDO ===== */
+.ajuste-monto-container{display:none!important;background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:22px;margin-bottom:20px}
+.ajuste-monto-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:13px;border-bottom:2px solid #f0f0f0;margin-bottom:15px}
+.ajuste-monto-title{font-size:21px;font-weight:800;color:#2c3e50;display:flex;align-items:center;gap:9px}
+.ajuste-grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-top:12px}
+.ajuste-card{border:1px solid #e2e7eb;border-radius:12px;padding:12px;background:#f8fafb}
+.ajuste-card small{display:block;color:#73808b;font-size:11px;margin-bottom:5px}.ajuste-card strong{font-size:20px;color:#263d50}
+.ajuste-diferencia{margin-top:12px;border-radius:12px;padding:14px;text-align:center;font-weight:800;font-size:15px}
+.ajuste-diferencia.neutro{background:#eef2f5;color:#586773}.ajuste-diferencia.falta{background:#fff3cd;color:#856404;border:1px solid #ffe69c}
+.ajuste-diferencia.sobra{background:#e8f4ff;color:#175f91;border:1px solid #b9ddf6}.ajuste-diferencia.exacto{background:#dff5e8;color:#176b43;border:1px solid #b9e6cc}
+.ajuste-ayuda{font-size:11px;color:#6d7983;line-height:1.4;margin-top:10px}
+.ajuste-historial{margin-top:13px;max-height:170px;overflow:auto;border-top:1px dashed #d8dee3;padding-top:9px}
+.ajuste-historial-item{font-size:11px;padding:7px 4px;border-bottom:1px solid #edf0f2;color:#55636e}
+.ajuste-historial-item b{color:#2c3e50}
+.ajuste-limpiar{width:auto!important;padding:8px 10px!important;font-size:11px!important;background:#6c757d!important}
+.ajuste-monto-input{padding:14px!important;font-size:18px!important;font-weight:800;text-align:right}
+@media(max-width:600px){.ajuste-grid{grid-template-columns:1fr}.ajuste-monto-title{font-size:18px}}
+
+
+.ajuste-pagado-launch,.ajuste-pagado-panel{background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:20px;margin-bottom:20px}
+.ajuste-pagado-launch button{background:linear-gradient(135deg,#7b61ff,#5642d6)}
+.ajuste-pagado-panel{display:none;border:2px solid #7b61ff}.ajuste-pagado-panel.activo{display:block}
+.ajuste-pagado-head{border-bottom:1px solid #e7e4ff;padding-bottom:12px;margin-bottom:14px}.ajuste-pagado-head h3{margin:0;color:#4938b6}
+.ajuste-pagado-grid{display:grid;grid-template-columns:1fr 1fr;gap:9px}.ajuste-pagado-card{background:#f8f7ff;border:1px solid #e5e1ff;border-radius:11px;padding:11px}
+.ajuste-pagado-card small{display:block;color:#777;font-size:10px}.ajuste-pagado-card strong{font-size:18px}
+.ajuste-pagado-estado{margin-top:11px;padding:13px;border-radius:11px;text-align:center;font-size:14px;font-weight:800}
+.ajuste-pagado-estado.favor{background:#dff5e8;color:#176b43}.ajuste-pagado-estado.debe{background:#fff0df;color:#9a5200}.ajuste-pagado-estado.exacto{background:#e5f0ff;color:#235c9c}
+.ajuste-pagado-actions{display:flex;gap:8px;margin-top:12px}.ajuste-pagado-actions button{padding:10px!important;font-size:12px!important}
+.ajuste-pagado-log{margin-top:12px;max-height:145px;overflow:auto;border-top:1px dashed #ddd;padding-top:8px;font-size:10px;color:#65717b}
+.ajuste-pagado-log div{padding:5px 2px;border-bottom:1px solid #f0f0f0}@media(max-width:600px){.ajuste-pagado-grid{grid-template-columns:1fr}.ajuste-pagado-actions{flex-direction:column}}
 </style>
 
 <style id="loginMayorStyles">
@@ -1176,6 +1207,37 @@ button:active { transform: translateY(-1px); }
         </div>
     </div>
     <div class="side-panel">
+        <div class="ajuste-pagado-launch" id="ajustePagadoLaunch">
+<button type="button" id="activarAjustePagado" onclick="window.iniciarAjustePagadoSeguroV4 && window.iniciarAjustePagadoSeguroV4(); return false;"><i class="fas fa-rotate"></i> Ajustar pedido ya pagado</button>
+<p style="font-size:11px;color:#6d7983;margin-top:9px"><i class="fas fa-info-circle"></i> Actívalo solo cuando el cliente ya pagó y después necesitas modificar su pedido.</p>
+</div>
+<div class="ajuste-pagado-panel" id="ajustePagadoPanel">
+<div class="ajuste-pagado-head"><h3><i class="fas fa-wallet"></i> Pedido en ajuste</h3><p style="font-size:11px;color:#6f7780">El pago queda congelado; puedes editar, quitar y agregar productos normalmente.</p></div>
+<div class="ajuste-pagado-grid">
+<div class="ajuste-pagado-card"><small>MONTO YA PAGADO</small><strong><span id="pagoCongeladoValor">0</span> Bs</strong></div>
+<div class="ajuste-pagado-card"><small>TOTAL ACTUAL</small><strong><span id="pedidoActualValor">0</span> Bs</strong></div>
+</div>
+<div class="ajuste-pagado-estado exacto" id="estadoSaldoPagado">Pedido cuadrado.</div>
+<div class="ajuste-pagado-log" id="historialAjustePagado"></div>
+<div class="ajuste-pagado-actions">
+<button type="button" class="btn-success" id="finalizarAjustePagado"><i class="fas fa-check"></i> Finalizar ajuste</button>
+<button type="button" class="btn-danger" id="cancelarAjustePagado"><i class="fas fa-times"></i> Cancelar modo ajuste</button>
+</div></div>
+<div class="ajuste-monto-container" id="ajusteMontoContainer">
+            <div class="ajuste-monto-header">
+                <div class="ajuste-monto-title"><i class="fas fa-scale-balanced"></i> Ajuste inteligente</div>
+                <button type="button" class="ajuste-limpiar" id="limpiarMontoObjetivo"><i class="fas fa-eraser"></i> Limpiar</button>
+            </div>
+            <label for="montoObjetivoCliente"><i class="fas fa-wallet"></i> Monto que pagó / quiere gastar</label>
+            <input type="number" id="montoObjetivoCliente" class="ajuste-monto-input" min="0" step="1" placeholder="Ej: 500 Bs">
+            <div class="ajuste-grid">
+                <div class="ajuste-card"><small>Total actual del pedido</small><strong><span id="ajusteTotalActual">0</span> Bs</strong></div>
+                <div class="ajuste-card"><small>Monto del cliente</small><strong><span id="ajusteMontoCliente">0</span> Bs</strong></div>
+            </div>
+            <div class="ajuste-diferencia neutro" id="ajusteDiferencia">Ingresa el monto del cliente para comparar.</div>
+            <div class="ajuste-ayuda"><i class="fas fa-lightbulb"></i> Puedes eliminar lo que no haya, editar montos o agregar más productos. La diferencia se recalcula automáticamente.</div>
+            <div class="ajuste-historial" id="ajusteHistorial"><div class="ajuste-historial-item">Todavía no hubo cambios en el pedido.</div></div>
+        </div>
         <div class="cargar-pedido-container">
             <div class="cargar-pedido-header">
                 <div class="cargar-pedido-title">
@@ -1443,6 +1505,15 @@ document.addEventListener('DOMContentLoaded', function() {
     const lightbox = document.getElementById('imageLightbox');
     const closeBtn = document.getElementById('lightboxCloseBtn');
     const envioSinCostoCheck = document.getElementById('envioSinCosto');
+    const montoObjetivoCliente = document.getElementById('montoObjetivoCliente');
+    const ajusteTotalActual = document.getElementById('ajusteTotalActual');
+    const ajusteMontoCliente = document.getElementById('ajusteMontoCliente');
+    const ajusteDiferencia = document.getElementById('ajusteDiferencia');
+    const ajusteHistorial = document.getElementById('ajusteHistorial');
+    const limpiarMontoObjetivo = document.getElementById('limpiarMontoObjetivo');
+    const activarAjustePagado=document.getElementById('activarAjustePagado'), ajustePagadoLaunch=document.getElementById('ajustePagadoLaunch'), ajustePagadoPanel=document.getElementById('ajustePagadoPanel');
+    const pagoCongeladoValor=document.getElementById('pagoCongeladoValor'), pedidoActualValor=document.getElementById('pedidoActualValor'), estadoSaldoPagado=document.getElementById('estadoSaldoPagado'), historialAjustePagado=document.getElementById('historialAjustePagado');
+    const finalizarAjustePagado=document.getElementById('finalizarAjustePagado'), cancelarAjustePagado=document.getElementById('cancelarAjustePagado');
 
     const modalCantidad = document.getElementById('modalCantidad');
     const modalProductoImagen = document.getElementById('modalProductoImagen');
@@ -1959,6 +2030,124 @@ document.addEventListener('DOMContentLoaded', function() {
     estadoWhatsapp.addEventListener('change', function() { actualizarBadgeEstadoPago(); actualizarFondoPorEstadoPago(); });
     estadoPagado.addEventListener('change', function() { actualizarBadgeEstadoPago(); actualizarFondoPorEstadoPago(); });
 
+
+
+    let modoAjustePagado=false,montoPagadoCongelado=0,totalAntesAjuste=0,historialAjustePagadoData=[];
+    function renderAjustePagadoV3(){
+      if(!modoAjustePagado)return; const actual=Number(total)||0,dif=Math.round((actual-montoPagadoCongelado)*100)/100;
+      pagoCongeladoValor.textContent=formatearPrecio(montoPagadoCongelado);pedidoActualValor.textContent=formatearPrecio(actual);
+      if(Math.abs(dif)<.01){estadoSaldoPagado.className='ajuste-pagado-estado exacto';estadoSaldoPagado.innerHTML='✅ PEDIDO CUADRADO · No falta ni sobra.'}
+      else if(dif<0){estadoSaldoPagado.className='ajuste-pagado-estado favor';estadoSaldoPagado.innerHTML=`🟢 SALDO A FAVOR DEL CLIENTE: <strong>${formatearPrecio(Math.abs(dif))} Bs</strong>`}
+      else{estadoSaldoPagado.className='ajuste-pagado-estado debe';estadoSaldoPagado.innerHTML=`🟠 SALDO PENDIENTE POR COMPLETAR: <strong>${formatearPrecio(dif)} Bs</strong>`}
+      historialAjustePagado.innerHTML=historialAjustePagadoData.length?historialAjustePagadoData.map(x=>`<div><b>${escaparAjuste(x.hora)} · ${escaparAjuste(x.tipo)}</b> — ${escaparAjuste(x.texto)}</div>`).join(''):'<div>Aquí aparecerán los cambios realizados durante el ajuste.</div>';
+    }
+    function logAjustePagadoV3(tipo,texto){if(!modoAjustePagado)return;historialAjustePagadoData.unshift({tipo,texto,hora:new Date().toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'})});renderAjustePagadoV3()}
+    async function iniciarAjustePagadoV3(){
+      try{
+        if(!Array.isArray(items) || items.length===0){
+          if(window.Swal) await Swal.fire({title:'Primero carga el pedido',text:'Carga desde WhatsApp o agrega los productos del pedido que el cliente ya pagó. Después vuelve a tocar “Ajustar pedido ya pagado”.',icon:'info',confirmButtonText:'Entendido'});
+          else alert('Primero carga o crea el pedido que el cliente ya pagó.');
+          return;
+        }
+        const actual=Number(total)||items.reduce((a,x)=>a+(Number(x.monto)||0),0);
+        let pagado=null;
+        if(window.Swal){
+          const res=await Swal.fire({
+            title:'Ajustar pedido ya pagado',
+            html:`<div style="text-align:left;line-height:1.55">El pedido cargado actualmente suma <b>${formatearPrecio(actual)} Bs</b>.<br><br>Escribe cuánto dinero <b>ya pagó el cliente</b>. Ese monto quedará fijo mientras haces cambios.</div>`,
+            input:'number',inputValue:actual,inputAttributes:{min:'0',step:'0.01'},
+            showCancelButton:true,confirmButtonText:'Activar modo ajuste',cancelButtonText:'Cancelar',
+            allowOutsideClick:false,
+            preConfirm:v=>{const n=parseFloat(v);if(!Number.isFinite(n)||n<0){Swal.showValidationMessage('Ingresa un monto válido');return false}return n}
+          });
+          if(!res.isConfirmed)return;
+          pagado=Number(res.value);
+        }else{
+          const v=window.prompt(`El pedido actual suma ${formatearPrecio(actual)} Bs.\n¿Cuánto ya pagó el cliente?`,String(actual));
+          if(v===null)return;
+          pagado=parseFloat(v);
+          if(!Number.isFinite(pagado)||pagado<0){alert('Ingresa un monto válido.');return}
+        }
+        modoAjustePagado=true;
+        montoPagadoCongelado=pagado;
+        totalAntesAjuste=actual;
+        historialAjustePagadoData=[];
+        if(ajustePagadoLaunch)ajustePagadoLaunch.style.display='none';
+        if(ajustePagadoPanel)ajustePagadoPanel.classList.add('activo');
+        renderAjustePagadoV3();
+        if(window.Notificaciones)Notificaciones.mostrar('Modo ajuste activado. El pago quedó fijado.','success');
+        setTimeout(()=>ajustePagadoPanel?.scrollIntoView({behavior:'smooth',block:'center'}),100);
+      }catch(err){
+        console.error('Error al activar ajuste pagado:',err);
+        alert('No se pudo abrir el ajuste del pedido. Recarga la página e inténtalo nuevamente.');
+      }
+    }
+    window.iniciarAjustePagadoSeguroV4=iniciarAjustePagadoV3;
+    async function finalizarAjustePagadoV3(){
+      if(!modoAjustePagado)return;const actual=Number(total)||0,dif=Math.round((actual-montoPagadoCongelado)*100)/100;
+      const saldo=Math.abs(dif)<.01?'PEDIDO CUADRADO':dif>0?`SALDO PENDIENTE: ${formatearPrecio(dif)} Bs`:`SALDO A FAVOR: ${formatearPrecio(Math.abs(dif))} Bs`;
+      const r=await Swal.fire({title:'Finalizar ajuste',html:`<div style="text-align:left;line-height:1.8"><b>Pedido antes del ajuste:</b> ${formatearPrecio(totalAntesAjuste)} Bs<br><b>Monto ya pagado:</b> ${formatearPrecio(montoPagadoCongelado)} Bs<br><b>Total actualizado:</b> ${formatearPrecio(actual)} Bs<hr><b>${saldo}</b></div>`,showCancelButton:true,confirmButtonText:'Confirmar ajuste',cancelButtonText:'Seguir modificando'});
+      if(r.isConfirmed){mostrarPrevisualizacion();Notificaciones.mostrar('Ajuste confirmado y resumen agregado al mensaje.','success')}
+    }
+    function cancelarAjustePagadoV3(){modoAjustePagado=false;montoPagadoCongelado=0;totalAntesAjuste=0;historialAjustePagadoData=[];ajustePagadoPanel.classList.remove('activo');ajustePagadoLaunch.style.display='';Notificaciones.mostrar('Modo ajuste cancelado. Los cambios del pedido se conservan.','info')}
+    function resumenAjustePagadoV3(saltoLinea){
+      if(!modoAjustePagado)return '';const actual=Number(total)||0,dif=Math.round((actual-montoPagadoCongelado)*100)/100;
+      const saldo=Math.abs(dif)<.01?'✅ *PEDIDO CUADRADO*':dif>0?`🟠 *SALDO PENDIENTE POR COMPLETAR:* ${formatearPrecio(dif)} Bs`:`🟢 *SALDO A FAVOR DEL CLIENTE:* ${formatearPrecio(Math.abs(dif))} Bs`;
+      return `${saltoLinea}🔄 *AJUSTE DEL PEDIDO*${saltoLinea}💳 *Monto ya pagado:* ${formatearPrecio(montoPagadoCongelado)} Bs${saltoLinea}🧾 *Total actualizado:* ${formatearPrecio(actual)} Bs${saltoLinea}${saldo}${saltoLinea}`;
+    }
+
+    let historialAjustesPedido = [];
+    let snapshotItemsAjuste = [];
+
+    function escaparAjuste(v) {
+        return String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));
+    }
+    function montoObjetivoValor() {
+        const n = parseFloat(montoObjetivoCliente?.value || '');
+        return Number.isFinite(n) && n >= 0 ? n : null;
+    }
+    function registrarAjustePedido(tipo, texto) {
+        const ahora = new Date();
+        historialAjustesPedido.unshift({
+            tipo, texto,
+            hora: ahora.toLocaleTimeString('es-BO',{hour:'2-digit',minute:'2-digit'})
+        });
+        historialAjustesPedido = historialAjustesPedido.slice(0,30);
+        renderHistorialAjustes();
+    }
+    function renderHistorialAjustes() {
+        if (!ajusteHistorial) return;
+        if (!historialAjustesPedido.length) {
+            ajusteHistorial.innerHTML='<div class="ajuste-historial-item">Todavía no hubo cambios en el pedido.</div>';
+            return;
+        }
+        ajusteHistorial.innerHTML=historialAjustesPedido.map(x=>`<div class="ajuste-historial-item"><b>${escaparAjuste(x.hora)} · ${escaparAjuste(x.tipo)}</b><br>${escaparAjuste(x.texto)}</div>`).join('');
+    }
+    function actualizarAjusteInteligente() {
+        if (!ajusteDiferencia) return;
+        const objetivo=montoObjetivoValor();
+        const actual=Number(total)||0;
+        ajusteTotalActual.textContent=formatearPrecio(actual);
+        ajusteMontoCliente.textContent=objetivo===null?'—':formatearPrecio(objetivo);
+        ajusteDiferencia.className='ajuste-diferencia ';
+        if (objetivo===null) {
+            ajusteDiferencia.className+='neutro';
+            ajusteDiferencia.innerHTML='Ingresa el monto del cliente para comparar.';
+            return;
+        }
+        const dif=Math.round((objetivo-actual)*100)/100;
+        if (Math.abs(dif)<0.01) {
+            ajusteDiferencia.className+='exacto';
+            ajusteDiferencia.innerHTML='<i class="fas fa-check-circle"></i> CUADRA EXACTO · no falta ni sobra.';
+        } else if (dif>0) {
+            ajusteDiferencia.className+='falta';
+            ajusteDiferencia.innerHTML=`<i class="fas fa-plus-circle"></i> FALTAN <strong>${formatearPrecio(dif)} Bs</strong> por agregar al pedido.`;
+        } else {
+            ajusteDiferencia.className+='sobra';
+            ajusteDiferencia.innerHTML=`<i class="fas fa-arrow-down"></i> EL PEDIDO SE PASA por <strong>${formatearPrecio(Math.abs(dif))} Bs</strong>.`;
+        }
+    }
+
     function actualizarListaItems() {
         productosLista.innerHTML = '';
         let subtotal = 0;
@@ -2011,6 +2200,8 @@ document.addEventListener('DOMContentLoaded', function() {
         total = subtotal + costo;
         totalCompra.textContent = formatearPrecio(total);
         actualizarAlistamiento();
+        actualizarAjusteInteligente();
+        renderAjustePagadoV3();
     }
 
     function actualizarAlistamiento() {
@@ -2069,10 +2260,12 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function eliminarProducto(index) {
         if (index >= 0 && index < items.length) {
+            const eliminado = items[index] ? {...items[index]} : null;
             items.splice(index, 1);
             if (editingIndex === index) cancelarEdicion();
             else if (editingIndex !== null && index < editingIndex) editingIndex--;
             actualizarListaItems();
+            if(eliminado){registrarAjustePedido('ELIMINADO',`${eliminado.descripcion} · ${formatearPrecio(eliminado.monto)} Bs`);logAjustePagadoV3('ELIMINADO',`${eliminado.descripcion} · ${formatearPrecio(eliminado.monto)} Bs`)}
             Notificaciones.mostrar('Producto eliminado del pedido', 'info');
         }
     }
@@ -2109,11 +2302,13 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!descripcion) { Notificaciones.mostrar('La descripción no puede estar vacía', 'error'); return; }
         if (isNaN(monto) || monto <= 0) { Notificaciones.mostrar('El monto debe ser un número mayor a cero', 'error'); return; }
         const encontrado = encontrarProductoEnDescripcion(descripcion);
+        const anterior = {...items[editingIndex]};
         items[editingIndex].descripcion = descripcion;
         items[editingIndex].monto = monto;
         if (encontrado) items[editingIndex].productoRef = encontrado;
         else delete items[editingIndex].productoRef;
         actualizarListaItems();
+        registrarAjustePedido('EDITADO',`${anterior.descripcion} (${formatearPrecio(anterior.monto)} Bs) → ${descripcion} (${formatearPrecio(monto)} Bs)`);logAjustePagadoV3('EDITADO',`${anterior.descripcion} (${formatearPrecio(anterior.monto)} Bs) → ${descripcion} (${formatearPrecio(monto)} Bs)`);
         cancelarEdicion();
         Notificaciones.mostrar('Producto actualizado correctamente', 'success');
     }
@@ -2130,6 +2325,7 @@ document.addEventListener('DOMContentLoaded', function() {
         items.push(nuevoItem);
         seleccionPedidoPendiente = null;
         actualizarListaItems();
+        registrarAjustePedido('AGREGADO',`${descripcion} · ${formatearPrecio(monto)} Bs`);logAjustePagadoV3('AGREGADO',`${descripcion} · ${formatearPrecio(monto)} Bs`);
         descripcionProducto.value = '';
         montoProducto.value = '';
         precioEditado = false;
@@ -2274,6 +2470,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 items = datos.productos.map(p => ({ descripcion: p.descripcion, monto: p.monto, alistado: false, productoRef: p.productoRef || null, salidaPedido: p.salidaPedido || null }));
                 actualizarListaItems();
             }
+            registrarAjustePedido('PEDIDO CARGADO', `Pedido cargado desde texto · ${items.length} item(s)`); actualizarAjusteInteligente();
             Notificaciones.mostrar('Pedido cargado correctamente', 'success');
             textoPedidoCargar.value = '';
         } catch (error) {
@@ -2391,6 +2588,7 @@ document.addEventListener('DOMContentLoaded', function() {
         else if (department !== 'Santa Cruz' && envioSinCostoCheck && envioSinCostoCheck.checked) textContent += `🚚 *Costo de envío:* 0 Bs (envío sin costo - viernes)${saltoLinea}`;
         textContent += `💵 *TOTAL:* ${formatearPrecio(totalFinal)} Bs${saltoLinea}`;
         if (notaEnvio) textContent += `${saltoLinea}📝 ${notaEnvio}${saltoLinea}`;
+        if(modoAjustePagado) textContent += resumenAjustePagadoV3(saltoLinea);
         textContent += `${saltoLinea}📅 *Fecha:* ${new Date().toLocaleString('es-BO')}${saltoLinea}`;
         return textContent;
     }
@@ -2652,6 +2850,12 @@ document.addEventListener('DOMContentLoaded', function() {
         diaRecogida.value = '';
         envioSinCostoCheck.checked = false;
         items = [];
+        historialAjustesPedido = [];
+        modoAjustePagado=false;montoPagadoCongelado=0;totalAntesAjuste=0;historialAjustePagadoData=[];
+        if(ajustePagadoPanel)ajustePagadoPanel.classList.remove('activo');
+        if(ajustePagadoLaunch)ajustePagadoLaunch.style.display='';
+        if(montoObjetivoCliente) montoObjetivoCliente.value = '';
+        renderHistorialAjustes();
         cancelarEdicion();
         actualizarListaItems();
         queContieneInput.value = '';
@@ -2669,6 +2873,14 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function configurarEventListeners() {
+        if(finalizarAjustePagado)finalizarAjustePagado.addEventListener('click',finalizarAjustePagadoV3);
+        if(cancelarAjustePagado)cancelarAjustePagado.addEventListener('click',cancelarAjustePagadoV3);
+        if(montoObjetivoCliente) montoObjetivoCliente.addEventListener('input', actualizarAjusteInteligente);
+        if(limpiarMontoObjetivo) limpiarMontoObjetivo.addEventListener('click', ()=>{
+            montoObjetivoCliente.value='';
+            actualizarAjusteInteligente();
+            Notificaciones.mostrar('Monto de comparación limpiado', 'info');
+        });
         departmentSelect.addEventListener('change', function() {
             const department = this.value;
             if (department === 'Santa Cruz') {
