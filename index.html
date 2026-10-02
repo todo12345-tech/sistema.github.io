@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Gestión de Ventas V20</title>
+<title>Todoenuno_store - Gestión de Ventas V21 · Permisos por Rol</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -329,7 +329,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 @media(max-width:650px){.operativo-card{flex-basis:190px}.operativo-head{align-items:flex-start}.operativo-actions{flex-wrap:wrap;justify-content:flex-end}}
 
 </style>
-<!-- V20: V19 + panel productos pendientes catálogo + stock bajo por sucursal + salidas pendientes + anti doble procesamiento + link Stock -->
+<!-- V21: V20 + permisos reforzados: vendedor consulta/opera; accesos directos a Excel solo administrador -->
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -479,7 +479,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                                 </div>
                                 <div class="operativo-actions">
                                     <button class="operativo-refresh" type="button" id="refrescarPanelOperativo"><i class="fas fa-sync-alt"></i></button>
-                                    <button class="operativo-link" type="button" id="abrirProductosAgregados"><i class="fas fa-table"></i> Ver Excel</button>
+                                    <button class="operativo-link permiso-admin" type="button" id="abrirProductosAgregados" title="Solo administrador"><i class="fas fa-table"></i> Ver Excel</button>
                                 </div>
                             </div>
                             <div class="operativo-slider" id="sliderPendCatalogo"><div class="operativo-vacio"><i class="fas fa-spinner fa-spin"></i> Revisando productos...</div></div>
@@ -3126,6 +3126,21 @@ function mostrarPantallaSeleccionSucursal() {
     setTimeout(() => sucursalSelectionScreen.focus(), 100);
 }
 
+function aplicarPermisosPorRolV21() {
+    const admin = esAdministrador();
+    document.querySelectorAll('.permiso-admin').forEach(el => {
+        el.style.display = admin ? '' : 'none';
+    });
+
+    // Accesos directos a fuentes editables/administrativas.
+    const excelProductos = document.getElementById('abrirProductosAgregados');
+    if (excelProductos) {
+        excelProductos.style.display = admin ? '' : 'none';
+        excelProductos.setAttribute('aria-hidden', admin ? 'false' : 'true');
+        excelProductos.tabIndex = admin ? 0 : -1;
+    }
+}
+
 function mostrarPantallaPrincipal() {
     loginScreen.style.display = 'none';
     sucursalSelectionScreen.style.display = 'none';
@@ -3133,8 +3148,7 @@ function mostrarPantallaPrincipal() {
     currentUserName.textContent = currentUser.username;
     currentUserRole.textContent = `(${currentUser.rol})`;
     sidebarSucursal.textContent = `Sucursal: ${sucursalSeleccionada}`;
-    if (esAdministrador()) document.querySelectorAll('.permiso-admin').forEach(el => el.style.display = 'block');
-    else document.querySelectorAll('.permiso-admin').forEach(el => el.style.display = 'none');
+    aplicarPermisosPorRolV21();
     actualizarSeleccionSucursal();
 }
 
@@ -3264,7 +3278,13 @@ function setupActivityListeners() {
 
 
     const btnProdAg=document.getElementById('abrirProductosAgregados');
-    if(btnProdAg)btnProdAg.addEventListener('click',()=>window.open(PRODUCTOS_AGREGADOS_LINK,'_blank','noopener'));
+    if(btnProdAg)btnProdAg.addEventListener('click',()=>{
+        if(!esAdministrador()){
+            Notificaciones.mostrar('Acceso reservado para administrador', 'warning', 2500);
+            return;
+        }
+        window.open(PRODUCTOS_AGREGADOS_LINK,'_blank','noopener');
+    });
     const btnStockPub=document.getElementById('abrirStockPublicado');
     if(btnStockPub)btnStockPub.addEventListener('click',()=>window.open(LINK_STOCK,'_blank','noopener'));
     const btnRefPanel=document.getElementById('refrescarPanelOperativo');
