@@ -1884,9 +1884,29 @@ document.addEventListener('DOMContentLoaded', function() {
         }, 0);
     }
 
-    function cerrarModalCantidad() { modalCantidad.style.display='none'; productoSeleccionado=null; }
-    closeModalCantidad.addEventListener('click', cerrarModalCantidad);
-    cancelarCantidad.addEventListener('click', cerrarModalCantidad);
+    function cerrarModalCantidad(limpiar = false) {
+        modalCantidad.style.display = 'none';
+        productoSeleccionado = null;
+
+        if (limpiar) {
+            cantidadesPedido = { cajas:0, paquetes:0, unidades:0 };
+            seleccionPedidoPendiente = null;
+            descripcionProducto.value = '';
+            montoProducto.value = '';
+            precioEditado = false;
+
+            const lista = document.getElementById('autocompleteList');
+            if (lista) {
+                lista.innerHTML = '';
+                lista.classList.remove('active');
+            }
+        }
+    }
+
+    // Si el usuario cancela, cierra con X, Escape o clic fuera,
+    // se descarta por completo la selección temporal.
+    closeModalCantidad.addEventListener('click', () => cerrarModalCantidad(true));
+    cancelarCantidad.addEventListener('click', () => cerrarModalCantidad(true));
     document.getElementById('medioPaqueteBtn').addEventListener('click', function(){
         if(!productoSeleccionado) return;
         const e=obtenerEmpaqueProducto(productoSeleccionado);
@@ -1930,12 +1950,12 @@ document.addEventListener('DOMContentLoaded', function() {
             document.getElementById('resetCantidadPedidoBtn').click();
         } else if (e.key === 'Escape') {
             e.preventDefault();
-            cerrarModalCantidad();
+            cerrarModalCantidad(true);
         }
     });
 
     modalCantidad.addEventListener('click', function(e){
-        if (e.target === modalCantidad) cerrarModalCantidad();
+        if (e.target === modalCantidad) cerrarModalCantidad(true);
     });
 
     confirmarCantidad.addEventListener('click', function() {
@@ -1956,10 +1976,10 @@ document.addEventListener('DOMContentLoaded', function() {
         descripcionProducto.value = `${partes.join(' + ')} - ${productoSeleccionado.nombre}`;
         seleccionPedidoPendiente = { cajas:c, paquetes:p, unidades:u, unidades_por_paquete:e.unidadesPorPaquete||0, paquetes_por_caja:e.paquetesPorCaja||0, unidades_equivalentes:e.unidadesPorPaquete ? (u + p*e.unidadesPorPaquete + (e.paquetesPorCaja ? c*e.paquetesPorCaja*e.unidadesPorPaquete : 0)) : 0 };
         precioEditado=false;
-        cerrarModalCantidad();
+        cerrarModalCantidad(false);
         montoProducto.focus();
     });
-    modalCantidad.addEventListener('click', function(e){ if(e.target===modalCantidad) cerrarModalCantidad(); });
+    modalCantidad.addEventListener('click', function(e){ if(e.target===modalCantidad) cerrarModalCantidad(true); });
 
     class Notificaciones {
         static mostrar(mensaje, tipo = 'success', duracion = 3000) {
@@ -2089,7 +2109,20 @@ document.addEventListener('DOMContentLoaded', function() {
       const r=await Swal.fire({title:'Finalizar ajuste',html:`<div style="text-align:left;line-height:1.8"><b>Pedido antes del ajuste:</b> ${formatearPrecio(totalAntesAjuste)} Bs<br><b>Monto ya pagado:</b> ${formatearPrecio(montoPagadoCongelado)} Bs<br><b>Total actualizado:</b> ${formatearPrecio(actual)} Bs<hr><b>${saldo}</b></div>`,showCancelButton:true,confirmButtonText:'Confirmar ajuste',cancelButtonText:'Seguir modificando'});
       if(r.isConfirmed){mostrarPrevisualizacion();Notificaciones.mostrar('Ajuste confirmado y resumen agregado al mensaje.','success')}
     }
-    function cancelarAjustePagadoV3(){modoAjustePagado=false;montoPagadoCongelado=0;totalAntesAjuste=0;historialAjustePagadoData=[];ajustePagadoPanel.classList.remove('activo');ajustePagadoLaunch.style.display='';Notificaciones.mostrar('Modo ajuste cancelado. Los cambios del pedido se conservan.','info')}
+    function cancelarAjustePagadoV3(){
+      modoAjustePagado=false;
+      montoPagadoCongelado=0;
+      totalAntesAjuste=0;
+      historialAjustePagadoData=[];
+      historialAjustesPedido=[];
+      if(montoObjetivoCliente) montoObjetivoCliente.value='';
+      if(historialAjustePagado) historialAjustePagado.innerHTML='';
+      if(ajustePagadoPanel) ajustePagadoPanel.classList.remove('activo');
+      if(ajustePagadoLaunch) ajustePagadoLaunch.style.display='';
+      renderHistorialAjustes();
+      renderAjustePagadoV3();
+      Notificaciones.mostrar('Modo ajuste cancelado y limpiado.','info');
+    }
     function resumenAjustePagadoV3(saltoLinea){
       if(!modoAjustePagado)return '';const actual=Number(total)||0,dif=Math.round((actual-montoPagadoCongelado)*100)/100;
       const saldo=Math.abs(dif)<.01?'✅ *PEDIDO CUADRADO*':dif>0?`🟠 *SALDO PENDIENTE POR COMPLETAR:* ${formatearPrecio(dif)} Bs`:`🟢 *SALDO A FAVOR DEL CLIENTE:* ${formatearPrecio(Math.abs(dif))} Bs`;
@@ -2989,7 +3022,7 @@ document.addEventListener('DOMContentLoaded', function() {
         cargarPedidoBtn.addEventListener('click', cargarPedidoDesdeTexto);
 
         agendarOtroPedidoBtn.addEventListener('click', function() {
-            const TU_LINK_AQUI = "https://sites.google.com/view/todo1111/ventas-por-mayor";
+            const TU_LINK_AQUI = "https://todo12345-tech.github.io/sistema.github.io/pormayor";
             window.open(TU_LINK_AQUI, '_blank');
             Notificaciones.mostrar('Nueva pestaña abierta para otro pedido', 'success');
         });
