@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V19 · STOCK V18 · Stock V14 - Todoenuno_store</title>
+    <title>V20 · STOCK V18 · Stock V14 - Todoenuno_store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -920,7 +920,7 @@
 </div>
 
 
-<!-- ============ V19 MODAL CREAR NUEVO ITEM ============ -->
+<!-- ============ V20 MODAL CREAR NUEVO ITEM ============ -->
 <div class="modal-overlay" id="modalCrearItem">
   <div class="modal-card" style="max-width:920px">
     <div class="modal-header"><h3><i class="fas fa-circle-plus"></i> Crear nuevo item</h3><button class="modal-close" id="cerrarCrearItemBtn">&times;</button></div>
@@ -2470,7 +2470,7 @@
 
 
     // ============================================================
-    // 🧠 V19 - CREAR ITEM MAESTRO DESDE STOCK · GUÍA SECCIÓN + PRODUCTO
+    // 🧠 V20 - CREAR ITEM MAESTRO DESDE STOCK · GUÍA SECCIÓN + PRODUCTO
     // ============================================================
     function normalizarItemClave(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');}
     let itemSeleccionadoMaestro=null;
@@ -2585,6 +2585,16 @@
         secEl.value=normalizarItemClave(secEl.value); nomEl.value=normalizarItemClave(nomEl.value);
         const seccion=secEl.value, nombre=nomEl.value;
         if(!seccion||!nombre){Notificaciones.mostrar('Completa SECCIÓN y NOMBRE','warning');return;}
+        const confirmacionProducto = confirm(
+          'Vas a agregar este producto:\n\n' +
+          'SECCIÓN: ' + seccion + '\n' +
+          'PRODUCTO: ' + nombre + '\n\n' +
+          '¿Está correcto?'
+        );
+        if(!confirmacionProducto){
+          Notificaciones.mostrar('Revisa el nombre o la sección antes de continuar.','info',5000);
+          return;
+        }
         const revSec=revisarSeccionNueva(true);
         if(revSec.tipo==='parecida' && seccionNuevaConfirmada!==seccion){Notificaciones.mostrar('Primero confirma si usarás una sección existente o si realmente crearás una nueva.','warning',8000);secEl.scrollIntoView({behavior:'smooth',block:'center'});return;}
         const confirmadoAntes=itemDiferenteConfirmado, revision=revisarDuplicadoItem();
@@ -2604,19 +2614,26 @@
               disponibilidadPaquete:document.getElementById('itemDispPaquete').value, precioUnidad:document.getElementById('itemPrecioUnidad').value.trim(),
               cantidadUnidad:document.getElementById('itemCantidadUnidad').value.trim(), disponibilidadUnidad:document.getElementById('itemDispUnidad').value,
               imagenOriginal};
-            // No enviamos una restricción de rol: la vendedora puede crear una sección NUEVA después de la advertencia guiada V19.
+            // No enviamos una restricción de rol: la vendedora puede crear una sección NUEVA después de la advertencia guiada V20.
             const resp=await postItemsJSON(payload);
-            Notificaciones.mostrar(`✅ Item creado: ${nombre}`,'success',5000); await cargarCatalogo();
+            if(!resp || resp.ok!==true) throw new Error((resp&&resp.error)||'ITEMS no confirmó la creación.');
+            Notificaciones.mostrar(`✅ ITEM CREADO: ${nombre} · SECCIÓN: ${seccion}`,'success',8000);
+            await cargarCatalogo();
             const creado=buscarItemMaestroExacto(nombre,seccion)||{...payload,imagen_original:imagenOriginal}; itemSeleccionadoMaestro=creado; cerrarCrearItem();
             document.getElementById('nombre').value=creado.nombre||nombre; document.getElementById('seccion').value=creado.seccion||seccion;
             document.getElementById('imagen').value=convertirDriveAImagen(creado.imagen_original||creado.imagen_editada||resp.imagen_original||imagenOriginal||'');
             const cant=creado.cantidad_paquete||creado['cantidad paquete']||payload.cantidadPaquete||''; const m=String(cant).match(/\d+(?:[.,]\d+)?/); if(m)document.getElementById('unidades_por_paquete').value=m[0].replace(',','.');
             document.getElementById('nombre').scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>document.getElementById('cajas').focus(),350);
-            Notificaciones.mostrar('Ahora registra la primera existencia física y su ubicación.','info',6500);
+            Notificaciones.mostrar(`📦 AHORA REGISTRAS STOCK DE: ${nombre} · SECCIÓN: ${seccion}`,'info',9000);
         }catch(e){console.error(e);Notificaciones.mostrar('No se pudo crear el item: '+e.message,'error',8000);}
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Crear item y continuar a Stock';}
     }
-    function mayusculasItemInput(e){const pos=e.target.selectionStart; e.target.value=normalizarItemClave(e.target.value); try{e.target.setSelectionRange(pos,pos)}catch(_){} }
+    function mayusculasItemInput(e){
+        const el=e.target;
+        const ini=el.selectionStart, fin=el.selectionEnd;
+        el.value=String(el.value||'').toLocaleUpperCase('es-BO');
+        try{el.setSelectionRange(ini,fin)}catch(_){}
+    }
     document.getElementById('btnCrearNuevoItem').addEventListener('click',abrirCrearItem);
     document.getElementById('btnEnfocarItemExistente').addEventListener('click',()=>{document.getElementById('nombre').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>document.getElementById('nombre').focus(),300);});
     document.getElementById('cerrarCrearItemBtn').addEventListener('click',cerrarCrearItem); document.getElementById('cancelarCrearItemBtn').addEventListener('click',cerrarCrearItem);
