@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock V14 - Todoenuno_store</title>
+    <title>STOCK V18 · Stock V14 - Todoenuno_store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -287,7 +287,7 @@
         .item-file-note{font-size:10px;color:#6c757d;margin-top:4px;line-height:1.35}
         @media(max-width:700px){.item-main-actions{grid-template-columns:1fr}}
 
-        /* V17: experiencia móvil real - iPhone 12 normal (390x844 CSS px) + escritorio */
+        /* V18: Apps Script Stock + experiencia móvil real - iPhone 12 normal (390x844 CSS px) + escritorio */
         html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
         button,input,select,textarea{touch-action:manipulation}
         @media (max-width:430px){
@@ -958,7 +958,7 @@
     // ============================================================
     // ⚠️ CONFIGURACIÓN
     // ============================================================
-    const API_URL = 'https://sheetdb.io/api/v1/ls2s3slkkege5';
+    const STOCK_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyxzhC3FLjhDJyC4bCJleGeCQhHfXIim0T5in6va74MwaE3kP_PEMNShxwEUkojeSE/exec';
     const SHEET_ID = '1Rx8QdmK61tsrP4xdNTjTxT9F2QbI4lCpzNJZhNcq-7g';
     const URL_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 
@@ -1555,14 +1555,23 @@
         </div>`).join('');
     }
 
+    async function stockApi(accion, datos={}){
+        const payload={accion,...datos,usuario:currentUser?.username||datos.usuario||''};
+        const r=await fetch(STOCK_APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
+        if(!r.ok) throw new Error(`Stock API HTTP ${r.status}`);
+        const res=await r.json();
+        if(!res.ok) throw new Error(res.error||'Operación rechazada por Stock API');
+        return res;
+    }
+
     async function crearUbicacion(){
+        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede crear ubicaciones','warning');return;}
         const nombre=document.getElementById('nuevaUbicacionNombre').value.trim();
         const tipo=document.getElementById('nuevaUbicacionTipo').value;
         if(!nombre){Notificaciones.mostrar('Escribe el nombre de la ubicación','warning');return;}
         if(ubicacionesActivas().some(x=>x.toLowerCase()===nombre.toLowerCase())){Notificaciones.mostrar('Esa ubicación ya existe','warning');return;}
-        const data={id_ubicacion:'UBI-'+Date.now().toString(36).toUpperCase(),nombre,tipo,estado:'ACTIVA',fecha_creacion:obtenerFechaHoraBolivia(),usuario:currentUser.username};
         try{
-            await sheetdbPost(SHEET_UBICACIONES,data);
+            await stockApi('crearUbicacion',{nombre,tipo});
             Notificaciones.mostrar(`✅ Ubicación creada: ${nombre}`,'success');
             document.getElementById('nuevaUbicacionNombre').value='';
             await cargarUbicaciones(); renderizarAdminUbicaciones(); actualizarFiltrosYDatalists(); renderizarSliderUbicaciones();
@@ -1570,17 +1579,18 @@
     }
 
     window.cambiarEstadoUbicacion=async function(i){
+        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede administrar ubicaciones','warning');return;}
         const u=ubicacionesSistema[i]; if(!u)return;
         const nuevo=String(u.estado).toUpperCase()==='INACTIVA'?'ACTIVA':'INACTIVA';
+        let confirmar='no';
         if(nuevo==='INACTIVA' && todosProductos.some(p=>getUbicacion(p)===u.nombre && !estaAgotado(p))){
             if(!confirm(`"${u.nombre}" todavía tiene stock. ¿Desactivarla de todos modos? El historial no se borrará.`))return;
+            confirmar='si';
         }
         try{
-            const url=`${API_URL}/id_ubicacion/${encodeURIComponent(u.id_ubicacion)}?sheet=${encodeURIComponent(SHEET_UBICACIONES)}`;
-            const r=await fetch(url,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:{estado:nuevo}})});
-            if(!r.ok)throw new Error('HTTP '+r.status);
+            await stockApi('cambiarEstadoUbicacion',{id_ubicacion:u.id_ubicacion,estado:nuevo,confirmar_con_stock:confirmar});
             await cargarUbicaciones(); renderizarAdminUbicaciones(); actualizarFiltrosYDatalists(); renderizarSliderUbicaciones();
-        }catch(e){Notificaciones.mostrar('No se pudo cambiar el estado','error');}
+        }catch(e){Notificaciones.mostrar('No se pudo cambiar el estado: '+e.message,'error',7000);}
     };
 
     // ============================================================
@@ -1913,43 +1923,18 @@
     // ============================================================
     // 🗑️ ELIMINAR MASIVO
     // ============================================================
-    document.getElementById('btnEliminarSeleccionados').addEventListener('click', async function() {
-        const n = seleccionados.size;
-        if (n === 0) return;
-        if (!confirm(`¿Eliminar ${n} producto(s)?`)) return;
-        this.disabled = true;
-        this.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Eliminando...';
-        let ok = 0, err = 0;
-        for (const id of [...seleccionados]) {
-            try {
-                let url;
-                if (id && !id.includes('|')) {
-                    // Filas actuales: eliminar por ID único.
-                    url = `${API_URL}/id_stock/${encodeURIComponent(id)}?sheet=${encodeURIComponent(SHEET_STOCK)}`;
-                } else {
-                    // Compatibilidad con filas antiguas sin id_stock.
-                    const [nombre, ubicacion, seccion] = String(id || '').split('|');
-                    url = `${API_URL}/nombre/${encodeURIComponent(nombre)}`;
-                    const params = [];
-                    if (ubicacion) params.push(`ubicacion=${encodeURIComponent(ubicacion)}`);
-                    if (seccion) params.push(`seccion=${encodeURIComponent(seccion)}`);
-                    params.push(`sheet=${encodeURIComponent(SHEET_STOCK)}`);
-                    url += '?' + params.join('&');
-                }
-                const r = await fetch(url, { method: 'DELETE' });
-                if (r.ok) {
-                    const res = await r.json();
-                    if (res.deleted && res.deleted > 0) ok++;
-                    else err++;
-                } else err++;
-            } catch (e) { console.error(e); err++; }
+    document.getElementById('btnEliminarSeleccionados').addEventListener('click', async function(){
+        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede eliminar registros','warning');return;}
+        const ids=[...seleccionados];if(!ids.length)return;
+        if(!confirm(`¿Eliminar ${ids.length} producto(s)? Cada eliminación quedará en Movimientos.`))return;
+        this.disabled=true;this.innerHTML='<i class="fas fa-spinner fa-spin"></i> Eliminando...';
+        let ok=0,err=0;
+        for(const id of ids){
+            if(!id||id.includes('|')){err++;continue;}
+            try{await stockApi('eliminarStock',{id_stock:id,motivo:'ELIMINACIÓN MASIVA DESDE STOCK'});ok++;}catch(e){console.error(e);err++;}
         }
-        seleccionados.clear();
-        actualizarBarraSeleccion();
-        this.disabled = false;
-        this.innerHTML = '<i class="fas fa-trash"></i> Eliminar seleccionados';
-        Notificaciones.mostrar(err === 0 ? `✅ ${ok} eliminado(s)` : `${ok} ok, ${err} errores`, err === 0 ? 'success' : 'warning');
-        setTimeout(cargarInventario, 2000);
+        seleccionados.clear();actualizarBarraSeleccion();this.disabled=false;this.innerHTML='<i class="fas fa-trash"></i> Eliminar seleccionados';
+        Notificaciones.mostrar(err===0?`✅ ${ok} eliminado(s)`:`${ok} ok, ${err} no pudieron eliminarse`,err===0?'success':'warning',6500);setTimeout(cargarInventario,1200);
     });
 
     // ============================================================
@@ -1975,29 +1960,26 @@
         document.getElementById('modalTraspaso').classList.add('active');
     }
     function cerrarModalTraspaso(){document.getElementById('modalTraspaso').classList.remove('active');}
-    async function sheetdbPost(sheet,data){ const r=await fetch(`${API_URL}?sheet=${encodeURIComponent(sheet)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})}); if(!r.ok) throw new Error(`POST ${sheet}: ${r.status}`); return r.json(); }
+    async function sheetdbPost(sheet,data){
+        if(sheet===SHEET_MOVIMIENTOS) return stockApi('registrarMovimiento',data);
+        if(sheet===SHEET_STOCK) return stockApi('registrarStock',data);
+        if(sheet===SHEET_UBICACIONES) return stockApi('crearUbicacion',data);
+        throw new Error('Hoja no permitida para escritura: '+sheet);
+    }
     async function sheetdbPatchStock(item,data){
         const id=getIdStock(item);
-        let url=id?`${API_URL}/id_stock/${encodeURIComponent(id)}?sheet=${encodeURIComponent(SHEET_STOCK)}`:`${API_URL}/nombre/${encodeURIComponent(getNombre(item))}?sheet=${encodeURIComponent(SHEET_STOCK)}&ubicacion=${encodeURIComponent(getUbicacion(item))}`;
-        const r=await fetch(url,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})}); if(!r.ok) throw new Error('No se pudo actualizar stock'); return r.json();
+        if(!id) throw new Error('Este registro antiguo no tiene id_stock. Debe regularizarse antes de editarlo.');
+        return stockApi('actualizarStock',{id_stock:id,...data});
     }
     async function confirmarTraspaso(){
-        const id=document.getElementById('traspasoIdStock').value, nombre=document.getElementById('traspasoNombre').value, seccion=document.getElementById('traspasoSeccion').value, origen=document.getElementById('traspasoOrigen').value, destino=document.getElementById('traspasoDestino').value;
-        const c=numeroStock(document.getElementById('traspasoCajas').value), p=numeroStock(document.getElementById('traspasoPaquetes').value), u=numeroStock(document.getElementById('traspasoUnidades').value);
-        if(!destino){Notificaciones.mostrar('Selecciona destino','warning');return;} if(c+p+u<=0){Notificaciones.mostrar('Indica qué cantidad mover','warning');return;}
-        const origenItem=todosProductos.find(x=>(id&&getIdStock(x)===id)||(!id&&getNombre(x)===nombre&&getUbicacion(x)===origen)); if(!origenItem){Notificaciones.mostrar('No se encontró el stock de origen','error');return;}
-        if(c>getCajas(origenItem)||p>getPaquetes(origenItem)||u>getUnidades(origenItem)){Notificaciones.mostrar('La cantidad supera lo disponible en el origen','warning');return;}
-        const destinoItem=todosProductos.find(x=>getNombre(x)===nombre&&getUbicacion(x)===destino);
-        const btn=document.getElementById('confirmarTraspasoBtn'); btn.disabled=true; btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Moviendo...';
-        const antesO={c:getCajas(origenItem),p:getPaquetes(origenItem),u:getUnidades(origenItem)}; const despuesO={c:antesO.c-c,p:antesO.p-p,u:antesO.u-u};
-        const antesD={c:destinoItem?getCajas(destinoItem):0,p:destinoItem?getPaquetes(destinoItem):0,u:destinoItem?getUnidades(destinoItem):0}; const despuesD={c:antesD.c+c,p:antesD.p+p,u:antesD.u+u};
+        const id=document.getElementById('traspasoIdStock').value, destino=document.getElementById('traspasoDestino').value;
+        const c=numeroStock(document.getElementById('traspasoCajas').value),p=numeroStock(document.getElementById('traspasoPaquetes').value),u=numeroStock(document.getElementById('traspasoUnidades').value);
+        if(!destino){Notificaciones.mostrar('Selecciona destino','warning');return;}
+        if(c+p+u<=0){Notificaciones.mostrar('Indica qué cantidad mover','warning');return;}
+        const btn=document.getElementById('confirmarTraspasoBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Moviendo...';
         try{
-            await sheetdbPatchStock(origenItem,{cajas:String(despuesO.c),paquetes:String(despuesO.p),unidades:String(despuesO.u),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()});
-            if(destinoItem){ await sheetdbPatchStock(destinoItem,{cajas:String(despuesD.c),paquetes:String(despuesD.p),unidades:String(despuesD.u),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()}); }
-            else { await sheetdbPost(SHEET_STOCK,{id_stock:generarIdStock(),seccion,nombre,cajas:String(c),paquetes:String(p),unidades:String(u),unidades_por_paquete:String(getUnidadesPorPaquete(origenItem)||''),paquetes_por_caja:String(getPaquetesPorCaja(origenItem)||''),ubicacion:destino,imagen:getImagen(origenItem),precio_de_compra_china:esAdmin()?getPrecioChina(origenItem):'',usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:'',fecha_de_agregacion:obtenerFechaHoraBolivia(),vencimiento:getFechaVencimiento(origenItem)}); }
-            const pres=[c?`${c} caja(s)`:null,p?`${p} paquete(s)`:null,u?`${u} unidad(es)`:null].filter(Boolean).join(' + ');
-            await sheetdbPost(SHEET_MOVIMIENTOS,{id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),producto:nombre,seccion,tipo:'TRASPASO',presentacion:pres,cantidad:String(c+p+u),unidades_equivalentes:'',origen,destino,cajas_anterior:String(antesO.c),paquetes_anterior:String(antesO.p),unidades_anterior:String(antesO.u),cajas_nueva:String(despuesO.c),paquetes_nueva:String(despuesO.p),unidades_nueva:String(despuesO.u),motivo:document.getElementById('traspasoMotivo').value.trim()||'TRASPASO DE MERCADERIA',estado:'APLICADO',usuario:currentUser.username,sucursal:origen,referencia:generarReferenciaOperacion('TRASPASO')});
-            Notificaciones.mostrar(`✅ Traspaso registrado: ${origen} → ${destino}`,'success',5000); cerrarModalTraspaso(); setTimeout(cargarInventario,1200);
+            await stockApi('traspasarStock',{id_stock:id,destino,cajas:c,paquetes:p,unidades:u,motivo:document.getElementById('traspasoMotivo').value.trim(),sucursal:document.getElementById('traspasoOrigen').value});
+            Notificaciones.mostrar('✅ Traspaso registrado correctamente','success',5000);cerrarModalTraspaso();setTimeout(cargarInventario,1200);
         }catch(e){console.error(e);Notificaciones.mostrar('El traspaso no pudo completarse: '+e.message,'error',7000);}
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-exchange-alt"></i> Confirmar traspaso';}
     }
@@ -2028,20 +2010,9 @@
     function cerrarTraspasoMultiple(){document.getElementById('modalTraspasoMultiple').classList.remove('active');}
 
     async function aplicarTraspasoItem(origenItem,destino,c,p,u,ref,motivo){
-        const nombre=getNombre(origenItem), seccion=getSeccion(origenItem), origen=getUbicacion(origenItem);
-        if(destino===origen) throw new Error(`${nombre}: origen y destino son iguales`);
-        if(c>getCajas(origenItem)||p>getPaquetes(origenItem)||u>getUnidades(origenItem)) throw new Error(`${nombre}: cantidad mayor al disponible`);
-        const destinoItem=todosProductos.find(x=>getNombre(x)===nombre&&getUbicacion(x)===destino);
-        const antesO={c:getCajas(origenItem),p:getPaquetes(origenItem),u:getUnidades(origenItem)}, despuesO={c:antesO.c-c,p:antesO.p-p,u:antesO.u-u};
-        const antesD={c:destinoItem?getCajas(destinoItem):0,p:destinoItem?getPaquetes(destinoItem):0,u:destinoItem?getUnidades(destinoItem):0};
-        await sheetdbPatchStock(origenItem,{cajas:String(despuesO.c),paquetes:String(despuesO.p),unidades:String(despuesO.u),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()});
-        if(destinoItem){
-            await sheetdbPatchStock(destinoItem,{cajas:String(antesD.c+c),paquetes:String(antesD.p+p),unidades:String(antesD.u+u),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()});
-        }else{
-            await sheetdbPost(SHEET_STOCK,{id_stock:generarIdStock(),seccion,nombre,cajas:String(c),paquetes:String(p),unidades:String(u),unidades_por_paquete:String(getUnidadesPorPaquete(origenItem)||''),paquetes_por_caja:String(getPaquetesPorCaja(origenItem)||''),ubicacion:destino,imagen:getImagen(origenItem),precio_de_compra_china:esAdmin()?getPrecioChina(origenItem):'',usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:'',fecha_de_agregacion:obtenerFechaHoraBolivia(),vencimiento:getFechaVencimiento(origenItem)});
-        }
-        const pres=[c?`${c} caja(s)`:null,p?`${p} paquete(s)`:null,u?`${u} unidad(es)`:null].filter(Boolean).join(' + ');
-        await sheetdbPost(SHEET_MOVIMIENTOS,{id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),producto:nombre,seccion,tipo:'TRASPASO',presentacion:pres,cantidad:String(c+p+u),unidades_equivalentes:'',origen,destino,cajas_anterior:String(antesO.c),paquetes_anterior:String(antesO.p),unidades_anterior:String(antesO.u),cajas_nueva:String(despuesO.c),paquetes_nueva:String(despuesO.p),unidades_nueva:String(despuesO.u),motivo:motivo||'TRASPASO DE MERCADERIA',estado:'APLICADO',usuario:currentUser.username,sucursal:origen,referencia:ref});
+        const id=getIdStock(origenItem);
+        if(!id) throw new Error(`${getNombre(origenItem)}: registro antiguo sin id_stock`);
+        return stockApi('traspasarStock',{id_stock:id,destino,cajas:c,paquetes:p,unidades:u,referencia:ref,motivo,sucursal:getUbicacion(origenItem)});
     }
 
     async function confirmarTraspasoMultiple(){
@@ -2087,16 +2058,12 @@
         const c=numeroStock(document.getElementById('entradaCajas').value),p=numeroStock(document.getElementById('entradaPaquetes').value),u=numeroStock(document.getElementById('entradaUnidades').value);
         if(!nombre||!destino){Notificaciones.mostrar('Selecciona producto y destino','warning');return;}
         if(c+p+u<=0){Notificaciones.mostrar('Indica la cantidad recibida','warning');return;}
-        const base=todosProductos.find(x=>getNombre(x)===nombre),dest=todosProductos.find(x=>getNombre(x)===nombre&&getUbicacion(x)===destino);
-        if(!base){Notificaciones.mostrar('Para esta versión, el producto debe existir al menos una vez en Stock. Si es nuevo, regístralo arriba directamente en su destino.','warning',7000);return;}
-        const antes={c:dest?getCajas(dest):0,p:dest?getPaquetes(dest):0,u:dest?getUnidades(dest):0};
+        const base=todosProductos.find(x=>getNombre(x)===nombre);
+        if(!base){Notificaciones.mostrar('El producto debe existir en ITEMS/Stock. Si es nuevo, usa CREAR NUEVO ITEM.','warning',7000);return;}
         const btn=document.getElementById('confirmarEntradaExternaBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Registrando...';
         try{
-            if(dest)await sheetdbPatchStock(dest,{cajas:String(antes.c+c),paquetes:String(antes.p+p),unidades:String(antes.u+u),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()});
-            else await sheetdbPost(SHEET_STOCK,{id_stock:generarIdStock(),seccion:getSeccion(base),nombre,cajas:String(c),paquetes:String(p),unidades:String(u),unidades_por_paquete:String(getUnidadesPorPaquete(base)||''),paquetes_por_caja:String(getPaquetesPorCaja(base)||''),ubicacion:destino,imagen:getImagen(base),precio_de_compra_china:esAdmin()?getPrecioChina(base):'',usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:'',fecha_de_agregacion:obtenerFechaHoraBolivia(),vencimiento:getFechaVencimiento(base)});
-            const ref=generarReferenciaOperacion('ENTRADA');
-            await sheetdbPost(SHEET_MOVIMIENTOS,{id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),producto:nombre,seccion:getSeccion(base),tipo:'ENTRADA',presentacion:[c?`${c} caja(s)`:null,p?`${p} paquete(s)`:null,u?`${u} unidad(es)`:null].filter(Boolean).join(' + '),cantidad:String(c+p+u),unidades_equivalentes:'',origen,destino,cajas_anterior:String(antes.c),paquetes_anterior:String(antes.p),unidades_anterior:String(antes.u),cajas_nueva:String(antes.c+c),paquetes_nueva:String(antes.p+p),unidades_nueva:String(antes.u+u),motivo:document.getElementById('entradaNota').value.trim()||origen,estado:'APLICADO',usuario:currentUser.username,sucursal:destino,referencia:ref});
-            Notificaciones.mostrar(`✅ Entrada registrada · ${ref}`,'success',6000);cerrarEntradaExterna();setTimeout(cargarInventario,1200);
+            const res=await stockApi('registrarStock',{seccion:getSeccion(base),nombre,cajas:c,paquetes:p,unidades:u,unidades_por_paquete:getUnidadesPorPaquete(base)||'',paquetes_por_caja:getPaquetesPorCaja(base)||'',ubicacion:destino,imagen:getImagen(base),vencimiento:getFechaVencimiento(base),origen,referencia:generarReferenciaOperacion('ENTRADA'),sucursal:destino});
+            Notificaciones.mostrar(`✅ Entrada registrada${res.id_stock?' · '+res.id_stock:''}`,'success',6000);cerrarEntradaExterna();setTimeout(cargarInventario,1200);
         }catch(e){Notificaciones.mostrar('No se pudo registrar entrada: '+e.message,'error',7000);}
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-plus-circle"></i> Registrar entrada';}
     }
@@ -2128,28 +2095,9 @@
     }
     async function sumarHallazgoAStockExistente(dataObj){
         const actual=await leerStockActualDirecto(dataObj.nombre,dataObj.ubicacion);
-        if(!actual)return false; // apareció como nuevo: se deja continuar con POST normal.
-        const ac=numeroStock(actual.cajas),ap=numeroStock(actual.paquetes),au=numeroStock(actual.unidades);
-        const sc=numeroStock(dataObj.cajas),sp=numeroStock(dataObj.paquetes),su=numeroStock(dataObj.unidades);
-        const nc=ac+sc,np=ap+sp,nu=au+su;
-        const ref=generarReferenciaOperacion('CONTEO');
-        await sheetdbPatchStock(actual,{
-            cajas:String(nc),paquetes:String(np),unidades:String(nu),
-            // Conserva la fecha original de agregación; esto es un hallazgo posterior, no un reinicio del stock.
-            usuario_quien_agrego_o_edito:currentUser.username,
-            fecha_de_edicion:obtenerFechaHoraBolivia()
-        });
-        await sheetdbPost(SHEET_MOVIMIENTOS,{
-            id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),
-            producto:normalizarMayus(dataObj.nombre),seccion:normalizarMayus(dataObj.seccion),
-            tipo:'ENTRADA',presentacion:'inventario progresivo',cantidad:String(sc+sp+su),unidades_equivalentes:'',
-            origen:'CONTEO FISICO',destino:dataObj.ubicacion,
-            cajas_anterior:String(ac),paquetes_anterior:String(ap),unidades_anterior:String(au),
-            cajas_nueva:String(nc),paquetes_nueva:String(np),unidades_nueva:String(nu),
-            motivo:'MERCADERIA ENCONTRADA EN INVENTARIO PROGRESIVO',
-            estado:'APLICADO',usuario:currentUser.username,sucursal:dataObj.ubicacion,referencia:ref
-        });
-        return {actual,antes:{c:ac,p:ap,u:au},nuevo:{c:nc,p:np,u:nu},ref};
+        if(!actual)return false;
+        const res=await stockApi('registrarStock',{...dataObj,origen:'CONTEO FISICO',referencia:generarReferenciaOperacion('CONTEO'),sucursal:dataObj.ubicacion});
+        return {actual,nuevo:res.nuevo||null,ref:res.id_stock||'ENTRADA'};
     }
     function normalizarMayus(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');}
 
@@ -2268,28 +2216,17 @@
         document.getElementById('ajusteUnidades').value=getUnidades(p);
     }
     async function confirmarAjusteStock(){
-        const item=itemAjusteSeleccionado();
-        if(!item){Notificaciones.mostrar('Selecciona un producto','warning');return;}
+        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede ajustar stock','warning');return;}
+        const item=itemAjusteSeleccionado();if(!item){Notificaciones.mostrar('Selecciona un producto','warning');return;}
         const nc=numeroStock(document.getElementById('ajusteCajas').value),np=numeroStock(document.getElementById('ajustePaquetes').value),nu=numeroStock(document.getElementById('ajusteUnidades').value);
         const ac=getCajas(item),ap=getPaquetes(item),au=getUnidades(item);
         if(nc===ac&&np===ap&&nu===au){Notificaciones.mostrar('No hay ninguna diferencia para ajustar','info');return;}
-        const motivo=document.getElementById('ajusteMotivo').value;
-        const nota=document.getElementById('ajusteNota').value.trim();
-        if(!nota && motivo==='OTRO'){Notificaciones.mostrar('Escribe una explicación','warning');return;}
-        const ref=generarReferenciaOperacion('AJUSTE');
+        const motivo=document.getElementById('ajusteMotivo').value;const nota=document.getElementById('ajusteNota').value.trim();
+        if(!nota&&motivo==='OTRO'){Notificaciones.mostrar('Escribe una explicación','warning');return;}
         const btn=document.getElementById('confirmarAjustarStockBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Ajustando...';
         try{
-            await sheetdbPatchStock(item,{cajas:String(nc),paquetes:String(np),unidades:String(nu),usuario_quien_agrego_o_edito:currentUser.username,fecha_de_edicion:obtenerFechaHoraBolivia()});
-            await sheetdbPost(SHEET_MOVIMIENTOS,{
-                id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),producto:getNombre(item),seccion:getSeccion(item),
-                tipo:'AJUSTE',presentacion:'conteo físico',cantidad:String(Math.abs((nc+np+nu)-(ac+ap+au))),unidades_equivalentes:'',
-                origen:getUbicacion(item),destino:getUbicacion(item),
-                cajas_anterior:String(ac),paquetes_anterior:String(ap),unidades_anterior:String(au),
-                cajas_nueva:String(nc),paquetes_nueva:String(np),unidades_nueva:String(nu),
-                motivo:(motivo+(nota?' - '+nota:'')),estado:'APLICADO',usuario:currentUser.username,sucursal:getUbicacion(item),referencia:ref
-            });
-            Notificaciones.mostrar(`✅ Ajuste registrado sin borrar historial · ${ref}`,'success',6500);
-            cerrarAjustarStock();setTimeout(cargarInventario,1200);
+            const res=await stockApi('ajustarStock',{id_stock:getIdStock(item),cajas:nc,paquetes:np,unidades:nu,motivo:motivo+(nota?' - '+nota:''),sucursal:getUbicacion(item),referencia:generarReferenciaOperacion('AJUSTE')});
+            Notificaciones.mostrar(`✅ Ajuste registrado · ${res.referencia||''}`,'success',6500);cerrarAjustarStock();setTimeout(cargarInventario,1200);
         }catch(e){console.error(e);Notificaciones.mostrar('No se pudo registrar el ajuste: '+e.message,'error',7000);}
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Registrar ajuste';}
     }
@@ -2316,109 +2253,34 @@
 
     function cerrarModalEdicion() { document.getElementById('modalEditar').classList.remove('active'); }
 
-    async function guardarCambios() {
-        const nombreOriginal = document.getElementById('editItemOriginal').value;
-        const ubicacionOriginal = document.getElementById('editUbicacionOriginal').value;
-        const seccionOriginal = document.getElementById('editSeccionOriginal').value;
-        const fechaAgregacionOriginal = document.getElementById('editFechaAgregacionOriginal').value;
-
-        const nuevos = {
-            seccion: document.getElementById('editSeccion').value.trim(),
-            nombre: document.getElementById('editNombre').value.trim(),
-            cajas: document.getElementById('editCajas').value.trim() || '0',
-            paquetes: document.getElementById('editPaquetes').value.trim() || '0',
-            unidades: document.getElementById('editUnidades').value.trim() || '0',
-            unidades_por_paquete: document.getElementById('editUnidadesPorPaquete').value.trim(),
-            paquetes_por_caja: document.getElementById('editPaquetesPorCaja').value.trim(),
-            vencimiento: document.getElementById('editFechaVencimiento').value,
-            ubicacion: document.getElementById('editUbicacion').value.trim(),
-            imagen: document.getElementById('editImagen').value.trim(),
-            'usuario_quien_agrego_o_edito': currentUser.username,
-            fecha_de_edicion: obtenerFechaHoraBolivia(),
-            fecha_de_agregacion: fechaAgregacionOriginal
-        };
-
-        if (esAdmin()) {
-            nuevos['precio_de_compra_china'] = document.getElementById('editPrecioChina').value.trim();
-        }
-
-        const faltantes = [];
-        if (!nuevos.seccion) faltantes.push('Sección');
-        if (!nuevos.nombre) faltantes.push('Nombre');
-        if (!nuevos.ubicacion) faltantes.push('Ubicación');
-        if ((numeroStock(nuevos.cajas) + numeroStock(nuevos.paquetes) + numeroStock(nuevos.unidades)) <= 0)
-            faltantes.push('al menos una existencia (cajas, paquetes o unidades)');
-        if (faltantes.length > 0) { Notificaciones.mostrar('Completa: ' + faltantes.join(', '), 'warning'); return; }
-
-        const btn = document.getElementById('guardarEditarBtn');
-        btn.disabled = true;
-        btn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-
-        try {
-            let url = `${API_URL}/nombre/${encodeURIComponent(nombreOriginal)}`;
-            const params = [];
-            if (ubicacionOriginal) params.push(`ubicacion=${encodeURIComponent(ubicacionOriginal)}`);
-            if (seccionOriginal) params.push(`seccion=${encodeURIComponent(seccionOriginal)}`);
-            params.push(`sheet=${encodeURIComponent(SHEET_STOCK)}`);
-            if (params.length > 0) url += '?' + params.join('&');
-            const r = await fetch(url, { method: 'PATCH', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: nuevos }) });
-            const texto = await r.text();
-            if (!r.ok) { Notificaciones.mostrar('Error al actualizar', 'error', 6000); return; }
-            const res = JSON.parse(texto);
-            if (res.updated && res.updated > 0) {
-                Notificaciones.mostrar(`✅ "${nuevos.nombre}" actualizado por ${currentUser.username}`, 'success');
-                cerrarModalEdicion();
-                setTimeout(cargarInventario, 2000);
-            } else Notificaciones.mostrar('No se encontró el producto', 'warning');
-        } catch (e) { console.error(e); Notificaciones.mostrar('Error de conexión', 'error'); }
-        finally { btn.disabled = false; btn.innerHTML = '<i class="fas fa-check"></i> Guardar Cambios'; }
+    async function guardarCambios(){
+        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede editar registros','warning');return;}
+        const nombreOriginal=document.getElementById('editItemOriginal').value,ubicacionOriginal=document.getElementById('editUbicacionOriginal').value,seccionOriginal=document.getElementById('editSeccionOriginal').value;
+        const item=todosProductos.find(x=>getNombre(x)===nombreOriginal&&getUbicacion(x)===ubicacionOriginal&&getSeccion(x)===seccionOriginal);
+        if(!item||!getIdStock(item)){Notificaciones.mostrar('No se encontró un id_stock válido para editar','error');return;}
+        const nuevos={seccion:document.getElementById('editSeccion').value.trim(),nombre:document.getElementById('editNombre').value.trim(),unidades_por_paquete:document.getElementById('editUnidadesPorPaquete').value.trim(),paquetes_por_caja:document.getElementById('editPaquetesPorCaja').value.trim(),vencimiento:document.getElementById('editFechaVencimiento').value,ubicacion:document.getElementById('editUbicacion').value.trim(),imagen:document.getElementById('editImagen').value.trim(),precio_de_compra_china:document.getElementById('editPrecioChina').value.trim()};
+        const nc=numeroStock(document.getElementById('editCajas').value),np=numeroStock(document.getElementById('editPaquetes').value),nu=numeroStock(document.getElementById('editUnidades').value);
+        if(!nuevos.seccion||!nuevos.nombre||!nuevos.ubicacion){Notificaciones.mostrar('Completa sección, nombre y ubicación','warning');return;}
+        const btn=document.getElementById('guardarEditarBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Guardando...';
+        try{
+            if(nc!==getCajas(item)||np!==getPaquetes(item)||nu!==getUnidades(item)) await stockApi('ajustarStock',{id_stock:getIdStock(item),cajas:nc,paquetes:np,unidades:nu,motivo:'EDICIÓN ADMINISTRATIVA',sucursal:getUbicacion(item)});
+            await stockApi('editarStockAdmin',{id_stock:getIdStock(item),...nuevos});
+            Notificaciones.mostrar(`✅ "${nuevos.nombre}" actualizado por ${currentUser.username}`,'success');cerrarModalEdicion();setTimeout(cargarInventario,1500);
+        }catch(e){console.error(e);Notificaciones.mostrar('Error al actualizar: '+e.message,'error',7000);}
+        finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Guardar Cambios';}
     }
 
     // ============================================================
     // 🗑️ ELIMINAR UNO
     // ============================================================
-    async function eliminarProducto(id, nombre, boton) {
-        if (!confirm(`¿Eliminar "${nombre}"?`)) return;
-        boton.disabled = true;
-        boton.innerHTML = '<i class="fas fa-spinner fa-spin"></i>';
-        try {
-            let url;
-            if (id && !id.includes('|')) {
-                // Filas actuales: id es id_stock, el identificador único.
-                url = `${API_URL}/id_stock/${encodeURIComponent(id)}?sheet=${encodeURIComponent(SHEET_STOCK)}`;
-            } else {
-                // Respaldo para filas antiguas que todavía no tengan id_stock.
-                const [nom, ubicacion, seccion] = String(id || '').split('|');
-                url = `${API_URL}/nombre/${encodeURIComponent(nom)}`;
-                const params = [];
-                if (ubicacion) params.push(`ubicacion=${encodeURIComponent(ubicacion)}`);
-                if (seccion) params.push(`seccion=${encodeURIComponent(seccion)}`);
-                params.push(`sheet=${encodeURIComponent(SHEET_STOCK)}`);
-                url += '?' + params.join('&');
-            }
-
-            const r = await fetch(url, { method: 'DELETE' });
-            if (r.ok) {
-                const res = await r.json();
-                if (res.deleted && res.deleted > 0) {
-                    Notificaciones.mostrar(`✅ "${nombre}" eliminado`, 'success');
-                    seleccionados.delete(id);
-                    setTimeout(cargarInventario, 1200);
-                } else {
-                    Notificaciones.mostrar('No se encontró el producto para eliminar', 'warning', 6000);
-                }
-            } else {
-                const detalle = await r.text().catch(() => '');
-                console.error('Error DELETE stock:', r.status, detalle);
-                Notificaciones.mostrar(`Error al eliminar (${r.status})`, 'error', 6000);
-            }
-        } catch (e) {
-            console.error(e);
-            Notificaciones.mostrar('Error de conexión al eliminar', 'error', 6000);
-        } finally {
-            boton.disabled = false;
-            boton.innerHTML = '<i class="fas fa-trash"></i>';
-        }
+    async function eliminarProducto(id,nombre,boton){
+        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede eliminar registros','warning');return;}
+        if(!id||id.includes('|')){Notificaciones.mostrar('Este registro antiguo no tiene id_stock. Regularízalo antes de eliminarlo.','warning',7000);return;}
+        if(!confirm(`¿Eliminar "${nombre}"? El movimiento quedará registrado.`))return;
+        boton.disabled=true;boton.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+        try{await stockApi('eliminarStock',{id_stock:id,motivo:'ELIMINACIÓN DESDE STOCK'});Notificaciones.mostrar(`✅ "${nombre}" eliminado`,'success');seleccionados.delete(id);setTimeout(cargarInventario,1200);}
+        catch(e){Notificaciones.mostrar('No se pudo eliminar: '+e.message,'error',7000);}
+        finally{boton.disabled=false;boton.innerHTML='<i class="fas fa-trash"></i>';}
     }
 
     // ============================================================
@@ -2494,44 +2356,16 @@
     });
 
     async function guardarRegistroConfirmado(){
-        const dataObj=registroPendienteConfirmacion;
-        if(!dataObj)return;
-        const btn=document.getElementById('guardarRegistroConfirmadoBtn');
-        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Registrando...';
+        const dataObj=registroPendienteConfirmacion;if(!dataObj)return;
+        const btn=document.getElementById('guardarRegistroConfirmadoBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Registrando...';
         try{
-            // Regla V13: si el mismo producto ya existe en la misma ubicación,
-            // este formulario representa un HALLAZGO ADICIONAL, no un reemplazo.
-            // Se relee Google Sheets justo antes de sumar para reducir choques entre dos personas.
-            const suma=await sumarHallazgoAStockExistente(dataObj);
-            if(suma){
-                Notificaciones.mostrar(`✅ Hallazgo sumado: ${dataObj.nombre} · ${suma.ref}`,'success',5500);
-            }else{
-                const stockPayload={...dataObj}; delete stockPayload.__crear_auxiliar; delete stockPayload.__sumar_existente;
-                const r=await fetch(`${API_URL}?sheet=${encodeURIComponent(SHEET_STOCK)}`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:stockPayload})});
-                if(!r.ok){Notificaciones.mostrar('Error '+r.status,'error',6000);return;}
-                // Registrar también el primer conteo como movimiento de entrada/inicio.
-                try{
-                    await sheetdbPost(SHEET_MOVIMIENTOS,{
-                      id:generarIdMovimiento(),fecha:obtenerFechaBolivia(),hora:obtenerHoraBolivia(),
-                      producto:dataObj.nombre,seccion:dataObj.seccion,tipo:'ENTRADA',presentacion:'inventario inicial',
-                      cantidad:String(numeroStock(dataObj.cajas)+numeroStock(dataObj.paquetes)+numeroStock(dataObj.unidades)),unidades_equivalentes:'',
-                      origen:'CONTEO FISICO',destino:dataObj.ubicacion,
-                      cajas_anterior:'0',paquetes_anterior:'0',unidades_anterior:'0',
-                      cajas_nueva:String(numeroStock(dataObj.cajas)),paquetes_nueva:String(numeroStock(dataObj.paquetes)),unidades_nueva:String(numeroStock(dataObj.unidades)),
-                      motivo:'INICIO DE INVENTARIO EN UBICACION',estado:'APLICADO',usuario:currentUser.username,sucursal:dataObj.ubicacion,
-                      referencia:generarReferenciaOperacion('INVENTARIO')
-                    });
-                }catch(movErr){console.warn('Stock guardado; no se pudo registrar movimiento inicial',movErr);}
-                Notificaciones.mostrar(`✅ "${dataObj.nombre}" registrado por ${currentUser.username}`,'success',4500);
-            }
-            cerrarConfirmarRegistro();
-            registroPendienteConfirmacion=null;
-            document.getElementById('stockForm').reset();
-            document.getElementById('previewContainer').style.display='none';
-            document.getElementById('nombre').focus();
-            setTimeout(cargarInventario,1800);
-        }catch(err){console.error(err);Notificaciones.mostrar('Error de conexión','error',6000);}
-        finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Sí, registrar este stock';}
+            const stockPayload={...dataObj};delete stockPayload.__crear_auxiliar;delete stockPayload.__sumar_existente;
+            const res=await stockApi('registrarStock',{...stockPayload,origen:'CONTEO FISICO',referencia:generarReferenciaOperacion('INVENTARIO'),sucursal:dataObj.ubicacion});
+            const msg=res.modo==='sumado_a_existente'?`✅ Mercadería sumada al stock existente: ${dataObj.nombre}`:`✅ "${dataObj.nombre}" registrado por ${currentUser.username}`;
+            Notificaciones.mostrar(msg,'success',5500);
+            cerrarConfirmarRegistro();registroPendienteConfirmacion=null;document.getElementById('stockForm').reset();document.getElementById('previewContainer').style.display='none';setTimeout(cargarInventario,1200);
+        }catch(e){console.error(e);Notificaciones.mostrar('No se pudo registrar: '+e.message,'error',7000);}
+        finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Confirmar y registrar';}
     }
 
     document.getElementById('guardarRegistroConfirmadoBtn').addEventListener('click',guardarRegistroConfirmado);
