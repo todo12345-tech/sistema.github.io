@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Gestión de Ventas V23 · Sincronización Feria Corregida</title>
+<title>Todoenuno_store - Gestión de Ventas V24 · LocalStorage Seguro</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -329,7 +329,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 @media(max-width:650px){.operativo-card{flex-basis:190px}.operativo-head{align-items:flex-start}.operativo-actions{flex-wrap:wrap;justify-content:flex-end}}
 
 </style>
-<!-- V23: V22 corregido. Una API SheetDB, escritura a feria/comercial según la sucursal de CADA venta; lecturas directas desde Google Sheets. -->
+<!-- V24: V23 + localStorage seguro. Google Sheets sigue siendo la fuente principal; el navegador conserva pendientes y respaldo reciente. -->
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -1529,6 +1529,78 @@ function mostrarAvisoCierreNocturno() {
     timeoutTimer = setTimeout(() => cerrarSesionAutomatica(), (HORA_CIERRE_FORZADO - horaActual) * 60 * 60 * 1000);
 }
 function hideSessionWarning() { sessionTimeoutOverlay.style.display = 'none'; sessionTimeoutWarning.style.display = 'none'; clearInterval(countdown); clearTimeout(timeoutTimer); Notificaciones.mostrar('Continuando sesión. A las 9:00 PM se cerrará automáticamente.', 'info', 8000); }
+
+// ============================================================
+// V24 · LOCALSTORAGE SEGURO
+// Google Sheets es la fuente principal. En el navegador guardamos:
+// - TODAS las ventas todavía pendientes de sincronizar.
+// - Solo una cantidad pequeña de ventas ya sincronizadas como respaldo reciente.
+// Esto evita superar la cuota del navegador sin perder ventas pendientes.
+// ============================================================
+const MAX_VENTAS_SINCRONIZADAS_LOCAL = 60;
+
+function ventasParaRespaldoLocal() {
+    const pendientes = ventasDelDia.filter(v => v && v.sincronizada === false);
+    const sincronizadas = ventasDelDia.filter(v => !v || v.sincronizada !== false);
+    const recientes = sincronizadas.slice(-MAX_VENTAS_SINCRONIZADAS_LOCAL);
+
+    const resultado = [];
+    const vistos = new Set();
+
+    [...recientes, ...pendientes].forEach(v => {
+        if (!v) return;
+        const clave = String(
+            v.timestamp ||
+            v.referencia_venta ||
+            `${v.id || ''}|${v.fecha || ''}|${v.hora || ''}|${v.productos || ''}`
+        );
+        if (!vistos.has(clave)) {
+            vistos.add(clave);
+            resultado.push(v);
+        }
+    });
+    return resultado;
+}
+
+function limpiarBackupsLocalesParaLiberarEspacio() {
+    const claves = [];
+    for (let i = 0; i < localStorage.length; i++) {
+        const clave = localStorage.key(i);
+        if (clave && clave.startsWith('backup_ventas_')) claves.push(clave);
+    }
+    claves.sort();
+    // Conservamos como máximo el backup más reciente.
+    while (claves.length > 1) {
+        localStorage.removeItem(claves.shift());
+    }
+}
+
+function guardarVentasLocalSeguro() {
+    const respaldo = ventasParaRespaldoLocal();
+    try {
+        localStorage.setItem('ventasDelDia', JSON.stringify(respaldo));
+        return true;
+    } catch (error) {
+        // Si Safari/Chrome ya está lleno, primero retiramos backups antiguos.
+        limpiarBackupsLocalesParaLiberarEspacio();
+        try {
+            localStorage.setItem('ventasDelDia', JSON.stringify(respaldo));
+            return true;
+        } catch (error2) {
+            // Último recurso: jamás descartamos pendientes; quitamos sincronizadas locales.
+            const soloPendientes = ventasDelDia.filter(v => v && v.sincronizada === false);
+            try {
+                localStorage.setItem('ventasDelDia', JSON.stringify(soloPendientes));
+                console.warn('LocalStorage lleno: se conservaron únicamente ventas pendientes.', error2);
+                return true;
+            } catch (error3) {
+                console.error('No fue posible guardar respaldo local de ventas.', error3);
+                return false;
+            }
+        }
+    }
+}
+
 function cerrarSesionAutomatica() {
     clearInterval(countdown); clearTimeout(timeoutTimer); clearInterval(intervalChequeoHorario);
     Notificaciones.mostrar('Sesión cerrada por fin de horario laboral', 'warning');
@@ -1539,7 +1611,7 @@ function cerrarSesionAutomatica() {
             const diaSemana = dias[new Date().getDay()];
             const registroCierre = { id: 'CIERRE', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: 'CIERRE DE CAJA', montos: '', total_venta: '0', numero_productos: 0, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: 'Cierre automático por fin de horario', metodo_pago: 'EFECTIVO', monto_efectivo: '0', monto_qr: '', apertura_caja: '', cierre_caja: 'CIERRE DE CAJA', sincronizada: false, dia: diaSemana, nombre_cliente: '', telefono: '', direccion: '', departamento: '', cumpleaños: '' };
             ventasDelDia.push(registroCierre);
-            localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+            guardarVentasLocalSeguro();
             sincronizarVentaIndividualANube(registroCierre);
         } catch (e) { console.error('Error cierre auto:', e); }
     }
@@ -1710,7 +1782,7 @@ async function sincronizarVentaIndividualANube(venta) {
             );
             if (ventaIndex !== -1) {
                 ventasDelDia[ventaIndex].sincronizada = true;
-                localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+                guardarVentasLocalSeguro();
             }
             cloudStatus.innerHTML = '<i class="fas fa-circle online"></i> <span>Sincronizado</span>';
             cloudStatus.className = 'right-sidebar-status online';
@@ -2045,7 +2117,7 @@ async function cargarVentasDiaDesdeSheet({notificar=true, forzar=false, silencio
             // Reemplazo completo de los sincronizados:
             // si cambias 60 -> 59 en Google, aquí desaparece 60 y queda 59.
             ventasDelDia = [...filasGoogle, ...pendientesReales];
-            localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+            guardarVentasLocalSeguro();
 
             if (typeof actualizarContadorVentas === 'function') actualizarContadorVentas();
             actualizarEstadisticas();
@@ -2184,7 +2256,7 @@ function guardarVentaLocal() {
     const clienteVenta = String(nombreClienteActual || '').trim() || 'Cliente General';
     const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'paquete',cantidad:i.cantidadFisica||1,ubicacion:i.ubicacionSalida||'',unidadesEquivalentes:i.unidadesEquivalentes||'', detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: generarTimestampVentaUnico(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, ...metodoPagoData };
     ventasDelDia.push(datosVenta);
-    localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+    guardarVentasLocalSeguro();
     ventasCajaActual.push(datosVenta);
     localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
     crearBackupAutomatico();
@@ -2460,7 +2532,7 @@ function abrirCaja(registrarApertura = true) {
         const diaSemana = dias[new Date().getDay()];
         const registroApertura = { id: 'APERTURA', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: 'APERTURA DE CAJA', montos: '', total_venta: '0', numero_productos: 0, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', metodo_pago: 'EFECTIVO', monto_efectivo: montoApertura.toString(), monto_qr: '', apertura_caja: montoApertura.toString(), cierre_caja: '', sincronizada: false, dia: diaSemana, nombre_cliente: '', telefono: '', direccion: '', departamento: '', cumpleaños: '' };
         ventasDelDia.push(registroApertura);
-        localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+        guardarVentasLocalSeguro();
         actualizarEstadoCaja(); actualizarVentasDelDia();
         Notificaciones.mostrar(`Caja abierta en ${sucursalSeleccionada}`, 'success');
         setTimeout(async () => { const exito = await sincronizarVentaIndividualANube(registroApertura); if (exito) Notificaciones.mostrar('Apertura sincronizada', 'success'); }, 1000);
@@ -2481,7 +2553,7 @@ function cerrarCaja() {
     const diaSemana = dias[new Date().getDay()];
     const registroCierre = { id: 'CIERRE', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: 'CIERRE DE CAJA', montos: '', total_venta: '0', numero_productos: 0, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', metodo_pago: 'EFECTIVO', monto_efectivo: montoCierre.toString(), monto_qr: '', apertura_caja: '', cierre_caja: 'CIERRE DE CAJA', sincronizada: false, dia: diaSemana, nombre_cliente: '', telefono: '', direccion: '', departamento: '', cumpleaños: '' };
     ventasDelDia.push(registroCierre);
-    localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+    guardarVentasLocalSeguro();
     const resumen = { efectivo: 0, qr: 0, tarjeta: 0, total: 0, numeroVentas: ventasCajaActual.length, horaApertura: horaAperturaCaja, horaCierre: new Date().toISOString(), montoApertura: montoApertura, montoCierre: montoCierre };
     ventasCajaActual.forEach(venta => {
         const monto = parseFloat(venta.total_venta);
@@ -2815,7 +2887,7 @@ async function eliminarVenta(index) {
         return !(ventaCoincideConFirma(v,firma) && String(v.productos||'')===String(venta.productos||'') && String(v.total_venta||'')===String(venta.total_venta||''));
     });
 
-    localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
+    guardarVentasLocalSeguro();
     localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
     if (typeof actualizarContadorVentas === 'function') actualizarContadorVentas();
     actualizarEstadisticas();
@@ -3097,8 +3169,8 @@ function cargarVentasDelDia() {
             if (venta.telefono === undefined) venta.telefono = '';
             if (venta.cumpleaños === undefined) venta.cumpleaños = '';
         });
-        localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia));
-    } else { ventasDelDia = []; localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia)); crearBackupAutomatico(); }
+        guardarVentasLocalSeguro();
+    } else { ventasDelDia = []; guardarVentasLocalSeguro(); crearBackupAutomatico(); }
     const montoAperturaGuardado = localStorage.getItem('montoApertura');
     if (montoAperturaGuardado) montoApertura = parseFloat(montoAperturaGuardado);
     const montoCierreGuardado = localStorage.getItem('montoCierre');
@@ -3118,7 +3190,7 @@ function actualizarEstadisticas() {
 }
 
 function abrirModalObservacion(index) { ventaConObservacionIndex = index; observacionText.value = ventasDelDia[index].observaciones || ''; observacionModal.style.display = 'flex'; }
-function guardarObservacion() { if (ventaConObservacionIndex === -1) return; ventasDelDia[ventaConObservacionIndex].observaciones = observacionText.value.trim(); localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia)); actualizarVentasDelDia(); observacionModal.style.display = 'none'; Notificaciones.mostrar('Observación guardada', 'success'); }
+function guardarObservacion() { if (ventaConObservacionIndex === -1) return; ventasDelDia[ventaConObservacionIndex].observaciones = observacionText.value.trim(); guardarVentasLocalSeguro(); actualizarVentasDelDia(); observacionModal.style.display = 'none'; Notificaciones.mostrar('Observación guardada', 'success'); }
 
 function verificarSesionActiva() {
     const usuarioGuardado = localStorage.getItem('currentUser');
@@ -3267,7 +3339,7 @@ function restaurarBackup(archivo) {
         try {
             const backupData = JSON.parse(e.target.result);
             Swal.fire({ title: '¿Restaurar Backup?', html: `<p><strong>Esta acción reemplazará todos los datos actuales.</strong></p><p>Ventas en backup: ${backupData.ventas.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length}</p>`, icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, restaurar', cancelButtonText: 'Cancelar' }).then((result) => {
-                if (result.isConfirmed) { crearBackupAutomatico(); ventasDelDia = backupData.ventas; localStorage.setItem('ventasDelDia', JSON.stringify(ventasDelDia)); actualizarContadorVentas(); actualizarEstadisticas(); actualizarVentasDelDia(); Notificaciones.mostrar('Backup restaurado', 'success'); }
+                if (result.isConfirmed) { crearBackupAutomatico(); ventasDelDia = backupData.ventas; guardarVentasLocalSeguro(); actualizarContadorVentas(); actualizarEstadisticas(); actualizarVentasDelDia(); Notificaciones.mostrar('Backup restaurado', 'success'); }
             });
         } catch (error) { Notificaciones.mostrar('Archivo inválido', 'error'); }
     };
@@ -3275,7 +3347,26 @@ function restaurarBackup(archivo) {
 }
 
 function crearBackupAutomatico() {
-    try { const backup = { fecha: new Date().toISOString(), ventas: ventasDelDia, totalVentas: ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length, totalRecaudado: ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0) }; const clave = 'backup_ventas_' + new Date().toISOString().split('T')[0]; localStorage.setItem(clave, JSON.stringify(backup)); limpiarBackupsAntiguos(); } catch (error) { console.error('Error backup:', error); }
+    try {
+        limpiarBackupsAntiguos();
+        limpiarBackupsLocalesParaLiberarEspacio();
+        const ventasRespaldo = ventasParaRespaldoLocal();
+        const backup = {
+            fecha: new Date().toISOString(),
+            ventas: ventasRespaldo,
+            tipo: 'respaldo_local_compacto',
+            pendientes: ventasRespaldo.filter(v => v && v.sincronizada === false).length
+        };
+        const clave = 'backup_ventas_' + new Date().toISOString().split('T')[0];
+        try {
+            localStorage.setItem(clave, JSON.stringify(backup));
+        } catch (e) {
+            // El backup automático nunca debe impedir registrar una venta.
+            console.warn('No se guardó backup automático por falta de espacio.', e);
+        }
+    } catch (error) {
+        console.error('Error backup:', error);
+    }
 }
 
 function limpiarBackupsAntiguos() {
