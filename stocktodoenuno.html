@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Stock - Todoenuno_store</title>
+    <title>Stock V14 - Todoenuno_store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -282,6 +282,20 @@
         .ubicacion-admin-row small{color:#6c757d}
         @media(max-width:700px){.ubicacion-admin-row{grid-template-columns:1fr}.tabla-multiple{font-size:11px}}
 
+    
+        /* V14: ITEMS como maestro único */
+        .item-main-actions{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin:4px 0 18px}
+        .item-action-card{border:2px solid #dbe7f3;border-radius:14px;padding:16px;background:#f8fbff}
+        .item-action-card.nuevo{border-color:#f6c85f;background:linear-gradient(135deg,#fff9e8,#fff)}
+        .item-action-card h3{margin:0 0 6px;color:#2c3e50;font-size:16px}.item-action-card p{font-size:12px;color:#6c757d;line-height:1.45;margin:0 0 12px}
+        .btn-crear-item{width:100%;background:linear-gradient(135deg,#f39c12,#e67e22);font-size:17px;padding:17px;margin:0;box-shadow:0 6px 18px rgba(230,126,34,.22)}
+        .btn-crear-item:hover{transform:translateY(-2px)}
+        .item-chip{display:inline-block;background:#e8f5e9;color:#256029;border-radius:12px;padding:4px 9px;font-size:10px;font-weight:800;margin-bottom:8px}
+        .item-form-section{grid-column:1/-1;background:#f8f9fa;border:1px solid #e9ecef;border-radius:9px;padding:10px 12px;font-size:12px;font-weight:800;color:#34495e;margin-top:4px}
+        .item-file-note{font-size:10px;color:#6c757d;margin-top:4px;line-height:1.35}
+        #btnProductosAgregados{display:none!important}
+        @media(max-width:700px){.item-main-actions{grid-template-columns:1fr}}
+
     </style>
 </head>
 <body>
@@ -329,7 +343,7 @@
     </div>
 
     <div class="container">
-        <h1><i class="fas fa-boxes"></i> Todoenuno_store - Inventario</h1>
+        <h1><i class="fas fa-boxes"></i> Todoenuno_store - Inventario V14</h1>
         <p class="subtitulo">Stock por ubicación · Inventario físico · Traspasos</p>
 
         <div class="stats-grid" id="statsGrid">
@@ -360,7 +374,22 @@
             </div>
         </div>
 
-        <h2><i class="fas fa-plus-circle"></i> Registrar Nuevo Producto</h2>
+        <div class="item-main-actions">
+            <div class="item-action-card">
+                <span class="item-chip">ITEM YA EXISTE</span>
+                <h3><i class="fas fa-search"></i> Agregar stock a item existente</h3>
+                <p>Busca abajo el producto que ya existe en ITEMS y registra únicamente lo que llegó físicamente.</p>
+                <button type="button" id="btnEnfocarItemExistente" style="margin:0;background:linear-gradient(135deg,#4a90e2,#2c3e50)"><i class="fas fa-boxes-stacked"></i> BUSCAR ITEM EXISTENTE</button>
+            </div>
+            <div class="item-action-card nuevo">
+                <span class="item-chip" style="background:#fff3cd;color:#856404">PRODUCTO NUEVO</span>
+                <h3><i class="fas fa-plus-circle"></i> ¿No existe todavía?</h3>
+                <p>Si es un producto realmente nuevo, créalo aquí. El sistema revisa duplicados, guarda su foto original y después te lleva a registrar su primera existencia.</p>
+                <button type="button" class="btn-crear-item" id="btnCrearNuevoItem"><i class="fas fa-circle-plus"></i> CREAR NUEVO ITEM</button>
+            </div>
+        </div>
+
+        <h2><i class="fas fa-boxes-stacked"></i> Registrar existencia física</h2>
         <form id="stockForm" class="form-grid" novalidate>
             <div class="guia-registro">
                 <h3><i class="fas fa-graduation-cap"></i> Registro guiado — antes de empezar</h3>
@@ -377,10 +406,10 @@
             <div class="form-group full">
                 <label for="nombre"><i class="fas fa-search"></i> Nombre del Producto <span class="req">*</span></label>
                 <div class="autocomplete-wrapper">
-                    <input type="text" id="nombre" name="data[nombre]" placeholder="Escribe para buscar en el catálogo..." autocomplete="off">
+                    <input type="text" id="nombre" name="data[nombre]" placeholder="Escribe para buscar en ITEMS..." autocomplete="off">
                     <div class="autocomplete-list" id="autocompleteList"></div>
                 </div>
-                <span class="autocomplete-hint"><i class="fas fa-info-circle"></i> Escribe 2+ letras para ver sugerencias del catálogo. Se auto-rellenan Sección, Imagen y Descripción.</span>
+                <span class="autocomplete-hint"><i class="fas fa-info-circle"></i> Escribe 2+ letras para buscar en el maestro ITEMS. Si no existe, usa el botón CREAR NUEVO ITEM.</span>
             </div>
             <div class="form-group">
                 <label for="seccion"><i class="fas fa-folder"></i> Sección / Categoría <span class="req">*</span></label>
@@ -448,7 +477,7 @@
             <div style="grid-column:1/-1;background:#eef7ff;border:1px solid #cfe7ff;border-radius:8px;padding:10px 12px;font-size:12px;line-height:1.5;color:#34495e">
                 <strong>Inventario contado:</strong> lo que registres aquí será el stock real desde esta fecha/hora. Las ventas anteriores no se descontarán retroactivamente.
             </div>
-            <button type="submit" id="btnSubmit"><i class="fas fa-save"></i> Registrar Producto</button>
+            <button type="submit" id="btnSubmit"><i class="fas fa-save"></i> Revisar y registrar existencia</button>
         </form>
     </div>
 
@@ -459,9 +488,9 @@
                 <div class="ubicaciones-acciones">
                     <button type="button" class="btn-mover-multiple" id="btnMoverMercaderiaPrincipal"><i class="fas fa-truck-loading"></i> Mover mercadería</button>
                     <button type="button" class="btn-secundario" id="btnComoFunciona"><i class="fas fa-question-circle"></i> ¿Cómo funciona?</button>
-                    <button type="button" class="btn-secundario" id="btnAdministrarUbicaciones"><i class="fas fa-map-marker-alt"></i> Ubicaciones</button>
+                    <button type="button" class="btn-secundario solo-admin" id="btnAdministrarUbicaciones"><i class="fas fa-map-marker-alt"></i> Ubicaciones</button>
                     <button type="button" class="btn-entrada" id="btnEntradaExterna"><i class="fas fa-plus-circle"></i> Entrada externa / compra</button>
-                    <button type="button" class="btn-ajuste" id="btnAjustarStock"><i class="fas fa-balance-scale"></i> Ajustar stock</button>
+                    <button type="button" class="btn-ajuste solo-admin" id="btnAjustarStock"><i class="fas fa-balance-scale"></i> Ajustar stock</button>
                     <button type="button" class="btn-info" id="btnHistorialProducto"><i class="fas fa-history"></i> Historial de producto</button>
                     <button type="button" class="btn-productos-aux" id="btnProductosAgregados"><i class="fas fa-box-open"></i> Productos agregados</button>
                 </div>
@@ -880,6 +909,38 @@
     </div>
 </div>
 
+
+<!-- ============ V14 MODAL CREAR NUEVO ITEM ============ -->
+<div class="modal-overlay" id="modalCrearItem">
+  <div class="modal-card" style="max-width:920px">
+    <div class="modal-header"><h3><i class="fas fa-circle-plus"></i> Crear nuevo item</h3><button class="modal-close" id="cerrarCrearItemBtn">&times;</button></div>
+    <div class="modal-body">
+      <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:9px;padding:11px 13px;font-size:12px;line-height:1.5;margin-bottom:14px"><strong>Primero verificaremos que no exista.</strong> Este formulario crea el producto maestro. Después volverás automáticamente a Stock para registrar su primera cantidad física.</div>
+      <form id="formCrearItem" class="form-grid" novalidate>
+        <div class="item-form-section">1 · Identidad del producto</div>
+        <div class="form-group"><label>Sección <span class="req">*</span></label><input id="itemSeccion" required list="itemSeccionesExistentes" placeholder="Elige una sección existente"><datalist id="itemSeccionesExistentes"></datalist><span class="item-file-note">Para evitar errores, la vendedora debe elegir una sección existente. Solo admin puede crear una sección nueva.</span></div>
+        <div class="form-group"><label>Nombre <span class="req">*</span></label><input id="itemNombre" required placeholder="Nombre único del producto"></div>
+        <div class="item-form-section">2 · Presentación comercial</div>
+        <div class="form-group"><label>Precio de paquete</label><input type="number" id="itemPrecioPaquete" min="0" step="0.01" placeholder="Bs"></div>
+        <div class="form-group"><label>Cantidad paquete</label><input id="itemCantidadPaquete" placeholder="Ej: 12 unidades"></div>
+        <div class="form-group"><label>¿Disponible por paquete?</label><select id="itemDispPaquete"><option value="si">Sí</option><option value="no">No</option></select></div>
+        <div class="form-group"><label>Precio unidad</label><input type="number" id="itemPrecioUnidad" min="0" step="0.01" placeholder="Bs"></div>
+        <div class="form-group"><label>Cantidad unidad</label><input id="itemCantidadUnidad" placeholder="Ej: 1 unidad"></div>
+        <div class="form-group"><label>¿Disponible por unidad?</label><select id="itemDispUnidad"><option value="si">Sí</option><option value="no">No</option></select></div>
+        <div class="item-form-section">3 · Foto original</div>
+        <div class="form-group full"><label>Imagen original del producto</label><input type="file" id="itemImagenOriginal" accept="image/*"><span class="item-file-note">La foto original se enviará al sistema de Drive. La imagen editada se agregará después desde Gestión de Catálogo.</span></div>
+        
+      </form>
+      <div id="itemDuplicadoAviso" style="display:none;margin-top:12px;border-radius:10px;padding:12px;font-size:12px;line-height:1.5"></div>
+      <div id="itemParecidosAcciones" style="display:none;margin-top:10px;gap:8px;flex-wrap:wrap">
+        <button type="button" class="modal-btn" id="usarItemParecidoBtn" style="background:#4a90e2"><i class="fas fa-arrow-left"></i> Usar el item existente</button>
+        <button type="button" class="modal-btn" id="confirmarItemDiferenteBtn" style="background:#f39c12"><i class="fas fa-check"></i> Sí, es diferente: crear nuevo</button>
+      </div>
+    </div>
+    <div class="modal-footer"><button type="button" class="modal-btn modal-btn-cancel" id="cancelarCrearItemBtn">Cancelar</button><button type="button" class="modal-btn modal-btn-save" id="guardarNuevoItemBtn"><i class="fas fa-save"></i> Crear item y continuar a Stock</button></div>
+  </div>
+</div>
+
 <div class="lightbox" id="lightbox"><img id="lightboxImg" src="" alt=""></div>
 <div class="notification-container" id="notificationContainer"></div>
 
@@ -891,9 +952,10 @@
     const SHEET_ID = '1Rx8QdmK61tsrP4xdNTjTxT9F2QbI4lCpzNJZhNcq-7g';
     const URL_CSV = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=0`;
 
-    // 🔥 CATÁLOGO
-    const CATALOGO_ID = '1h7ZNyYRe6ZDIvbjbAuyiCYEvQ37IQmSI';
+    // 🧠 ITEMS - MAESTRO ÚNICO DE PRODUCTOS
+    const CATALOGO_ID = '1m9A2-dW71FWU8tgmjx7haibO052AUDM6tqiMQuaGhOw';
     const URL_CATALOGO = `https://docs.google.com/spreadsheets/d/${CATALOGO_ID}/export?format=csv`;
+    const ITEMS_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_BiqTbqL0eaMRKZTmJqbgsIchHBKQEocRprOGpPbHbIh2HCcTEW4cXYdgmGCPZqn3/exec'; // crea item + carpeta/foto original
     const UBICACIONES_INICIALES = ['Depósito 1 - Planta baja','Depósito 2 - Piso 1','Depósito 2 - Piso 2','Depósito Comercial','Tienda Comercial','Tienda Feria'];
     const UBICACIONES_GID = '95509632';
     const URL_UBICACIONES = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${UBICACIONES_GID}`;
@@ -1206,7 +1268,7 @@
     }
 
     function esAdmin() {
-        return currentUser && currentUser.rol.toLowerCase() === 'administrador';
+        return !!(currentUser && String(currentUser.rol||'').toLowerCase().includes('admin'));
     }
 
     // ============================================================
@@ -1325,7 +1387,8 @@
             const texto = await r.text();
             const datos = parsearCSV(texto);
             catalogoProductos = datos.filter(p => p.nombre && p.nombre.trim() !== '');
-            console.log('✅ Catálogo cargado:', catalogoProductos.length);
+            console.log('✅ ITEMS cargados:', catalogoProductos.length);
+            if(typeof refrescarSeccionesCrearItem==='function') refrescarSeccionesCrearItem();
         } catch (e) {
             console.error('❌ Error catálogo:', e);
         }
@@ -1352,13 +1415,13 @@
             return nombre.includes(q) || seccion.includes(q);
         }).slice(0, 30);
         if (sugerenciasActuales.length === 0) {
-            autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">No se encontraron productos en el catálogo</div>';
+            autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">No se encontraron productos en ITEMS</div>';
             autocompleteList.classList.add('active');
             return;
         }
         let html = '';
         sugerenciasActuales.forEach((p, i) => {
-            const imgUrl = convertirDriveAImagen(p.imagen || '');
+            const imgUrl = convertirDriveAImagen(p.imagen_editada || p.imagen_original || p.imagen || '');
             const imgHtml = imgUrl
                 ? `<img src="${imgUrl}" class="autocomplete-item-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="autocomplete-item-img sin-foto" style="display:none; font-size:8px;">S/F</div>`
                 : `<div class="autocomplete-item-img sin-foto" style="display:flex; font-size:8px;">S/F</div>`;
@@ -1388,10 +1451,14 @@
     function seleccionarSugerencia(idx) {
         const p = sugerenciasActuales[idx];
         if (!p) return;
+        itemSeleccionadoMaestro=p;
         document.getElementById('nombre').value = p.nombre || '';
         document.getElementById('seccion').value = p.seccion || '';
         document.getElementById('descripcion').value = p.descripcion || '';
-        const imgUrl = convertirDriveAImagen(p.imagen || '');
+        // ITEMS: equivalencia comercial sugerida para Stock (si es numérica)
+        const cantPaq = parseFloat(String(p.cantidad_paquete || '').replace(',', '.'));
+        if (Number.isFinite(cantPaq) && cantPaq > 0) document.getElementById('unidades_por_paquete').value = cantPaq;
+        const imgUrl = convertirDriveAImagen(p.imagen_editada || p.imagen_original || p.imagen || '');
         document.getElementById('imagen').value = imgUrl;
         const contenedor = document.getElementById('previewContainer');
         const img = document.getElementById('previewImg');
@@ -1406,7 +1473,11 @@
         document.getElementById('cajas').focus();
     }
 
-    nombreInput.addEventListener('input', function() { mostrarSugerencias(this.value.trim()); });
+    nombreInput.addEventListener('input', function() {
+        const actual=normalizarItemClave(this.value);
+        if(!itemSeleccionadoMaestro || normalizarItemClave(itemSeleccionadoMaestro.nombre)!==actual) itemSeleccionadoMaestro=null;
+        mostrarSugerencias(this.value.trim());
+    });
     nombreInput.addEventListener('focus', function() { if (this.value.trim().length >= 2) mostrarSugerencias(this.value.trim()); });
     nombreInput.addEventListener('keydown', function(e) {
         const items = autocompleteList.querySelectorAll('.autocomplete-item');
@@ -2429,6 +2500,12 @@
         if(!dataObj.nombre)faltantes.push('Nombre');
         if(!dataObj.seccion)faltantes.push('Sección');
         if(!dataObj.ubicacion)faltantes.push('Ubicación');
+        const maestro=buscarItemMaestroExacto(dataObj.nombre,dataObj.seccion);
+        if(!maestro){
+            Notificaciones.mostrar('Este producto no existe en ITEMS. No escribas un nombre nuevo aquí: usa el botón CREAR NUEVO ITEM.','warning',8500);
+            return null;
+        }
+        itemSeleccionadoMaestro=maestro;
         dataObj.cajas=dataObj.cajas||'0'; dataObj.paquetes=dataObj.paquetes||'0'; dataObj.unidades=dataObj.unidades||'0';
         if((numeroStock(dataObj.cajas)+numeroStock(dataObj.paquetes)+numeroStock(dataObj.unidades))<=0)faltantes.push('al menos una existencia');
         if(faltantes.length){Notificaciones.mostrar('Completa: '+faltantes.join(', '),'warning',5000);return null;}
@@ -2437,7 +2514,7 @@
         dataObj.fecha_de_agregacion=obtenerFechaHoraBolivia();
         dataObj.fecha_de_edicion='';
         if(!esAdmin())delete dataObj.precio_de_compra_china;
-        dataObj.__crear_auxiliar = !existeProductoAux(dataObj.nombre) && !existeProductoStock(dataObj.nombre);
+        dataObj.__crear_auxiliar = false; // V14: ITEMS reemplaza definitivamente productos_agregados
         return dataObj;
     }
 
@@ -2458,7 +2535,7 @@
             <div class="confirm-registro-item"><strong>👤 Registrado por</strong><br>${currentUser.username}</div>
             <div class="confirm-registro-item"><strong>🕒 Fecha y hora</strong><br>${dataObj.fecha_de_agregacion}</div>
           </div>
-          ${dataObj.__crear_auxiliar?`<div style="margin-top:10px;background:#eef8ff;padding:9px;border-radius:7px"><strong>Producto nuevo:</strong> además de registrar su Stock, se guardará una sola vez en <strong>productos_agregados</strong>.</div>`:`<div style="margin-top:10px"><span class="origen-producto-badge">PRODUCTO YA CONOCIDO</span> No se duplicará en productos_agregados.</div>`}
+          <div style="margin-top:10px"><span class="origen-producto-badge">ITEM MAESTRO</span> El producto se toma desde la hoja <strong>item</strong>; Stock solo registra existencia física.</div>
           ${upp?`<div style="margin-top:10px"><strong>Recuerda:</strong> esas ${upp} son unidades DE VENTA por paquete, no necesariamente piezas físicas.</div>`:''}`;
         document.getElementById('modalConfirmarRegistro').classList.add('active');
     }
@@ -2479,7 +2556,7 @@
         const btn=document.getElementById('guardarRegistroConfirmadoBtn');
         btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Registrando...';
         try{
-            if(dataObj.__crear_auxiliar) await guardarProductoAuxiliar(dataObj);
+            // V14: no se crea maestro auxiliar; los nuevos productos nacen en ITEMS desde el modal Crear nuevo item.
             // Regla V13: si el mismo producto ya existe en la misma ubicación,
             // este formulario representa un HALLAZGO ADICIONAL, no un reemplazo.
             // Se relee Google Sheets justo antes de sumar para reducir choques entre dos personas.
@@ -2612,6 +2689,159 @@
     };
     document.getElementById('lightbox').addEventListener('click', function() { this.classList.remove('active'); });
 
+
+    // ============================================================
+    // 🧠 V14 - CREAR ITEM MAESTRO DESDE STOCK
+    // ============================================================
+    function normalizarItemClave(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');}
+    let itemSeleccionadoMaestro=null;
+    let itemParecidoDetectado=null;
+    let itemDiferenteConfirmado=false;
+    function seccionesItemExistentes(){return [...new Set(catalogoProductos.map(p=>normalizarItemClave(p.seccion)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));}
+    function refrescarSeccionesCrearItem(){const dl=document.getElementById('itemSeccionesExistentes');if(dl)dl.innerHTML=seccionesItemExistentes().map(x=>`<option value="${x.replace(/"/g,'&quot;')}"></option>`).join('');}
+    function buscarItemMaestroExacto(nombre,seccion=''){
+        const n=normalizarItemClave(nombre), sec=normalizarItemClave(seccion);
+        return catalogoProductos.find(p=>normalizarItemClave(p.nombre)===n && (!sec || normalizarItemClave(p.seccion)===sec));
+    }
+    function abrirCrearItem(){
+        document.getElementById('formCrearItem').reset();
+        refrescarSeccionesCrearItem();
+        document.getElementById('itemDuplicadoAviso').style.display='none';
+        document.getElementById('itemParecidosAcciones').style.display='none';
+        itemParecidoDetectado=null; itemDiferenteConfirmado=false;
+        document.getElementById('modalCrearItem').classList.add('active');
+        setTimeout(()=>document.getElementById('itemNombre').focus(),120);
+    }
+    function cerrarCrearItem(){document.getElementById('modalCrearItem').classList.remove('active');}
+    function palabrasItem(v){return normalizarItemClave(v).replace(/[^A-ZÁÉÍÓÚÜÑ0-9 ]/g,' ').split(/\s+/).filter(x=>x.length>1);}
+    function similitudItem(a,b){
+        const A=new Set(palabrasItem(a)), B=new Set(palabrasItem(b));
+        if(!A.size||!B.size)return 0;
+        let comun=0; A.forEach(x=>{if(B.has(x))comun++;});
+        const jaccard=comun/(A.size+B.size-comun);
+        const na=normalizarItemClave(a), nb=normalizarItemClave(b);
+        const contiene=(na.includes(nb)||nb.includes(na)) ? 0.88 : 0;
+        return Math.max(jaccard,contiene);
+    }
+    function buscarItemParecido(nombre,seccion=''){
+        const sec=normalizarItemClave(seccion), n=normalizarItemClave(nombre);
+        if(n.length<4)return null;
+        return catalogoProductos
+          .filter(p=>!sec || normalizarItemClave(p.seccion)===sec)
+          .map(p=>({p,score:similitudItem(n,p.nombre)}))
+          .filter(x=>x.score>=0.50)
+          .sort((a,b)=>b.score-a.score)[0]?.p||null;
+    }
+    function seleccionarItemParecidoParaStock(){
+        if(!itemParecidoDetectado)return;
+        const p=itemParecidoDetectado;
+        itemSeleccionadoMaestro=p;
+        cerrarCrearItem();
+        document.getElementById('nombre').value=p.nombre||'';
+        document.getElementById('seccion').value=p.seccion||'';
+        document.getElementById('imagen').value=convertirDriveAImagen(p.imagen_original||p.imagen_editada||'');
+        const m=String(p.cantidad_paquete||'').match(/\d+(?:[.,]\d+)?/); if(m)document.getElementById('unidades_por_paquete').value=m[0].replace(',','.');
+        document.getElementById('nombre').scrollIntoView({behavior:'smooth',block:'center'});
+        setTimeout(()=>document.getElementById('cajas').focus(),300);
+        Notificaciones.mostrar('Usaremos el item que ya existía. Ahora registra la mercadería recibida.','success',6500);
+    }
+    function confirmarItemComoDiferente(){
+        itemDiferenteConfirmado=true;
+        const aviso=document.getElementById('itemDuplicadoAviso');
+        aviso.style.background='#e8f5e9'; aviso.style.border='1px solid #a5d6a7';
+        aviso.innerHTML='✅ Confirmado: es un producto diferente. Ya puedes pulsar <strong>Crear item y continuar a Stock</strong>.';
+        document.getElementById('itemParecidosAcciones').style.display='none';
+    }
+    function revisarDuplicadoItem(){
+        itemDiferenteConfirmado=false; itemParecidoDetectado=null;
+        const nom=document.getElementById('itemNombre').value, sec=document.getElementById('itemSeccion').value;
+        const existe=buscarItemMaestroExacto(nom,sec), aviso=document.getElementById('itemDuplicadoAviso'), acciones=document.getElementById('itemParecidosAcciones');
+        if(existe){
+            aviso.style.display='block'; aviso.style.background='#fee'; aviso.style.border='1px solid #f5b7b1';
+            aviso.innerHTML=`⛔ <strong>Este item ya existe exactamente.</strong><br>Ya tenemos: <strong>${existe.nombre}</strong> · ${existe.seccion}. No se puede crear duplicado.`;
+            acciones.style.display='flex'; itemParecidoDetectado=existe;
+            document.getElementById('confirmarItemDiferenteBtn').style.display='none';
+            return {tipo:'exacto',item:existe};
+        }
+        const parecido=buscarItemParecido(nom,sec);
+        if(parecido){
+            itemParecidoDetectado=parecido;
+            aviso.style.display='block'; aviso.style.background='#fff8e1'; aviso.style.border='1px solid #ffe082';
+            const img=convertirDriveAImagen(parecido.imagen_original||parecido.imagen_editada||'');
+            aviso.innerHTML=`⚠️ <strong>Antes de crear, revisa esto.</strong><br>Estás creando: <strong>${normalizarItemClave(nom)}</strong><br>Ya existe uno parecido: <strong>${parecido.nombre}</strong> · ${parecido.seccion}${img?`<div style="margin-top:8px"><img src="${img}" alt="Item parecido" style="width:70px;height:70px;object-fit:cover;border-radius:8px;border:1px solid #ddd"></div>`:''}<br><strong>¿Realmente son productos diferentes?</strong>`;
+            acciones.style.display='flex';
+            document.getElementById('confirmarItemDiferenteBtn').style.display='inline-flex';
+            return {tipo:'parecido',item:parecido};
+        }
+        aviso.style.display='none'; acciones.style.display='none'; return null;
+    }
+    function archivoADataURL(file){return new Promise((resolve,reject)=>{if(!file)return resolve('');const r=new FileReader();r.onload=()=>resolve(String(r.result||''));r.onerror=reject;r.readAsDataURL(file);});}
+    async function guardarNuevoItemDesdeStock(){
+        const btn=document.getElementById('guardarNuevoItemBtn');
+        const seccion=normalizarItemClave(document.getElementById('itemSeccion').value);
+        const nombre=normalizarItemClave(document.getElementById('itemNombre').value);
+        if(!seccion||!nombre){Notificaciones.mostrar('Completa Sección y Nombre','warning');return;}
+        const secciones=seccionesItemExistentes();
+        if(!esAdmin() && !secciones.includes(seccion)){
+            Notificaciones.mostrar('Elige una sección existente de la lista. Si hace falta crear una sección nueva, debe hacerlo un administrador.','warning',8000);
+            document.getElementById('itemSeccion').focus(); return;
+        }
+        const confirmadoAntes=itemDiferenteConfirmado;
+        const revision=revisarDuplicadoItem();
+        if(revision?.tipo==='exacto'){Notificaciones.mostrar('Ese item ya existe exactamente. Usa el producto existente.','warning',6500);return;}
+        if(revision?.tipo==='parecido' && !confirmadoAntes){Notificaciones.mostrar('Encontramos un item parecido. Confirma si realmente es un producto diferente antes de crearlo.','warning',8000);return;}
+        if(revision?.tipo==='parecido' && confirmadoAntes)itemDiferenteConfirmado=true;
+        btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Creando item...';
+        try{
+            const file=document.getElementById('itemImagenOriginal').files[0]||null;
+            const imagenData=await archivoADataURL(file);
+            const item={
+              seccion,nombre,
+              'precio de paquete':document.getElementById('itemPrecioPaquete').value.trim(),
+              'cantidad paquete':document.getElementById('itemCantidadPaquete').value.trim(),
+              'hay disponibilidad por paquete':document.getElementById('itemDispPaquete').value,
+              'precio unidad':document.getElementById('itemPrecioUnidad').value.trim(),
+              'cantidad unidad':document.getElementById('itemCantidadUnidad').value.trim(),
+              'hay disponibilidad por unidad':document.getElementById('itemDispUnidad').value,
+              publicar_catalogo:'no',
+              imagen_editada:'',imagen_original:''
+            };
+            // Apps Script recibe tanto campos planos como JSON para mantener compatibilidad con el despliegue actual/futuro.
+            const body=new URLSearchParams();
+            body.set('action','crear_item'); body.set('accion','crear_item'); body.set('sheet','item'); body.set('data',JSON.stringify(item));
+            Object.entries(item).forEach(([k,v])=>body.set(k,String(v??'')));
+            if(file){body.set('imagen_base64',imagenData);body.set('imagen_nombre',file.name);body.set('imagen_tipo',file.type||'image/jpeg');}
+            const r=await fetch(ITEMS_APPS_SCRIPT_URL,{method:'POST',body});
+            const txt=await r.text(); let resp={}; try{resp=JSON.parse(txt)}catch(_){resp={ok:r.ok,mensaje:txt}}
+            if(!r.ok || resp.ok===false || resp.success===false) throw new Error(resp.error||resp.mensaje||('HTTP '+r.status));
+            Notificaciones.mostrar(`✅ Item creado: ${nombre}`,'success',5000);
+            await cargarCatalogo();
+            const creado=buscarItemMaestroExacto(nombre,seccion)||item;
+            itemSeleccionadoMaestro=creado;
+            cerrarCrearItem();
+            document.getElementById('nombre').value=creado.nombre||nombre;
+            document.getElementById('seccion').value=creado.seccion||seccion;
+            const imgUrl=convertirDriveAImagen(creado.imagen_original||creado.imagen_editada||resp.imagen_original||'');
+            document.getElementById('imagen').value=imgUrl;
+            const m=String(creado.cantidad_paquete||item['cantidad paquete']||'').match(/\d+(?:[.,]\d+)?/); if(m)document.getElementById('unidades_por_paquete').value=m[0].replace(',','.');
+            document.getElementById('nombre').scrollIntoView({behavior:'smooth',block:'center'});
+            setTimeout(()=>document.getElementById('cajas').focus(),350);
+            Notificaciones.mostrar('Ahora registra la primera existencia física y su ubicación.','info',6500);
+        }catch(e){console.error(e);Notificaciones.mostrar('No se pudo crear el item: '+e.message,'error',8000);}
+        finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-save"></i> Crear item y continuar a Stock';}
+    }
+
+    document.getElementById('btnCrearNuevoItem').addEventListener('click',abrirCrearItem);
+    document.getElementById('btnEnfocarItemExistente').addEventListener('click',()=>{document.getElementById('nombre').scrollIntoView({behavior:'smooth',block:'center'});setTimeout(()=>document.getElementById('nombre').focus(),300);});
+    document.getElementById('cerrarCrearItemBtn').addEventListener('click',cerrarCrearItem);
+    document.getElementById('cancelarCrearItemBtn').addEventListener('click',cerrarCrearItem);
+    document.getElementById('guardarNuevoItemBtn').addEventListener('click',guardarNuevoItemDesdeStock);
+    document.getElementById('usarItemParecidoBtn').addEventListener('click',seleccionarItemParecidoParaStock);
+    document.getElementById('confirmarItemDiferenteBtn').addEventListener('click',confirmarItemComoDiferente);
+    document.getElementById('itemNombre').addEventListener('input',revisarDuplicadoItem);
+    document.getElementById('itemSeccion').addEventListener('input',revisarDuplicadoItem);
+    document.getElementById('modalCrearItem').addEventListener('click',e=>{if(e.target===e.currentTarget)cerrarCrearItem();});
+
     // ============================================================
     // 🎯 EVENT LISTENERS
     // ============================================================
@@ -2669,12 +2899,12 @@
     document.getElementById('confirmarTraspasoMultipleBtn').addEventListener('click', confirmarTraspasoMultiple);
     document.getElementById('modalTraspasoMultiple').addEventListener('click',e=>{if(e.target===e.currentTarget)cerrarTraspasoMultiple();});
 
-    document.getElementById('btnAdministrarUbicaciones').addEventListener('click',()=>{renderizarAdminUbicaciones();document.getElementById('modalUbicaciones').classList.add('active');});
+    document.getElementById('btnAdministrarUbicaciones').addEventListener('click',()=>{if(!esAdmin()){Notificaciones.mostrar('Esta acción es solo para administrador.','warning');return;}renderizarAdminUbicaciones();document.getElementById('modalUbicaciones').classList.add('active');});
     document.getElementById('cerrarUbicacionesBtn').addEventListener('click',()=>document.getElementById('modalUbicaciones').classList.remove('active'));
     document.getElementById('guardarNuevaUbicacionBtn').addEventListener('click',crearUbicacion);
 
     document.getElementById('btnEntradaExterna').addEventListener('click',abrirEntradaExterna);
-    document.getElementById('btnAjustarStock').addEventListener('click',abrirAjustarStock);
+    document.getElementById('btnAjustarStock').addEventListener('click',()=>{if(!esAdmin()){Notificaciones.mostrar('Ajustar stock es solo para administrador.','warning');return;}abrirAjustarStock();});
     document.getElementById('btnHistorialProducto').addEventListener('click',abrirHistorialProducto);
     document.getElementById('btnProductosAgregados').addEventListener('click',abrirProductosAgregados);
     document.getElementById('cerrarProductosAgregadosBtn').addEventListener('click',cerrarProductosAgregados);
@@ -2724,7 +2954,7 @@
         document.querySelector('input[name="pdfOpcion"][value="seleccionados"]').closest('.pdf-opcion').classList.add('selected');
     });
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { cerrarModalEdicion(); cerrarModalPdf(); cerrarModalTraspaso(); cerrarTraspasoMultiple(); cerrarEntradaExterna(); cerrarAjustarStock(); cerrarConfirmarRegistro(); cerrarHistorialProducto(); cerrarProductosAgregados(); document.getElementById('modalUbicaciones').classList.remove('active'); document.getElementById('modalComoFunciona').classList.remove('active'); document.getElementById('lightbox').classList.remove('active'); autocompleteList.classList.remove('active'); }
+        if (e.key === 'Escape') { cerrarCrearItem(); cerrarModalEdicion(); cerrarModalPdf(); cerrarModalTraspaso(); cerrarTraspasoMultiple(); cerrarEntradaExterna(); cerrarAjustarStock(); cerrarConfirmarRegistro(); cerrarHistorialProducto(); cerrarProductosAgregados(); document.getElementById('modalUbicaciones').classList.remove('active'); document.getElementById('modalComoFunciona').classList.remove('active'); document.getElementById('lightbox').classList.remove('active'); autocompleteList.classList.remove('active'); }
     });
     document.getElementById('recargarTablaBtn').addEventListener('click', async function() {
         this.disabled = true;
