@@ -219,15 +219,7 @@
         /* V13: inventario progresivo simultáneo en la misma ubicación */
         .modo-suma-aviso{background:#e8f5e9;border:1px solid #a5d6a7;border-radius:9px;padding:10px 12px;margin-top:10px;font-size:12px;line-height:1.5}
         .modo-suma-aviso strong{color:#256029}
-        /* V12: maestro auxiliar productos_agregados */
-        .producto-nuevo-aviso{grid-column:1/-1;background:#eef8ff;border:1px solid #b9dcf5;border-radius:10px;padding:11px 13px;font-size:11px;line-height:1.5;display:none}
-        .producto-nuevo-aviso.visible{display:block}
-        .origen-producto-badge{display:inline-block;padding:3px 7px;border-radius:10px;background:#e8f5e9;color:#256029;font-size:9px;font-weight:800;margin-left:5px}
-        .btn-productos-aux{background:#607d8b}.btn-productos-aux:hover{background:#546e7a}
-        .aux-lista{max-height:420px;overflow:auto;border:1px solid #eee;border-radius:8px}
-        .aux-row{display:grid;grid-template-columns:1.5fr 1fr 100px 100px;gap:8px;padding:9px;border-bottom:1px solid #eee;font-size:11px;align-items:center}
-        .aux-row:nth-child(even){background:#fafafa}
-        @media(max-width:700px){.aux-row{grid-template-columns:1fr 1fr}}
+
         /* V11: alertas, buscador de movimientos y resumen por ubicación */
         .resumen-ubicaciones{display:grid;grid-template-columns:repeat(auto-fit,minmax(175px,1fr));gap:10px;margin:12px 0 18px}
         .resumen-ubi-card{background:#fff;border:1px solid #e9ecef;border-radius:10px;padding:12px;box-shadow:0 2px 8px rgba(0,0,0,.04)}
@@ -293,8 +285,38 @@
         .item-chip{display:inline-block;background:#e8f5e9;color:#256029;border-radius:12px;padding:4px 9px;font-size:10px;font-weight:800;margin-bottom:8px}
         .item-form-section{grid-column:1/-1;background:#f8f9fa;border:1px solid #e9ecef;border-radius:9px;padding:10px 12px;font-size:12px;font-weight:800;color:#34495e;margin-top:4px}
         .item-file-note{font-size:10px;color:#6c757d;margin-top:4px;line-height:1.35}
-        #btnProductosAgregados{display:none!important}
         @media(max-width:700px){.item-main-actions{grid-template-columns:1fr}}
+
+        /* V17: experiencia móvil real - iPhone 12 normal (390x844 CSS px) + escritorio */
+        html{-webkit-text-size-adjust:100%;text-size-adjust:100%}
+        button,input,select,textarea{touch-action:manipulation}
+        @media (max-width:430px){
+            body{padding:8px;background:#f3f5f8}
+            .container{padding:13px 11px;border-radius:10px;margin-bottom:10px}
+            h1{font-size:20px;line-height:1.25}.subtitulo{font-size:13px;margin-bottom:14px}
+            h2{font-size:17px;margin:16px 0 12px}
+            .user-bar{padding:10px 12px;margin-bottom:10px;gap:8px}.user-bar-info{font-size:13px;gap:7px}.btn-logout{padding:10px 12px}
+            .form-grid{grid-template-columns:1fr!important;gap:12px;padding:13px}
+            .form-group,.form-group.full{grid-column:1!important}
+            label{font-size:14px;line-height:1.3;margin-bottom:7px}
+            input,select,textarea{font-size:16px!important;min-height:48px;padding:12px 11px;border-radius:9px}
+            textarea{min-height:90px}
+            button,.modal-btn{min-height:48px;font-size:15px;padding:12px 14px}
+            .item-main-actions{grid-template-columns:1fr;gap:10px}.item-action-card{padding:14px}.item-action-card h3{font-size:16px}.item-action-card p{font-size:13px}
+            .btn-crear-item{font-size:16px;min-height:54px;padding:14px}
+            .guia-registro{padding:12px}.guia-registro h3{font-size:15px}.guia-paso{font-size:12px}.guia-paso strong{font-size:13px}
+            .campo-ayuda,.campo-alerta,.item-file-note{font-size:12px;line-height:1.45}
+            .autocomplete-list{max-height:45vh}.autocomplete-item{padding:11px 9px;gap:9px}.autocomplete-item-img{width:48px;height:48px}.autocomplete-item-nombre{font-size:13px}.autocomplete-item-seccion{font-size:11px}
+            .modal-overlay{padding:0;align-items:flex-end}.modal-card{width:100%;max-width:none;max-height:94vh;border-radius:16px 16px 0 0}.modal-header{padding:14px 15px;border-radius:16px 16px 0 0}.modal-header h3{font-size:16px}.modal-body{padding:14px}.modal-footer{padding:11px;display:grid;grid-template-columns:1fr;gap:8px}.modal-footer .modal-btn{width:100%;justify-content:center}
+            .preview{align-items:flex-start}.preview img{max-width:82px;max-height:82px}
+            .stats-grid{grid-template-columns:1fr 1fr;gap:8px}.stat-card{padding:12px}.stat-value{font-size:22px}.stat-label{font-size:10px}
+            .filtros-bar{grid-template-columns:1fr!important;padding:12px;gap:9px}.filtro-btn-limpiar{width:100%;min-height:44px;justify-content:center}
+            .ubicaciones-panel{padding:12px;margin:12px 0}.ubicacion-card{min-width:82vw}
+            .tabla-container{border-radius:8px}.tabla-scroll{-webkit-overflow-scrolling:touch}.tabla-header{padding:11px 12px}.tabla-header-botones{width:100%}.recargar-btn,.pdf-btn{flex:1;justify-content:center;min-height:42px}
+            th{font-size:10px;padding:10px 7px}td{font-size:11px;padding:9px 7px}.img-tabla,.sin-foto{width:42px;height:42px}
+            .notification-container{left:8px;right:8px;top:8px}.notification{max-width:calc(100vw - 16px);font-size:13px}
+            .login-card{padding:24px 18px}.login-card input{font-size:16px}.login-card button{min-height:52px}
+        }
 
     </style>
 </head>
@@ -492,8 +514,7 @@
                     <button type="button" class="btn-entrada" id="btnEntradaExterna"><i class="fas fa-plus-circle"></i> Entrada externa / compra</button>
                     <button type="button" class="btn-ajuste solo-admin" id="btnAjustarStock"><i class="fas fa-balance-scale"></i> Ajustar stock</button>
                     <button type="button" class="btn-info" id="btnHistorialProducto"><i class="fas fa-history"></i> Historial de producto</button>
-                    <button type="button" class="btn-productos-aux" id="btnProductosAgregados"><i class="fas fa-box-open"></i> Productos agregados</button>
-                </div>
+</div>
             </div>
             <div class="ubicaciones-slider" id="ubicacionesSlider"></div>
         </div>
@@ -788,17 +809,6 @@
 
 
 
-<!-- ============ MODAL PRODUCTOS AGREGADOS ============ -->
-<div class="modal-overlay" id="modalProductosAgregados">
-  <div class="modal-card" style="max-width:900px">
-    <div class="modal-header"><h3><i class="fas fa-box-open"></i> Productos agregados</h3><button class="modal-close" id="cerrarProductosAgregadosBtn">&times;</button></div>
-    <div class="modal-body">
-      <div style="font-size:12px;line-height:1.55;margin-bottom:10px">Estos productos todavía no dependen del Catálogo oficial. Sirven como maestro auxiliar para que Stock y, después, Ventas puedan reconocerlos sin volver a crearlos.</div>
-      <div class="mov-buscador"><input id="buscarProductoAux" placeholder="Buscar por nombre o sección..."></div>
-      <div id="listaProductosAgregados" class="aux-lista"><div style="padding:18px;text-align:center;color:#888">Cargando...</div></div>
-    </div>
-  </div>
-</div>
 
 <!-- ============ MODAL HISTORIAL POR PRODUCTO ============ -->
 <div class="modal-overlay" id="modalHistorialProducto">
@@ -962,9 +972,6 @@
     const SHEET_UBICACIONES = 'ubicaciones';
     const SHEET_STOCK = 'stock';
     const SHEET_MOVIMIENTOS = 'movimientos';
-    const SHEET_PRODUCTOS_AGREGADOS = 'productos_agregados';
-    const PRODUCTOS_AGREGADOS_GID = '359082301';
-    let productosAgregados = [];
 
     // 🔐 USUARIOS
     const USUARIOS_ID = '1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok';
@@ -2144,71 +2151,8 @@
         });
         return {actual,antes:{c:ac,p:ap,u:au},nuevo:{c:nc,p:np,u:nu},ref};
     }
-
-    // ============================================================
-    // 🧾 PRODUCTOS AGREGADOS - maestro auxiliar
-    // ============================================================
     function normalizarMayus(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');}
-    function idProductoAux(){return 'PROD-'+Date.now()+'-'+Math.random().toString(36).slice(2,6).toUpperCase();}
-    async function cargarProductosAgregados(){
-        try{
-            const url=`https://docs.google.com/spreadsheets/d/${INVENTARIO_SHEET_ID}/gviz/tq?tqx=out:csv&gid=${PRODUCTOS_AGREGADOS_GID}&_=${Date.now()}`;
-            const r=await fetch(url); if(!r.ok)throw new Error('No se pudo leer productos_agregados');
-            const rows=parseCsvSimple(await r.text());
-            if(rows.length<1){productosAgregados=[];return;}
-            const hs=rows[0].map(h=>h.trim().toLowerCase());
-            productosAgregados=rows.slice(1).filter(a=>a.some(Boolean)).map(a=>Object.fromEntries(hs.map((h,i)=>[h,a[i]||''])));
-            renderProductosAgregados();
-        }catch(e){console.warn('productos_agregados:',e);productosAgregados=[];}
-    }
-    function existeProductoAux(nombre){
-        const n=normalizarMayus(nombre);
-        return productosAgregados.find(p=>normalizarMayus(p.nombre)===n && normalizarMayus(p.estado||'ACTIVO')!=='INACTIVO');
-    }
-    function existeProductoStock(nombre){
-        const n=normalizarMayus(nombre);
-        return todosProductos.find(p=>normalizarMayus(getNombre(p))===n);
-    }
-    async function guardarProductoAuxiliar(data){
-        if(existeProductoAux(data.nombre))return existeProductoAux(data.nombre);
-        const aux={
-          id_producto:idProductoAux(),
-          nombre:normalizarMayus(data.nombre),
-          seccion:normalizarMayus(data.seccion),
-          imagen:String(data.imagen||'').trim(),
-          unidades_por_paquete:String(data.unidades_por_paquete||''),
-          paquetes_por_caja:String(data.paquetes_por_caja||''),
-          fecha_creacion:obtenerFechaHoraBolivia(),
-          usuario:currentUser.username,
-          estado:'ACTIVO'
-        };
-        const r=await fetch(`${API_URL}?sheet=${encodeURIComponent(SHEET_PRODUCTOS_AGREGADOS)}`,{
-          method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data:aux})
-        });
-        if(!r.ok)throw new Error('No se pudo crear el producto auxiliar');
-        productosAgregados.push(aux); renderProductosAgregados(); return aux;
-    }
-    function renderProductosAgregados(){
-        const out=document.getElementById('listaProductosAgregados'); if(!out)return;
-        const q=normalizarMayus(document.getElementById('buscarProductoAux')?.value||'');
-        const arr=productosAgregados.filter(p=>!q||normalizarMayus(p.nombre).includes(q)||normalizarMayus(p.seccion).includes(q));
-        out.innerHTML=arr.length?arr.map(p=>`<div class="aux-row">
-          <div><strong>${p.nombre||''}</strong><br><small>${p.id_producto||''}</small></div>
-          <div>${p.seccion||''}</div>
-          <div>${p.unidades_por_paquete||'—'} U/P</div>
-          <div>${p.estado||'ACTIVO'}</div>
-        </div>`).join(''):'<div style="padding:18px;text-align:center;color:#888">No hay productos agregados que coincidan.</div>';
-    }
-    function abrirProductosAgregados(){renderProductosAgregados();document.getElementById('modalProductosAgregados').classList.add('active');}
-    function cerrarProductosAgregados(){document.getElementById('modalProductosAgregados').classList.remove('active');}
-    function evaluarProductoNuevo(){
-        const input=document.getElementById('nombre'); const aviso=document.getElementById('avisoProductoNuevo'); if(!input||!aviso)return;
-        const n=normalizarMayus(input.value);
-        if(!n){aviso.classList.remove('visible');return;}
-        // Si ya está en Stock o en productos_agregados, no hace falta volver a crearlo.
-        const conocido=existeProductoStock(n)||existeProductoAux(n);
-        aviso.classList.toggle('visible',!conocido);
-    }
+
 
     // ============================================================
     // 📊 RESUMEN POR UBICACIÓN + ALERTAS DE STOCK
@@ -2514,7 +2458,6 @@
         dataObj.fecha_de_agregacion=obtenerFechaHoraBolivia();
         dataObj.fecha_de_edicion='';
         if(!esAdmin())delete dataObj.precio_de_compra_china;
-        dataObj.__crear_auxiliar = false; // V14: ITEMS reemplaza definitivamente productos_agregados
         return dataObj;
     }
 
@@ -2556,7 +2499,6 @@
         const btn=document.getElementById('guardarRegistroConfirmadoBtn');
         btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Registrando...';
         try{
-            // V14: no se crea maestro auxiliar; los nuevos productos nacen en ITEMS desde el modal Crear nuevo item.
             // Regla V13: si el mismo producto ya existe en la misma ubicación,
             // este formulario representa un HALLAZGO ADICIONAL, no un reemplazo.
             // Se relee Google Sheets justo antes de sumar para reducir choques entre dos personas.
@@ -2906,10 +2848,6 @@
     document.getElementById('btnEntradaExterna').addEventListener('click',abrirEntradaExterna);
     document.getElementById('btnAjustarStock').addEventListener('click',()=>{if(!esAdmin()){Notificaciones.mostrar('Ajustar stock es solo para administrador.','warning');return;}abrirAjustarStock();});
     document.getElementById('btnHistorialProducto').addEventListener('click',abrirHistorialProducto);
-    document.getElementById('btnProductosAgregados').addEventListener('click',abrirProductosAgregados);
-    document.getElementById('cerrarProductosAgregadosBtn').addEventListener('click',cerrarProductosAgregados);
-    document.getElementById('modalProductosAgregados').addEventListener('click',e=>{if(e.target===e.currentTarget)cerrarProductosAgregados();});
-    document.getElementById('buscarProductoAux').addEventListener('input',renderProductosAgregados);
     document.getElementById('nombre').addEventListener('input',()=>{evaluarProductoNuevo();});
     document.getElementById('nombre').addEventListener('blur',()=>{
         const n=document.getElementById('nombre'); n.value=normalizarMayus(n.value);
@@ -2917,8 +2855,6 @@
         evaluarProductoNuevo();
     });
     document.getElementById('seccion').addEventListener('blur',e=>e.target.value=normalizarMayus(e.target.value));
-    cargarProductosAgregados();
-
     document.getElementById('cerrarHistorialProductoBtn').addEventListener('click',cerrarHistorialProducto);
     document.getElementById('ejecutarBuscarMovimientos').addEventListener('click',buscarMovimientosProducto);
     document.getElementById('buscarMovimientoProducto').addEventListener('keydown',e=>{if(e.key==='Enter')buscarMovimientosProducto();});
@@ -2954,7 +2890,7 @@
         document.querySelector('input[name="pdfOpcion"][value="seleccionados"]').closest('.pdf-opcion').classList.add('selected');
     });
     document.addEventListener('keydown', function(e) {
-        if (e.key === 'Escape') { cerrarCrearItem(); cerrarModalEdicion(); cerrarModalPdf(); cerrarModalTraspaso(); cerrarTraspasoMultiple(); cerrarEntradaExterna(); cerrarAjustarStock(); cerrarConfirmarRegistro(); cerrarHistorialProducto(); cerrarProductosAgregados(); document.getElementById('modalUbicaciones').classList.remove('active'); document.getElementById('modalComoFunciona').classList.remove('active'); document.getElementById('lightbox').classList.remove('active'); autocompleteList.classList.remove('active'); }
+        if (e.key === 'Escape') { cerrarCrearItem(); cerrarModalEdicion(); cerrarModalPdf(); cerrarModalTraspaso(); cerrarTraspasoMultiple(); cerrarEntradaExterna(); cerrarAjustarStock(); cerrarConfirmarRegistro(); cerrarHistorialProducto(); document.getElementById('modalUbicaciones').classList.remove('active'); document.getElementById('modalComoFunciona').classList.remove('active'); document.getElementById('lightbox').classList.remove('active'); autocompleteList.classList.remove('active'); }
     });
     document.getElementById('recargarTablaBtn').addEventListener('click', async function() {
         this.disabled = true;
