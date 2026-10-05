@@ -1748,7 +1748,7 @@ function filaVentaDesdeCSV(headers, vals) {
     };
     return {
         id: get('id'),
-        nombre_cliente: (get('nombre_cliente') || get('nombre') || '').trim() || 'Cliente General',
+        nombre_cliente: (get('nombre_cliente') || get('nombre') || get('id') || '').trim() || 'Cliente General',
         fecha: get('fecha'),
         hora: get('hora'),
         sucursal: get('sucursal'),
@@ -1772,7 +1772,7 @@ function filaVentaDesdeCSV(headers, vals) {
         departamento: get('departamento'),
         telefono: get('telefono'),
         cumpleaños: get('cumpleaños','cumpleanos'),
-        nombre_cliente: get('nombre_cliente','nombre')
+        nombre_cliente: (get('nombre_cliente') || get('nombre') || get('id') || '').trim() || 'Cliente General'
     };
 }
 
