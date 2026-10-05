@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V20 · STOCK V18 · Stock V14 - Todoenuno_store</title>
+    <title>V21 · STOCK V18 · Stock V14 - Todoenuno_store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -318,7 +318,17 @@
             .login-card{padding:24px 18px}.login-card input{font-size:16px}.login-card button{min-height:52px}
         }
 
-    </style>
+    
+        /* V21: selector propio para evitar el datalist gigante de Safari/iPhone */
+        .item-seccion-combo{position:relative;width:100%}
+        .item-secciones-sugerencias{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:10050;background:#fff;border:1px solid #cfd8e3;border-radius:10px;box-shadow:0 8px 22px rgba(0,0,0,.16);max-height:190px;overflow-y:auto;padding:4px}
+        .item-secciones-sugerencias.active{display:block}
+        .item-seccion-sugerencia{display:block;width:100%;min-height:42px;margin:0;padding:9px 11px;text-align:left;background:#fff;color:#263746;border:0;border-bottom:1px solid #eef1f4;border-radius:6px;font-size:13px;font-weight:700;line-height:1.25;box-shadow:none}
+        .item-seccion-sugerencia:last-child{border-bottom:0}
+        .item-seccion-sugerencia:hover,.item-seccion-sugerencia:focus{background:#f3f7fb;transform:none}
+        @media(max-width:430px){.item-secciones-sugerencias{max-height:155px}.item-seccion-sugerencia{font-size:14px;min-height:44px;padding:10px}}
+
+</style>
 </head>
 <body>
 
@@ -920,7 +930,7 @@
 </div>
 
 
-<!-- ============ V20 MODAL CREAR NUEVO ITEM ============ -->
+<!-- ============ V21 MODAL CREAR NUEVO ITEM ============ -->
 <div class="modal-overlay" id="modalCrearItem">
   <div class="modal-card" style="max-width:920px">
     <div class="modal-header"><h3><i class="fas fa-circle-plus"></i> Crear nuevo item</h3><button class="modal-close" id="cerrarCrearItemBtn">&times;</button></div>
@@ -928,7 +938,7 @@
       <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:9px;padding:11px 13px;font-size:12px;line-height:1.5;margin-bottom:14px"><strong>Primero verificaremos que no exista.</strong> Este formulario crea el producto maestro. Después volverás automáticamente a Stock para registrar su primera cantidad física.</div>
       <form id="formCrearItem" class="form-grid" novalidate>
         <div class="item-form-section">1 · Identidad del producto</div>
-        <div class="form-group"><label>Sección <span class="req">*</span></label><input id="itemSeccion" required list="itemSeccionesExistentes" placeholder="Ej: PILAS" style="text-transform:uppercase"><datalist id="itemSeccionesExistentes"></datalist><span class="item-file-note">Puedes elegir una sección existente o escribir una nueva. Si encontramos una parecida, te ayudaremos a revisarla antes de continuar.</span></div>
+        <div class="form-group"><label>Sección <span class="req">*</span></label><div class="item-seccion-combo"><input id="itemSeccion" required autocomplete="off" placeholder="Ej: PILAS" style="text-transform:uppercase"><div id="itemSeccionesSugerencias" class="item-secciones-sugerencias"></div></div><span class="item-file-note">Escribe la sección. Te mostraremos pocas coincidencias debajo; si ninguna corresponde, puedes continuar creando una nueva.</span></div>
         <div class="form-group"><label>Nombre <span class="req">*</span></label><input id="itemNombre" required placeholder="Nombre único del producto" style="text-transform:uppercase"></div>
         <div class="item-form-section">2 · Presentación comercial</div>
         <div class="form-group"><label>Precio de paquete</label><input type="number" id="itemPrecioPaquete" min="0" step="0.01" placeholder="Bs"></div>
@@ -2470,7 +2480,7 @@
 
 
     // ============================================================
-    // 🧠 V20 - CREAR ITEM MAESTRO DESDE STOCK · GUÍA SECCIÓN + PRODUCTO
+    // 🧠 V21 - CREAR ITEM MAESTRO DESDE STOCK · GUÍA SECCIÓN + PRODUCTO
     // ============================================================
     function normalizarItemClave(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');}
     let itemSeleccionadoMaestro=null;
@@ -2479,7 +2489,23 @@
     let seccionNuevaConfirmada='';
 
     function seccionesItemExistentes(){return [...new Set(catalogoProductos.map(p=>normalizarItemClave(p.seccion)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));}
-    function refrescarSeccionesCrearItem(){const dl=document.getElementById('itemSeccionesExistentes');if(dl)dl.innerHTML=seccionesItemExistentes().map(x=>`<option value="${x.replace(/"/g,'&quot;')}"></option>`).join('');}
+    function refrescarSeccionesCrearItem(){renderSugerenciasSeccionItem();}
+    function escaparHtmlItem(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
+    function renderSugerenciasSeccionItem(){
+        const input=document.getElementById('itemSeccion'), box=document.getElementById('itemSeccionesSugerencias'); if(!input||!box)return;
+        const q=normalizarItemClave(input.value);
+        if(!q){box.classList.remove('active');box.innerHTML='';return;}
+        const matches=seccionesItemExistentes().filter(x=>normalizarItemClave(x).includes(q)).slice(0,5);
+        if(!matches.length){box.classList.remove('active');box.innerHTML='';return;}
+        box.innerHTML=matches.map(x=>`<button type="button" class="item-seccion-sugerencia" data-seccion="${escaparHtmlItem(x)}">${escaparHtmlItem(x)}</button>`).join('');
+        box.classList.add('active');
+    }
+    function seleccionarSugerenciaSeccionItem(valor){
+        const input=document.getElementById('itemSeccion'), box=document.getElementById('itemSeccionesSugerencias');
+        input.value=String(valor||'').toLocaleUpperCase('es-BO'); box.classList.remove('active'); box.innerHTML='';
+        seccionNuevaConfirmada=''; itemDiferenteConfirmado=false; revisarSeccionNueva(false); revisarDuplicadoItem();
+        document.getElementById('itemNombre').focus();
+    }
     function buscarItemMaestroExacto(nombre,seccion=''){
         const n=normalizarItemClave(nombre), sec=normalizarItemClave(seccion);
         return catalogoProductos.find(p=>normalizarItemClave(p.nombre)===n && (!sec || normalizarItemClave(p.seccion)===sec));
@@ -2614,7 +2640,7 @@
               disponibilidadPaquete:document.getElementById('itemDispPaquete').value, precioUnidad:document.getElementById('itemPrecioUnidad').value.trim(),
               cantidadUnidad:document.getElementById('itemCantidadUnidad').value.trim(), disponibilidadUnidad:document.getElementById('itemDispUnidad').value,
               imagenOriginal};
-            // No enviamos una restricción de rol: la vendedora puede crear una sección NUEVA después de la advertencia guiada V20.
+            // No enviamos una restricción de rol: la vendedora puede crear una sección NUEVA después de la advertencia guiada V21.
             const resp=await postItemsJSON(payload);
             if(!resp || resp.ok!==true) throw new Error((resp&&resp.error)||'ITEMS no confirmó la creación.');
             Notificaciones.mostrar(`✅ ITEM CREADO: ${nombre} · SECCIÓN: ${seccion}`,'success',8000);
@@ -2640,8 +2666,11 @@
     document.getElementById('guardarNuevoItemBtn').addEventListener('click',guardarNuevoItemDesdeStock); document.getElementById('usarItemParecidoBtn').addEventListener('click',seleccionarItemParecidoParaStock);
     document.getElementById('confirmarItemDiferenteBtn').addEventListener('click',confirmarItemComoDiferente);
     document.getElementById('itemNombre').addEventListener('input',e=>{mayusculasItemInput(e);revisarDuplicadoItem();});
-    document.getElementById('itemSeccion').addEventListener('input',e=>{mayusculasItemInput(e);seccionNuevaConfirmada='';document.getElementById('itemSeccionAviso').style.display='none';document.getElementById('itemSeccionAcciones').style.display='none';});
-    document.getElementById('itemSeccion').addEventListener('blur',()=>{if(document.getElementById('itemSeccion').value)revisarSeccionNueva(true);});
+    document.getElementById('itemSeccion').addEventListener('input',e=>{mayusculasItemInput(e);seccionNuevaConfirmada='';document.getElementById('itemSeccionAviso').style.display='none';document.getElementById('itemSeccionAcciones').style.display='none';renderSugerenciasSeccionItem();});
+    document.getElementById('itemSeccion').addEventListener('focus',renderSugerenciasSeccionItem);
+    document.getElementById('itemSeccion').addEventListener('blur',()=>{setTimeout(()=>{if(document.getElementById('itemSeccion').value)revisarSeccionNueva(true);},180);});
+    document.getElementById('itemSeccionesSugerencias').addEventListener('click',e=>{const b=e.target.closest('.item-seccion-sugerencia');if(b)seleccionarSugerenciaSeccionItem(b.dataset.seccion);});
+    document.addEventListener('click',e=>{if(!e.target.closest('.item-seccion-combo')){const b=document.getElementById('itemSeccionesSugerencias');if(b)b.classList.remove('active');}});
     document.getElementById('modalCrearItem').addEventListener('click',e=>{if(e.target===e.currentTarget)cerrarCrearItem();});
 
     // ============================================================
