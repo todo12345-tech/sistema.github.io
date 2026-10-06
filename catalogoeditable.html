@@ -1071,6 +1071,34 @@
 }
 </style>
 
+
+<style id="teus-ajustes-finales-solicitados">
+@media (max-width:768px){
+  /* 1) Botón flotante del carrito: más abajo, a la altura del contenido/slider */
+  #cartToggleBtn{
+    bottom:auto !important;
+    top:150px !important;
+  }
+
+  /* 2) Proceder a pagar: se mantiene visible al subir por el carrito */
+  #floatingCheckoutBtn{
+    position:fixed !important;
+    top:150px !important;
+    right:10px !important;
+    bottom:auto !important;
+    z-index:10001 !important;
+  }
+
+  /* 3) Espacio extra al final para que WhatsApp no quede detrás de ← → ↻ */
+  .teus-inline-checkout{
+    padding-bottom:100px !important;
+  }
+  .teus-inline-final{
+    margin-bottom:38px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
