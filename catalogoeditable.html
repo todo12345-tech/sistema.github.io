@@ -1318,6 +1318,247 @@ body.admin-mode .admin-original-reference::before{
 }
 </style>
 
+
+<style id="teus-admin-home-estados-reales">
+/* ESTADOS REALES EN LA PORTADA ADMIN */
+#categoriesGrid .grid-item.admin-home-falta-editada{
+  background:#fff2a8 !important;
+  box-shadow:inset 0 0 0 3px #f1c400 !important;
+  border-radius:8px;
+  padding:5px !important;
+}
+#categoriesGrid .grid-item.admin-home-falta-editada::after{
+  content:"FALTA FOTO EDITADA";
+  display:block;
+  color:#6b5100;
+  font-size:9px;
+  font-weight:900;
+  line-height:1.1;
+  margin-top:4px;
+}
+
+#categoriesGrid .grid-item.admin-home-sin-stock{
+  background:#ffe1e1 !important;
+  box-shadow:inset 0 0 0 3px #e11d48 !important;
+  border-radius:8px;
+  padding:5px !important;
+}
+#categoriesGrid .grid-item.admin-home-sin-stock::after{
+  content:"SIN STOCK";
+  display:block;
+  color:#b00020;
+  font-size:10px;
+  font-weight:900;
+  line-height:1.1;
+  margin-top:4px;
+}
+#categoriesGrid .grid-item.admin-home-sin-stock .admin-home-full-name{
+  color:#b00020 !important;
+  text-decoration:underline;
+  text-decoration-color:#e11d48;
+  text-decoration-thickness:2px;
+}
+
+#categoriesGrid .grid-item.admin-home-original-ref{
+  position:relative;
+}
+#categoriesGrid .grid-item.admin-home-original-ref::before{
+  content:"ORIGINAL";
+  position:absolute;
+  top:3px;
+  left:3px;
+  z-index:4;
+  background:#f1c400;
+  color:#342800;
+  border-radius:4px;
+  padding:2px 4px;
+  font-size:7px;
+  font-weight:900;
+}
+
+/* NOMBRE COMPLETO: nada de ... en la portada ADMIN */
+#categoriesGrid .admin-home-full-name{
+  display:block !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  max-height:none !important;
+  height:auto !important;
+  line-height:1.15 !important;
+  word-break:break-word !important;
+}
+
+/* Imagen original usada solo como referencia ADMIN si falta editada */
+#categoriesGrid .admin-home-falta-editada img{
+  opacity:.9;
+}
+
+#categoriesGrid .admin-home-no-photo{
+  min-height:120px;
+  width:100%;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  gap:5px;
+  background:#fff2a8;
+  color:#6b5100;
+  font-weight:800;
+  font-size:10px;
+}
+#categoriesGrid .admin-home-no-photo i{
+  font-size:22px;
+}
+</style>
+
+
+<style id="teus-admin-home-color-fuerte-v3">
+#categoriesGrid .grid-item.admin-home-falta-editada{
+  background:#ffe66a !important;
+  border:3px solid #e0b400 !important;
+  box-shadow:0 0 0 2px rgba(224,180,0,.16) !important;
+}
+#categoriesGrid .grid-item.admin-home-sin-stock{
+  background:#ffb3b3 !important;
+  border:3px solid #d71920 !important;
+  box-shadow:0 0 0 2px rgba(215,25,32,.15) !important;
+}
+#categoriesGrid .grid-item.admin-home-sin-stock::after{
+  background:#d71920;
+  color:#fff;
+  padding:3px 5px;
+  border-radius:4px;
+  width:max-content;
+  max-width:100%;
+}
+#categoriesGrid .grid-item.admin-home-falta-editada::after{
+  background:#e0b400;
+  color:#2f2600;
+  padding:3px 5px;
+  border-radius:4px;
+  width:max-content;
+  max-width:100%;
+}
+</style>
+
+
+<style id="teus-admin-panel-visual-completo-v4">
+/* NARANJA = tiene stock + foto editada, pero NO está publicado */
+#categoriesGrid .grid-item.admin-home-no-publicado{
+  background:#ffe0a8 !important;
+  border:3px solid #f59e0b !important;
+  box-shadow:0 0 0 2px rgba(245,158,11,.15) !important;
+  border-radius:8px;
+  padding:5px !important;
+}
+
+/* Datos administrativos visibles sin entrar al producto */
+#categoriesGrid .admin-home-status{
+  display:flex;
+  flex-direction:column;
+  align-items:stretch;
+  gap:2px;
+  width:100%;
+  margin-top:5px;
+  font-size:7px;
+  font-weight:900;
+  line-height:1.15;
+}
+#categoriesGrid .admin-home-status span{
+  display:block;
+  padding:2px 3px;
+  border-radius:3px;
+  text-align:center;
+  white-space:normal;
+}
+#categoriesGrid .admin-home-status .ok{
+  background:#dcfce7;
+  color:#166534;
+}
+#categoriesGrid .admin-home-status .off{
+  background:#ffedd5;
+  color:#9a3412;
+}
+#categoriesGrid .admin-home-status .bad{
+  background:#dc2626;
+  color:#fff;
+}
+#categoriesGrid .admin-home-status .warn{
+  background:#facc15;
+  color:#422006;
+}
+
+/* Evitar etiquetas duplicadas antiguas: los tres datos de arriba ya explican el estado */
+#categoriesGrid .grid-item.admin-home-falta-editada::after,
+#categoriesGrid .grid-item.admin-home-sin-stock::after{
+  display:none !important;
+}
+
+/* Rojo sigue siendo prioridad visual absoluta */
+#categoriesGrid .grid-item.admin-home-sin-stock{
+  background:#ffb3b3 !important;
+  border:3px solid #d71920 !important;
+}
+
+/* Amarillo: stock sí, pero falta editada */
+#categoriesGrid .grid-item.admin-home-falta-editada{
+  background:#ffe66a !important;
+  border:3px solid #e0b400 !important;
+}
+</style>
+
+
+<style id="teus-cart-slider-v5">
+/* Carrito lateral como slider: oculto completamente si está vacío */
+#cartSidebar{
+  transition:transform .28s ease, opacity .22s ease, visibility .22s ease !important;
+  will-change:transform;
+}
+#cartSidebar.teus-cart-empty{
+  transform:translateX(calc(100% + 30px)) !important;
+  opacity:0 !important;
+  visibility:hidden !important;
+  pointer-events:none !important;
+}
+#cartSidebar.teus-cart-has-items{
+  visibility:visible !important;
+  opacity:1 !important;
+}
+
+/* En móvil mantiene el comportamiento lateral derecho */
+@media (max-width:768px){
+  #cartSidebar.teus-cart-empty{
+    transform:translateX(calc(100% + 24px)) !important;
+  }
+}
+</style>
+
+
+<style id="teus-photo-picker-style">
+.admin-photo-picker-label{
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  margin-top:7px;
+  padding:9px 7px;
+  border-radius:8px;
+  background:#168f4e;
+  color:#fff;
+  text-align:center;
+  font-size:11px;
+  font-weight:800;
+  cursor:pointer;
+}
+.admin-photo-picker-label:hover{filter:brightness(.95)}
+.admin-photo-picker-name{
+  margin-top:4px;
+  font-size:9px;
+  font-weight:700;
+  color:#374151;
+  word-break:break-all;
+}
+</style>
+
 </head>
 <body>
 
@@ -2027,29 +2268,124 @@ function renderHero() {
 // ========== HOME ==========
 function renderHomeCards() {
     if (!homeCategoryOrder.length) return;
+
     const grouped = new Map();
-    allProducts.forEach(p => { if (!grouped.has(p.seccion)) grouped.set(p.seccion, []); grouped.get(p.seccion).push(p); });
+    allProducts.forEach(p => {
+        if (!grouped.has(p.seccion)) grouped.set(p.seccion, []);
+        grouped.get(p.seccion).push(p);
+    });
+
+    const homeState = (p) => {
+        if (!adminActual) {
+            return { cls:'', img:p.imagenEditada || p.imagen || '', original:false };
+        }
+
+        const edited = String(p.imagenEditada || '').trim();
+        const original = String(p.imagenOriginal || '').trim();
+        const available = !!p.dispPaquete;
+        const published = !!p.publicado;
+
+        let cls = '';
+        let label = '';
+
+        /* PRIORIDAD VISUAL:
+           ROJO = sin stock, esté publicado o no.
+           AMARILLO = tiene stock pero falta imagen editada.
+           NARANJA = tiene foto editada + stock, pero NO está publicado.
+           NORMAL = publicado + stock + foto editada. */
+        if (!available) {
+            cls = ' admin-home-sin-stock';
+            label = published ? 'PUBLICADO · SIN STOCK' : 'NO PUBLICADO · SIN STOCK';
+        } else if (!edited) {
+            cls = ' admin-home-falta-editada';
+            label = published ? 'PUBLICADO · FALTA FOTO EDITADA' : 'NO PUBLICADO · FALTA FOTO EDITADA';
+        } else if (!published) {
+            cls = ' admin-home-no-publicado';
+            label = 'NO PUBLICADO';
+        }
+
+        return {
+            cls,
+            label,
+            img: edited || original || '',
+            original: !edited && !!original,
+            published,
+            available,
+            hasEdited: !!edited,
+            hasOriginal: !!original
+        };
+    };
+    const homeProductHtml = (p) => {
+        const st = homeState(p);
+        const originalClass = st.original ? ' admin-home-original-ref' : '';
+        const imgHtml = st.img
+            ? `<img src="${escapeHtml(st.img)}" loading="lazy" alt="${escapeHtml(p.nombre)}">`
+            : `<div class="admin-home-no-photo"><i class="fas fa-image"></i><span>Sin imagen</span></div>`;
+
+        const statusHtml = adminActual ? `
+          <div class="admin-home-status">
+            <span class="${st.published ? 'ok' : 'off'}">${st.published ? '✓ PUBLICADO' : '○ NO PUBLICADO'}</span>
+            <span class="${st.available ? 'ok' : 'bad'}">${st.available ? '✓ CON STOCK' : '✕ SIN STOCK'}</span>
+            <span class="${st.hasEdited ? 'ok' : 'warn'}">${st.hasEdited ? '✓ FOTO EDITADA' : '⚠ FALTA FOTO EDITADA'}</span>
+          </div>` : '';
+
+        return `<div class="grid-item${st.cls}${originalClass}" title="${escapeHtml(p.nombre)}">
+            ${imgHtml}
+            <span class="admin-home-full-name">${escapeHtml(p.nombre)}</span>
+            ${statusHtml}
+        </div>`;
+    };
     let html = '';
+
     const addOfferBlock=(title,prods,tipo)=>{
-        const list=shuffleArray(prods.filter(p=>offerIsActive(p)&&p.imagen)).slice(0,4); if(!list.length)return;
+        const list=shuffleArray(prods.filter(p=>offerIsActive(p)&&p.imagen)).slice(0,4);
+        if(!list.length)return;
         html += `<div class="card offers-card" style="border:2px solid #febd69;cursor:pointer;" data-offer-type="${tipo}" onclick="showOfertasView(true,0,'${tipo}')"><h2>${title}</h2><div class="multi-grid">`;
-        list.forEach(p=>{html+=`<div class="grid-item"><img src="${escapeHtml(p.imagen)}" loading="lazy" alt="${escapeHtml(p.nombre)}"><span>${escapeHtml(p.nombre.length>30?p.nombre.slice(0,27)+'...':p.nombre)}</span><div class="savings-badge">${tipo==='semana'?'⚡ SEMANA':'🔥 HOY'} · -${offerDiscountPercent(p)}% · Bs ${p.precioOferta.toFixed(2)}</div></div>`});
+        list.forEach(p=>{
+            html+=`<div class="grid-item"><img src="${escapeHtml(p.imagen)}" loading="lazy" alt="${escapeHtml(p.nombre)}"><span>${escapeHtml(p.nombre)}</span><div class="savings-badge">${tipo==='semana'?'⚡ SEMANA':'🔥 HOY'} · -${offerDiscountPercent(p)}% · Bs ${p.precioOferta.toFixed(2)}</div></div>`;
+        });
         html+='</div></div>';
     };
+
     addOfferBlock('<i class="fas fa-fire"></i> OFERTAS DEL DÍA 🔥',allProducts.filter(p=>p.ofertaDia),'dia');
     addOfferBlock('<i class="fas fa-bolt"></i> OFERTAS DE LA SEMANA ⚡',allProducts.filter(p=>p.ofertaSemana),'semana');
-    homeCategoryOrder.forEach(cat=>{
-        const prods=grouped.get(cat)||[]; if(!prods.length)return; const productsToShow=shuffleArray(prods).slice(0,4); homeCache[cat]=productsToShow;
-        html+=`<div class="card" data-cat="${escapeHtml(cat)}"><h2>${escapeHtml(cat.toUpperCase())}</h2>`;
-        if(productsToShow.length===1) html+=`<img src="${escapeHtml(productsToShow[0].imagen)}" class="single-img" data-single-cat="${escapeHtml(cat)}" alt="${escapeHtml(productsToShow[0].nombre)}"><div class="grid-item"><span>${escapeHtml(productsToShow[0].nombre)}</span></div>`;
-        else {html+='<div class="multi-grid">';productsToShow.forEach(p=>html+=`<div class="grid-item"><img src="${escapeHtml(p.imagen)}" loading="lazy" alt="${escapeHtml(p.nombre)}"><span>${escapeHtml(p.nombre.length>30?p.nombre.slice(0,27)+'...':p.nombre)}</span></div>`);html+='</div>';} html+='</div>';
-    });
-    const grid=document.getElementById('categoriesGrid'); grid.innerHTML=html||'<div style="text-align:center;grid-column:1/-1;">No hay productos</div>';
-    grid.querySelectorAll('.card[data-cat]').forEach(card=>card.addEventListener('click',()=>navigateToCategory(card.dataset.cat)));
-    /* Las tarjetas de ofertas usan onclick directo para navegación robusta. */
-    grid.querySelectorAll('.single-img[data-single-cat]').forEach(img=>img.addEventListener('click',e=>{e.stopPropagation();const p=homeCache[img.dataset.singleCat]?.[0];if(p)openProductModal(p)}));
-}
 
+    homeCategoryOrder.forEach(cat=>{
+        const prods=grouped.get(cat)||[];
+        if(!prods.length)return;
+
+        const productsToShow=shuffleArray(prods).slice(0,4);
+        homeCache[cat]=productsToShow;
+
+        html+=`<div class="card" data-cat="${escapeHtml(cat)}"><h2>${escapeHtml(cat.toUpperCase())}</h2>`;
+
+        if(productsToShow.length===1){
+            const p=productsToShow[0];
+            html+=homeProductHtml(p);
+        } else {
+            html+='<div class="multi-grid">';
+            productsToShow.forEach(p=>{ html+=homeProductHtml(p); });
+            html+='</div>';
+        }
+
+        html+='</div>';
+    });
+
+    const grid=document.getElementById('categoriesGrid');
+    grid.innerHTML=html||'<div style="text-align:center;grid-column:1/-1;">No hay productos</div>';
+
+    grid.querySelectorAll('.card[data-cat]').forEach(card=>
+        card.addEventListener('click',()=>navigateToCategory(card.dataset.cat))
+    );
+
+    grid.querySelectorAll('.single-img[data-single-cat]').forEach(img=>
+        img.addEventListener('click',e=>{
+            e.stopPropagation();
+            const p=homeCache[img.dataset.singleCat]?.[0];
+            if(p)openProductModal(p);
+        })
+    );
+}
 // ========== IMAGEN AMPLIADA ==========
 function openImageModal(imageUrl) {
     document.getElementById('lightboxImage').src = imageUrl;
@@ -2079,7 +2415,7 @@ async function adminPost(payload){
     payload.usuario=adminActual.usuario; payload.contrasena=adminActual.contrasena;
     const r=await fetch(ITEMS_WEBAPP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
     const txt=await r.text(); let data;
-    try{data=JSON.parse(txt)}catch(e){throw new Error('El Apps Script devolvió una respuesta inválida. Verifica que hayas desplegado el Code.gs V15.');}
+    try{data=JSON.parse(txt)}catch(e){throw new Error('El Apps Script devolvió una respuesta inválida. Verifica que hayas desplegado el Code.gs V16 corregido.');}
     if(!data.ok) throw new Error(data.error||'No se pudo realizar la operación.');
     return data;
 }
@@ -2094,7 +2430,15 @@ function adminEditorHtml(prod,i){
         <div class="admin-field"><label>Nombre</label><input class="adm-nombre" value="${escapeHtml(prod.nombre)}"></div>
         <div class="admin-field"><label>Precio paquete (Bs)</label><input class="adm-precio" type="number" step="0.01" value="${escapeHtml(prod.precioPaquete)}"></div>
         <div class="admin-field"><label>Cantidad / presentación del paquete</label><input class="adm-cantidad" value="${escapeHtml(prod.unidadesTexto)}"></div>
-        <div class="admin-field admin-edited-photo-field"><label>Imagen editada / actualizar foto pública (URL Drive)</label><input class="adm-imagen" value="${escapeHtml(prod.imagenEditadaRaw||'')}"></div>
+        <div class="admin-field admin-edited-photo-field">
+<label>Imagen editada / actualizar foto pública (URL Drive)</label>
+<input class="adm-imagen" value="${escapeHtml(prod.imagenEditadaRaw||'')}">
+<label class="admin-photo-picker-label">
+  <i class="fas fa-camera"></i> Agregar / actualizar foto
+  <input type="file" class="admin-photo-picker" accept="image/jpeg,image/png,image/webp" hidden>
+</label>
+<div class="admin-photo-picker-name"></div>
+</div>
         <div class="admin-field"><label>Hasta qué fecha</label><input class="adm-hasta" type="date" value="${escapeHtml((prod.hastaFecha||'').match(/^\d{4}-\d{2}-\d{2}$/)?prod.hastaFecha:'')}"></div>
         <div class="admin-field"><label>Precio especial de oferta (Bs)</label><input class="adm-precio-oferta" type="number" step="0.01" value="${prod.precioOferta||''}"></div>
       </div>
@@ -2112,19 +2456,91 @@ function adminEditorHtml(prod,i){
       </div>
     </div>`;
 }
+async function archivoAdminABase64(file){
+    return await new Promise((resolve,reject)=>{
+        const reader=new FileReader();
+        reader.onload=()=>resolve(String(reader.result||'').split(',')[1]||'');
+        reader.onerror=()=>reject(new Error('No se pudo leer la imagen seleccionada.'));
+        reader.readAsDataURL(file);
+    });
+}
 async function guardarAdminItem(i,box){
     const p=currentResults[i]; if(!p)return;
     const nombre=box.querySelector('.adm-nombre').value.trim();
     const precio=box.querySelector('.adm-precio').value.trim();
     const cantidad=box.querySelector('.adm-cantidad').value.trim();
-    const imagen=box.querySelector('.adm-imagen').value.trim();
+    const imagenInput=box.querySelector('.adm-imagen');
+    const fileInput=box.querySelector('.admin-photo-picker');
+    let imagen=imagenInput.value.trim();
+
     if(!nombre){alert('El nombre no puede quedar vacío.');return;}
-    const btn=box.querySelector('.admin-save'); const old=btn.innerHTML; btn.disabled=true; btn.textContent='Guardando...';
+
+    const btn=box.querySelector('.admin-save');
+    const old=btn.innerHTML;
+    btn.disabled=true;
+
     try{
-      await adminPost({accion:'editarCatalogoMayorista',seccionOriginal:p.seccion,nombreOriginal:p.nombre,seccion:p.seccion,nombre:p.nombre,nombreNuevo:nombre,precioPaquete:precio,cantidadPaquete:cantidad,dispPaquete:box.querySelector('.adm-disponible').checked?'si':'no',publicar:box.querySelector('.adm-publicar').checked?'si':'no',imagenEditada:imagen,ofertaDia:box.querySelector('.adm-oferta-dia').checked?'si':'no',ofertaSemana:box.querySelector('.adm-oferta-semana').checked?'si':'no',hastaFecha:box.querySelector('.adm-hasta').value,precioOferta:box.querySelector('.adm-precio-oferta').value});
-      await loadProducts(); showNotif('✅ Item actualizado');
+      // Si el ADMIN seleccionó una foto nueva, primero subirla a Drive
+      // y escribirla en imagen_editada mediante Code.gs V16.
+      const archivo=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
+      if(archivo){
+        if(!/^image\/(jpeg|png|webp)$/i.test(archivo.type||'')){
+          throw new Error('La foto debe ser JPG, PNG o WEBP.');
+        }
+        if(archivo.size>12*1024*1024){
+          throw new Error('La foto supera 12 MB.');
+        }
+
+        btn.textContent='Subiendo foto...';
+        const base64=await archivoAdminABase64(archivo);
+        const subida=await adminPost({
+          accion:'actualizarImagenEditada',
+          seccionOriginal:p.seccion,
+          nombreOriginal:p.nombre,
+          seccion:p.seccion,
+          nombre:p.nombre,
+          fileName:archivo.name,
+          mimeType:archivo.type,
+          base64:base64
+        });
+
+        imagen=subida.imagen_editada || subida.url || '';
+        if(!imagen) throw new Error('La foto se subió pero no recibí su enlace de Drive.');
+        imagenInput.value=imagen;
+      }
+
+      btn.textContent='Guardando...';
+      await adminPost({
+        accion:'editarCatalogoMayorista',
+        seccionOriginal:p.seccion,
+        nombreOriginal:p.nombre,
+        seccion:p.seccion,
+        nombre:p.nombre,
+        nombreNuevo:nombre,
+        precioPaquete:precio,
+        cantidadPaquete:cantidad,
+        dispPaquete:box.querySelector('.adm-disponible').checked?'si':'no',
+        publicar:box.querySelector('.adm-publicar').checked?'si':'no',
+        imagenEditada:imagen,
+        ofertaDia:box.querySelector('.adm-oferta-dia').checked?'si':'no',
+        ofertaSemana:box.querySelector('.adm-oferta-semana').checked?'si':'no',
+        hastaFecha:box.querySelector('.adm-hasta').value,
+        precioOferta:box.querySelector('.adm-precio-oferta').value
+      });
+
+      if(fileInput) fileInput.value='';
+      const nombreFoto=box.querySelector('.admin-photo-picker-name');
+      if(nombreFoto) nombreFoto.textContent='';
+
+      await loadProducts();
+      showNotif(archivo?'✅ Foto e item actualizados':'✅ Item actualizado');
       showResultsByCategory(p.seccion,false,window.scrollY);
-    }catch(e){alert(e.message);}finally{btn.disabled=false;btn.innerHTML=old;}
+    }catch(e){
+      alert(e.message);
+    }finally{
+      btn.disabled=false;
+      btn.innerHTML=old;
+    }
 }
 async function eliminarAdminItem(i,conFoto){
     const p=currentResults[i]; if(!p)return;
@@ -3044,10 +3460,9 @@ async function refreshCatalogFresh(force=false){
     }catch(e){ console.warn('Autoactualización del catálogo:',e); }
     finally{ teusAutoRefreshBusy=false; }
 }
-window.addEventListener('focus',()=>refreshCatalogFresh(false));
-document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshCatalogFresh(false); });
-setInterval(()=>{ if(!document.hidden) refreshCatalogFresh(false); },45000);
-
+// V8: navegación estable.
+ // La actualización del catálogo queda bajo el botón ↻ para evitar que un
+ // refresco automático reconstruya Inicio justo después de entrar a una categoría.
 init();
 </script>
 <script>
@@ -3065,52 +3480,6 @@ function limpiarFormularioLoginV7(){
   }catch(e){}
 }
 </script>
-<script id="teus-v11-cart-controller">
-(function(){
- let cart=null,handle=null,lastCount=null,manualClosed=false;
- function findCart(){
-   if(cart && document.body.contains(cart)) return cart;
-   const nodes=[...document.querySelectorAll('div,aside,section')];
-   cart=nodes.find(el=>{const t=(el.innerText||'').trim();const w=el.getBoundingClientRect().width;return t.startsWith('Mi Pedido')&&t.includes('Total:')&&w>180&&w<500;})||null;
-   return cart;
- }
- function count(){
-   if(!cart) return 0;
-   if((cart.innerText||'').includes('Carrito vacío')) return 0;
-   const top=[...document.querySelectorAll('[id*="cartCount"],[class*="cart-count"],[class*="cartCount"]')];
-   for(const el of top){const n=parseInt((el.textContent||'').trim(),10);if(Number.isFinite(n))return n;}
-   const rows=cart.querySelectorAll('.cart-item,.item-carrito,[data-cart-item]');
-   return rows.length||1;
- }
- function open(v){if(cart)cart.classList.toggle('open',!!v);}
- function tick(){
-   if(!findCart()) return;
-   cart.classList.add('teus-cart-v11');
-   // Clear inline styles left by older versions. CSS V11 now owns positioning.
-   ['position','right','left','top','bottom','width','maxWidth','margin','zIndex'].forEach(k=>cart.style[k]='');
-   document.querySelectorAll('.teus-catalog-reserved-v8').forEach(el=>{el.style.paddingRight='0';el.style.maxWidth='';});
-   handle=cart.querySelector('.teus-cart-v11-handle');
-   if(!handle){
-     handle=document.createElement('button');handle.type='button';handle.className='teus-cart-v11-handle';handle.setAttribute('aria-label','Abrir Mi Pedido');
-     handle.innerHTML='<span>🛒</span><span class="teus-cart-v11-count">0</span>';
-     handle.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();const will=!cart.classList.contains('open');manualClosed=!will;open(will);});
-     cart.appendChild(handle);
-   }
-   const n=count();
-   const badge=handle.querySelector('.teus-cart-v11-count');
-   if(badge && badge.textContent!==String(n)) badge.textContent=String(n);
-   if(lastCount===null){open(n>0);manualClosed=false;}
-   else if(n===0){open(false);manualClosed=false;}
-   else if(n>lastCount){open(true);manualClosed=false;}
-   lastCount=n;
- }
- window.addEventListener('load',function(){tick();setInterval(tick,1000);});
- window.addEventListener('resize',tick);
- setTimeout(tick,500);setTimeout(tick,1500);
-})();
-</script>
-
-
 <script id="teus-admin-general-state-helper">
 function teusAdminMiniState(prod){
   if(!prod) return {cls:'', img:'', original:false};
@@ -3253,6 +3622,83 @@ function teusAdminMiniState(prod){
 
   window.teusDecorateGeneralAdminCards=decorateGeneralAdminCards;
 })();
+</script>
+
+
+<script id="teus-cart-slider-controller-v5">
+(function(){
+  function teusCartCount(){
+    try{
+      if(typeof cart!=='undefined' && Array.isArray(cart)){
+        return cart.reduce(function(total,item){
+          return total + (Number(item && item.qty) || 0);
+        },0);
+      }
+    }catch(e){}
+    return 0;
+  }
+
+  function teusSyncCartSlider(){
+    var sidebar=document.getElementById('cartSidebar');
+    if(!sidebar) return;
+
+    var count=teusCartCount();
+    var empty=count<=0;
+
+    sidebar.classList.toggle('teus-cart-empty',empty);
+    sidebar.classList.toggle('teus-cart-has-items',!empty);
+
+    if(empty){
+      sidebar.classList.remove('open');
+      document.body.classList.remove('cart-open');
+    }
+  }
+
+  window.teusSyncCartSlider=teusSyncCartSlider;
+
+  window.addEventListener('DOMContentLoaded',function(){
+    teusSyncCartSlider();
+
+    /* Observa únicamente cambios del contenido del carrito.
+       Cuando se agrega/elimina el último producto, actualiza el slider. */
+    var sidebar=document.getElementById('cartSidebar');
+    if(sidebar){
+      var observer=new MutationObserver(function(){ teusSyncCartSlider(); });
+      observer.observe(sidebar,{childList:true,subtree:true,characterData:true});
+    }
+
+    var toggle=document.getElementById('cartToggleBtn');
+    if(toggle){
+      toggle.addEventListener('click',function(){
+        setTimeout(teusSyncCartSlider,0);
+      });
+    }
+  });
+
+  window.addEventListener('load',teusSyncCartSlider);
+})();
+</script>
+
+<script id="teus-navigation-stable-v8">
+/*
+ V8:
+ - navegación de categorías usa únicamente navigateToCategory/showResultsByCategory
+ - historial usa únicamente pushToHistory/goBack/goForward
+ - sin listeners correctivos de categoría
+ - sin polling del carrito
+ - sin auto-refresh que cambie la vista durante un clic
+*/
+</script>
+
+
+<script id="teus-photo-picker-ui-only">
+document.addEventListener('change', function(ev){
+  const el = ev.target;
+  if(!el || !el.classList || !el.classList.contains('admin-photo-picker')) return;
+  const box = el.closest('.admin-edited-photo-field');
+  const name = box ? box.querySelector('.admin-photo-picker-name') : null;
+  if(name) name.textContent = el.files && el.files[0] ? 'Seleccionada: ' + el.files[0].name : '';
+});
 </script>
 
 </body>
