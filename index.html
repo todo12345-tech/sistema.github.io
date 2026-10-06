@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Gestión de Ventas V24 · LocalStorage Seguro</title>
+<title>Todoenuno_store - Gestión de Ventas V25 · Pago Mixto con Cambio</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
@@ -329,7 +329,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 @media(max-width:650px){.operativo-card{flex-basis:190px}.operativo-head{align-items:flex-start}.operativo-actions{flex-wrap:wrap;justify-content:flex-end}}
 
 </style>
-<!-- V24: V23 + localStorage seguro. Google Sheets sigue siendo la fuente principal; el navegador conserva pendientes y respaldo reciente. -->
+<!-- V25: V24 + pago mixto permite monto recibido superior al total y calcula cambio sin inflar caja. -->
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -2209,8 +2209,9 @@ async function guardarVentaConMetodoPago() {
     if (metodoPagoSeleccionado === 'Mixto') {
         const montoEfectivo = parseFloat(montoEfectivoMixto.value) || 0;
         const montoQR = parseFloat(montoQRMixto.value) || 0;
-        if (Math.abs((montoEfectivo + montoQR) - total) > 0.01) {
-            Notificaciones.mostrar('La suma debe ser igual al total', 'error');
+        const totalPagadoMixto = montoEfectivo + montoQR;
+        if (totalPagadoMixto + 0.01 < total) {
+            Notificaciones.mostrar('Faltan ' + (total - totalPagadoMixto).toFixed(2) + ' Bs para completar el pago', 'error');
             guardandoVenta = false; confirmMetodoPago.disabled = false;
             confirmMetodoPago.innerHTML = '<i class="fas fa-check"></i> Confirmar';
             return;
@@ -2248,7 +2249,24 @@ function generarTimestampVentaUnico(){
 function guardarVentaLocal() {
     const datosSucursal = obtenerDatosSucursal();
     let metodoPagoData = { metodo_pago: metodoPagoSeleccionado };
-    if (metodoPagoSeleccionado === 'Mixto') { metodoPagoData.monto_efectivo = parseFloat(montoEfectivoMixto.value) || 0; metodoPagoData.monto_qr = parseFloat(montoQRMixto.value) || 0; }
+    if (metodoPagoSeleccionado === 'Mixto') {
+        const efectivoRecibido = parseFloat(montoEfectivoMixto.value) || 0;
+        const qrRecibido = parseFloat(montoQRMixto.value) || 0;
+        const totalVentaMixto = Number(total) || 0;
+        const totalRecibidoMixto = efectivoRecibido + qrRecibido;
+        const cambioMixto = Math.max(0, totalRecibidoMixto - totalVentaMixto);
+
+        // El cambio se devuelve normalmente del efectivo.
+        // Para caja guardamos solo lo que realmente quedó de la venta.
+        const efectivoAplicado = Math.max(0, Math.min(efectivoRecibido, totalVentaMixto - Math.min(qrRecibido, totalVentaMixto)));
+        const qrAplicado = Math.max(0, totalVentaMixto - efectivoAplicado);
+
+        metodoPagoData.monto_efectivo = Number(efectivoAplicado.toFixed(2));
+        metodoPagoData.monto_qr = Number(qrAplicado.toFixed(2));
+        metodoPagoData.efectivo_recibido = Number(efectivoRecibido.toFixed(2));
+        metodoPagoData.qr_recibido = Number(qrRecibido.toFixed(2));
+        metodoPagoData.cambio = Number(cambioMixto.toFixed(2));
+    }
     else { metodoPagoData.monto_efectivo = ''; metodoPagoData.monto_qr = ''; }
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const diaSemana = dias[new Date().getDay()];
@@ -2908,8 +2926,9 @@ function generarNotaVenta() {
     if (metodoPagoSeleccionado === 'Mixto') {
         const montoEfectivo = parseFloat(montoEfectivoMixto.value) || 0;
         const montoQR = parseFloat(montoQRMixto.value) || 0;
-        notaHTML += `<div style="margin-top: 10px;"><p><strong>Método:</strong> Mixto</p><p><strong>Efectivo:</strong> ${montoEfectivo.toFixed(2)} Bs</p><p><strong>QR:</strong> ${montoQR.toFixed(2)} Bs</p>`;
-        if (montoRecibidoValor > 0 && cambio > 0) notaHTML += `<p><strong>Cambio:</strong> ${cambio} Bs</p>`;
+        const cambioMixto = Math.max(0, (montoEfectivo + montoQR) - totalVenta);
+        notaHTML += `<div style="margin-top: 10px;"><p><strong>Método:</strong> Mixto</p><p><strong>Efectivo recibido:</strong> ${montoEfectivo.toFixed(2)} Bs</p><p><strong>QR:</strong> ${montoQR.toFixed(2)} Bs</p>`;
+        if (cambioMixto > 0.009) notaHTML += `<p><strong>Cambio:</strong> ${cambioMixto.toFixed(2)} Bs</p>`;
         notaHTML += `</div>`;
     } else { notaHTML += `<div style="margin-top: 10px;"><p><strong>Método:</strong> ${metodoPagoSeleccionado}</p>`; if (metodoPagoSeleccionado === 'Efectivo' && montoRecibidoValor > 0) notaHTML += `<p><strong>Cambio:</strong> ${cambio} Bs</p>`; notaHTML += `</div>`; }
     notaHTML += `<div class="nota-footer"><div class="nota-agradecimiento">¡GRACIAS POR SU PREFERENCIA!</div><div>VUELVA PRONTO</div></div></div>`;
