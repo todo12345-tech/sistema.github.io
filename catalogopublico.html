@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
     <title>Todoenuno Store | Catálogo Mayorista</title>
-    <!-- VERSIÓN PÚBLICA PARA CLIENTES: sin acceso administrativo -->
+    <!-- VERSIÓN PÚBLICA PARA CLIENTES V2: muestra publicados aunque estén sin stock; sin acceso administrativo -->
     <meta name="description" content="Catálogo mayorista con envíos a toda Bolivia. Accesorios, decants, maquillaje y más al mejor precio. Hacé tu pedido por WhatsApp.">
 
     <!-- Open Graph (WhatsApp, Facebook, Instagram) -->
@@ -2204,7 +2204,7 @@ async function loadProducts() {
         }
         masterProducts=productos;
         // Público: solo publicado + disponible por paquete. ADMIN: absolutamente todos.
-        allProducts=masterProducts.filter(p=>p.publicado && p.dispPaquete && !!p.imagenEditada);
+        allProducts=masterProducts.filter(p=>p.publicado && !!p.imagenEditada);
         const uniqueCategories=[...new Set(allProducts.map(p=>p.seccion))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
         homeCategoryOrder=uniqueCategories; homeCache={};
         const catList=document.getElementById('categoryList'); catList.innerHTML='';
