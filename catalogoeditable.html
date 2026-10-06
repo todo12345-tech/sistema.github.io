@@ -4,7 +4,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-    <title>Todoenuno Store | Catálogo Mayorista</title>
+    <!-- TODOENUNO V33 LIMPIA: CSS consolidado, sin polling del carrito, imágenes diferidas -->
+<title>Todoenuno Store | Catálogo Mayorista</title>
     <meta name="description" content="Catálogo mayorista con envíos a toda Bolivia. Accesorios, decants, maquillaje y más al mejor precio. Hacé tu pedido por WhatsApp.">
 
     <!-- Open Graph (WhatsApp, Facebook, Instagram) -->
@@ -646,17 +647,7 @@
 }
 </style>
 
-<style id="teus-v21-cart-checkout">
-/* V21 — carrito lateral tipo ecommerce, sin tapar el catálogo */
-.cart-sidebar{width:360px!important;max-width:92vw!important;padding:0!important;gap:0!important;overflow:visible!important;border-radius:16px 0 0 16px!important}
-.cart-sidebar h3{margin:0!important;padding:16px 18px!important;background:#fff;border-bottom:1px solid #ddd!important;border-radius:16px 0 0 0!important;font-size:20px!important}
-.cart-items-container{padding:0 14px!important;max-height:58vh!important;background:#fff}
-.teus-cart-item{display:grid;grid-template-columns:82px 1fr;gap:12px;padding:14px 0;border-bottom:1px solid #e7e7e7;align-items:start}
-.teus-cart-img{width:82px;height:98px;object-fit:contain;background:#f7f7f7;border-radius:8px}.teus-noimg{display:flex;align-items:center;justify-content:center;color:#777}
-.teus-cart-info{min-width:0}.teus-cart-info strong{display:block;font-size:14px;line-height:1.25;margin-bottom:4px}.teus-cart-info small{display:block;color:#565959;font-size:11px;margin-bottom:5px}.teus-cart-info b{display:block;font-size:16px;margin-bottom:9px}
-.teus-cart-qty{display:inline-flex;align-items:center;border:3px solid #ffd814;border-radius:999px;overflow:hidden;height:34px;background:#fff}.teus-cart-qty button{width:34px;height:30px;border:0;background:#fff;font-size:18px;cursor:pointer}.teus-cart-qty span{min-width:32px;text-align:center;font-weight:700}
-.teus-empty-cart{padding:28px 10px;display:flex;flex-direction:column;align-items:center;text-align:center;color:#565959;gap:7px}.teus-empty-cart i{font-size:30px;color:#9a9a9a}.teus-empty-cart strong{color:#111}
-.cart-total{padding:14px 18px!important;text-align:left!important;font-size:16px!important;background:#fff}.checkout-btn{margin:0 14px 16px;width:calc(100% - 28px)!important}
+<style id="teus-v33-checkout">
 /* Checkout limpio */
 .teus-checkout-modal{max-width:760px!important;border-radius:18px!important;overflow:hidden!important}.teus-checkout-body{padding:24px 28px 30px}.teus-checkout-body h2{margin:0 0 5px;font-size:26px}.teus-checkout-sub{margin:0 0 22px;color:#565959;font-size:13px}
 .teus-checkout-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.teus-checkout-grid .form-group{margin:0}.teus-checkout-grid label{display:block;font-size:12px;font-weight:700;margin:0 0 6px}.teus-span-2{grid-column:1/-1}.teus-checkout-grid .input-with-icon{margin:0}
@@ -666,17 +657,7 @@
 @media(max-width:600px){.teus-checkout-body{padding:18px 16px 22px}.teus-checkout-grid{grid-template-columns:1fr}.teus-span-2{grid-column:auto}.teus-checkout-modal{width:94vw!important;max-height:90vh!important}.teus-cart-item{grid-template-columns:72px 1fr}.teus-cart-img{width:72px;height:86px}.offer-special-price,.limited-offer-price{white-space:nowrap!important}.offer-limited-badge{max-width:100%;white-space:normal!important;line-height:1.1!important}}
 </style>
 
-<style id="teus-v22-cart-page">
-/* Panel rápido: foto + cantidad, sin repetir información innecesaria */
-#cartSidebar{width:230px!important;max-width:230px!important;}
-#cartSidebar h3{font-size:18px!important;}
-#cartSidebar .cart-items-container{max-height:58vh!important;}
-#cartSidebar .teus-cart-item{display:flex!important;align-items:center!important;justify-content:center!important;gap:10px!important;padding:12px 8px!important;}
-#cartSidebar .teus-cart-img{width:92px!important;height:112px!important;object-fit:contain!important;background:#fff!important;}
-#cartSidebar .teus-cart-info{display:flex!important;flex-direction:column!important;align-items:center!important;min-width:76px!important;}
-#cartSidebar .teus-cart-info>strong,#cartSidebar .teus-cart-info>small,#cartSidebar .teus-cart-info>b{display:none!important;}
-#cartSidebar .teus-cart-qty{margin-top:0!important;white-space:nowrap!important;}
-#cartSidebar .checkout-btn{margin-top:10px!important;}
+<style id="teus-v33-full-cart">
 .teus-full-cart-view{background:#e3e6e6;min-height:calc(100vh - 100px);padding:24px 3%;}
 .teus-full-cart-shell{max-width:1450px;margin:auto;display:grid;grid-template-columns:minmax(0,1fr) 300px;gap:20px;align-items:start;}
 .teus-full-cart-main,.teus-full-cart-summary{background:#fff;padding:20px;}
@@ -697,7 +678,6 @@
 #fullCartSubtotal{font-weight:700;margin-bottom:20px;}
 #fullCartCheckoutBtn{width:100%;border:0;border-radius:24px;background:#ffd814;padding:12px 16px;font-weight:700;cursor:pointer;}
 @media(max-width:800px){
- #cartSidebar{width:min(68vw,230px)!important;max-width:230px!important;}
  .teus-full-cart-view{padding:12px;} .teus-full-cart-shell{display:block;} .teus-full-cart-summary{position:static;margin-top:12px;}
  .teus-full-cart-row{grid-template-columns:90px minmax(0,1fr);gap:12px;} .teus-full-cart-row img{width:90px;height:110px;} .teus-full-cart-price{grid-column:2;text-align:left;font-size:18px;} .teus-full-cart-name{font-size:16px;}
 }
@@ -712,7 +692,7 @@
 @media(max-width:800px){.teus-inline-checkout{padding:0 12px 24px}.teus-inline-checkout-card{padding:20px 16px}.teus-inline-final{display:block}.teus-inline-final>div{text-align:left;margin-bottom:14px}.teus-inline-final button{width:100%}}
 </style>
 
-<style id="teus-v24-delivery-css">
+<style id="teus-v33-delivery">
 .teus-delivery-box{grid-column:1/-1;margin-top:4px}
 .teus-delivery-title{font-weight:800;font-size:17px;color:#2f4054;margin:8px 0 10px}
 .teus-delivery-options{display:grid;gap:10px}
@@ -727,222 +707,11 @@
   .teus-delivery-title{font-size:16px}
   .teus-delivery-option{padding:13px 12px}
 }
-
-/* ===== V26: MI PEDIDO LATERAL VERTICAL TIPO AMAZON ===== */
-#cartSidebar .cart-item{
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  gap:7px !important;
-  padding:14px 8px 16px !important;
-  margin:0 !important;
-  border-bottom:1px solid #e5e7eb !important;
-  text-align:center !important;
-}
-#cartSidebar .cart-item img{
-  width:112px !important;
-  height:142px !important;
-  max-width:112px !important;
-  object-fit:contain !important;
-  display:block !important;
-  margin:0 auto 2px !important;
-  background:#fff !important;
-}
-#cartSidebar .cart-item > div,
-#cartSidebar .cart-item .cart-item-info,
-#cartSidebar .cart-item .item-info,
-#cartSidebar .cart-item .cart-info{
-  width:100% !important;
-  min-width:0 !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  text-align:center !important;
-}
-#cartSidebar .cart-item strong,
-#cartSidebar .cart-item .cart-name,
-#cartSidebar .cart-item .item-name{
-  text-align:center !important;
-  width:100% !important;
-}
-#cartSidebar .cart-item .qty-controls,
-#cartSidebar .cart-item .cart-qty,
-#cartSidebar .cart-item .quantity-controls{
-  margin:7px auto 0 !important;
-  align-self:center !important;
-}
-/* El panel queda angosto y los productos apilados, no foto/control lado a lado */
-#cartSidebar .cart-items{
-  overflow-x:hidden !important;
-}
-
-
-/* ===== V27: CORRECCION REAL DEL PANEL MI PEDIDO ===== */
-#cartSidebar .teus-cart-item{
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:center!important;
-  gap:8px!important;
-  padding:16px 8px 18px!important;
-  text-align:center!important;
-}
-#cartSidebar .teus-cart-img{
-  width:118px!important;
-  height:145px!important;
-  max-width:118px!important;
-  object-fit:contain!important;
-  margin:0 auto!important;
-  display:block!important;
-}
-#cartSidebar .teus-cart-info{
-  width:100%!important;
-  min-width:0!important;
-  display:flex!important;
-  flex-direction:column!important;
-  align-items:center!important;
-  justify-content:center!important;
-  margin:0!important;
-}
-#cartSidebar .teus-cart-qty{
-  display:inline-flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-  margin:2px auto 0!important;
-  align-self:center!important;
-}
-
-
-/* ===== V28: MI PEDIDO COMPACTO TIPO AMAZON ===== */
-#cartSidebar,
-.teus-cart-sidebar,
-#teusCartSidebar{
-  width: 185px !important;
-  max-width: 185px !important;
-  min-width: 185px !important;
-}
-
-/* Encabezado compacto */
-#cartSidebar .teus-cart-title,
-.teus-cart-sidebar .teus-cart-title,
-#teusCartSidebar .teus-cart-title{
-  font-size:18px !important;
-  padding-left:10px !important;
-  padding-right:10px !important;
-}
-
-/* Cada producto ocupa una columna angosta */
-#cartSidebar .teus-cart-item,
-.teus-cart-sidebar .teus-cart-item,
-#teusCartSidebar .teus-cart-item{
-  width:100% !important;
-  box-sizing:border-box !important;
-  padding:12px 6px 14px !important;
-  display:flex !important;
-  flex-direction:column !important;
-  align-items:center !important;
-  justify-content:flex-start !important;
-  gap:8px !important;
-}
-
-/* Foto tipo Amazon */
-#cartSidebar .teus-cart-item img,
-.teus-cart-sidebar .teus-cart-item img,
-#teusCartSidebar .teus-cart-item img{
-  width:100px !important;
-  height:125px !important;
-  max-width:100px !important;
-  object-fit:contain !important;
-  margin:0 auto !important;
-}
-
-/* Controles centrados debajo */
-#cartSidebar .teus-cart-item .teus-qty,
-#cartSidebar .teus-cart-item .qty-controls,
-#cartSidebar .teus-cart-item .quantity-controls,
-.teus-cart-sidebar .teus-cart-item .teus-qty,
-.teus-cart-sidebar .teus-cart-item .qty-controls,
-.teus-cart-sidebar .teus-cart-item .quantity-controls,
-#teusCartSidebar .teus-cart-item .teus-qty,
-#teusCartSidebar .teus-cart-item .qty-controls,
-#teusCartSidebar .teus-cart-item .quantity-controls{
-  margin:0 auto !important;
-  max-width:125px !important;
-}
-
-/* Pie compacto */
-#cartSidebar .teus-cart-footer,
-.teus-cart-sidebar .teus-cart-footer,
-#teusCartSidebar .teus-cart-footer{
-  padding:12px 10px !important;
-  box-sizing:border-box !important;
-}
-
-#cartSidebar .teus-cart-footer button,
-.teus-cart-sidebar .teus-cart-footer button,
-#teusCartSidebar .teus-cart-footer button{
-  width:100% !important;
-  font-size:14px !important;
-}
-
-/* Si el panel usa posicionamiento derecho, que no reserve más espacio del necesario */
-@media (min-width: 769px){
-  body.teus-cart-open,
-  body.cart-open{
-    padding-right:0 !important;
-    margin-right:0 !important;
-  }
-}
-
-
-
-/* ===== V29: MI PEDIDO MÁS PEGADO Y SUBTOTAL LIMPIO ===== */
-#cartSidebar,
-.teus-cart-sidebar,
-#teusCartSidebar{
-  width:170px !important;
-  min-width:170px !important;
-  max-width:170px !important;
-}
-#cartSidebar .teus-cart-item,
-.teus-cart-sidebar .teus-cart-item,
-#teusCartSidebar .teus-cart-item{
-  padding:10px 5px 12px !important;
-  gap:2px !important;
-}
-#cartSidebar .teus-cart-item img,
-.teus-cart-sidebar .teus-cart-item img,
-#teusCartSidebar .teus-cart-item img{
-  width:104px !important;
-  height:128px !important;
-  max-width:104px !important;
-  margin:0 auto 3px !important;
-  object-fit:contain !important;
-}
-#cartSidebar .teus-cart-item .teus-qty,
-#cartSidebar .teus-cart-item .qty-controls,
-#cartSidebar .teus-cart-item .quantity-controls,
-.teus-cart-sidebar .teus-cart-item .teus-qty,
-.teus-cart-sidebar .teus-cart-item .qty-controls,
-.teus-cart-sidebar .teus-cart-item .quantity-controls,
-#teusCartSidebar .teus-cart-item .teus-qty,
-#teusCartSidebar .teus-cart-item .qty-controls,
-#teusCartSidebar .teus-cart-item .quantity-controls{
-  margin:2px auto 0 !important;
-  align-self:center !important;
-}
-#cartSidebar .teus-cart-footer,
-.teus-cart-sidebar .teus-cart-footer,
-#teusCartSidebar .teus-cart-footer{
-  padding:10px 8px 12px !important;
-}
-
 </style>
 
 
-<style id="teus-v32-mobile-real-fix">
-/* V32 REAL: corrección móvil aplicada de verdad */
+<style id="teus-v33-mobile-final">
+/* V33: reglas móviles finales consolidadas */
 @media (max-width:768px){
   /* 1) El contenido/slider ya no se mete debajo del encabezado */
   .main-content{ margin-top:10px !important; }
@@ -1058,6 +827,42 @@
     top:150px !important;
     bottom:auto !important;
     z-index:10005 !important;
+  }
+}
+</style>
+
+
+<style id="teus-v35-mobile-cart-scroll">
+/* V35 — SOLO mejora del desplazamiento móvil de Mi Pedido.
+   Mantiene intacto el diseño V33 y libera espacio arriba al deslizar el carrito. */
+@media (max-width:768px){
+  #mainHeader{
+    transition:transform .24s ease !important;
+    will-change:transform;
+  }
+
+  body.teus-cart-scrolled #mainHeader{
+    transform:translateY(-100%) !important;
+  }
+
+  #cartSidebar{
+    transition:
+      top .24s ease,
+      max-height .24s ease,
+      transform .25s ease,
+      opacity .2s ease,
+      visibility .2s ease !important;
+  }
+
+  /* Al deslizar hacia arriba, Mi Pedido aprovecha el espacio que deja la cabecera. */
+  body.teus-cart-scrolled #cartSidebar.open{
+    top:8px !important;
+    max-height:calc(100dvh - 18px) !important;
+  }
+
+  /* Más área útil para los productos cuando la cabecera está escondida. */
+  body.teus-cart-scrolled #cartSidebar.open .cart-items-container{
+    max-height:calc(100dvh - 205px) !important;
   }
 }
 </style>
@@ -1615,7 +1420,7 @@ function renderSearchSuggestions(term){
     const products=allProducts.map(p=>({p,score:productSearchScore(p,q)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.p.nombre.localeCompare(b.p.nombre,'es')).slice(0,7);
     let items='';
     cats.slice(0,2).forEach(({cat})=>{items+=`<div class="search-suggestion category-hit" data-kind="category" data-value="${escapeHtml(cat)}"><span class="s-icon"><i class="fas fa-list"></i></span><span class="s-copy"><span class="s-name">${escapeHtml(cat)}</span><span class="s-section">Ver categoría</span></span></div>`;});
-    products.slice(0,8).forEach(({p})=>{items+=`<div class="search-suggestion" data-kind="product" data-name="${escapeHtml(p.nombre)}" data-section="${escapeHtml(p.seccion)}">${p.imagen?`<img class="s-img" src="${escapeHtml(p.imagen)}" alt="">`:'<span class="s-icon"><i class="fas fa-search"></i></span>'}<span class="s-copy"><span class="s-name">${escapeHtml(p.nombre)}</span><span class="s-section">${escapeHtml(p.seccion)}</span></span></div>`;});
+    products.slice(0,8).forEach(({p})=>{items+=`<div class="search-suggestion" data-kind="product" data-name="${escapeHtml(p.nombre)}" data-section="${escapeHtml(p.seccion)}">${p.imagen?`<img class="s-img" src="${escapeHtml(p.imagen)}" loading="lazy" decoding="async" alt="">`:'<span class="s-icon"><i class="fas fa-search"></i></span>'}<span class="s-copy"><span class="s-name">${escapeHtml(p.nombre)}</span><span class="s-section">${escapeHtml(p.seccion)}</span></span></div>`;});
     box.innerHTML=items?`<div class="search-suggestion-strip">${items}</div>`:`<div class="search-suggestion-empty">No encontramos coincidencias para “${escapeHtml(q)}”.</div>`;
     box.classList.add('open');searchSuggestionIndex=-1;
     box.querySelectorAll('.search-suggestion').forEach(el=>el.addEventListener('mousedown',e=>{e.preventDefault();selectSearchSuggestion(el);}));
@@ -1773,7 +1578,7 @@ function renderHomeCards() {
     homeCategoryOrder.forEach(cat=>{
         const prods=grouped.get(cat)||[]; if(!prods.length)return; const productsToShow=shuffleArray(prods).slice(0,4); homeCache[cat]=productsToShow;
         html+=`<div class="card" data-cat="${escapeHtml(cat)}"><h2>${escapeHtml(cat.toUpperCase())}</h2>`;
-        if(productsToShow.length===1) html+=`<img src="${escapeHtml(productsToShow[0].imagen)}" class="single-img" data-single-cat="${escapeHtml(cat)}" alt="${escapeHtml(productsToShow[0].nombre)}"><div class="grid-item"><span>${escapeHtml(productsToShow[0].nombre)}</span></div>`;
+        if(productsToShow.length===1) html+=`<img src="${escapeHtml(productsToShow[0].imagen)}" loading="lazy" decoding="async" class="single-img" data-single-cat="${escapeHtml(cat)}" alt="${escapeHtml(productsToShow[0].nombre)}"><div class="grid-item"><span>${escapeHtml(productsToShow[0].nombre)}</span></div>`;
         else {html+='<div class="multi-grid">';productsToShow.forEach(p=>html+=`<div class="grid-item"><img src="${escapeHtml(p.imagen)}" loading="lazy" alt="${escapeHtml(p.nombre)}"><span>${escapeHtml(p.nombre.length>30?p.nombre.slice(0,27)+'...':p.nombre)}</span></div>`);html+='</div>';} html+='</div>';
     });
     const grid=document.getElementById('categoriesGrid'); grid.innerHTML=html||'<div style="text-align:center;grid-column:1/-1;">No hay productos</div>';
@@ -2055,7 +1860,7 @@ window.openProductModal = function(product) {
     }
 
     modalBody.innerHTML = `
-        <div class="product-row-image"><img src="${escapeHtml(product.imagen)}" alt="${escapeHtml(product.nombre)}"></div>
+        <div class="product-row-image"><img src="${escapeHtml(product.imagen)}" loading="lazy" decoding="async" alt="${escapeHtml(product.nombre)}"></div>
         <div class="product-row-info">
             <h2>${escapeHtml(product.nombre)}</h2>
             ${hasPaquete ? `<div class="price-package">
@@ -2133,6 +1938,7 @@ function addToCart(name, detail, price, qty = 1, unitLabel = 'paquete(s)') {
         cart.push({ id: Date.now() + Math.random(), key, name, detail, unitPrice, price:unitPrice, qty, unitLabel, image:productImageByName(name) });
     }
     saveCart(); updateCartUI(); showNotif(`✓ ${name} agregado`);
+    if(window.innerWidth<=768){ cartSidebar.classList.add('open'); document.body.classList.add('cart-open'); }
 }
 function saveCart() { try { localStorage.setItem('mayorCart', JSON.stringify(cart)); } catch (e) {} }
 function normalizeCart(){
@@ -2168,7 +1974,7 @@ function updateCartUI() {
     let html = '';
     cart.forEach((item, idx) => {
         const line=(Number(item.unitPrice)||0)*(Number(item.qty)||1); total += line; units += Number(item.qty)||1;
-        const img=item.image ? `<img class="teus-cart-img" src="${escapeHtml(item.image)}" alt="">` : `<div class="teus-cart-img teus-noimg"><i class="fas fa-box"></i></div>`;
+        const img=item.image ? `<img class="teus-cart-img" src="${escapeHtml(item.image)}" loading="lazy" decoding="async" alt="">` : `<div class="teus-cart-img teus-noimg"><i class="fas fa-box"></i></div>`;
         html += `<div class="teus-cart-item">${img}<div class="teus-cart-info"><div class="teus-cart-qty"><button type="button" class="cart-minus" data-idx="${idx}" aria-label="Restar">${item.qty<=1?'🗑':'−'}</button><span>${item.qty}</span><button type="button" class="cart-plus" data-idx="${idx}" aria-label="Sumar">+</button></div></div></div>`;
     });
     container.innerHTML = html;
@@ -2365,6 +2171,22 @@ document.getElementById('cartIconHeader').onclick = () => {
     }
 };
 
+
+function syncCartResponsiveState(){
+    const mobile = window.innerWidth <= 768;
+    if(mobile){
+        toggleBtn.style.display = 'block';
+        cartSidebar.style.display = 'flex';
+        if(!cartSidebar.classList.contains('open')) document.body.classList.remove('cart-open');
+    }else{
+        toggleBtn.style.display = 'none';
+        cartSidebar.classList.remove('open');
+        document.body.classList.remove('cart-open');
+        cartSidebar.style.display = 'flex';
+    }
+}
+window.addEventListener('resize', syncCartResponsiveState, {passive:true});
+
 function handleScroll() {
     if (window.innerWidth <= 768) {
         const y = window.scrollY;
@@ -2399,7 +2221,7 @@ function renderFullCartView(){
     const box=document.getElementById('fullCartItems'); if(!box)return; normalizeCart();
     let total=0,units=0;
     if(!cart.length){box.innerHTML='<div style="padding:35px 0">Tu carrito está vacío.</div>';document.getElementById('fullCartSubtotal').textContent='Subtotal: Bs 0.00';return;}
-    box.innerHTML=cart.map((item,idx)=>{const line=(Number(item.unitPrice)||0)*(Number(item.qty)||1);total+=line;units+=Number(item.qty)||1;return `<div class="teus-full-cart-row"><img src="${escapeHtml(item.image||'')}" alt=""><div><div class="teus-full-cart-name">${escapeHtml(item.name)}</div><div class="teus-full-cart-detail">${escapeHtml(item.detail||'Paquete')}</div><div class="teus-full-cart-controls"><div class="teus-full-cart-qty"><button class="full-minus" data-idx="${idx}">${item.qty<=1?'🗑':'−'}</button><span>${item.qty}</span><button class="full-plus" data-idx="${idx}">+</button></div><button class="teus-full-cart-delete" data-idx="${idx}">Eliminar</button></div></div><div class="teus-full-cart-price">Bs ${line.toFixed(2)}</div></div>`}).join('');
+    box.innerHTML=cart.map((item,idx)=>{const line=(Number(item.unitPrice)||0)*(Number(item.qty)||1);total+=line;units+=Number(item.qty)||1;return `<div class="teus-full-cart-row"><img src="${escapeHtml(item.image||'')}" loading="lazy" decoding="async" alt=""><div><div class="teus-full-cart-name">${escapeHtml(item.name)}</div><div class="teus-full-cart-detail">${escapeHtml(item.detail||'Paquete')}</div><div class="teus-full-cart-controls"><div class="teus-full-cart-qty"><button class="full-minus" data-idx="${idx}">${item.qty<=1?'🗑':'−'}</button><span>${item.qty}</span><button class="full-plus" data-idx="${idx}">+</button></div><button class="teus-full-cart-delete" data-idx="${idx}">Eliminar</button></div></div><div class="teus-full-cart-price">Bs ${line.toFixed(2)}</div></div>`}).join('');
     document.getElementById('fullCartSubtotal').textContent=`Subtotal: Bs ${total.toFixed(2)}`;
     box.querySelectorAll('.full-minus').forEach(b=>b.onclick=()=>changeCartQty(+b.dataset.idx,-1));
     box.querySelectorAll('.full-plus').forEach(b=>b.onclick=()=>changeCartQty(+b.dataset.idx,1));
@@ -2611,7 +2433,7 @@ async function refreshCatalogFresh(force=false){
 }
 window.addEventListener('focus',()=>refreshCatalogFresh(false));
 document.addEventListener('visibilitychange',()=>{ if(!document.hidden) refreshCatalogFresh(false); });
-setInterval(()=>{ if(!document.hidden) refreshCatalogFresh(false); },45000);
+setInterval(()=>{ if(!document.hidden) refreshCatalogFresh(false); },120000);
 
 init();
 </script>
@@ -2630,48 +2452,63 @@ function limpiarFormularioLoginV7(){
   }catch(e){}
 }
 </script>
-<script id="teus-v11-cart-controller">
+
+<script id="teus-v35-mobile-cart-scroll-js">
 (function(){
- let cart=null,handle=null,lastCount=null,manualClosed=false;
- function findCart(){
-   if(cart && document.body.contains(cart)) return cart;
-   const nodes=[...document.querySelectorAll('div,aside,section')];
-   cart=nodes.find(el=>{const t=(el.innerText||'').trim();const w=el.getBoundingClientRect().width;return t.startsWith('Mi Pedido')&&t.includes('Total:')&&w>180&&w<500;})||null;
-   return cart;
- }
- function count(){
-   if(!cart) return 0;
-   if((cart.innerText||'').includes('Carrito vacío')) return 0;
-   const top=[...document.querySelectorAll('[id*="cartCount"],[class*="cart-count"],[class*="cartCount"]')];
-   for(const el of top){const n=parseInt((el.textContent||'').trim(),10);if(Number.isFinite(n))return n;}
-   const rows=cart.querySelectorAll('.cart-item,.item-carrito,[data-cart-item]');
-   return rows.length||1;
- }
- function open(v){if(cart)cart.classList.toggle('open',!!v);}
- function tick(){
-   if(!findCart()) return;
-   cart.classList.add('teus-cart-v11');
-   // Clear inline styles left by older versions. CSS V11 now owns positioning.
-   ['position','right','left','top','bottom','width','maxWidth','margin','zIndex'].forEach(k=>cart.style[k]='');
-   document.querySelectorAll('.teus-catalog-reserved-v8').forEach(el=>{el.style.paddingRight='0';el.style.maxWidth='';});
-   handle=cart.querySelector('.teus-cart-v11-handle');
-   if(!handle){
-     handle=document.createElement('button');handle.type='button';handle.className='teus-cart-v11-handle';handle.setAttribute('aria-label','Abrir Mi Pedido');
-     handle.innerHTML='<span>🛒</span><span class="teus-cart-v11-count">0</span>';
-     handle.addEventListener('click',function(e){e.preventDefault();e.stopPropagation();const will=!cart.classList.contains('open');manualClosed=!will;open(will);});
-     cart.appendChild(handle);
-   }
-   const n=count();
-   const badge=handle.querySelector('.teus-cart-v11-count');
-   if(badge && badge.textContent!==String(n)) badge.textContent=String(n);
-   if(lastCount===null){open(n>0);manualClosed=false;}
-   else if(n===0){open(false);manualClosed=false;}
-   else if(n>lastCount){open(true);manualClosed=false;}
-   lastCount=n;
- }
- window.addEventListener('load',function(){tick();setInterval(tick,1000);});
- window.addEventListener('resize',tick);
- setTimeout(tick,500);setTimeout(tick,1500);
+  const mq = window.matchMedia('(max-width: 768px)');
+  const cart = document.getElementById('cartSidebar');
+  const scroller = cart ? cart.querySelector('.cart-items-container') : null;
+  if (!cart || !scroller) return;
+
+  let lastTop = 0;
+  let ticking = false;
+
+  function resetMobileCartHeader(){
+    document.body.classList.remove('teus-cart-scrolled');
+    lastTop = 0;
+  }
+
+  function updateFromScroll(){
+    if (!mq.matches || !cart.classList.contains('open')){
+      resetMobileCartHeader();
+      ticking = false;
+      return;
+    }
+
+    const y = scroller.scrollTop;
+    const goingDown = y > lastTop + 1;
+    const goingUp = y < lastTop - 1;
+
+    /* El gesto hacia arriba sobre los productos oculta la cabecera.
+       Al regresar prácticamente al inicio, vuelve a aparecer. */
+    if (goingDown && y > 18){
+      document.body.classList.add('teus-cart-scrolled');
+    } else if ((goingUp && y <= 12) || y <= 2){
+      document.body.classList.remove('teus-cart-scrolled');
+    }
+
+    lastTop = y;
+    ticking = false;
+  }
+
+  scroller.addEventListener('scroll', function(){
+    if (!ticking){
+      ticking = true;
+      requestAnimationFrame(updateFromScroll);
+    }
+  }, {passive:true});
+
+  /* Si se cierra el carrito, nunca dejamos la cabecera escondida. */
+  const observer = new MutationObserver(function(){
+    if (!cart.classList.contains('open')) resetMobileCartHeader();
+  });
+  observer.observe(cart, {attributes:true, attributeFilter:['class']});
+
+  if (mq.addEventListener){
+    mq.addEventListener('change', resetMobileCartHeader);
+  } else if (mq.addListener){
+    mq.addListener(resetMobileCartHeader);
+  }
 })();
 </script>
 
