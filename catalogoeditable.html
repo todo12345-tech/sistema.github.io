@@ -1087,6 +1087,19 @@
 }
 </style>
 
+
+<style id="teus-checkout-final-logica-sistema">
+@media (max-width:768px){
+  /* Posición final: más aire debajo del botón amarillo para que nunca choque con ← → ↻ */
+  .teus-inline-checkout{
+    padding-bottom:165px !important;
+  }
+  .teus-inline-final{
+    margin-bottom:72px !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -1192,34 +1205,46 @@
           <div class="form-group"><label>Celular</label><div class="input-with-icon"><i class="fas fa-phone"></i><input type="tel" id="inlinePhone" placeholder="Número de celular" required></div></div>
           <div class="form-group teus-span-2"><label>Dirección</label><div class="input-with-icon"><i class="fas fa-map-marker-alt"></i><input type="text" id="inlineAddress" placeholder="Dirección de entrega" required></div></div>
           <div class="form-group teus-span-2"><label>Departamento</label><div class="input-with-icon"><i class="fas fa-globe-americas"></i><select id="inlineDepartment" required><option value="">Seleccione un departamento</option><option>Santa Cruz</option><option>La Paz</option><option>Cochabamba</option><option>Oruro</option><option>Potosí</option><option>Chuquisaca</option><option>Tarija</option><option>Beni</option><option>Pando</option></select></div></div>
-          <div class="teus-delivery-box">
-            <div class="teus-delivery-title"><i class="fas fa-map-marked-alt"></i> ¿Dónde se entregará el pedido?</div>
-            <div class="teus-delivery-options">
-              <label class="teus-delivery-option"><input type="radio" name="inlineDeliveryType" value="provincia"> Provincia (escribe el nombre)</label>
-              <label class="teus-delivery-option"><input type="radio" name="inlineDeliveryType" value="ciudad"> Ciudad de Santa Cruz</label>
-              <label class="teus-delivery-option"><input type="radio" name="inlineDeliveryType" value="recoger"> Pasará a recoger el pedido</label>
-            </div>
+          <div class="teus-delivery-box" id="inlineDeliveryBox" style="display:none;">
+            <div id="inlineSantaCruzDelivery" style="display:none;">
+              <div class="teus-delivery-title"><i class="fas fa-map-marked-alt"></i> ¿Dónde se entregará el pedido?</div>
+              <div class="teus-delivery-options">
+                <label class="teus-delivery-option"><input type="radio" name="inlineDeliveryType" value="provincia"> Provincia (escribe el nombre)</label>
+                <label class="teus-delivery-option"><input type="radio" name="inlineDeliveryType" value="ciudad"> Ciudad de Santa Cruz</label>
+                <label class="teus-delivery-option"><input type="radio" name="inlineDeliveryType" value="recoger"> Pasará a recoger el pedido</label>
+              </div>
 
-            <div id="inlineProvinceExtra" class="teus-delivery-extra">
-              <div class="input-with-icon"><i class="fas fa-map-pin"></i><input type="text" id="inlineProvinceName" placeholder="Escribe la provincia"></div>
-              <div class="input-with-icon"><i class="fas fa-truck-loading"></i>
-                <select id="inlineProvincePoint">
-                  <option value="">Seleccione una opción</option>
-                  <option value="terminal_bimodal">Terminal Bimodal Nueva</option>
-                  <option value="terminal_antigua">Ex terminal antigua, primer anillo</option>
-                  <option value="doble_via_guardia">Doble vía La Guardia</option>
-                  <option value="pozos">Zona de los Pozos</option>
-                </select>
+              <div id="inlineProvinceExtra" class="teus-delivery-extra">
+                <div class="input-with-icon"><i class="fas fa-map-pin"></i><input type="text" id="inlineProvinceName" placeholder="Escribe el nombre de la provincia"></div>
+                <div class="input-with-icon"><i class="fas fa-truck-loading"></i>
+                  <select id="inlineProvincePoint">
+                    <option value="">Seleccione el punto de salida</option>
+                    <option value="terminal_bimodal">Terminal Bimodal Nueva</option>
+                    <option value="terminal_antigua">Ex terminal antigua, primer anillo</option>
+                    <option value="doble_via_guardia">Doble vía La Guardia</option>
+                    <option value="pozos">Zona de los Pozos</option>
+                  </select>
+                </div>
+              </div>
+
+              <div id="inlineCityExtra" class="teus-delivery-extra">
+                <div class="input-with-icon"><i class="fas fa-map-marker-alt"></i>
+                  <select id="inlineCityZone">
+                    <option value="">Seleccione una zona</option>
+                    <option value="Zona Norte">Zona Norte</option>
+                    <option value="Zona Sur">Zona Sur</option>
+                    <option value="Zona Este">Zona Este</option>
+                    <option value="Zona Oeste">Zona Oeste</option>
+                    <option value="Zona Centro">Zona Centro</option>
+                  </select>
+                </div>
               </div>
             </div>
 
-            <div id="inlineCityExtra" class="teus-delivery-extra">
-              <div class="input-with-icon"><i class="fas fa-shipping-fast"></i>
-                <select id="inlineCityShipping">
-                  <option value="">Seleccione una modalidad de envío</option>
-                  <option value="viernes">Envío viernes</option>
-                  <option value="urgente">Envío urgente el mismo día</option>
-                </select>
+            <div id="inlineOtherDepartmentDelivery" class="teus-delivery-extra" style="display:none;">
+              <div class="teus-delivery-title" style="margin-top:0;"><i class="fas fa-truck"></i> Información de transportadora</div>
+              <div class="input-with-icon"><i class="fas fa-truck-loading"></i>
+                <input type="text" id="inlineTransportName" placeholder="Ej: Mexicano, Transbol, etc.">
               </div>
             </div>
           </div>
@@ -2480,8 +2505,56 @@ const TEUS_PROVINCE_POINTS = {
 };
 
 function getInlineDeliveryType(){
-    return document.querySelector('input[name="inlineDeliveryType"]:checked')?.value || '';
+    const r=document.querySelector('input[name="inlineDeliveryType"]:checked');
+    return r?r.value:'';
 }
+
+function resetInlineDeliveryFields(){
+    document.querySelectorAll('input[name="inlineDeliveryType"]').forEach(r=>r.checked=false);
+    const provinceBox=document.getElementById('inlineProvinceExtra');
+    const cityBox=document.getElementById('inlineCityExtra');
+    if(provinceBox) provinceBox.classList.remove('show');
+    if(cityBox) cityBox.classList.remove('show');
+
+    const province=document.getElementById('inlineProvinceName');
+    const point=document.getElementById('inlineProvincePoint');
+    const zone=document.getElementById('inlineCityZone');
+    const transport=document.getElementById('inlineTransportName');
+    if(province) province.value='';
+    if(point) point.value='';
+    if(zone) zone.value='';
+    if(transport) transport.value='';
+}
+
+function updateInlineDepartmentUI(){
+    const dept=document.getElementById('inlineDepartment').value;
+    const box=document.getElementById('inlineDeliveryBox');
+    const sc=document.getElementById('inlineSantaCruzDelivery');
+    const other=document.getElementById('inlineOtherDepartmentDelivery');
+
+    resetInlineDeliveryFields();
+
+    if(!dept){
+        box.style.display='none';
+        sc.style.display='none';
+        other.style.display='none';
+        return;
+    }
+
+    box.style.display='block';
+    if(dept==='Santa Cruz'){
+        sc.style.display='block';
+        other.style.display='none';
+    }else{
+        sc.style.display='none';
+        other.style.display='block';
+    }
+
+    const address=document.getElementById('inlineAddress');
+    address.required=true;
+    address.placeholder='Dirección de entrega';
+}
+
 function updateInlineDeliveryUI(){
     const tipo=getInlineDeliveryType();
     const provinceBox=document.getElementById('inlineProvinceExtra');
@@ -2498,45 +2571,62 @@ function updateInlineDeliveryUI(){
         address.placeholder='Dirección de entrega';
     }
 }
+
+document.getElementById('inlineDepartment').addEventListener('change',updateInlineDepartmentUI);
 document.querySelectorAll('input[name="inlineDeliveryType"]').forEach(r=>{
     r.addEventListener('change',updateInlineDeliveryUI);
 });
 
 function buildInlineDeliveryForWhatsApp(){
-    const tipo=getInlineDeliveryType();
-    if(!tipo) return {ok:false,error:'Selecciona dónde se entregará el pedido.'};
+    const dept=document.getElementById('inlineDepartment').value;
 
-    if(tipo==='provincia'){
-        const provincia=document.getElementById('inlineProvinceName').value.trim();
-        const key=document.getElementById('inlineProvincePoint').value;
-        if(!provincia) return {ok:false,error:'Escribe el nombre de la provincia.'};
-        if(!key || !TEUS_PROVINCE_POINTS[key]) return {ok:false,error:'Selecciona el punto de entrega para provincia.'};
-        const p=TEUS_PROVINCE_POINTS[key];
+    /* Misma estructura del sistema Por Mayor:
+       Santa Cruz -> provincia / ciudad / recoger.
+       Otros departamentos -> transportadora. */
+    if(dept==='Santa Cruz'){
+        const tipo=getInlineDeliveryType();
+        if(!tipo) return {ok:false,error:'Selecciona dónde se entregará el pedido.'};
+
+        if(tipo==='provincia'){
+            const provincia=document.getElementById('inlineProvinceName').value.trim();
+            const key=document.getElementById('inlineProvincePoint').value;
+            if(!provincia) return {ok:false,error:'Escribe el nombre de la provincia.'};
+            if(!key || !TEUS_PROVINCE_POINTS[key]) return {ok:false,error:'Selecciona el punto de salida para provincia.'};
+            const p=TEUS_PROVINCE_POINTS[key];
+            return {
+                ok:true,
+                texto:`🏘️ *Provincia:* ${provincia}\n🚚 *Punto de salida:* ${p.label}\n💵 *Costo interno hasta terminal:* Bs ${p.costo.toFixed(2)}`,
+                costo:p.costo
+            };
+        }
+
+        if(tipo==='ciudad'){
+            const zona=document.getElementById('inlineCityZone').value;
+            if(!zona) return {ok:false,error:'Selecciona una zona de Santa Cruz.'};
+            return {
+                ok:true,
+                texto:`📍 *Modalidad:* Ciudad de Santa Cruz\n🧭 *Zona:* ${zona}\n🚚 *Costo de envío:* Se cotizará cuando el paquete esté listo`,
+                costo:0,
+                costoVariable:true
+            };
+        }
+
         return {
             ok:true,
-            texto:`📍 *Tipo de entrega:* Provincia\n🏘️ *Provincia:* ${provincia}\n🚚 *Punto de entrega:* ${p.label}\n💵 *Costo de envío:* Bs ${p.costo.toFixed(2)}`,
-            costo:p.costo
+            texto:'📦 *Modalidad:* Cliente pasa a recoger\n💵 *Costo de envío:* Sin costo',
+            costo:0
         };
     }
 
-    if(tipo==='ciudad'){
-        const modalidad=document.getElementById('inlineCityShipping').value;
-        if(!modalidad) return {ok:false,error:'Selecciona la modalidad de envío en Santa Cruz.'};
-        if(modalidad==='viernes'){
-            return {ok:true,texto:'📍 *Tipo de entrega:* Ciudad de Santa Cruz\n🚚 *Modalidad:* Envío viernes\n💵 *Costo de envío:* Bs 0.00',costo:0};
-        }
-        if(modalidad==='urgente'){
-            const dia=new Date().getDay(); // 0 dom, 1 lun, 2 mar, 3 mié, 4 jue, 5 vie, 6 sáb
-            const habil=[1,2,4,5].includes(dia);
-            return {
-                ok:true,
-                texto:`📍 *Tipo de entrega:* Ciudad de Santa Cruz\n🚚 *Modalidad:* Envío urgente el mismo día\n💵 *Costo de envío:* Bs 15.00${habil?'':'\n⚠️ *Nota interna:* modalidad urgente sujeta a día habilitado (lunes, martes, jueves o viernes)'}`,
-                costo:15
-            };
-        }
-    }
+    const transport=document.getElementById('inlineTransportName').value.trim();
+    if(!transport) return {ok:false,error:'Escribe el nombre de la transportadora.'};
 
-    return {ok:true,texto:'📍 *Tipo de entrega:* Pasará a recoger el pedido\n💵 *Costo de envío:* Bs 0.00',costo:0};
+    /* Igual que el sistema: otros departamentos tienen costo base de 15 Bs hasta terminal. */
+    return {
+        ok:true,
+        texto:`🚚 *Transportadora:* ${transport}\n💵 *Costo interno hasta terminal:* Bs 15.00`,
+        costo:15
+    };
 }
 
 document.getElementById('inlineOrderForm').onsubmit=(e)=>{
@@ -2550,7 +2640,7 @@ document.getElementById('inlineOrderForm').onsubmit=(e)=>{
     const tipo=getInlineDeliveryType();
 
     if(!nombre||!telefono||!dept){alert('Completa nombre, celular y departamento.');return;}
-    if(tipo!=='recoger' && !direccion){alert('Completa la dirección de entrega.');return;}
+    if(!(dept==='Santa Cruz' && tipo==='recoger') && !direccion){alert('Completa la dirección de entrega.');return;}
 
     const entrega=buildInlineDeliveryForWhatsApp();
     if(!entrega.ok){alert(entrega.error);return;}
@@ -2567,8 +2657,13 @@ document.getElementById('inlineOrderForm').onsubmit=(e)=>{
     });
 
     mensaje+=`\n💰 *TOTAL PRODUCTOS: Bs ${subtotal.toFixed(2)}*`;
-    mensaje+=`\n🚚 *ENVÍO: Bs ${Number(entrega.costo||0).toFixed(2)}*`;
-    mensaje+=`\n💵 *TOTAL CON ENVÍO: Bs ${(subtotal+Number(entrega.costo||0)).toFixed(2)}*`;
+    if(entrega.costoVariable){
+        mensaje+=`\n🚚 *ENVÍO:* Se cotizará cuando el paquete esté listo`;
+        mensaje+=`\n💵 *TOTAL DEL PEDIDO: Bs ${subtotal.toFixed(2)} + envío*`;
+    }else{
+        mensaje+=`\n🚚 *ENVÍO: Bs ${Number(entrega.costo||0).toFixed(2)}*`;
+        mensaje+=`\n💵 *TOTAL CON ENVÍO: Bs ${(subtotal+Number(entrega.costo||0)).toFixed(2)}*`;
+    }
 
     try{gtag('event','pedido_enviado',{event_category:'ecommerce'});}catch(err){}
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`,'_blank');
