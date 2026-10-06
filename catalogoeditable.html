@@ -1100,6 +1100,58 @@
 }
 </style>
 
+
+<style id="teus-admin-grid-restored">
+/* Restauración ADMIN: solo afecta controles administrativos dentro de la cuadrícula */
+.category-product-card .admin-editor{
+  margin-top:12px;
+  padding:10px;
+  width:100%;
+  max-width:none;
+  border-width:1px;
+  border-radius:10px;
+  font-size:11px;
+}
+.category-product-card .admin-editor-title{
+  font-size:11px;
+  margin-bottom:8px;
+}
+.category-product-card .admin-grid{
+  grid-template-columns:1fr !important;
+  gap:7px;
+}
+.category-product-card .admin-field label{font-size:10px;}
+.category-product-card .admin-field input{
+  padding:7px;
+  font-size:11px;
+}
+.category-product-card .admin-checks{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:6px;
+  margin:9px 0;
+}
+.category-product-card .admin-checks label{
+  font-size:10px;
+  line-height:1.25;
+}
+.category-product-card .admin-actions{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:6px;
+}
+.category-product-card .admin-actions button{
+  width:100%;
+  padding:7px 8px;
+  font-size:10px;
+}
+.category-product-card .admin-photo-link{
+  font-size:9px;
+  max-height:42px;
+  overflow:auto;
+}
+</style>
+
 </head>
 <body>
 
@@ -1960,6 +2012,11 @@ function renderCategoryProducts(products) {
         } else {
           cards += `<div class="agotado-mensaje">❌ Producto agotado</div>`;
         }
+        // En modo ADMIN, cada tarjeta debe incluir su editor real.
+        // En público no se genera absolutamente nada administrativo.
+        if (adminActual) {
+          cards += adminEditorHtml(prod, i);
+        }
         cards += `</div></article>`;
     });
 
@@ -1977,6 +2034,26 @@ function renderCategoryProducts(products) {
     container.querySelectorAll('.category-desc').forEach(btn=>btn.onclick=(e)=>{
         e.stopPropagation(); const p=currentResults[+btn.dataset.idx]; if(p) showDescription(p);
     });
+
+    // Controles ADMIN de la cuadrícula moderna.
+    if(adminActual){
+        container.querySelectorAll('.admin-save').forEach(btn=>btn.onclick=(e)=>{
+            e.stopPropagation();
+            const box=btn.closest('.admin-editor');
+            guardarAdminItem(parseInt(btn.dataset.idx),box);
+        });
+        container.querySelectorAll('.admin-delete').forEach(btn=>btn.onclick=(e)=>{
+            e.stopPropagation();
+            eliminarAdminItem(parseInt(btn.dataset.idx),false);
+        });
+        container.querySelectorAll('.admin-delete-photo').forEach(btn=>btn.onclick=(e)=>{
+            e.stopPropagation();
+            eliminarAdminItem(parseInt(btn.dataset.idx),true);
+        });
+        container.querySelectorAll('.admin-editor input').forEach(inp=>{
+            inp.onclick=e=>e.stopPropagation();
+        });
+    }
 }
 
 function categoryCartKey(product){ return `CATPAQ::${product.seccion}::${product.nombre}`; }
