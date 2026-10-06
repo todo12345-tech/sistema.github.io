@@ -2629,43 +2629,109 @@ function buildInlineDeliveryForWhatsApp(){
     };
 }
 
-document.getElementById('inlineOrderForm').onsubmit=(e)=>{
+document.getElementById('inlineOrderForm').onsubmit=function(e){
     e.preventDefault();
-    if(!cart.length){alert('Carrito vacío');return;}
+    if(!cart.length){ alert('Carrito vacío'); return; }
 
     const nombre=document.getElementById('inlineFullName').value.trim();
     const telefono=document.getElementById('inlinePhone').value.trim();
-    const direccion=document.getElementById('inlineAddress').value.trim();
+    let direccion=document.getElementById('inlineAddress').value.trim();
     const dept=document.getElementById('inlineDepartment').value;
     const tipo=getInlineDeliveryType();
 
-    if(!nombre||!telefono||!dept){alert('Completa nombre, celular y departamento.');return;}
-    if(!(dept==='Santa Cruz' && tipo==='recoger') && !direccion){alert('Completa la dirección de entrega.');return;}
-
-    const entrega=buildInlineDeliveryForWhatsApp();
-    if(!entrega.ok){alert(entrega.error);return;}
-
-    let subtotal=0;
-    let mensaje=`PEDIDO AL POR MAYOR - Todoenuno_store\n\n👤 *Nombre:* ${nombre}\n📱 *Celular:* ${telefono}\n`;
-    if(direccion) mensaje+=`📍 *Dirección:* ${direccion}\n`;
-    mensaje+=`🗺️ *Departamento:* ${dept}\n${entrega.texto}\n\n📋 *DETALLE DEL PEDIDO:*\n`;
-
-    cart.forEach(item=>{
-        const line=(Number(item.unitPrice)||0)*(Number(item.qty)||1);
-        subtotal+=line;
-        mensaje+=`➡️ ${item.qty} ${item.qty===1?'paquete':'paquetes'} · ${item.name} — Bs ${line.toFixed(2)}\n`;
-    });
-
-    mensaje+=`\n💰 *TOTAL PRODUCTOS: Bs ${subtotal.toFixed(2)}*`;
-    if(entrega.costoVariable){
-        mensaje+=`\n🚚 *ENVÍO:* Se cotizará cuando el paquete esté listo`;
-        mensaje+=`\n💵 *TOTAL DEL PEDIDO: Bs ${subtotal.toFixed(2)} + envío*`;
-    }else{
-        mensaje+=`\n🚚 *ENVÍO: Bs ${Number(entrega.costo||0).toFixed(2)}*`;
-        mensaje+=`\n💵 *TOTAL CON ENVÍO: Bs ${(subtotal+Number(entrega.costo||0)).toFixed(2)}*`;
+    if(!nombre||!telefono||!dept){
+        alert('Completa nombre, celular y departamento.');
+        return;
     }
 
-    try{gtag('event','pedido_enviado',{event_category:'ecommerce'});}catch(err){}
+    if(dept==='Santa Cruz' && tipo==='recoger' && !direccion){
+        direccion='Cliente pasa a recoger';
+    }
+    if(tipo!=='recoger' && !direccion){
+        alert('Completa la dirección de entrega.');
+        return;
+    }
+
+    const entrega=buildInlineDeliveryForWhatsApp();
+    if(!entrega.ok){ alert(entrega.error); return; }
+
+    let subtotal=0;
+    cart.forEach(item=>{
+        subtotal+=(Number(item.price ?? item.unitPrice)||0)*(Number(item.qty)||1);
+    });
+
+    let costoEnvio=Number(entrega.costo||0);
+    let total=subtotal+costoEnvio;
+    let mensaje=`PEDIDO AL POR MAYOR - Todoenuno_store\n\n`;
+    mensaje+=`👤 *Nombre:* ${nombre}\n`;
+    mensaje+=`📱 *Teléfono:* ${telefono}\n`;
+    mensaje+=`📍 *Dirección:* ${direccion}\n`;
+    mensaje+=`🗺️ *Departamento:* ${dept}\n`;
+
+    let notaEnvio='';
+
+    if(dept==='Santa Cruz'){
+        if(tipo==='provincia'){
+            const provincia=(document.getElementById('inlineProvinceName')?.value||'').trim() || 'No especificada';
+            const key=document.getElementById('inlineProvincePoint')?.value||'';
+            const p=(typeof TEUS_PROVINCE_POINTS!=='undefined' && TEUS_PROVINCE_POINTS[key]) ? TEUS_PROVINCE_POINTS[key] : null;
+            const transportadora=p ? `${p.label} (${Number(p.costo||0).toFixed(0)} Bs)` : 'No seleccionada';
+            mensaje+=`🏘️ *Provincia:* ${provincia}\n`;
+            mensaje+=`🚚 *Transportadora de salida:* ${transportadora}\n`;
+            notaEnvio='Nota: El costo de envío mostrado es para llevar el pedido hasta la terminal de buses. El envío a provincia se realiza bajo la modalidad de pago en destino (por pagar).';
+        }else if(tipo==='ciudad'){
+            const zona=document.getElementById('inlineCityZone')?.value||'No especificada';
+            mensaje+=`📍 *Zona en ciudad:* ${zona}\n`;
+            notaEnvio='Nota: El costo de envío en ciudad se coordinará por WhatsApp.';
+        }else if(tipo==='recoger'){
+            const diaEl=document.getElementById('inlinePickupDay') || document.getElementById('inlineDiaRecogida') || document.getElementById('diaRecogida');
+            const dia=(diaEl?.value||'').trim() || 'No especificado';
+            mensaje+=`📦 *Modalidad:* Cliente pasa a recoger\n`;
+            mensaje+=`📅 *Día de recogida:* ${dia}\n`;
+            costoEnvio=0;
+            total=subtotal;
+            notaEnvio='Nota: El cliente pasará a recoger el pedido. No hay costo de envío.';
+        }
+    }else{
+        const transportadora=(document.getElementById('inlineTransportName')?.value||'').trim() || 'No especificada';
+        mensaje+=`🚚 *Transportadora:* ${transportadora}\n`;
+        notaEnvio='Nota: El envío se coordinará con la transportadora indicada.';
+    }
+
+    mensaje+=`💰 *Estado de pago:* Enviado a WhatsApp\n\n`;
+    mensaje+=`📋 *DETALLE DEL PEDIDO:*\n`;
+
+    cart.forEach(item=>{
+        const qty=Number(item.qty)||1;
+        const precio=Number(item.price ?? item.unitPrice)||0;
+        const monto=precio*qty;
+        const nombreProducto=(item.name||'Producto').toString().trim();
+        mensaje+=`➡️ ${qty} paquete(s) - ${nombreProducto} - ${monto.toFixed(2).replace(/\.00$/,'')} Bs\n`;
+    });
+
+    mensaje+=`\n💰 *Subtotal:* ${subtotal.toFixed(2).replace(/\.00$/,'')} Bs\n`;
+
+    if(dept==='Santa Cruz' && tipo==='recoger'){
+        mensaje+=`🚚 *Costo de envío:* Sin costo (cliente recoge)\n`;
+        mensaje+=`💵 *TOTAL:* ${subtotal.toFixed(2).replace(/\.00$/,'')} Bs\n`;
+    }else if(entrega.costoVariable){
+        mensaje+=`🚚 *Costo de envío:* Se cotizará por WhatsApp\n`;
+        mensaje+=`💵 *TOTAL:* ${subtotal.toFixed(2).replace(/\.00$/,'')} Bs\n`;
+    }else{
+        mensaje+=`🚚 *Costo de envío:* ${costoEnvio.toFixed(2).replace(/\.00$/,'')} Bs\n`;
+        mensaje+=`💵 *TOTAL:* ${total.toFixed(2).replace(/\.00$/,'')} Bs\n`;
+    }
+
+    const nota=(document.getElementById('inlineNote')?.value||'').trim();
+    if(nota){
+        mensaje+=`\n📝 Nota: ${nota}\n`;
+    }else if(notaEnvio){
+        mensaje+=`\n📝 ${notaEnvio}\n`;
+    }
+
+    mensaje+=`\n📅 *Fecha:* ${new Date().toLocaleString('es-BO')}`;
+
+    try{ if(typeof gtag==='function') gtag('event','pedido_enviado',{event_category:'ecommerce'}); }catch(err){}
     window.open(`https://wa.me/${WHATSAPP_NUMBER}?text=${encodeURIComponent(mensaje)}`,'_blank');
 };
 
