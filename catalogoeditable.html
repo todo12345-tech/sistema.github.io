@@ -1234,6 +1234,90 @@ body.admin-mode .admin-field.admin-edited-photo-field{
 }
 </style>
 
+
+<style id="teus-admin-estados-vista-general">
+/* ===== ADMIN: ESTADOS EN LA VISTA GENERAL DE CATEGORÍAS ===== */
+
+/* Nombre completo también en los mini productos */
+body.admin-mode .category-card .mini-product-name,
+body.admin-mode .category-card .category-mini-name,
+body.admin-mode .category-card .product-mini-name,
+body.admin-mode .category-card .mini-name{
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  display:block !important;
+  -webkit-line-clamp:unset !important;
+  line-clamp:unset !important;
+  max-height:none !important;
+  height:auto !important;
+  word-break:break-word !important;
+}
+
+/* Estado amarillo: tiene stock pero falta imagen_editada */
+body.admin-mode .admin-mini-falta-editada{
+  background:#fff4a8 !important;
+  box-shadow:inset 0 0 0 3px #f2c200 !important;
+  border-radius:7px;
+  padding:4px;
+}
+body.admin-mode .admin-mini-falta-editada::after{
+  content:"FALTA FOTO EDITADA";
+  display:block;
+  margin-top:3px;
+  color:#6a5100;
+  font-size:8px;
+  font-weight:900;
+  line-height:1.1;
+}
+
+/* Estado rojo: NO disponible por paquete. Tiene prioridad visual. */
+body.admin-mode .admin-mini-sin-stock{
+  background:#ffe2e2 !important;
+  box-shadow:inset 0 0 0 3px #e11d48 !important;
+  border-radius:7px;
+  padding:4px;
+}
+body.admin-mode .admin-mini-sin-stock::after{
+  content:"SIN STOCK";
+  display:block;
+  margin-top:3px;
+  color:#b00020;
+  font-size:9px;
+  font-weight:900;
+  line-height:1.1;
+}
+body.admin-mode .admin-mini-sin-stock img{
+  opacity:.82;
+}
+body.admin-mode .admin-mini-sin-stock .mini-product-name,
+body.admin-mode .admin-mini-sin-stock .category-mini-name,
+body.admin-mode .admin-mini-sin-stock .product-mini-name,
+body.admin-mode .admin-mini-sin-stock .mini-name{
+  color:#b00020 !important;
+  text-decoration:underline;
+  text-decoration-thickness:2px;
+}
+
+/* Si falta editada pero existe original, la original es SOLO referencia ADMIN. */
+body.admin-mode .admin-original-reference{
+  position:relative;
+}
+body.admin-mode .admin-original-reference::before{
+  content:"ORIGINAL";
+  position:absolute;
+  top:3px;
+  left:3px;
+  z-index:2;
+  background:#f2c200;
+  color:#332800;
+  padding:2px 4px;
+  border-radius:3px;
+  font-size:7px;
+  font-weight:900;
+}
+</style>
+
 </head>
 <body>
 
@@ -3023,6 +3107,151 @@ function limpiarFormularioLoginV7(){
  window.addEventListener('load',function(){tick();setInterval(tick,1000);});
  window.addEventListener('resize',tick);
  setTimeout(tick,500);setTimeout(tick,1500);
+})();
+</script>
+
+
+<script id="teus-admin-general-state-helper">
+function teusAdminMiniState(prod){
+  if(!prod) return {cls:'', img:'', original:false};
+
+  const edited=String(prod.imagenEditada || prod.imagen_editada || '').trim();
+  const original=String(prod.imagenOriginal || prod.imagen_original || '').trim();
+  const available=!!prod.dispPaquete;
+
+  if(!available){
+    return {
+      cls:'admin-mini-sin-stock',
+      img:edited || original || '',
+      original:!edited && !!original
+    };
+  }
+
+  if(!edited){
+    return {
+      cls:'admin-mini-falta-editada',
+      img:original || '',
+      original:!!original
+    };
+  }
+
+  return {cls:'',img:edited,original:false};
+}
+</script>
+
+
+<script id="teus-admin-general-state-decorator">
+(function(){
+  function norm(v){
+    return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+      .toLowerCase().replace(/\s+/g,' ').trim();
+  }
+
+  function findProductByVisibleName(name){
+    if(!Array.isArray(window.masterProducts) && typeof masterProducts==='undefined') return null;
+    const list=(typeof masterProducts!=='undefined' ? masterProducts : window.masterProducts) || [];
+    const n=norm(name);
+    if(!n) return null;
+
+    let exact=list.find(p=>norm(p.nombre)===n);
+    if(exact) return exact;
+
+    /* La vista antigua puede truncar visualmente con "...". */
+    const prefix=n.replace(/\.{2,}$/,'').trim();
+    if(prefix.length>=5){
+      const candidates=list.filter(p=>norm(p.nombre).startsWith(prefix));
+      if(candidates.length===1) return candidates[0];
+    }
+    return null;
+  }
+
+  function decorateGeneralAdminCards(){
+    if(typeof adminActual==='undefined' || !adminActual) return;
+
+    /* Buscamos mini elementos de producto dentro de tarjetas de categorías,
+       excluyendo la cuadrícula de resultados detallados. */
+    const selectors=[
+      '.category-card .product-mini',
+      '.category-card .mini-product',
+      '.category-card .category-product-mini',
+      '.category-card .product-item',
+      '.home-category-card .product-item',
+      '.home-category-card .mini-product',
+      '.category-box .product-item'
+    ];
+
+    let minis=[...document.querySelectorAll(selectors.join(','))];
+
+    /* Fallback para la estructura visual original: contenedores pequeños con IMG + texto
+       dentro de tarjetas generales, pero nunca las tarjetas grandes de resultados. */
+    if(!minis.length){
+      const cards=[...document.querySelectorAll('.category-card,.home-category-card,.category-box')];
+      cards.forEach(card=>{
+        [...card.querySelectorAll('img')].forEach(img=>{
+          const item=img.closest('a,button,div');
+          if(item && item!==card && !item.closest('.category-product-card')) minis.push(item);
+        });
+      });
+    }
+
+    [...new Set(minis)].forEach(item=>{
+      if(item.closest('.category-product-card')) return;
+
+      const nameEl=item.querySelector(
+        '.mini-product-name,.category-mini-name,.product-mini-name,.mini-name,.product-name'
+      );
+      let visibleName=nameEl ? nameEl.textContent : '';
+
+      if(!visibleName){
+        const img=item.querySelector('img');
+        visibleName=(img && (img.alt||img.title)) || '';
+      }
+
+      const prod=findProductByVisibleName(visibleName);
+      if(!prod) return;
+
+      item.classList.remove('admin-mini-falta-editada','admin-mini-sin-stock','admin-original-reference');
+      const state=teusAdminMiniState(prod);
+      if(state.cls) item.classList.add(state.cls);
+      if(state.original) item.classList.add('admin-original-reference');
+
+      /* ADMIN general:
+         - editada -> editada
+         - sin editada -> original como REFERENCIA administrativa
+         Público no pasa por esta función. */
+      const img=item.querySelector('img');
+      if(img && state.img){
+        const current=img.getAttribute('src')||'';
+        if(current!==state.img) img.src=state.img;
+      }
+
+      if(nameEl){
+        nameEl.textContent=prod.nombre || visibleName;
+        nameEl.title=prod.nombre || visibleName;
+        nameEl.style.whiteSpace='normal';
+        nameEl.style.overflow='visible';
+        nameEl.style.textOverflow='clip';
+        nameEl.style.webkitLineClamp='unset';
+        nameEl.style.maxHeight='none';
+      }
+    });
+  }
+
+  function schedule(){
+    requestAnimationFrame(()=>setTimeout(decorateGeneralAdminCards,0));
+  }
+
+  window.addEventListener('load',schedule);
+  window.addEventListener('hashchange',schedule);
+
+  /* La pantalla se vuelve a dibujar al cargar productos o navegar.
+     Observer solo decora cuando el DOM cambia; no modifica lógica comercial. */
+  const obs=new MutationObserver(function(){
+    if(typeof adminActual!=='undefined' && adminActual) schedule();
+  });
+  obs.observe(document.documentElement,{childList:true,subtree:true});
+
+  window.teusDecorateGeneralAdminCards=decorateGeneralAdminCards;
 })();
 </script>
 
