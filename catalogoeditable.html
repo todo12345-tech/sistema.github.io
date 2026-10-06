@@ -1152,6 +1152,88 @@
 }
 </style>
 
+
+<style id="teus-admin-estados-gestion-v2">
+/* Solo modo ADMIN editable */
+body.admin-mode .category-product-name{
+  min-height:0 !important;
+  height:auto !important;
+  max-height:none !important;
+  display:block !important;
+  white-space:normal !important;
+  overflow:visible !important;
+  text-overflow:clip !important;
+  -webkit-line-clamp:unset !important;
+  -webkit-box-orient:initial !important;
+  word-break:break-word !important;
+}
+
+/* Amarillo: existe el item pero falta imagen_editada */
+body.admin-mode .category-product-card.admin-falta-editada{
+  background:#fff7c2 !important;
+  box-shadow:inset 0 0 0 2px #e6b800 !important;
+}
+body.admin-mode .category-product-card.admin-falta-editada::before{
+  content:"⚠ FALTA IMAGEN EDITADA";
+  display:block;
+  background:#ffd84d;
+  color:#473700;
+  font-size:10px;
+  font-weight:900;
+  padding:5px 7px;
+  margin-bottom:5px;
+  border-radius:5px;
+}
+
+/* Rojo tiene prioridad: no disponible por paquete */
+body.admin-mode .category-product-card.admin-sin-stock{
+  background:#fff0f0 !important;
+  box-shadow:inset 0 0 0 2px #dc2626 !important;
+}
+body.admin-mode .category-product-card.admin-sin-stock::before{
+  content:"✖ SIN STOCK / NO DISPONIBLE";
+  display:block;
+  background:#dc2626;
+  color:white;
+  font-size:10px;
+  font-weight:900;
+  padding:5px 7px;
+  margin-bottom:5px;
+  border-radius:5px;
+}
+body.admin-mode .category-product-card.admin-sin-stock .category-product-name{
+  text-decoration:underline;
+  text-decoration-color:#dc2626;
+  text-decoration-thickness:2px;
+}
+
+/* Si falta imagen editada, NO mostrar la original en la tarjeta */
+.admin-photo-pending{
+  width:100%;
+  min-height:185px;
+  background:#fff0a8;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  text-align:center;
+  padding:14px;
+  color:#594500;
+  font-size:12px;
+  font-weight:800;
+  line-height:1.35;
+  border-radius:7px;
+}
+.admin-photo-pending i{display:block;font-size:25px;margin-bottom:7px}
+
+/* Campo que sirve para actualizar la foto pública */
+body.admin-mode .admin-field.admin-edited-photo-field{
+  background:#fff7c2;
+  border:1px solid #e6b800;
+  border-radius:8px;
+  padding:7px;
+}
+</style>
+
 </head>
 <body>
 
@@ -1774,15 +1856,15 @@ async function loadProducts() {
             if(!nombre) continue;
             const precioPaquete=num(row,idx.prePaq); const unidadesTexto=get(row,idx.cantPaq); const unidadesNumero=parseInt(unidadesTexto,10)||1;
             const dispPaquete=esSi(get(row,idx.dispPaq)); const publicado=esSi(get(row,idx.publicar));
-            const imagenEditadaRaw=get(row,idx.imgEditada); const imagenOriginalRaw=get(row,idx.imgOriginal); const imagen=getImageUrl(imagenEditadaRaw||imagenOriginalRaw);
-            if(!seccion || !imagen) continue;
+            const imagenEditadaRaw=get(row,idx.imgEditada); const imagenOriginalRaw=get(row,idx.imgOriginal); const imagen=getImageUrl(imagenEditadaRaw);
+            if(!seccion) continue;
             const ofertaDia=esSi(get(row,idx.ofertaDia)), ofertaSemana=esSi(get(row,idx.ofertaSemana));
             const hastaFecha=get(row,idx.hastaFecha), precioOferta=num(row,idx.precioOferta);
             productos.push({seccion,nombre,precioPaquete,unidadesTexto,unidadesNumero,precioMayor:0,cantidadMayorTexto:'',dispPaquete,dispMayor:false,publicado,imagen,imagenEditada:getImageUrl(imagenEditadaRaw),imagenOriginal:getImageUrl(imagenOriginalRaw),imagenEditadaRaw,imagenOriginalRaw,descripcion:'Sin descripción',oferta:ofertaDia||ofertaSemana,ofertaDia,ofertaSemana,hastaFecha,precioOferta,esBolsas:seccion.toLowerCase().includes('bolsas')});
         }
         masterProducts=productos;
         // Público: solo publicado + disponible por paquete. ADMIN: absolutamente todos.
-        allProducts=adminActual ? masterProducts : masterProducts.filter(p=>p.publicado && p.dispPaquete);
+        allProducts=adminActual ? masterProducts : masterProducts.filter(p=>p.publicado && p.dispPaquete && !!p.imagenEditada);
         const uniqueCategories=[...new Set(allProducts.map(p=>p.seccion))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
         homeCategoryOrder=uniqueCategories; homeCache={};
         const catList=document.getElementById('categoryList'); catList.innerHTML='';
@@ -1928,7 +2010,7 @@ function adminEditorHtml(prod,i){
         <div class="admin-field"><label>Nombre</label><input class="adm-nombre" value="${escapeHtml(prod.nombre)}"></div>
         <div class="admin-field"><label>Precio paquete (Bs)</label><input class="adm-precio" type="number" step="0.01" value="${escapeHtml(prod.precioPaquete)}"></div>
         <div class="admin-field"><label>Cantidad / presentación del paquete</label><input class="adm-cantidad" value="${escapeHtml(prod.unidadesTexto)}"></div>
-        <div class="admin-field"><label>Imagen editada (URL Drive)</label><input class="adm-imagen" value="${escapeHtml(prod.imagenEditadaRaw||'')}"></div>
+        <div class="admin-field admin-edited-photo-field"><label>Imagen editada / actualizar foto pública (URL Drive)</label><input class="adm-imagen" value="${escapeHtml(prod.imagenEditadaRaw||'')}"></div>
         <div class="admin-field"><label>Hasta qué fecha</label><input class="adm-hasta" type="date" value="${escapeHtml((prod.hastaFecha||'').match(/^\d{4}-\d{2}-\d{2}$/)?prod.hastaFecha:'')}"></div>
         <div class="admin-field"><label>Precio especial de oferta (Bs)</label><input class="adm-precio-oferta" type="number" step="0.01" value="${prod.precioOferta||''}"></div>
       </div>
@@ -1986,10 +2068,16 @@ function renderCategoryProducts(products) {
     sortedProducts.forEach((prod, i) => {
         const disponible = prod.dispPaquete && prod.precioPaquete > 0;
         const visual = disponible ? getVisualPrice(prod.precioPaquete) : null;
-        cards += `<article class="category-product-card">
-          <div class="category-product-image" data-img="${escapeHtml(prod.imagen)}"><img src="${escapeHtml(prod.imagen)}" loading="lazy" alt="${escapeHtml(prod.nombre)}"></div>
+        const adminState = adminActual ? (!prod.dispPaquete ? ' admin-sin-stock' : (!prod.imagenEditada ? ' admin-falta-editada' : '')) : '';
+        const imageHtml = prod.imagenEditada
+          ? `<div class="category-product-image" data-img="${escapeHtml(prod.imagenEditada)}"><img src="${escapeHtml(prod.imagenEditada)}" loading="lazy" alt="${escapeHtml(prod.nombre)}"></div>`
+          : (adminActual
+              ? `<div class="category-product-image admin-photo-pending"><div><i class="fas fa-image"></i>Falta imagen editada<br><small>No aparece en el catálogo público</small></div></div>`
+              : '');
+        cards += `<article class="category-product-card${adminState}">
+          ${imageHtml}
           <div class="category-product-body">
-            <div class="category-product-name">${escapeHtml(prod.nombre)}</div>`;
+            <div class="category-product-name" title="${escapeHtml(prod.nombre)}">${escapeHtml(prod.nombre)}</div>`;
         if (disponible) {
           const enOferta = !!(browsingOfferMode && offerIsActive(prod));
           if (enOferta) {
@@ -2023,7 +2111,7 @@ function renderCategoryProducts(products) {
     container.innerHTML = `<div class="category-horizontal-wrap"><div class="category-horizontal-track">${cards}</div></div>`;
 
     // La foto solo amplía la imagen. Nombre y carrito NO abren la ventana de producto.
-    container.querySelectorAll('.category-product-image').forEach(el=>el.onclick=()=>openImageModal(el.dataset.img));
+    container.querySelectorAll('.category-product-image[data-img]').forEach(el=>el.onclick=()=>openImageModal(el.dataset.img));
     container.querySelectorAll('.category-add').forEach(btn=>btn.onclick=(e)=>{
         e.stopPropagation();
         const idx=+btn.dataset.idx, p=currentResults[idx];
@@ -2243,7 +2331,7 @@ window.openProductModal = function(product) {
 // ========== CARRITO ==========
 function productImageByName(name) {
     const p = allProducts.find(x => String(x.nombre||'').trim().toLowerCase() === String(name||'').trim().toLowerCase());
-    return p ? (p.imagenEditada || p.imagenOriginal || p.imagen || '') : '';
+    return p ? (p.imagenEditada || p.imagen || '') : '';
 }
 function addToCart(name, detail, price, qty = 1, unitLabel = 'paquete(s)') {
     qty = Math.max(1, Number(qty)||1);
