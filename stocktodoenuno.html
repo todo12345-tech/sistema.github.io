@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V23 · STOCK V18 · Stock V14 - Todoenuno_store</title>
+    <title>V29 · STOCK V18 · Stock V14 - Todoenuno_store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -319,7 +319,7 @@
         }
 
     
-        /* V23: selector propio para evitar el datalist gigante de Safari/iPhone */
+        /* V29: selector propio para evitar el datalist gigante de Safari/iPhone */
         .item-seccion-combo{position:relative;width:100%}
         .item-secciones-sugerencias{display:none;position:absolute;left:0;right:0;top:calc(100% + 4px);z-index:10050;background:#fff;border:1px solid #cfd8e3;border-radius:10px;box-shadow:0 8px 22px rgba(0,0,0,.16);max-height:190px;overflow-y:auto;padding:4px}
         .item-secciones-sugerencias.active{display:block}
@@ -327,6 +327,17 @@
         .item-seccion-sugerencia:last-child{border-bottom:0}
         .item-seccion-sugerencia:hover,.item-seccion-sugerencia:focus{background:#f3f7fb;transform:none}
         @media(max-width:430px){.item-secciones-sugerencias{max-height:155px}.item-seccion-sugerencia{font-size:14px;min-height:44px;padding:10px}}
+
+
+        /* V29: galería de fotos candidatas de Drive */
+        .fotos-candidatas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px}
+        .foto-candidata-card{border:2px solid #d9e2ea;border-radius:10px;background:#fff;padding:7px;text-align:center}
+        .foto-candidata-card.seleccionada{border-color:#20b977;box-shadow:0 0 0 2px rgba(32,185,119,.14)}
+        .foto-candidata-card img{width:100%;height:105px;object-fit:cover;border-radius:7px;background:#f4f4f4}
+        .foto-candidata-nombre{font-size:11px;line-height:1.2;margin:5px 0;word-break:break-word;min-height:27px}
+        .foto-candidata-card button{width:100%;min-height:36px;border:0;border-radius:7px;background:#2980b9;color:#fff;font-weight:800}
+        .foto-candidata-card.seleccionada button{background:#20b977}
+        @media(max-width:430px){.fotos-candidatas-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.foto-candidata-card img{height:100px}}
 
 </style>
 </head>
@@ -930,7 +941,7 @@
 </div>
 
 
-<!-- ============ V23 MODAL CREAR NUEVO ITEM ============ -->
+<!-- ============ V29 MODAL CREAR NUEVO ITEM ============ -->
 <div class="modal-overlay" id="modalCrearItem">
   <div class="modal-card" style="max-width:920px">
     <div class="modal-header"><h3><i class="fas fa-circle-plus"></i> Crear nuevo item</h3><button class="modal-close" id="cerrarCrearItemBtn">&times;</button></div>
@@ -950,9 +961,16 @@
         <div class="item-form-section">3 · Foto original</div>
         <div class="form-group full"><label>Imagen original del producto</label>
 <div id="fotoPreviaItemBox" style="display:none;background:#eef8ff;border:1px solid #b9dcf5;border-radius:10px;padding:10px;margin-bottom:9px">
-<div style="font-weight:800;margin-bottom:6px">📷 Encontramos una foto previa en Drive</div>
-<div style="display:flex;gap:10px;align-items:center;flex-wrap:wrap"><img id="fotoPreviaItemImg" alt="Foto previa" style="width:76px;height:76px;object-fit:cover;border-radius:8px;border:1px solid #ccd6df"><div><button type="button" id="usarFotoPreviaItemBtn" class="modal-btn" style="background:#2980b9">Usar esta foto</button><div id="fotoPreviaItemEstado" class="item-file-note"></div></div></div></div>
-<input type="file" id="itemImagenOriginal" accept="image/*"><span class="item-file-note">Puedes subir una foto nueva. Si quedó una foto previa en Drive de un intento anterior, podrás reutilizarla sin que eso signifique que el item ya existe.</span></div>
+          <div style="display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:6px;flex-wrap:wrap">
+          <div style="font-weight:800">📷 Fotos que ya existen en esta sección de Drive</div>
+          <button type="button" id="actualizarFotosSeccionBtn" class="modal-btn" style="background:#2c3e50;padding:8px 12px;min-height:36px">↻ Actualizar fotos</button>
+        </div>
+          <div style="font-size:12px;margin-bottom:9px">¿Alguna de estas imágenes es la que quieres usar para este producto? <strong>Que una foto exista no significa que el item exista.</strong> Elige una solo si corresponde; si no, sube una nueva.</div>
+          <div id="fotosCandidatasItemGrid" class="fotos-candidatas-grid"></div>
+          <button type="button" id="ningunaFotoCandidataBtn" class="modal-btn" style="margin-top:8px;background:#6c757d">Ninguna corresponde / subir foto nueva</button>
+          <div id="fotoPreviaItemEstado" class="item-file-note" style="margin-top:7px"></div>
+        </div>
+        <input type="file" id="itemImagenOriginal" accept="image/*"><span class="item-file-note">Puedes subir una foto nueva. Si quedó una foto previa en Drive de un intento anterior, podrás reutilizarla sin que eso signifique que el item ya existe.</span></div>
         
       </form>
 
@@ -981,7 +999,7 @@
 
     // 🧠 ITEMS - MAESTRO ÚNICO DE PRODUCTOS
     const CATALOGO_ID = '1m9A2-dW71FWU8tgmjx7haibO052AUDM6tqiMQuaGhOw';
-    const URL_CATALOGO = `https://docs.google.com/spreadsheets/d/${CATALOGO_ID}/export?format=csv`;
+    const URL_CATALOGO = `https://docs.google.com/spreadsheets/d/${CATALOGO_ID}/export?format=csv&gid=0`;
     const ITEMS_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_BiqTbqL0eaMRKZTmJqbgsIchHBKQEocRprOGpPbHbIh2HCcTEW4cXYdgmGCPZqn3/exec'; // crea item + carpeta/foto original
     const UBICACIONES_INICIALES = ['Depósito 1 - Planta baja','Depósito 2 - Piso 1','Depósito 2 - Piso 2','Depósito Comercial','Tienda Comercial','Tienda Feria'];
     const UBICACIONES_GID = '95509632';
@@ -1411,7 +1429,8 @@
             const texto = await r.text();
             const datos = parsearCSV(texto);
             catalogoProductos = datos.filter(p => p.nombre && p.nombre.trim() !== '');
-            console.log('✅ ITEMS cargados:', catalogoProductos.length);
+            itemsMaestroReales = catalogoProductos.slice();
+            console.log('✅ ITEMS reales cargados desde hoja item:', itemsMaestroReales.length);
             if(typeof refrescarSeccionesCrearItem==='function') refrescarSeccionesCrearItem();
         } catch (e) {
             console.error('❌ Error catálogo:', e);
@@ -2484,25 +2503,48 @@
 
 
     // ============================================================
-    // 🧠 V23 - CREAR ITEM MAESTRO DESDE STOCK · GUÍA SECCIÓN + PRODUCTO
+    // 🧠 V29 - CREAR ITEM MAESTRO DESDE STOCK · GUÍA SECCIÓN + PRODUCTO
     // ============================================================
     function normalizarItemClave(v){return String(v||'').trim().replace(/\s+/g,' ').toLocaleUpperCase('es');}
+    let itemsMaestroReales=[]; // V29: única autoridad para PRODUCTOS = filas reales de la pestaña item
+    let carpetasDriveItems=[]; // apoyo SOLO para sugerir/reutilizar SECCIONES
     let itemSeleccionadoMaestro=null;
     let itemParecidoDetectado=null;
     let itemDiferenteConfirmado=false;
     let seccionNuevaConfirmada='';
-    let fotoPreviaItem=null, usarFotoPreviaItem=false, timerFotoPreviaItem=null;
+    let fotosCandidatasItem=[], fotoPreviaItem=null, usarFotoPreviaItem=false, timerFotoPreviaItem=null;
 
-    function seccionesItemExistentes(){return [...new Set(catalogoProductos.map(p=>normalizarItemClave(p.seccion)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));}
-    function refrescarSeccionesCrearItem(){renderSugerenciasSeccionItem();}
+    function seccionesItemExistentes(){return [...new Set(itemsMaestroReales.map(p=>normalizarItemClave(p.seccion)).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es'));}
+    function seccionesInteligentes(){
+        const itemSet=new Set(seccionesItemExistentes());
+        const driveSet=new Set((carpetasDriveItems||[]).map(x=>normalizarItemClave(typeof x==='string'?x:(x.nombre||x.name||''))).filter(Boolean));
+        return [...new Set([...itemSet,...driveSet])].map(nombre=>({nombre,enItem:itemSet.has(nombre),enDrive:driveSet.has(nombre)}));
+    }
+    async function cargarCarpetasDriveItems(){
+        try{
+            const r=await postItemsJSON({accion:'listarCarpetas'});
+            carpetasDriveItems=Array.isArray(r&&r.carpetas)?r.carpetas:[];
+        }catch(e){carpetasDriveItems=[];console.warn('Sugerencias Drive no disponibles',e);}
+        renderSugerenciasSeccionItem();
+    }
+    function refrescarSeccionesCrearItem(){renderSugerenciasSeccionItem();cargarCarpetasDriveItems();}
     function escaparHtmlItem(v){return String(v||'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));}
     function renderSugerenciasSeccionItem(){
         const input=document.getElementById('itemSeccion'), box=document.getElementById('itemSeccionesSugerencias'); if(!input||!box)return;
         const q=normalizarItemClave(input.value);
         if(!q){box.classList.remove('active');box.innerHTML='';return;}
-        const matches=seccionesItemExistentes().filter(x=>normalizarItemClave(x).includes(q)).slice(0,5);
+        const scoreSec=(a,b)=>{
+            a=normalizarItemClave(a);b=normalizarItemClave(b);
+            if(a===b)return 100;
+            if(a.includes(b)||b.includes(a))return 92;
+            if(a.replace(/S$/,'')===b.replace(/S$/,''))return 90;
+            let pref=0,min=Math.min(a.length,b.length);
+            for(let i=0;i<min&&a[i]===b[i];i++)pref++;
+            return min?Math.round(pref/min*75):0;
+        };
+        const matches=seccionesInteligentes().map(x=>({...x,score:Math.max(scoreSec(q,x.nombre)/100,similitudSeccionInteligente(q,x.nombre))})).filter(x=>x.score>=0.45).sort((a,b)=>b.score-a.score||a.nombre.localeCompare(b.nombre,'es')).slice(0,5);
         if(!matches.length){box.classList.remove('active');box.innerHTML='';return;}
-        box.innerHTML=matches.map(x=>`<button type="button" class="item-seccion-sugerencia" data-seccion="${escaparHtmlItem(x)}">${escaparHtmlItem(x)}</button>`).join('');
+        box.innerHTML=matches.map(x=>`<button type="button" class="item-seccion-sugerencia" data-seccion="${escaparHtmlItem(x.nombre)}"><strong>${escaparHtmlItem(x.nombre)}</strong><span style="display:block;font-size:11px;font-weight:500;opacity:.72;margin-top:2px">${x.enItem&&x.enDrive?'Existe en ITEMS y Drive':x.enItem?'Existe en ITEMS':'📁 Carpeta existente en Drive'}</span></button>`).join('');
         box.classList.add('active');
     }
     function seleccionarSugerenciaSeccionItem(valor){
@@ -2513,7 +2555,7 @@
     }
     function buscarItemMaestroExacto(nombre,seccion=''){
         const n=normalizarItemClave(nombre), sec=normalizarItemClave(seccion);
-        return catalogoProductos.find(p=>normalizarItemClave(p.nombre)===n && (!sec || normalizarItemClave(p.seccion)===sec));
+        return itemsMaestroReales.find(p=>normalizarItemClave(p.nombre)===n && (!sec || normalizarItemClave(p.seccion)===sec));
     }
     function abrirCrearItem(){
         document.getElementById('formCrearItem').reset();
@@ -2523,7 +2565,7 @@
         document.getElementById('itemSeccionAviso').style.display='none';
         document.getElementById('itemSeccionAcciones').style.display='none';
         itemParecidoDetectado=null; itemDiferenteConfirmado=false; seccionNuevaConfirmada='';
-        fotoPreviaItem=null; usarFotoPreviaItem=false; document.getElementById('fotoPreviaItemBox').style.display='none'; document.getElementById('fotoPreviaItemEstado').textContent='';
+        fotosCandidatasItem=[]; fotoPreviaItem=null; usarFotoPreviaItem=false; document.getElementById('fotoPreviaItemBox').style.display='none'; document.getElementById('fotosCandidatasItemGrid').innerHTML=''; document.getElementById('fotoPreviaItemEstado').textContent='';
         document.getElementById('modalCrearItem').classList.add('active');
         setTimeout(()=>document.getElementById('itemSeccion').focus(),120);
     }
@@ -2538,9 +2580,30 @@
         const contiene=(na.includes(nb)||nb.includes(na)) ? 0.88 : 0;
         return Math.max(jaccard,contiene);
     }
+    function palabrasClaveSeccion(v){
+        const stop=new Set(['PARA','POR','DE','DEL','LA','LAS','EL','LOS','Y','O','EN','CON','SIN']);
+        return normalizarItemClave(v).split(/\s+/).map(x=>x.replace(/S$/,'')).filter(x=>x.length>=3&&!stop.has(x));
+    }
+    function similitudSeccionInteligente(a,b){
+        const A=palabrasClaveSeccion(a), B=palabrasClaveSeccion(b);
+        if(!A.length||!B.length)return 0;
+        const sa=new Set(A), sb=new Set(B);
+        let comunes=0; sa.forEach(x=>{if(sb.has(x))comunes++;});
+        const coberturaCorta=comunes/Math.min(sa.size,sb.size);
+        const jaccard=comunes/(new Set([...sa,...sb]).size||1);
+        let score=(coberturaCorta*0.72)+(jaccard*0.28);
+        const na=normalizarItemClave(a), nb=normalizarItemClave(b);
+        if(na===nb)score=1;
+        else if(na.includes(nb)||nb.includes(na))score=Math.max(score,.92);
+        return score;
+    }
     function seccionesParecidas(valor){
         const v=normalizarItemClave(valor); if(v.length<2)return [];
-        return seccionesItemExistentes().map(sec=>({sec,score:similitudItem(v,sec)})).filter(x=>x.score>=0.34).sort((a,b)=>b.score-a.score).slice(0,5).map(x=>x.sec);
+        return seccionesInteligentes().map(x=>x.nombre)
+          .map(sec=>({sec,score:similitudSeccionInteligente(v,sec)}))
+          .filter(x=>x.score>=0.56)
+          .sort((a,b)=>b.score-a.score||a.sec.localeCompare(b.sec,'es'))
+          .slice(0,5).map(x=>x.sec);
     }
     function revisarSeccionNueva(mostrar=true){
         const input=document.getElementById('itemSeccion');
@@ -2548,7 +2611,7 @@
         const aviso=document.getElementById('itemSeccionAviso'), acciones=document.getElementById('itemSeccionAcciones');
         aviso.style.display='none'; acciones.style.display='none'; acciones.innerHTML='';
         if(!sec)return {tipo:'vacia'};
-        const existentes=seccionesItemExistentes();
+        const existentes=seccionesInteligentes().map(x=>x.nombre);
         if(existentes.includes(sec)){seccionNuevaConfirmada='';return {tipo:'existente',seccion:sec};}
         if(seccionNuevaConfirmada===sec)return {tipo:'nueva_confirmada',seccion:sec};
         const parecidas=seccionesParecidas(sec);
@@ -2570,7 +2633,7 @@
     function buscarItemParecido(nombre,seccion=''){
         const sec=normalizarItemClave(seccion), n=normalizarItemClave(nombre);
         if(n.length<4)return null;
-        return catalogoProductos.filter(p=>!sec || normalizarItemClave(p.seccion)===sec).map(p=>({p,score:similitudItem(n,p.nombre)})).filter(x=>x.score>=0.50).sort((a,b)=>b.score-a.score)[0]?.p||null;
+        return itemsMaestroReales.filter(p=>!sec || normalizarItemClave(p.seccion)===sec).map(p=>({p,score:similitudItem(n,p.nombre)})).filter(x=>x.score>=0.50).sort((a,b)=>b.score-a.score)[0]?.p||null;
     }
     function seleccionarItemParecidoParaStock(){
         if(!itemParecidoDetectado)return; const p=itemParecidoDetectado; itemSeleccionadoMaestro=p; cerrarCrearItem();
@@ -2589,7 +2652,7 @@
     function revisarDuplicadoItem(){
         itemDiferenteConfirmado=false; itemParecidoDetectado=null;
         const nomEl=document.getElementById('itemNombre'), secEl=document.getElementById('itemSeccion');
-        // V23: NO modificar el texto mientras la persona escribe.
+        // V29: NO modificar el texto mientras la persona escribe.
         // Para comparar duplicados usamos copias normalizadas; así los espacios del teclado se conservan.
         const nom=normalizarItemClave(nomEl.value), sec=normalizarItemClave(secEl.value), existe=buscarItemMaestroExacto(nom,sec), aviso=document.getElementById('itemDuplicadoAviso'), acciones=document.getElementById('itemParecidosAcciones');
         if(existe){
@@ -2612,21 +2675,74 @@
         const txt=await r.text(); let resp={}; try{resp=JSON.parse(txt)}catch(_){throw new Error(txt||('HTTP '+r.status));}
         if(!r.ok||resp.ok===false)throw new Error(resp.error||resp.mensaje||('HTTP '+r.status)); return resp;
     }
+    function renderFotosCandidatasItem(){
+        const box=document.getElementById('fotoPreviaItemBox'), grid=document.getElementById('fotosCandidatasItemGrid');
+        if(!fotosCandidatasItem.length){box.style.display='none';grid.innerHTML='';return;}
+        grid.innerHTML=fotosCandidatasItem.map((f,i)=>`<div class="foto-candidata-card ${fotoPreviaItem&&fotoPreviaItem.fileId===f.fileId?'seleccionada':''}">
+          <img src="${escaparHtmlItem(f.urlImagen)}" alt="${escaparHtmlItem(f.archivo)}">
+          <div class="foto-candidata-nombre">${escaparHtmlItem(f.archivo)}</div>
+          <button type="button" data-foto-candidata="${i}">${fotoPreviaItem&&fotoPreviaItem.fileId===f.fileId?'✓ Foto seleccionada':'Usar esta foto'}</button>
+        </div>`).join('');
+        box.style.display='block';
+    }
+    async function cargarFotosSeccionDrive(forzar=false){
+        const seccion=normalizarItemClave(document.getElementById('itemSeccion').value);
+        const nombre=normalizarItemClave(document.getElementById('itemNombre').value);
+        const box=document.getElementById('fotoPreviaItemBox');
+        const estado=document.getElementById('fotoPreviaItemEstado');
+        const btn=document.getElementById('actualizarFotosSeccionBtn');
+
+        if(!seccion){
+            fotosCandidatasItem=[];fotoPreviaItem=null;usarFotoPreviaItem=false;
+            box.style.display='none';return;
+        }
+
+        const seleccionAnterior=fotoPreviaItem ? fotoPreviaItem.fileId : null;
+        if(forzar && btn){btn.disabled=true;btn.textContent='↻ Actualizando...';}
+        if(forzar) estado.textContent='Consultando nuevamente la carpeta de Drive...';
+
+        try{
+            // timestamp evita cualquier caché intermedia accidental.
+            const r=await postItemsJSON({accion:'listarFotosSeccion',seccion,limite:24,_t:Date.now()});
+            fotosCandidatasItem=(r&&r.ok===true&&Array.isArray(r.fotos))?r.fotos:[];
+
+            if(seleccionAnterior){
+                const sigue=fotosCandidatasItem.find(f=>f.fileId===seleccionAnterior);
+                if(sigue){
+                    fotoPreviaItem=sigue;
+                    usarFotoPreviaItem=true;
+                }else{
+                    fotoPreviaItem=null;
+                    usarFotoPreviaItem=false;
+                }
+            }else{
+                fotoPreviaItem=null;
+                usarFotoPreviaItem=false;
+            }
+
+            if(fotosCandidatasItem.length){
+                estado.innerHTML=
+                  'La carpeta <strong>'+escaparHtmlItem(r.carpeta||seccion)+'</strong> tiene ahora '+
+                  fotosCandidatasItem.length+' imagen'+(fotosCandidatasItem.length===1?'':'es')+
+                  '. Revisa si alguna corresponde a <strong>'+escaparHtmlItem(nombre||'este producto')+'</strong>.'+
+                  (seleccionAnterior&&!usarFotoPreviaItem?' <strong>La foto que estaba seleccionada ya no existe en Drive.</strong>':'');
+                renderFotosCandidatasItem();
+            }else{
+                fotosCandidatasItem=[];fotoPreviaItem=null;usarFotoPreviaItem=false;
+                document.getElementById('fotosCandidatasItemGrid').innerHTML='';
+                box.style.display='none';
+            }
+        }catch(e){
+            estado.textContent='No se pudo actualizar la carpeta de Drive. Intenta nuevamente.';
+            if(fotosCandidatasItem.length) box.style.display='block';
+        }finally{
+            if(forzar && btn){btn.disabled=false;btn.textContent='↻ Actualizar fotos';}
+        }
+    }
+
     function buscarFotoPreviaItemDrive(){
         clearTimeout(timerFotoPreviaItem);
-        timerFotoPreviaItem=setTimeout(async()=>{
-            const seccion=normalizarItemClave(document.getElementById('itemSeccion').value), nombre=normalizarItemClave(document.getElementById('itemNombre').value);
-            const box=document.getElementById('fotoPreviaItemBox');
-            if(!seccion||nombre.length<3||buscarItemMaestroExacto(nombre,seccion)){box.style.display='none';fotoPreviaItem=null;usarFotoPreviaItem=false;return;}
-            try{
-                const r=await postItemsJSON({accion:'buscarFotoPrevia',seccion,nombre});
-                if(r&&r.ok===true&&r.encontrada&&r.urlImagen){
-                    fotoPreviaItem=r;usarFotoPreviaItem=false;document.getElementById('fotoPreviaItemImg').src=r.urlImagen;
-                    document.getElementById('fotoPreviaItemEstado').textContent='La foto existe, pero el producto todavía NO existe en ITEMS.';
-                    box.style.display='block';
-                }else{box.style.display='none';fotoPreviaItem=null;usarFotoPreviaItem=false;}
-            }catch(e){box.style.display='none';}
-        },500);
+        timerFotoPreviaItem=setTimeout(()=>cargarFotosSeccionDrive(false),450);
     }
     async function guardarNuevoItemDesdeStock(){
         const btn=document.getElementById('guardarNuevoItemBtn');
@@ -2653,20 +2769,25 @@
         btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Creando item...';
         try{
             const file=document.getElementById('itemImagenOriginal').files[0]||null; let imagenOriginal='';
-            if(usarFotoPreviaItem && fotoPreviaItem){
-                imagenOriginal=fotoPreviaItem.urlImagen||fotoPreviaItem.url||'';
-            }else if(file){
+            if(file){
                 const dataUrl=await archivoADataURL(file); const base64=dataUrl.includes(',')?dataUrl.split(',')[1]:dataUrl;
                 const up=await postItemsJSON({accion:'subirImagen',carpeta:seccion,seccion,nombre:file.name||`${nombre}.jpg`,tipo:file.type||'image/jpeg',imagen:base64});
                 imagenOriginal=up.urlImagen||up.url||up.imagen_original||'';
+            }else if(usarFotoPreviaItem && fotoPreviaItem){
+                imagenOriginal=fotoPreviaItem.urlImagen||fotoPreviaItem.url||'';
             }
             const payload={accion:'guardarProducto',seccion,nombre,
+              confirmarSeccionNueva:(normalizarItemClave(seccionNuevaConfirmada)===normalizarItemClave(seccion)),
               precioPaquete:document.getElementById('itemPrecioPaquete').value.trim(), cantidadPaquete:document.getElementById('itemCantidadPaquete').value.trim(),
               disponibilidadPaquete:document.getElementById('itemDispPaquete').value, precioUnidad:document.getElementById('itemPrecioUnidad').value.trim(),
               cantidadUnidad:document.getElementById('itemCantidadUnidad').value.trim(), disponibilidadUnidad:document.getElementById('itemDispUnidad').value,
               imagenOriginal};
-            // No enviamos una restricción de rol: la vendedora puede crear una sección NUEVA después de la advertencia guiada V23.
+            // No enviamos una restricción de rol: la vendedora puede crear una sección NUEVA después de la advertencia guiada V29.
             const resp=await postItemsJSON(payload);
+            if(resp && resp.codigo==='SECCION_PARECIDA' && Array.isArray(resp.secciones) && resp.secciones.length){
+              const sugeridas=resp.secciones.map(x=>x.seccion).join(' · ');
+              throw new Error('Antes de crear esta sección revisa estas existentes: '+sugeridas+'. Vuelve al campo SECCIÓN y elige una, o confirma “crear nueva” si realmente es diferente.');
+            }
             if(!resp || resp.ok!==true) throw new Error((resp&&resp.error)||'ITEMS no confirmó la creación.');
             Notificaciones.mostrar(`✅ ITEM CREADO: ${nombre} · SECCIÓN: ${seccion}`,'success',8000);
             await cargarCatalogo();
@@ -2693,8 +2814,22 @@
     document.getElementById('itemNombre').addEventListener('input',e=>{mayusculasItemInput(e);revisarDuplicadoItem();});
     document.getElementById('itemNombre').addEventListener('input',buscarFotoPreviaItemDrive);
     document.getElementById('itemSeccion').addEventListener('input',buscarFotoPreviaItemDrive);
-    document.getElementById('usarFotoPreviaItemBtn').addEventListener('click',()=>{if(!fotoPreviaItem)return;usarFotoPreviaItem=true;document.getElementById('fotoPreviaItemEstado').innerHTML='✅ <strong>Usaremos esta foto.</strong> El item se creará normalmente en ITEMS.';Notificaciones.mostrar('Foto previa seleccionada.','success',4000);});
-    document.getElementById('itemImagenOriginal').addEventListener('change',()=>{if(document.getElementById('itemImagenOriginal').files.length){usarFotoPreviaItem=false;document.getElementById('fotoPreviaItemEstado').textContent='Elegiste una foto nueva; se usará la nueva.';}});
+    document.getElementById('actualizarFotosSeccionBtn').addEventListener('click',()=>cargarFotosSeccionDrive(true));
+    document.getElementById('fotosCandidatasItemGrid').addEventListener('click',e=>{
+        const b=e.target.closest('[data-foto-candidata]'); if(!b)return;
+        const f=fotosCandidatasItem[Number(b.dataset.fotoCandidata)]; if(!f)return;
+        fotoPreviaItem=f; usarFotoPreviaItem=true;
+        document.getElementById('itemImagenOriginal').value='';
+        document.getElementById('fotoPreviaItemEstado').innerHTML='✅ Usaremos <strong>'+escaparHtmlItem(f.archivo)+'</strong> para este nuevo item.';
+        renderFotosCandidatasItem();
+    });
+    document.getElementById('ningunaFotoCandidataBtn').addEventListener('click',()=>{
+        fotoPreviaItem=null;usarFotoPreviaItem=false;
+        document.getElementById('fotoPreviaItemEstado').textContent='Ninguna foto seleccionada. Usa “Seleccionar archivo” para subir la foto correcta.';
+        renderFotosCandidatasItem();
+        document.getElementById('itemImagenOriginal').focus();
+    });
+    document.getElementById('itemImagenOriginal').addEventListener('change',()=>{if(document.getElementById('itemImagenOriginal').files.length){usarFotoPreviaItem=false;fotoPreviaItem=null;document.getElementById('fotoPreviaItemEstado').textContent='Elegiste una foto nueva; se usará la nueva.';renderFotosCandidatasItem();}});
 
     document.getElementById('itemSeccion').addEventListener('input',e=>{mayusculasItemInput(e);seccionNuevaConfirmada='';document.getElementById('itemSeccionAviso').style.display='none';document.getElementById('itemSeccionAcciones').style.display='none';renderSugerenciasSeccionItem();});
     document.getElementById('itemSeccion').addEventListener('focus',renderSugerenciasSeccionItem);
