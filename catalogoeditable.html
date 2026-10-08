@@ -1559,6 +1559,40 @@ body.admin-mode .admin-original-reference::before{
 }
 </style>
 
+
+<style id="teus-mobile-balanced-spacing-admin">
+@media (max-width: 767px) {
+  #home-view,
+  #results-view {
+    box-sizing:border-box !important;
+    width:100% !important;
+    padding-left:10px !important;
+    padding-right:10px !important;
+    margin-left:0 !important;
+    margin-right:0 !important;
+  }
+  #categoriesGrid,
+  #resultsList {
+    box-sizing:border-box !important;
+    width:100% !important;
+    max-width:100% !important;
+    margin-left:auto !important;
+    margin-right:auto !important;
+  }
+  #categoriesGrid .multi-grid,
+  #resultsList {
+    column-gap:10px !important;
+    row-gap:10px !important;
+  }
+  #categoriesGrid .grid-item,
+  #resultsList .category-product-card {
+    box-sizing:border-box !important;
+    min-width:0 !important;
+    max-width:100% !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -2657,7 +2691,7 @@ function setCategoryCartQty(product, qty){
     if(qty===0){ if(pos>=0) cart.splice(pos,1); }
     else {
         const unitPrice=effectivePrice(product);
-        const obj={ id: pos>=0?cart[pos].id:(Date.now()+Math.random()), categoryKey:key, name:product.nombre, detail:`Paquete x${qty}`, price:unitPrice*qty, qty:qty, unitLabel:'paquete(s)' };
+        const obj={ id: pos>=0?cart[pos].id:(Date.now()+Math.random()), categoryKey:key, name:product.nombre, detail:`Paquete x${qty}`, price:unitPrice, unitPrice:unitPrice, qty:qty, unitLabel:'paquete(s)', unitsPerPackage:Number(product.unidadesNumero)||0, image:product.imagenEditada||product.imagen||'' };
         if(pos>=0) cart[pos]=obj; else cart.push(obj);
     }
     saveCart(); updateCartUI();
@@ -2801,7 +2835,7 @@ window.openProductModal = function(product) {
         modalBody.querySelector('#addPackageBtn').onclick = () => {
             const cant = parseInt(qtySpan.textContent);
             const detail = `Paquete x${cant}`;
-            addToCart(product.nombre, detail, effectivePrice(product) * cant, cant, 'paquete(s)');
+            addToCart(product.nombre, detail, effectivePrice(product) * cant, cant, 'paquete(s)', Number(product.unidadesNumero)||0);
             closeModal('productModal');
         };
     }
@@ -2833,7 +2867,25 @@ function productImageByName(name) {
     const p = allProducts.find(x => String(x.nombre||'').trim().toLowerCase() === String(name||'').trim().toLowerCase());
     return p ? (p.imagenEditada || p.imagen || '') : '';
 }
-function addToCart(name, detail, price, qty = 1, unitLabel = 'paquete(s)') {
+function productByName(name) {
+    return allProducts.find(x => String(x.nombre||'').trim().toLowerCase() === String(name||'').trim().toLowerCase()) || null;
+}
+function packageUnitsByName(name) {
+    const p = productByName(name);
+    const n = Number(p && p.unidadesNumero);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+}
+function packageDetailText(item) {
+    const qty = Math.max(1, Number(item && item.qty) || 1);
+    const perPack = Number(item && item.unitsPerPackage) || packageUnitsByName(item && item.name);
+    if (String(item && item.unitLabel || '').toLowerCase().includes('paquete') && perPack > 0) {
+        const totalUnits = qty * perPack;
+        if (qty === 1) return `1 paquete de ${perPack} unidad${perPack===1?'':'es'}`;
+        return `${qty} paquetes de ${perPack} unidad${perPack===1?'':'es'} c/u (${totalUnits} unidad${totalUnits===1?'':'es'})`;
+    }
+    return (item && item.detail) ? String(item.detail) : `${qty} ${item && item.unitLabel ? item.unitLabel : 'paquete(s)'}`;
+}
+function addToCart(name, detail, price, qty = 1, unitLabel = 'paquete(s)', unitsPerPackage = 0) {
     qty = Math.max(1, Number(qty)||1);
     const unitPrice = Number(price||0) / qty;
     const key = `${String(name).trim().toLowerCase()}::${String(detail).trim().toLowerCase()}::${unitPrice.toFixed(4)}`;
@@ -2844,8 +2896,9 @@ function addToCart(name, detail, price, qty = 1, unitLabel = 'paquete(s)') {
         existing.price = unitPrice;
         existing.image = existing.image || productImageByName(name);
         existing.key = key;
+        existing.unitsPerPackage = Number(unitsPerPackage)||Number(existing.unitsPerPackage)||packageUnitsByName(name);
     }else{
-        cart.push({ id: Date.now() + Math.random(), key, name, detail, unitPrice, price:unitPrice, qty, unitLabel, image:productImageByName(name) });
+        cart.push({ id: Date.now() + Math.random(), key, name, detail, unitPrice, price:unitPrice, qty, unitLabel, unitsPerPackage:Number(unitsPerPackage)||packageUnitsByName(name), image:productImageByName(name) });
     }
     saveCart(); updateCartUI(); showNotif(`✓ ${name} agregado`);
 }
@@ -2855,7 +2908,7 @@ function normalizeCart(){
         const q=Math.max(1,Number(i.qty)||1);
         let up=Number(i.unitPrice);
         if(!Number.isFinite(up)) up=Number(i.price)||0;
-        return {...i,qty:q,unitPrice:up,price:up,image:i.image||productImageByName(i.name)};
+        return {...i,qty:q,unitPrice:up,price:up,unitsPerPackage:Number(i.unitsPerPackage)||packageUnitsByName(i.name),image:i.image||productImageByName(i.name)};
     });
 }
 function loadCart() {
@@ -2866,7 +2919,9 @@ function changeCartQty(idx, delta){
     const item=cart[idx]; if(!item)return;
     item.qty=Math.max(0,(Number(item.qty)||1)+delta);
     if(item.qty<=0) cart.splice(idx,1);
-    saveCart(); updateCartUI();
+    saveCart();
+    if(salirDelCarritoSiQuedoVacio()){ updateCartUI(); return; }
+    updateCartUI();
 }
 function updateCartUI() {
     normalizeCart();
@@ -3110,15 +3165,40 @@ document.getElementById('navRefreshBtn').addEventListener('click', async () => {
 
 let teusCurrentMainView = 'catalog';
 
+function salirDelCarritoSiQuedoVacio(){
+    if(cart.length) return false;
+    teusCurrentMainView='catalog';
+    const full=document.getElementById('fullCartView');
+    const checkout=document.getElementById('inlineCheckout');
+    const sidebar=document.getElementById('cartSidebar');
+    if(full) full.style.display='none';
+    if(checkout) checkout.style.display='none';
+    if(sidebar) sidebar.classList.remove('open');
+    document.body.classList.remove('cart-open');
+    showHomeView(true);
+    window.scrollTo({top:0,behavior:'smooth'});
+    return true;
+}
+
+
 function renderFullCartView(){
     const box=document.getElementById('fullCartItems'); if(!box)return; normalizeCart();
     let total=0,units=0;
-    if(!cart.length){box.innerHTML='<div style="padding:35px 0">Tu carrito está vacío.</div>';document.getElementById('fullCartSubtotal').textContent='Subtotal: Bs 0.00';return;}
-    box.innerHTML=cart.map((item,idx)=>{const line=(Number(item.unitPrice)||0)*(Number(item.qty)||1);total+=line;units+=Number(item.qty)||1;return `<div class="teus-full-cart-row"><img src="${escapeHtml(item.image||'')}" alt=""><div><div class="teus-full-cart-name">${escapeHtml(item.name)}</div><div class="teus-full-cart-detail">${escapeHtml(item.detail||'Paquete')}</div><div class="teus-full-cart-controls"><div class="teus-full-cart-qty"><button class="full-minus" data-idx="${idx}">${item.qty<=1?'🗑':'−'}</button><span>${item.qty}</span><button class="full-plus" data-idx="${idx}">+</button></div><button class="teus-full-cart-delete" data-idx="${idx}">Eliminar</button></div></div><div class="teus-full-cart-price">Bs ${line.toFixed(2)}</div></div>`}).join('');
+    if(!cart.length){
+        document.getElementById('fullCartSubtotal').textContent='Subtotal: Bs 0.00';
+        salirDelCarritoSiQuedoVacio();
+        return;
+    }
+    box.innerHTML=cart.map((item,idx)=>{const line=(Number(item.unitPrice)||0)*(Number(item.qty)||1);total+=line;units+=Number(item.qty)||1;return `<div class="teus-full-cart-row"><img src="${escapeHtml(item.image||'')}" alt=""><div><div class="teus-full-cart-name">${escapeHtml(item.name)}</div><div class="teus-full-cart-detail">${escapeHtml(packageDetailText(item))}</div><div class="teus-full-cart-controls"><div class="teus-full-cart-qty"><button class="full-minus" data-idx="${idx}">${item.qty<=1?'🗑':'−'}</button><span>${item.qty}</span><button class="full-plus" data-idx="${idx}">+</button></div><button class="teus-full-cart-delete" data-idx="${idx}">Eliminar</button></div></div><div class="teus-full-cart-price">Bs ${line.toFixed(2)}</div></div>`}).join('');
     document.getElementById('fullCartSubtotal').textContent=`Subtotal: Bs ${total.toFixed(2)}`;
     box.querySelectorAll('.full-minus').forEach(b=>b.onclick=()=>changeCartQty(+b.dataset.idx,-1));
     box.querySelectorAll('.full-plus').forEach(b=>b.onclick=()=>changeCartQty(+b.dataset.idx,1));
-    box.querySelectorAll('.teus-full-cart-delete').forEach(b=>b.onclick=()=>{cart.splice(+b.dataset.idx,1);saveCart();updateCartUI();});
+    box.querySelectorAll('.teus-full-cart-delete').forEach(b=>b.onclick=()=>{
+        cart.splice(+b.dataset.idx,1);
+        saveCart();
+        if(salirDelCarritoSiQuedoVacio()){ updateCartUI(); return; }
+        updateCartUI();
+    });
     updateInlineCheckoutTotal();
 }
 
@@ -3371,7 +3451,8 @@ document.getElementById('inlineOrderForm').onsubmit=function(e){
         const precio=Number(item.price ?? item.unitPrice)||0;
         const monto=precio*qty;
         const nombreProducto=(item.name||'Producto').toString().trim();
-        mensaje+=`➡️ ${qty} paquete(s) - ${nombreProducto} - ${monto.toFixed(2).replace(/\.00$/,'')} Bs\n`;
+        const presentacion=packageDetailText(item);
+        mensaje+=`➡️ ${presentacion} - ${nombreProducto} - ${monto.toFixed(2).replace(/\.00$/,'')} Bs\n`;
     });
 
     mensaje+=`\n💰 *Subtotal:* ${subtotal.toFixed(2).replace(/\.00$/,'')} Bs\n`;
