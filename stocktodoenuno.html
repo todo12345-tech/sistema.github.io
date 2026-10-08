@@ -373,6 +373,34 @@
             text-overflow: clip !important;
             overflow-wrap: anywhere !important;
         }
+
+        /* V30 · Refuerzo definitivo: nombre completo en autocomplete en cualquier viewport */
+        #autocompleteList {
+            width: 100% !important;
+            max-width: 100% !important;
+        }
+        #autocompleteList .autocomplete-item {
+            height: auto !important;
+            min-height: 68px !important;
+            align-items: flex-start !important;
+        }
+        #autocompleteList .autocomplete-item-info {
+            min-width: 0 !important;
+            width: calc(100% - 52px) !important;
+            overflow: visible !important;
+        }
+        #autocompleteList .autocomplete-item-nombre {
+            white-space: normal !important;
+            overflow: visible !important;
+            text-overflow: unset !important;
+            display: block !important;
+            width: 100% !important;
+            max-width: 100% !important;
+            line-height: 1.32 !important;
+            overflow-wrap: break-word !important;
+            word-break: normal !important;
+        }
+
 </style>
 </head>
 <body>
@@ -1468,15 +1496,77 @@
     // ============================================================
     // 📥 CARGAR CATÁLOGO
     // ============================================================
+    // ============================================================
+    // 📦 V30 · ITEMS FÍSICOS PARA STOCK
+    // Stock no debe tratar una presentación comercial por cantidad
+    // como si fuera otro producto físico.
+    //
+    // Ejemplo:
+    //   ENVASE ... 5 ML
+    //   ENVASE ... 5 ML (12 DOCENAS)
+    //   ENVASE ... 5 ML (500 UNIDADES)
+    //
+    // Si existe el producto base en la MISMA sección, Stock muestra
+    // únicamente el base. La hoja ITEMS no se modifica ni se borra.
+    // ============================================================
+    function nombreBasePresentacionStock(nombre) {
+        const original = String(nombre || '').trim().replace(/\s+/g, ' ');
+        if (!original) return '';
+
+        // Solo reconoce paréntesis finales claramente relacionados con cantidad/presentación.
+        // No elimina paréntesis que formen parte real del modelo del producto.
+        const m = original.match(/^(.*?)\s*\(([^()]*)\)\s*$/);
+        if (!m) return original;
+
+        const detalle = String(m[2] || '').toLocaleUpperCase('es-BO').trim();
+        const esCantidad =
+            /\b\d+(?:[.,]\d+)?\s*(?:UNIDAD(?:ES)?|UND(?:S)?|U\.?|DOCENA(?:S)?|PAQUETE(?:S)?|PACK(?:S)?|CAJA(?:S)?|PIEZA(?:S)?|PZ(?:S)?)\b/i.test(detalle) ||
+            /\b(?:MEDIA|UNA|DOS|TRES|CUATRO|CINCO|SEIS|SIETE|OCHO|NUEVE|DIEZ|DOCE)\s+DOCENA(?:S)?\b/i.test(detalle);
+
+        return esCantidad ? m[1].trim() : original;
+    }
+
+    function filtrarItemsFisicosParaStock(items) {
+        const reales = (items || []).filter(p => p && p.nombre && String(p.nombre).trim() !== '');
+
+        const clavesExactas = new Set(
+            reales.map(p =>
+                normalizarItemClave(p.seccion) + '||' + normalizarItemClave(p.nombre)
+            )
+        );
+
+        return reales.filter(p => {
+            const nombreOriginal = String(p.nombre || '').trim();
+            const base = nombreBasePresentacionStock(nombreOriginal);
+
+            // No es una variante comercial: se conserva.
+            if (normalizarItemClave(base) === normalizarItemClave(nombreOriginal)) return true;
+
+            // Solo ocultamos la variante si el producto base realmente existe
+            // en la misma sección. Así evitamos eliminar productos por error.
+            const claveBase =
+                normalizarItemClave(p.seccion) + '||' + normalizarItemClave(base);
+
+            return !clavesExactas.has(claveBase);
+        });
+    }
+
     async function cargarCatalogo() {
         try {
             const r = await fetch(URL_CATALOGO + '&_t=' + Date.now());
             if (!r.ok) throw new Error('Status ' + r.status);
             const texto = await r.text();
             const datos = parsearCSV(texto);
-            catalogoProductos = datos.filter(p => p.nombre && p.nombre.trim() !== '');
-            itemsMaestroReales = catalogoProductos.slice();
-            console.log('✅ ITEMS reales cargados desde hoja item:', itemsMaestroReales.length);
+
+            // Conservamos TODOS los ITEMS reales para validaciones/duplicados.
+            itemsMaestroReales = datos.filter(p => p.nombre && p.nombre.trim() !== '');
+
+            // El selector de STOCK usa únicamente productos físicos.
+            catalogoProductos = filtrarItemsFisicosParaStock(itemsMaestroReales);
+
+            console.log('✅ ITEMS reales cargados:', itemsMaestroReales.length);
+            console.log('📦 Productos físicos mostrados en STOCK:', catalogoProductos.length);
+
             if(typeof refrescarSeccionesCrearItem==='function') refrescarSeccionesCrearItem();
         } catch (e) {
             console.error('❌ Error catálogo:', e);
