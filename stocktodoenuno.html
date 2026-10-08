@@ -458,6 +458,12 @@
                 <label for="seccion"><i class="fas fa-folder"></i> Sección / Categoría <span class="req">*</span></label>
                 <input type="text" id="seccion" name="data[seccion]" placeholder="Se autocompleta o escríbela">
             </div>
+            <input type="hidden" id="id_item" name="data[id_item]" value="">
+            <div class="form-group">
+                <label for="codigo_caja"><i class="fas fa-barcode"></i> Código de caja</label>
+                <input type="text" id="codigo_caja" name="data[codigo_caja]" placeholder="Ej: PO-3-1 o PO-3-1 | 3-1" autocomplete="off">
+                <span class="campo-ayuda">Opcional. Escribe el código visible en la caja. Si trae dos códigos, sepáralos con |.</span>
+            </div>
             <div class="form-group">
                 <label for="cajas"><i class="fas fa-box"></i> Cajas</label>
                 <input type="number" id="cajas" name="data[cajas]" placeholder="0" min="0" step="1" value="0"><span class="campo-ayuda">Cajas completas que realmente tienes. Si una caja está abierta/incompleta, no la cuentes como caja cerrada: registra su contenido real en paquetes/unidades.</span>
@@ -668,6 +674,10 @@
                 <div class="form-group">
                     <label for="editFechaVencimiento"><i class="fas fa-calendar-alt"></i> Fecha de Vencimiento</label>
                     <input type="date" id="editFechaVencimiento">
+                </div>
+                <div class="form-group">
+                    <label for="editCodigoCaja"><i class="fas fa-barcode"></i> Código de caja</label>
+                    <input type="text" id="editCodigoCaja" placeholder="Ej: PO-3-1">
                 </div>
                 <div class="form-group full">
                     <label for="editDescripcion"><i class="fas fa-align-left"></i> Descripción</label>
@@ -1168,6 +1178,8 @@
     function getFechaEdicion(item) { return item.fecha_de_edicion || item['fecha de edicion'] || ''; }
     function getFechaAgregacion(item) { return item.fecha_de_agregacion || item.fecha_de_agrecacion || item['fecha de agrecacion'] || ''; }
     function getIdStock(item) { return item.id_stock || ''; }
+    function getIdItem(item) { return item.id_item || ''; }
+    function getCodigoCaja(item) { return item.codigo_caja || ''; }
 
     function convertirDriveAImagen(url) {
         if (!url) return '';
@@ -1455,7 +1467,8 @@
         sugerenciasActuales = catalogoProductos.filter(p => {
             const nombre = (p.nombre || '').toLowerCase();
             const seccion = (p.seccion || '').toLowerCase();
-            return nombre.includes(q) || seccion.includes(q);
+            const idItem=(p.id_item||'').toLowerCase();
+            return nombre.includes(q) || seccion.includes(q) || idItem.includes(q);
         }).slice(0, 30);
         if (sugerenciasActuales.length === 0) {
             autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">No se encontraron productos en ITEMS</div>';
@@ -1497,6 +1510,7 @@
         itemSeleccionadoMaestro=p;
         document.getElementById('nombre').value = p.nombre || '';
         document.getElementById('seccion').value = p.seccion || '';
+        document.getElementById('id_item').value = p.id_item || '';
         document.getElementById('descripcion').value = p.descripcion || '';
         // ITEMS: equivalencia comercial sugerida para Stock (si es numérica)
         const cantPaq = parseFloat(String(p.cantidad_paquete || '').replace(',', '.'));
@@ -1518,7 +1532,7 @@
 
     nombreInput.addEventListener('input', function() {
         const actual=normalizarItemClave(this.value);
-        if(!itemSeleccionadoMaestro || normalizarItemClave(itemSeleccionadoMaestro.nombre)!==actual) itemSeleccionadoMaestro=null;
+        if(!itemSeleccionadoMaestro || normalizarItemClave(itemSeleccionadoMaestro.nombre)!==actual){ itemSeleccionadoMaestro=null; document.getElementById('id_item').value=''; }
         mostrarSugerencias(this.value.trim());
     });
     nombreInput.addEventListener('focus', function() { if (this.value.trim().length >= 2) mostrarSugerencias(this.value.trim()); });
@@ -1690,7 +1704,7 @@
 
         productosFiltrados = todosProductos.filter(p => {
             if (busqueda) {
-                const texto = `${getNombre(p)} ${getDescripcion(p)} ${getUbicacion(p)} ${getSeccion(p)} ${getContenido(p)} ${getCajas(p)} ${getPaquetes(p)} ${getUnidades(p)}`.toLowerCase();
+                const texto = `${getNombre(p)} ${getDescripcion(p)} ${getUbicacion(p)} ${getSeccion(p)} ${getContenido(p)} ${getCajas(p)} ${getPaquetes(p)} ${getUnidades(p)} ${getIdItem(p)} ${getCodigoCaja(p)}`.toLowerCase();
                 if (!texto.includes(busqueda)) return false;
             }
             if (filtroSeccion && getSeccion(p) !== filtroSeccion) return false;
@@ -1842,7 +1856,7 @@
             html += `<tr class="${claseFila}">
                 <td class="check-cell"><input type="checkbox" class="check-item" data-id="${id.replace(/"/g, '&quot;')}" ${seleccionada ? 'checked' : ''}></td>
                 <td><span class="badge-seccion">${getSeccion(item)}</span></td>
-                <td><strong>${getNombre(item)}</strong></td>
+                <td><strong>${getNombre(item)}</strong>${getCodigoCaja(item)?`<br><small style="font-weight:800;color:#7f8c8d"><i class="fas fa-barcode"></i> ${getCodigoCaja(item)}</small>`:''}</td>
                 <td><span class="badge ${cajas > 0 ? badgeClase : ''}">${cajas}</span></td>
                 <td><span class="badge ${paquetes > 0 ? badgeClase : ''}">${paquetes}</span></td>
                 <td><span class="badge ${unidades > 0 ? badgeClase : ''}">${unidades}</span></td>
@@ -2098,7 +2112,7 @@
         if(!base){Notificaciones.mostrar('El producto debe existir en ITEMS/Stock. Si es nuevo, usa CREAR NUEVO ITEM.','warning',7000);return;}
         const btn=document.getElementById('confirmarEntradaExternaBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Registrando...';
         try{
-            const res=await stockApi('registrarStock',{seccion:getSeccion(base),nombre,cajas:c,paquetes:p,unidades:u,unidades_por_paquete:getUnidadesPorPaquete(base)||'',paquetes_por_caja:getPaquetesPorCaja(base)||'',ubicacion:destino,imagen:getImagen(base),vencimiento:getFechaVencimiento(base),origen,referencia:generarReferenciaOperacion('ENTRADA'),sucursal:destino});
+            const res=await stockApi('registrarStock',{seccion:getSeccion(base),nombre,id_item:getIdItem(base),codigo_caja:getCodigoCaja(base),cajas:c,paquetes:p,unidades:u,unidades_por_paquete:getUnidadesPorPaquete(base)||'',paquetes_por_caja:getPaquetesPorCaja(base)||'',ubicacion:destino,imagen:getImagen(base),vencimiento:getFechaVencimiento(base),origen,referencia:generarReferenciaOperacion('ENTRADA'),sucursal:destino});
             Notificaciones.mostrar(`✅ Entrada registrada${res.id_stock?' · '+res.id_stock:''}`,'success',6000);cerrarEntradaExterna();setTimeout(cargarInventario,1200);
         }catch(e){Notificaciones.mostrar('No se pudo registrar entrada: '+e.message,'error',7000);}
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-plus-circle"></i> Registrar entrada';}
@@ -2112,12 +2126,14 @@
     // ============================================================
     // 👥 INVENTARIO PROGRESIVO: varias personas / misma ubicación
     // ============================================================
-    function mismaClaveStock(p,nombre,ubicacion){
-        return normalizarMayus(getNombre(p))===normalizarMayus(nombre) &&
-               normalizarMayus(getUbicacion(p))===normalizarMayus(ubicacion);
+    function mismaClaveStock(p,nombre,ubicacion,idItem='',codigoCaja=''){
+        const mismaUbicacion=normalizarMayus(getUbicacion(p))===normalizarMayus(ubicacion);
+        const mismoCodigo=normalizarMayus(getCodigoCaja(p))===normalizarMayus(codigoCaja);
+        if(idItem && getIdItem(p)) return mismaUbicacion && mismoCodigo && normalizarMayus(getIdItem(p))===normalizarMayus(idItem);
+        return mismaUbicacion && mismoCodigo && normalizarMayus(getNombre(p))===normalizarMayus(nombre);
     }
-    function buscarStockMismaUbicacionLocal(nombre,ubicacion){
-        return todosProductos.find(p=>mismaClaveStock(p,nombre,ubicacion));
+    function buscarStockMismaUbicacionLocal(nombre,ubicacion,idItem='',codigoCaja=''){
+        return todosProductos.find(p=>mismaClaveStock(p,nombre,ubicacion,idItem,codigoCaja));
     }
     async function leerStockActualDirecto(nombre,ubicacion){
         // Relee Google Sheets inmediatamente antes de sumar. No consume GET de SheetDB.
@@ -2280,6 +2296,7 @@
         document.getElementById('editUnidadesPorPaquete').value = getUnidadesPorPaquete(item) || '';
         document.getElementById('editPaquetesPorCaja').value = getPaquetesPorCaja(item) || '';
         document.getElementById('editFechaVencimiento').value = formatearFechaParaInput(getFechaVencimiento(item));
+        document.getElementById('editCodigoCaja').value = getCodigoCaja(item);
         document.getElementById('editDescripcion').value = getDescripcion(item);
         document.getElementById('editUbicacion').value = getUbicacion(item);
         document.getElementById('editImagen').value = getImagen(item);
@@ -2294,7 +2311,7 @@
         const nombreOriginal=document.getElementById('editItemOriginal').value,ubicacionOriginal=document.getElementById('editUbicacionOriginal').value,seccionOriginal=document.getElementById('editSeccionOriginal').value;
         const item=todosProductos.find(x=>getNombre(x)===nombreOriginal&&getUbicacion(x)===ubicacionOriginal&&getSeccion(x)===seccionOriginal);
         if(!item||!getIdStock(item)){Notificaciones.mostrar('No se encontró un id_stock válido para editar','error');return;}
-        const nuevos={seccion:document.getElementById('editSeccion').value.trim(),nombre:document.getElementById('editNombre').value.trim(),unidades_por_paquete:document.getElementById('editUnidadesPorPaquete').value.trim(),paquetes_por_caja:document.getElementById('editPaquetesPorCaja').value.trim(),vencimiento:document.getElementById('editFechaVencimiento').value,ubicacion:document.getElementById('editUbicacion').value.trim(),imagen:document.getElementById('editImagen').value.trim(),precio_de_compra_china:document.getElementById('editPrecioChina').value.trim()};
+        const nuevos={seccion:document.getElementById('editSeccion').value.trim(),nombre:document.getElementById('editNombre').value.trim(),unidades_por_paquete:document.getElementById('editUnidadesPorPaquete').value.trim(),paquetes_por_caja:document.getElementById('editPaquetesPorCaja').value.trim(),vencimiento:document.getElementById('editFechaVencimiento').value,ubicacion:document.getElementById('editUbicacion').value.trim(),imagen:document.getElementById('editImagen').value.trim(),precio_de_compra_china:document.getElementById('editPrecioChina').value.trim(),codigo_caja:document.getElementById('editCodigoCaja').value.trim()};
         const nc=numeroStock(document.getElementById('editCajas').value),np=numeroStock(document.getElementById('editPaquetes').value),nu=numeroStock(document.getElementById('editUnidades').value);
         if(!nuevos.seccion||!nuevos.nombre||!nuevos.ubicacion){Notificaciones.mostrar('Completa sección, nombre y ubicación','warning');return;}
         const btn=document.getElementById('guardarEditarBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Guardando...';
@@ -2348,6 +2365,9 @@
             return null;
         }
         itemSeleccionadoMaestro=maestro;
+        dataObj.id_item=maestro.id_item||dataObj.id_item||'';
+        if(!dataObj.id_item){Notificaciones.mostrar('Este ITEM todavía no tiene id_item. Actualiza ITEMS antes de registrar Stock.','error',8000);return null;}
+        dataObj.codigo_caja=String(dataObj.codigo_caja||'').trim().toLocaleUpperCase('es-BO');
         dataObj.cajas=dataObj.cajas||'0'; dataObj.paquetes=dataObj.paquetes||'0'; dataObj.unidades=dataObj.unidades||'0';
         if((numeroStock(dataObj.cajas)+numeroStock(dataObj.paquetes)+numeroStock(dataObj.unidades))<=0)faltantes.push('al menos una existencia');
         if(faltantes.length){Notificaciones.mostrar('Completa: '+faltantes.join(', '),'warning',5000);return null;}
@@ -2362,7 +2382,7 @@
     function mostrarConfirmacionRegistro(dataObj){
         const upp=numeroStock(dataObj.unidades_por_paquete);
         const ppc=numeroStock(dataObj.paquetes_por_caja);
-        const existenteMismaUbicacion=buscarStockMismaUbicacionLocal(dataObj.nombre,dataObj.ubicacion);
+        const existenteMismaUbicacion=buscarStockMismaUbicacionLocal(dataObj.nombre,dataObj.ubicacion,dataObj.id_item,dataObj.codigo_caja);
         const avisoSuma=document.getElementById('avisoSumaExistente');
         avisoSuma.innerHTML=existenteMismaUbicacion?`<div class="modo-suma-aviso"><strong>Este producto ya tiene stock en ${dataObj.ubicacion}.</strong><br>Lo que estás registrando se interpretará como <strong>mercadería adicional encontrada</strong>. No reemplazará lo anterior. Antes de guardar, el sistema volverá a consultar Google Sheets y sumará sobre el valor más reciente.</div>`:'';
         dataObj.__sumar_existente=!!existenteMismaUbicacion;
@@ -2371,6 +2391,8 @@
           <div class="confirm-registro-grid">
             <div class="confirm-registro-item"><strong>📍 Ubicación</strong><br>${dataObj.ubicacion}</div>
             <div class="confirm-registro-item"><strong>📂 Sección</strong><br>${dataObj.seccion}</div>
+            <div class="confirm-registro-item"><strong>🆔 ID ITEM</strong><br>${dataObj.id_item}</div>
+            <div class="confirm-registro-item"><strong>🏷️ Código caja</strong><br>${dataObj.codigo_caja||'Sin código'}</div>
             <div class="confirm-registro-item"><strong>📦 Stock contado</strong><br>${numeroStock(dataObj.cajas)} cajas + ${numeroStock(dataObj.paquetes)} paquetes + ${numeroStock(dataObj.unidades)} unidades</div>
             <div class="confirm-registro-item"><strong>🧩 Equivalencias</strong><br>${ppc?ppc+' paquetes por caja':'Sin paquetes/caja'} · ${upp?upp+' unidades de venta por paquete':'Sin unidades/paquete'}</div>
             <div class="confirm-registro-item"><strong>👤 Registrado por</strong><br>${currentUser.username}</div>
@@ -2792,7 +2814,7 @@
             Notificaciones.mostrar(`✅ ITEM CREADO: ${nombre} · SECCIÓN: ${seccion}`,'success',8000);
             await cargarCatalogo();
             const creado=buscarItemMaestroExacto(nombre,seccion)||{...payload,imagen_original:imagenOriginal}; itemSeleccionadoMaestro=creado; cerrarCrearItem();
-            document.getElementById('nombre').value=creado.nombre||nombre; document.getElementById('seccion').value=creado.seccion||seccion;
+            document.getElementById('nombre').value=creado.nombre||nombre; document.getElementById('seccion').value=creado.seccion||seccion; document.getElementById('id_item').value=creado.id_item||resp.id_item||'';
             document.getElementById('imagen').value=convertirDriveAImagen(creado.imagen_original||creado.imagen_editada||resp.imagen_original||imagenOriginal||'');
             const cant=creado.cantidad_paquete||creado['cantidad paquete']||payload.cantidadPaquete||''; const m=String(cant).match(/\d+(?:[.,]\d+)?/); if(m)document.getElementById('unidades_por_paquete').value=m[0].replace(',','.');
             document.getElementById('nombre').scrollIntoView({behavior:'smooth',block:'center'}); setTimeout(()=>document.getElementById('cajas').focus(),350);
