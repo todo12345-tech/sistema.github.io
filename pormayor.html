@@ -1002,7 +1002,7 @@ button:active { transform: translateY(-1px); }
                     <i class="fas fa-store"></i> Todoenuno_store
                 </div>
             </div>
-            <h1>Formulario de Ventas al Por Mayor</h1><div id="usuarioMayorBar"><span><i class="fas fa-user-circle"></i> <strong id="usuarioMayorNombre"></strong> · <span id="usuarioMayorRol"></span></span><button id="logoutMayorBtn" type="button"><i class="fas fa-sign-out-alt"></i> Salir</button></div>
+            <h1>Formulario de Ventas al Por Mayor</h1><div id="usuarioMayorBar"><span><i class="fas fa-user-circle"></i> <strong id="usuarioMayorNombre"></strong> · <span id="usuarioMayorRol"></span></span><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="nuevoPedidoMayorBtn" type="button" style="background:#dc3545"><i class="fas fa-trash-alt"></i> Nuevo pedido / Borrar todo</button><button id="logoutMayorBtn" type="button"><i class="fas fa-sign-out-alt"></i> Salir</button></div></div>
             <form id="pedidoMayorForm">
                 <div class="form-group">
                     <div class="input-with-icon">
@@ -1534,6 +1534,103 @@ document.addEventListener('DOMContentLoaded', function() {
     let cantidadesPedido = { cajas: 0, paquetes: 0, unidades: 0 };
     let seleccionPedidoPendiente = null;
     let stockDataMayorista = [];
+    const MAYOR_BORRADOR_KEY = 'todoenuno_mayor_pedido_en_curso_v1';
+    let suspendiendoGuardadoMayor = false;
+
+    function guardarPedidoMayorEnCurso() {
+        if (suspendiendoGuardadoMayor) return;
+        try {
+            const valor = id => document.getElementById(id)?.value ?? '';
+            const marcado = id => !!document.getElementById(id)?.checked;
+            const estadoPagoActual = document.querySelector('input[name="estadoPago"]:checked')?.value || '';
+
+            localStorage.setItem(MAYOR_BORRADOR_KEY, JSON.stringify({
+                fullName: valor('fullName'),
+                phone: valor('phone'),
+                address: valor('address'),
+                department: valor('department'),
+                provinciaSantaCruz: marcado('provinciaSantaCruz'),
+                ciudadSantaCruz: marcado('ciudadSantaCruz'),
+                recogerSantaCruz: marcado('recogerSantaCruz'),
+                provinciaInput: valor('provinciaInput'),
+                transportadoraProvincia: valor('transportadoraProvincia'),
+                zonaCiudad: valor('zonaCiudad'),
+                transportadoraNombre: valor('transportadoraNombre'),
+                diaRecogida: valor('diaRecogida'),
+                envioSinCosto: marcado('envioSinCosto'),
+                notaPedido: valor('notaPedido'),
+                queContiene: valor('queContiene'),
+                transportadoraEspecifica: valor('transportadoraEspecifica'),
+                estadoPago: estadoPagoActual,
+                items: Array.isArray(items) ? items : [],
+                guardado: Date.now()
+            }));
+        } catch (e) {
+            console.warn('No se pudo guardar el pedido en curso:', e);
+        }
+    }
+
+    function restaurarPedidoMayorEnCurso() {
+        let d = null;
+        try { d = JSON.parse(localStorage.getItem(MAYOR_BORRADOR_KEY) || 'null'); } catch (e) {}
+        if (!d) return;
+
+        suspendiendoGuardadoMayor = true;
+        const poner = (id, valor) => {
+            const el = document.getElementById(id);
+            if (el && valor !== undefined && valor !== null) el.value = valor;
+        };
+        const marcar = (id, valor) => {
+            const el = document.getElementById(id);
+            if (el) el.checked = !!valor;
+        };
+
+        poner('fullName', d.fullName);
+        poner('phone', d.phone);
+        poner('address', d.address);
+        poner('department', d.department);
+        marcar('provinciaSantaCruz', d.provinciaSantaCruz);
+        marcar('ciudadSantaCruz', d.ciudadSantaCruz);
+        marcar('recogerSantaCruz', d.recogerSantaCruz);
+        poner('provinciaInput', d.provinciaInput);
+        poner('transportadoraProvincia', d.transportadoraProvincia);
+        poner('zonaCiudad', d.zonaCiudad);
+        poner('transportadoraNombre', d.transportadoraNombre);
+        poner('diaRecogida', d.diaRecogida);
+        marcar('envioSinCosto', d.envioSinCosto);
+        poner('notaPedido', d.notaPedido);
+        poner('queContiene', d.queContiene);
+        poner('transportadoraEspecifica', d.transportadoraEspecifica);
+
+        if (Array.isArray(d.items)) items = d.items;
+
+        if (d.estadoPago) {
+            const radio = [...document.querySelectorAll('input[name="estadoPago"]')].find(x => x.value === d.estadoPago);
+            if (radio) radio.checked = true;
+        }
+
+        if (departmentSelect.value === 'Santa Cruz') {
+            document.getElementById('santaCruzSection').style.display = 'block';
+            document.getElementById('transportadoraSection').style.display = 'none';
+            provinciaContainer.style.display = provinciaRadio.checked ? 'block' : 'none';
+            ciudadContainer.style.display = ciudadRadio.checked ? 'block' : 'none';
+            recogerContainer.style.display = recogerRadio.checked ? 'block' : 'none';
+            transportadoraProvinciaContainer.style.display = provinciaRadio.checked ? 'block' : 'none';
+        } else if (departmentSelect.value) {
+            document.getElementById('santaCruzSection').style.display = 'none';
+            document.getElementById('transportadoraSection').style.display = 'block';
+        }
+
+        actualizarListaItems();
+        actualizarBadgeEstadoPago();
+        actualizarFondoPorEstadoPago();
+        suspendiendoGuardadoMayor = false;
+    }
+
+    function borrarBorradorMayor() {
+        try { localStorage.removeItem(MAYOR_BORRADOR_KEY); } catch (e) {}
+    }
+
     const STOCK_GOOGLE_SHEET_ID = '1Rx8QdmK61tsrP4xdNTjTxT9F2QbI4lCpzNJZhNcq-7g';
     const STOCK_GOOGLE_CSV_URL = `https://docs.google.com/spreadsheets/d/${STOCK_GOOGLE_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent('stock')}`;
     let productoSeleccionado = null;
@@ -1839,17 +1936,48 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('pedidoPaquetes').textContent = cantidadesPedido.paquetes;
         document.getElementById('pedidoUnidades').textContent = cantidadesPedido.unidades;
         if (!productoSeleccionado) return;
+
         const e = obtenerEmpaqueProducto(productoSeleccionado);
-        const partes=[];
-        if(cantidadesPedido.cajas) partes.push(`${cantidadesPedido.cajas} caja(s)`);
-        if(cantidadesPedido.paquetes) partes.push(`${cantidadesPedido.paquetes} paquete(s)`);
-        if(cantidadesPedido.unidades) partes.push(`${cantidadesPedido.unidades} unidad(es)`);
-        let eq = 0;
-        if(e.unidadesPorPaquete) {
-            eq += cantidadesPedido.paquetes * e.unidadesPorPaquete + cantidadesPedido.unidades;
-            if(e.paquetesPorCaja) eq += cantidadesPedido.cajas * e.paquetesPorCaja * e.unidadesPorPaquete;
+        const partes = [];
+
+        if (cantidadesPedido.cajas) {
+            const c = cantidadesPedido.cajas;
+            if (e.paquetesPorCaja && e.unidadesPorPaquete) {
+                const unidadesCaja = e.paquetesPorCaja * e.unidadesPorPaquete;
+                partes.push(`${c} caja${c === 1 ? '' : 's'} de ${e.paquetesPorCaja} paquete${e.paquetesPorCaja === 1 ? '' : 's'} c/u (${c * unidadesCaja} unidades)`);
+            } else if (e.paquetesPorCaja) {
+                partes.push(`${c} caja${c === 1 ? '' : 's'} de ${e.paquetesPorCaja} paquete${e.paquetesPorCaja === 1 ? '' : 's'} c/u`);
+            } else {
+                partes.push(`${c} caja${c === 1 ? '' : 's'}`);
+            }
         }
-        document.getElementById('resumenPresentacionPedido').textContent = partes.length ? `${partes.join(' + ')}${eq ? ` = ${eq} unidades equivalentes` : ''}` : 'Selecciona una cantidad';
+
+        if (cantidadesPedido.paquetes) {
+            const p = cantidadesPedido.paquetes;
+            if (e.unidadesPorPaquete) {
+                partes.push(p === 1
+                    ? `1 paquete de ${e.unidadesPorPaquete} unidades`
+                    : `${p} paquetes de ${e.unidadesPorPaquete} unidades c/u (${p * e.unidadesPorPaquete} unidades)`);
+            } else {
+                partes.push(`${p} paquete${p === 1 ? '' : 's'}`);
+            }
+        }
+
+        if (cantidadesPedido.unidades) {
+            const u = cantidadesPedido.unidades;
+            partes.push(`${u} unidad${u === 1 ? '' : 'es'}`);
+        }
+
+        let eq = 0;
+        if (e.unidadesPorPaquete) {
+            eq += cantidadesPedido.paquetes * e.unidadesPorPaquete + cantidadesPedido.unidades;
+            if (e.paquetesPorCaja) {
+                eq += cantidadesPedido.cajas * e.paquetesPorCaja * e.unidadesPorPaquete;
+            }
+        }
+
+        document.getElementById('resumenPresentacionPedido').textContent =
+            partes.length ? `${partes.join(' + ')}${eq ? ` = ${eq} unidades equivalentes` : ''}` : 'Selecciona una cantidad';
     }
 
     window.cambiarPresentacionPedido = function(tipo, delta) {
@@ -1926,22 +2054,24 @@ document.addEventListener('DOMContentLoaded', function() {
 
     modalCantidad.addEventListener('keydown', function(e){
         if (modalCantidad.style.display !== 'flex') return;
-        if (['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)) return;
+        if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
 
-        if (e.key === 'ArrowRight') {
+        const tipos = ['cajas','paquetes','unidades'];
+
+        if (e.key === 'ArrowRight' || e.key === 'ArrowLeft') {
             e.preventDefault();
-            cambiarPresentacionPedido(tipoPedidoActivo, 1);
-        } else if (e.key === 'ArrowLeft') {
-            e.preventDefault();
-            cambiarPresentacionPedido(tipoPedidoActivo, -1);
-        } else if (e.key === 'ArrowUp' || e.key === 'ArrowDown') {
-            e.preventDefault();
-            const tipos = ['cajas','paquetes','unidades'];
             let i = tipos.indexOf(tipoPedidoActivo);
-            i = (i + (e.key === 'ArrowDown' ? 1 : -1) + tipos.length) % tipos.length;
+            if (i < 0) i = 2;
+            i = (i + (e.key === 'ArrowRight' ? 1 : -1) + tipos.length) % tipos.length;
             tipoPedidoActivo = tipos[i];
             const btn = modalCantidad.querySelector(`[data-ptipo="${tipoPedidoActivo}"][data-pdelta="1"]`);
             if (btn) btn.focus();
+        } else if (e.key === 'ArrowUp') {
+            e.preventDefault();
+            cambiarPresentacionPedido(tipoPedidoActivo, 1);
+        } else if (e.key === 'ArrowDown') {
+            e.preventDefault();
+            cambiarPresentacionPedido(tipoPedidoActivo, -1);
         } else if (e.key === 'Enter') {
             e.preventDefault();
             confirmarCantidad.click();
@@ -1964,7 +2094,20 @@ document.addEventListener('DOMContentLoaded', function() {
         if(c+p+u <= 0) { Notificaciones.mostrar('Selecciona al menos una caja, paquete o unidad', 'error'); return; }
         const e=obtenerEmpaqueProducto(productoSeleccionado);
         const partes=[];
-        if(c) partes.push(`${c} caja(s)`); if(p) partes.push(`${p} paquete(s)`); if(u) partes.push(`${u} unidad(es)`);
+        if(c) {
+            if(e.paquetesPorCaja && e.unidadesPorPaquete) {
+                const unidadesCaja=e.paquetesPorCaja*e.unidadesPorPaquete;
+                partes.push(`${c} caja${c===1?'':'s'} de ${e.paquetesPorCaja} paquete${e.paquetesPorCaja===1?'':'s'} c/u (${c*unidadesCaja} unidades)`);
+            } else if(e.paquetesPorCaja) {
+                partes.push(`${c} caja${c===1?'':'s'} de ${e.paquetesPorCaja} paquete${e.paquetesPorCaja===1?'':'s'} c/u`);
+            } else partes.push(`${c} caja${c===1?'':'s'}`);
+        }
+        if(p) {
+            if(e.unidadesPorPaquete) {
+                partes.push(p===1 ? `1 paquete de ${e.unidadesPorPaquete} unidades` : `${p} paquetes de ${e.unidadesPorPaquete} unidades c/u (${p*e.unidadesPorPaquete} unidades)`);
+            } else partes.push(`${p} paquete${p===1?'':'s'}`);
+        }
+        if(u) partes.push(`${u} unidad${u===1?'':'es'}`);
         const precioPaquete=productoSeleccionado.precioPaquete || 0;
         let precioTotal=0;
         if(precioPaquete) {
@@ -2235,6 +2378,7 @@ document.addEventListener('DOMContentLoaded', function() {
         actualizarAlistamiento();
         actualizarAjusteInteligente();
         renderAjustePagadoV3();
+        guardarPedidoMayorEnCurso();
     }
 
     function actualizarAlistamiento() {
@@ -3048,6 +3192,33 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('fullName').focus();
         cargarProductosDesdeSheets();
         cargarStockMayorista();
+
+        const nuevoPedidoMayorBtn = document.getElementById('nuevoPedidoMayorBtn');
+        if (nuevoPedidoMayorBtn) {
+            nuevoPedidoMayorBtn.addEventListener('click', function() {
+                if (!confirm('¿Borrar todo el pedido actual y empezar uno nuevo? Tu sesión seguirá abierta.')) return;
+                suspendiendoGuardadoMayor = true;
+                resetFormularioCompleto();
+                borrarBorradorMayor();
+                suspendiendoGuardadoMayor = false;
+                Notificaciones.mostrar('Nuevo pedido listo. La sesión continúa abierta.', 'success');
+            });
+        }
+
+        let timerGuardadoMayor = null;
+        const programarGuardadoMayor = function() {
+            clearTimeout(timerGuardadoMayor);
+            timerGuardadoMayor = setTimeout(guardarPedidoMayorEnCurso, 150);
+        };
+        document.addEventListener('input', function(e) {
+            if (!e.target.closest('#loginMayorOverlay')) programarGuardadoMayor();
+        }, true);
+        document.addEventListener('change', function(e) {
+            if (!e.target.closest('#loginMayorOverlay')) programarGuardadoMayor();
+        }, true);
+        window.addEventListener('beforeunload', guardarPedidoMayorEnCurso);
+
+        restaurarPedidoMayorEnCurso();
 
         document.addEventListener('keydown', function(e) {
             if (e.key === 'Escape') cerrarLightbox();
