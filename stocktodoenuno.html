@@ -2461,8 +2461,8 @@
 
     window.eliminarMovimientoAdmin=async function(id){
         if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede eliminar movimientos','warning');return;}
-        if(!confirm('¿Eliminar este movimiento de prueba?\n\nEsto NO cambiará el stock actual.'))return;
-        try{await stockApi('eliminarMovimientoAdmin',{id});Notificaciones.mostrar('✅ Movimiento eliminado; stock sin cambios','success');await buscarMovimientosProducto();}
+        if(!confirm('¿ELIMINAR ESTE REGISTRO DE MOVIMIENTOS?\n\nSe borrará únicamente el MOV-... de la bitácora. El Stock NO cambiará.'))return;
+        try{await stockApi('eliminarMovimientoAdmin',{id});Notificaciones.mostrar('✅ Registro MOV eliminado de la bitácora. Stock sin cambios.','success');await buscarMovimientosProducto();}
         catch(e){Notificaciones.mostrar('No se pudo eliminar: '+e.message,'error',7000);}
     };
 
@@ -2553,13 +2553,45 @@
     // 🗑️ ELIMINAR UNO
     // ============================================================
     async function eliminarProducto(id,nombre,boton){
-        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede eliminar registros','warning');return;}
-        if(!id||id.includes('|')){Notificaciones.mostrar('Este registro antiguo no tiene id_stock. Regularízalo antes de eliminarlo.','warning',7000);return;}
-        if(!confirm(`¿Eliminar "${nombre}"? El movimiento quedará registrado.`))return;
-        boton.disabled=true;boton.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
-        try{await stockApi('eliminarStock',{id_stock:id,motivo:'ELIMINACIÓN DESDE STOCK'});Notificaciones.mostrar(`✅ "${nombre}" eliminado`,'success');seleccionados.delete(id);setTimeout(cargarInventario,1200);}
-        catch(e){Notificaciones.mostrar('No se pudo eliminar: '+e.message,'error',7000);}
-        finally{boton.disabled=false;boton.innerHTML='<i class="fas fa-trash"></i>';}
+        if(!esAdmin()){
+            Notificaciones.mostrar('Solo ADMIN puede eliminar registros de Stock','warning');
+            return;
+        }
+        if(!id||id.includes('|')){
+            Notificaciones.mostrar('Este registro no tiene un id_stock válido.','warning',7000);
+            return;
+        }
+        if(!confirm(`¿ELIMINAR STOCK "${nombre}"?\n\nSe borrará físicamente el STK, pero quedará una bitácora ELIMINACION_STOCK en Movimientos.`)) return;
+
+        boton.disabled=true;
+        boton.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+
+        try{
+            const res=await stockApi('eliminarStock',{
+                id_stock:id,
+                motivo:'ELIMINACIÓN DESDE STOCK'
+            });
+
+            if(!res || !res.ok || !res.eliminado){
+                throw new Error(res?.error || 'El servidor no confirmó la eliminación física.');
+            }
+
+            seleccionados.delete(id);
+            await cargarInventario();
+
+            const sigueExistiendo=todosProductos.some(x=>getIdStock(x)===id);
+            if(sigueExistiendo){
+                throw new Error('El servidor respondió OK, pero el STK todavía aparece en Stock.');
+            }
+
+            Notificaciones.mostrar(`✅ "${nombre}" eliminado de Stock. La bitácora quedó registrada.`,'success',4500);
+        }catch(e){
+            // IMPORTANTE: un 404 ya NO se interpreta como éxito.
+            Notificaciones.mostrar('No se pudo eliminar el Stock: '+String(e?.message||e),'error',8000);
+        }finally{
+            boton.disabled=false;
+            boton.innerHTML='<i class="fas fa-trash"></i>';
+        }
     }
 
     // ============================================================
