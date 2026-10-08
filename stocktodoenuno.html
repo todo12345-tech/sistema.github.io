@@ -405,6 +405,14 @@
 </head>
 <body>
 
+<button id="btnCambiarUsuarioV6" type="button" onclick="cambiarUsuarioStock()"
+ style="position:fixed;right:14px;top:14px;z-index:9000;border:0;border-radius:999px;
+ padding:8px 12px;background:#fff;box-shadow:0 3px 12px rgba(0,0,0,.18);
+ font-size:12px;font-weight:700;color:#334155;">
+ 👤 Cambiar usuario
+</button>
+
+
 <!-- ============ LOGIN ============ -->
 <div id="loginScreen">
     <div class="login-card">
@@ -565,6 +573,14 @@
                     <option>Tienda Comercial</option>
                     <option>Tienda Feria</option>
                 </select>
+            <div class="ubicacion-acciones-v6" style="display:flex;gap:8px;flex-wrap:wrap;margin-top:8px;">
+                <button type="button" class="btn-secondary" onclick="abrirCrearUbicacionDesdeRegistro()" style="flex:1;min-width:150px;">
+                    ＋ Crear nueva ubicación
+                </button>
+                <button type="button" class="btn-secondary" onclick="cargarUbicaciones().then(()=>{actualizarFiltrosYDatalists();Notificaciones.mostrar('Ubicaciones actualizadas','success',2200);})" style="flex:1;min-width:120px;">
+                    ↻ Actualizar
+                </button>
+            </div>
                 <span class="campo-alerta">Elige dónde está físicamente este producto ahora. No elijas una ubicación solo porque allí normalmente se vende.</span>
             </div>
             <div class="form-group">
@@ -3221,5 +3237,113 @@
 
     setInterval(()=>{if(typeof todosProductos!=='undefined'&&todosProductos.length)renderResumenUbicaciones();},5000);
 </script>
+
+<!-- V6 · Crear ubicación desde el propio registro -->
+<div id="modalCrearUbicacionRegistro" class="modal-overlay" style="display:none;z-index:10050;">
+  <div class="modal-content" style="max-width:420px;">
+    <div class="modal-header">
+      <h3>📍 Crear nueva ubicación</h3>
+      <button type="button" class="close-modal" onclick="cerrarCrearUbicacionDesdeRegistro()">×</button>
+    </div>
+    <div style="padding:16px;">
+      <label class="form-label">Nombre de la ubicación *</label>
+      <input id="ubicacionRegistroNombre" class="form-input" type="text" placeholder="Ej.: Depósito principal" autocomplete="off">
+
+      <label class="form-label" style="margin-top:14px;">Tipo *</label>
+      <select id="ubicacionRegistroTipo" class="form-input">
+        <option value="TIENDA">Tienda</option>
+        <option value="DEPOSITO">Depósito</option>
+        <option value="ALMACEN">Almacén</option>
+        <option value="FERIA">Feria</option>
+        <option value="OTRO">Otro</option>
+      </select>
+
+      <p style="font-size:12px;margin:12px 0;color:#64748b;">
+        Se guardará en la hoja <b>ubicaciones</b> y quedará disponible para futuros registros y traspasos.
+      </p>
+
+      <div style="display:flex;gap:10px;">
+        <button type="button" class="btn-secondary" onclick="cerrarCrearUbicacionDesdeRegistro()" style="flex:1;">Cancelar</button>
+        <button type="button" class="btn-primary" onclick="crearUbicacionDesdeRegistro()" style="flex:1;">✓ Crear y usar</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+
+<script>
+// ============================================================
+// V6 · UBICACIONES REALES + CAMBIO DE USUARIO
+// ============================================================
+function abrirCrearUbicacionDesdeRegistro(){
+    const modal=document.getElementById('modalCrearUbicacionRegistro');
+    if(modal) modal.style.display='flex';
+    setTimeout(()=>document.getElementById('ubicacionRegistroNombre')?.focus(),80);
+}
+function cerrarCrearUbicacionDesdeRegistro(){
+    const modal=document.getElementById('modalCrearUbicacionRegistro');
+    if(modal) modal.style.display='none';
+}
+async function crearUbicacionDesdeRegistro(){
+    const nombre=(document.getElementById('ubicacionRegistroNombre')?.value||'').trim();
+    const tipo=(document.getElementById('ubicacionRegistroTipo')?.value||'OTRO').trim();
+    if(!nombre){
+        Notificaciones.mostrar('Escribe el nombre de la ubicación.','warning');
+        return;
+    }
+    try{
+        await stockApi('crearUbicacion',{nombre,tipo});
+        await cargarUbicaciones();
+        actualizarFiltrosYDatalists();
+        if(typeof renderizarSliderUbicaciones==='function') renderizarSliderUbicaciones();
+        if(typeof renderizarAdminUbicaciones==='function') renderizarAdminUbicaciones();
+
+        const sel=document.getElementById('ubicacion');
+        if(sel){
+            const existe=[...sel.options].some(o=>o.value===nombre);
+            if(!existe){
+                const op=document.createElement('option');
+                op.value=nombre; op.textContent=nombre;
+                sel.appendChild(op);
+            }
+            sel.value=nombre;
+            sel.dispatchEvent(new Event('change',{bubbles:true}));
+        }
+        document.getElementById('ubicacionRegistroNombre').value='';
+        cerrarCrearUbicacionDesdeRegistro();
+        Notificaciones.mostrar(`✅ Ubicación creada y seleccionada: ${nombre}`,'success',3500);
+    }catch(e){
+        Notificaciones.mostrar('No se pudo crear la ubicación: '+(e?.message||e),'error',6000);
+    }
+}
+
+function cambiarUsuarioStock(){
+    // Solo cierra la sesión local de Stock. No elimina ni modifica usuarios.
+    try{
+        sessionStorage.removeItem('currentUser');
+        sessionStorage.removeItem('usuarioActual');
+        sessionStorage.removeItem('stockUser');
+        localStorage.removeItem('currentUser');
+        localStorage.removeItem('usuarioActual');
+        localStorage.removeItem('stockUser');
+    }catch(e){}
+
+    // Adaptación a las funciones/pantallas existentes del HTML.
+    if(typeof cerrarSesion==='function'){
+        try{ cerrarSesion(); return; }catch(e){}
+    }
+    if(typeof logout==='function'){
+        try{ logout(); return; }catch(e){}
+    }
+
+    currentUser=null;
+    const login=document.getElementById('loginScreen') || document.getElementById('loginContainer') || document.querySelector('.login-screen');
+    const app=document.getElementById('app') || document.getElementById('mainApp') || document.querySelector('.app-container');
+    if(app) app.style.display='none';
+    if(login) login.style.display='';
+    else location.reload();
+}
+</script>
+
 </body>
 </html>
