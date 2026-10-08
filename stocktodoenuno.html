@@ -401,6 +401,11 @@
             word-break: normal !important;
         }
 
+
+#modalCrearUbicacionRegistro{background:rgba(15,23,42,.78)!important;backdrop-filter:none!important;}
+#modalCrearUbicacionRegistro .modal-content{background:#fff!important;opacity:1!important;color:#1f2937!important;box-shadow:0 18px 50px rgba(0,0,0,.4)!important;}
+#modalCrearUbicacionRegistro .modal-header{background:#263f57!important;opacity:1!important;}
+#modalCrearUbicacionRegistro input,#modalCrearUbicacionRegistro select{background:#fff!important;opacity:1!important;}
 </style>
 </head>
 <body>
@@ -1258,6 +1263,7 @@
     function getIdStock(item) { return item.id_stock || ''; }
     function getIdItem(item) { return item.id_item || ''; }
     function getCodigoCaja(item) { return item.codigo_caja || ''; }
+    function getIdUbicacion(item) { return item.id_ubicacion || ''; }
 
     function convertirDriveAImagen(url) {
         if (!url) return '';
@@ -1744,11 +1750,11 @@
 
     function renderizarAdminUbicaciones(){
         const c=document.getElementById('listaUbicacionesAdmin'); if(!c)return;
-        if(!ubicacionesSistema.length){c.innerHTML='<div class="no-datos">No hay ubicaciones creadas todavía. Crea la primera ubicación para comenzar a registrar stock.</div>';return;}
-        c.innerHTML=ubicacionesSistema.map((u,i)=>`<div class="ubicacion-admin-row">
-            <div><strong>${u.nombre||''}</strong><br><small>${u.id_ubicacion||''}</small><div class="ubicacion-inicio">Inicio confiable: ${u.fecha_creacion||'sin fecha registrada'}</div></div>
-            <div>${u.tipo||'OTRO'}</div><div><span class="badge ${String(u.estado).toUpperCase()==='INACTIVA'?'badge-danger':'badge-success'}">${u.estado||'ACTIVA'}</span></div>
-            <button type="button" class="modal-btn ${String(u.estado).toUpperCase()==='INACTIVA'?'modal-btn-save':'modal-btn-cancel'}" onclick="cambiarEstadoUbicacion(${i})">${String(u.estado).toUpperCase()==='INACTIVA'?'Activar':'Desactivar'}</button>
+        if(!ubicacionesSistema.length){c.innerHTML='<div class="no-datos">No hay ubicaciones creadas todavía.</div>';return;}
+        c.innerHTML=ubicacionesSistema.map((u,i)=>`<div class="ubicacion-admin-row" style="gap:8px">
+          <div style="flex:1"><strong>${u.nombre||''}</strong><div style="font-size:11px;color:#64748b">${u.id_ubicacion||''} · ${u.tipo||'OTRO'} · ${u.estado||'ACTIVA'}</div></div>
+          <button type="button" onclick="editarUbicacionPrompt(${i})" class="btn-secondary">✏️ Editar</button>
+          <button type="button" onclick="cambiarEstadoUbicacion(${i})" class="btn-secondary">${String(u.estado||'ACTIVA').toUpperCase()==='INACTIVA'?'✓ Activar':'⏸ Desactivar'}</button>
         </div>`).join('');
     }
 
@@ -1830,6 +1836,20 @@
             await stockApi('cambiarEstadoUbicacion',{id_ubicacion:u.id_ubicacion,estado:nuevo,confirmar_con_stock:confirmar});
             await cargarUbicaciones(); renderizarAdminUbicaciones(); actualizarFiltrosYDatalists(); renderizarSliderUbicaciones();
         }catch(e){Notificaciones.mostrar('No se pudo cambiar el estado: '+e.message,'error',7000);}
+    };
+
+    window.editarUbicacionPrompt=async function(i){
+        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede editar ubicaciones','warning');return;}
+        const u=ubicacionesSistema[i]; if(!u)return;
+        const nombre=prompt('Nuevo nombre:',u.nombre||''); if(nombre===null)return;
+        const tipo=prompt('Tipo:',u.tipo||'OTRO'); if(tipo===null)return;
+        if(!nombre.trim()){Notificaciones.mostrar('El nombre no puede quedar vacío','warning');return;}
+        try{
+          await stockApi('editarUbicacion',{id_ubicacion:u.id_ubicacion,nombre:nombre.trim(),tipo:tipo.trim()||'OTRO'});
+          await cargarUbicaciones(); await cargarInventario();
+          renderizarAdminUbicaciones(); actualizarFiltrosYDatalists(); renderizarSliderUbicaciones();
+          Notificaciones.mostrar('✅ Ubicación actualizada; su ID no cambió','success');
+        }catch(e){Notificaciones.mostrar('No se pudo editar: '+e.message,'error',7000);}
     };
 
     // ============================================================
@@ -2434,9 +2454,17 @@
               <div><strong>${m.tipo||''}</strong><br><small>${m.estado||''}</small></div>
               <div>${m.origen||'—'} → ${m.destino||'—'}</div>
               <div>${m.motivo||''}<br><small>${m.cajas_anterior||0}C/${m.paquetes_anterior||0}P/${m.unidades_anterior||0}U → ${m.cajas_nueva||0}C/${m.paquetes_nueva||0}P/${m.unidades_nueva||0}U</small></div>
+              ${esAdmin()?`<div><button type="button" class="btn-secondary" onclick="eliminarMovimientoAdmin('${m.id||''}')">🗑️ Eliminar</button></div>`:''}
             </div>`).join('');
         }catch(e){console.error(e);out.innerHTML='<div style="padding:18px;text-align:center;color:#c0392b">No se pudo leer el historial. Verifica que la pestaña movimientos sea pública/legible.</div>';}
     }
+
+    window.eliminarMovimientoAdmin=async function(id){
+        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede eliminar movimientos','warning');return;}
+        if(!confirm('¿Eliminar este movimiento de prueba?\n\nEsto NO cambiará el stock actual.'))return;
+        try{await stockApi('eliminarMovimientoAdmin',{id});Notificaciones.mostrar('✅ Movimiento eliminado; stock sin cambios','success');await buscarMovimientosProducto();}
+        catch(e){Notificaciones.mostrar('No se pudo eliminar: '+e.message,'error',7000);}
+    };
 
     // ============================================================
     // ⚖️ AJUSTE DE STOCK CON HISTORIAL
