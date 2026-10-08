@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
     <title>Todoenuno Store | Catálogo Mayorista</title>
-    <!-- VERSIÓN PÚBLICA PARA CLIENTES V2: muestra publicados aunque estén sin stock; sin acceso administrativo -->
+    <!-- VERSIÓN PÚBLICA LIMPIA: catálogo de solo lectura + carrito + WhatsApp -->
     <meta name="description" content="Catálogo mayorista con envíos a toda Bolivia. Accesorios, decants, maquillaje y más al mejor precio. Hacé tu pedido por WhatsApp.">
 
     <!-- Open Graph (WhatsApp, Facebook, Instagram) -->
@@ -234,24 +234,7 @@
         .share-btn:active { transform:scale(.97); }
         .share-btn.copied { background:#16a34a; }
         @media (max-width:768px){ .share-btn{ padding:8px 14px; font-size:12px; } }
-
-        .signin-btn{background:#fff;color:#131921;border:none;border-radius:22px;padding:8px 14px;font-weight:700;cursor:pointer;white-space:nowrap}
-        .admin-badge{background:#16a34a;color:#fff;border-radius:20px;padding:7px 12px;font-size:12px;font-weight:700;display:none}
-        .login-box{max-width:390px;padding:24px}
-        .login-box h2{margin-bottom:18px}
-        .login-box input{width:100%;padding:12px;margin:7px 0;border:1px solid #ccc;border-radius:10px}
-        .login-submit{width:100%;margin-top:10px;padding:11px;border:0;border-radius:22px;background:#ffd814;font-weight:700;cursor:pointer}
-        .admin-product-state{display:inline-block;margin:4px 6px 4px 0;padding:3px 8px;border-radius:12px;font-size:11px;font-weight:700}
-        .state-on{background:#dcfce7;color:#166534}.state-off{background:#fee2e2;color:#991b1b}
-
-        .admin-editor{margin-top:14px;padding:14px;border:2px solid #16a34a;border-radius:12px;background:#f0fdf4;max-width:720px}
-        .admin-editor-title{font-weight:800;margin-bottom:10px;display:flex;gap:8px;align-items:center;flex-wrap:wrap}
-        .admin-status{font-size:11px;padding:4px 9px;border-radius:20px;color:white}.admin-status.on{background:#16a34a}.admin-status.off{background:#dc2626}
-        .admin-grid{display:grid;grid-template-columns:1fr 160px;gap:9px}.admin-field label{display:block;font-size:11px;font-weight:700;margin-bottom:4px;color:#374151}.admin-field input{width:100%;padding:8px;border:1px solid #bbb;border-radius:8px;background:white}
-        .admin-checks{display:flex;gap:18px;flex-wrap:wrap;margin:11px 0}.admin-checks label{font-size:13px;font-weight:700;cursor:pointer}
-        .admin-actions{display:flex;gap:8px;flex-wrap:wrap}.admin-save,.admin-delete,.admin-delete-photo{border:0;border-radius:18px;padding:8px 14px;font-weight:700;cursor:pointer}.admin-save{background:#16a34a;color:white}.admin-delete{background:#fee2e2;color:#991b1b}.admin-delete-photo{background:#991b1b;color:white}
-        .admin-photo-link{font-size:11px;color:#007185;word-break:break-all;margin-top:5px}
-        @media(max-width:767px){.admin-grid{grid-template-columns:1fr}.admin-editor{padding:11px}.admin-actions button{width:100%}}
+.admin-editor{padding:11px}.admin-actions button{width:100%}}
     
 /* ===== V15 BUSCADOR EN LISTA + CATEGORÍAS HORIZONTALES EN PC ===== */
 .search-bar{position:relative;}
@@ -1102,58 +1085,6 @@
 </style>
 
 
-<style id="teus-admin-grid-restored">
-/* Restauración ADMIN: solo afecta controles administrativos dentro de la cuadrícula */
-.category-product-card .admin-editor{
-  margin-top:12px;
-  padding:10px;
-  width:100%;
-  max-width:none;
-  border-width:1px;
-  border-radius:10px;
-  font-size:11px;
-}
-.category-product-card .admin-editor-title{
-  font-size:11px;
-  margin-bottom:8px;
-}
-.category-product-card .admin-grid{
-  grid-template-columns:1fr !important;
-  gap:7px;
-}
-.category-product-card .admin-field label{font-size:10px;}
-.category-product-card .admin-field input{
-  padding:7px;
-  font-size:11px;
-}
-.category-product-card .admin-checks{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:6px;
-  margin:9px 0;
-}
-.category-product-card .admin-checks label{
-  font-size:10px;
-  line-height:1.25;
-}
-.category-product-card .admin-actions{
-  display:grid;
-  grid-template-columns:1fr;
-  gap:6px;
-}
-.category-product-card .admin-actions button{
-  width:100%;
-  padding:7px 8px;
-  font-size:10px;
-}
-.category-product-card .admin-photo-link{
-  font-size:9px;
-  max-height:42px;
-  overflow:auto;
-}
-</style>
-
-
 <style id="teus-admin-estados-gestion-v2">
 /* Solo modo ADMIN editable */
 body.admin-mode .category-product-name{
@@ -1232,90 +1163,6 @@ body.admin-mode .admin-field.admin-edited-photo-field{
   border:1px solid #e6b800;
   border-radius:8px;
   padding:7px;
-}
-</style>
-
-
-<style id="teus-admin-estados-vista-general">
-/* ===== ADMIN: ESTADOS EN LA VISTA GENERAL DE CATEGORÍAS ===== */
-
-/* Nombre completo también en los mini productos */
-body.admin-mode .category-card .mini-product-name,
-body.admin-mode .category-card .category-mini-name,
-body.admin-mode .category-card .product-mini-name,
-body.admin-mode .category-card .mini-name{
-  white-space:normal !important;
-  overflow:visible !important;
-  text-overflow:clip !important;
-  display:block !important;
-  -webkit-line-clamp:unset !important;
-  line-clamp:unset !important;
-  max-height:none !important;
-  height:auto !important;
-  word-break:break-word !important;
-}
-
-/* Estado amarillo: tiene stock pero falta imagen_editada */
-body.admin-mode .admin-mini-falta-editada{
-  background:#fff4a8 !important;
-  box-shadow:inset 0 0 0 3px #f2c200 !important;
-  border-radius:7px;
-  padding:4px;
-}
-body.admin-mode .admin-mini-falta-editada::after{
-  content:"FALTA FOTO EDITADA";
-  display:block;
-  margin-top:3px;
-  color:#6a5100;
-  font-size:8px;
-  font-weight:900;
-  line-height:1.1;
-}
-
-/* Estado rojo: NO disponible por paquete. Tiene prioridad visual. */
-body.admin-mode .admin-mini-sin-stock{
-  background:#ffe2e2 !important;
-  box-shadow:inset 0 0 0 3px #e11d48 !important;
-  border-radius:7px;
-  padding:4px;
-}
-body.admin-mode .admin-mini-sin-stock::after{
-  content:"SIN STOCK";
-  display:block;
-  margin-top:3px;
-  color:#b00020;
-  font-size:9px;
-  font-weight:900;
-  line-height:1.1;
-}
-body.admin-mode .admin-mini-sin-stock img{
-  opacity:.82;
-}
-body.admin-mode .admin-mini-sin-stock .mini-product-name,
-body.admin-mode .admin-mini-sin-stock .category-mini-name,
-body.admin-mode .admin-mini-sin-stock .product-mini-name,
-body.admin-mode .admin-mini-sin-stock .mini-name{
-  color:#b00020 !important;
-  text-decoration:underline;
-  text-decoration-thickness:2px;
-}
-
-/* Si falta editada pero existe original, la original es SOLO referencia ADMIN. */
-body.admin-mode .admin-original-reference{
-  position:relative;
-}
-body.admin-mode .admin-original-reference::before{
-  content:"ORIGINAL";
-  position:absolute;
-  top:3px;
-  left:3px;
-  z-index:2;
-  background:#f2c200;
-  color:#332800;
-  padding:2px 4px;
-  border-radius:3px;
-  font-size:7px;
-  font-weight:900;
 }
 </style>
 
@@ -1413,36 +1260,6 @@ body.admin-mode .admin-original-reference::before{
 </style>
 
 
-<style id="teus-admin-home-color-fuerte-v3">
-#categoriesGrid .grid-item.admin-home-falta-editada{
-  background:#ffe66a !important;
-  border:3px solid #e0b400 !important;
-  box-shadow:0 0 0 2px rgba(224,180,0,.16) !important;
-}
-#categoriesGrid .grid-item.admin-home-sin-stock{
-  background:#ffb3b3 !important;
-  border:3px solid #d71920 !important;
-  box-shadow:0 0 0 2px rgba(215,25,32,.15) !important;
-}
-#categoriesGrid .grid-item.admin-home-sin-stock::after{
-  background:#d71920;
-  color:#fff;
-  padding:3px 5px;
-  border-radius:4px;
-  width:max-content;
-  max-width:100%;
-}
-#categoriesGrid .grid-item.admin-home-falta-editada::after{
-  background:#e0b400;
-  color:#2f2600;
-  padding:3px 5px;
-  border-radius:4px;
-  width:max-content;
-  max-width:100%;
-}
-</style>
-
-
 <style id="teus-admin-panel-visual-completo-v4">
 /* NARANJA = tiene stock + foto editada, pero NO está publicado */
 #categoriesGrid .grid-item.admin-home-no-publicado{
@@ -1536,43 +1353,8 @@ body.admin-mode .admin-original-reference::before{
 
 
 <style id="teus-photo-picker-style">
-.admin-photo-picker-label{
-  display:block;
-  box-sizing:border-box;
-  width:100%;
-  margin-top:7px;
-  padding:9px 7px;
-  border-radius:8px;
-  background:#168f4e;
-  color:#fff;
-  text-align:center;
-  font-size:11px;
-  font-weight:800;
-  cursor:pointer;
-}
-.admin-photo-picker-label:hover{filter:brightness(.95)}
-.admin-photo-picker-name{
-  margin-top:4px;
-  font-size:9px;
-  font-weight:700;
-  color:#374151;
-  word-break:break-all;
-}
 </style>
 
-
-<style id="teus-public-client-mode">
-/* Versión pública: ningún acceso o control administrativo es visible. */
-#signInBtn,
-#adminBadge,
-#loginModal,
-.admin-editor,
-.admin-product-state,
-.admin-photo-picker-label,
-.admin-photo-picker-name {
-    display:none !important;
-}
-</style>
 
 </head>
 <body>
@@ -1586,9 +1368,7 @@ body.admin-mode .admin-original-reference::before{
             <button id="searchBtn" aria-label="Buscar"><i class="fas fa-search"></i></button>
             <div id="searchSuggestions" class="search-suggestions" role="listbox" aria-label="Sugerencias de búsqueda"></div>
         </div>
-        <button class="signin-btn" id="signInBtn" type="button"><i class="fas fa-user-shield"></i> Sign in</button>
-        <span class="admin-badge" id="adminBadge">ADMIN</span>
-        <div class="cart-header" id="cartIconHeader" aria-label="Carrito">
+<div class="cart-header" id="cartIconHeader" aria-label="Carrito">
             <i class="fas fa-shopping-cart fa-lg"></i>
             <span class="cart-count-badge" id="cartCountBadge">0</span>
         </div>
@@ -1757,8 +1537,6 @@ body.admin-mode .admin-original-reference::before{
     </div>
 </div>
 
-<div id="loginModal" class="modal"><div class="modal-content login-box"><div class="modal-header"><span class="close-modal" id="closeLoginModal">&times;</span></div><h2><i class="fas fa-user-shield"></i> Iniciar sesión</h2><input id="loginUser" autocomplete="username" placeholder="Usuario"><input id="loginPass" type="password" autocomplete="current-password" placeholder="Contraseña"><div id="loginError" style="color:#b12704;font-size:13px;min-height:18px"></div><button class="login-submit" id="loginSubmit">Entrar</button></div></div>
-
 <div class="notification" id="notification">✅ Agregado</div>
 
 <script>
@@ -1768,8 +1546,6 @@ const PRODUCTOS_SHEET_NAME = 'item';
 const BANNER_SHEET_ID = '1dg0OM8-KvkgFUAyNiaxRiotTxrN-ST87gb1Gff6MzGg';
 const WHATSAPP_NUMBER = '59163439475';
 const VISUAL_DISCOUNT = 25;
-const USERS_SHEET_ID = '1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok';
-const ITEMS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw_BiqTbqL0eaMRKZTmJqbgsIchHBKQEocRprOGpPbHbIh2HCcTEW4cXYdgmGCPZqn3/exec';
 
 // ⚠️ Si algún día volvés a Google Sites, descomentá la línea de abajo y poné tu URL.
 // En Netlify/GitHub esta constante debe quedar en null para que se detecte automáticamente.
@@ -1778,7 +1554,6 @@ const SITES_BASE_URL = null;
 // ========== ESTADO ==========
 let allProducts = [];
 let masterProducts = [];
-let adminActual = null;
 let cart = [];
 let heroImages = [];
 let heroIndex = 0;
@@ -2203,7 +1978,7 @@ async function loadProducts() {
             productos.push({seccion,nombre,precioPaquete,unidadesTexto,unidadesNumero,precioMayor:0,cantidadMayorTexto:'',dispPaquete,dispMayor:false,publicado,imagen,imagenEditada:getImageUrl(imagenEditadaRaw),imagenOriginal:getImageUrl(imagenOriginalRaw),imagenEditadaRaw,imagenOriginalRaw,descripcion:'Sin descripción',oferta:ofertaDia||ofertaSemana,ofertaDia,ofertaSemana,hastaFecha,precioOferta,esBolsas:seccion.toLowerCase().includes('bolsas')});
         }
         masterProducts=productos;
-        // Público: solo publicado + disponible por paquete. ADMIN: absolutamente todos.
+        // Público: muestra únicamente items marcados para publicar y con imagen editada.
         allProducts=masterProducts.filter(p=>p.publicado && !!p.imagenEditada);
         const uniqueCategories=[...new Set(allProducts.map(p=>p.seccion))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
         homeCategoryOrder=uniqueCategories; homeCache={};
@@ -2221,20 +1996,6 @@ async function loadProducts() {
     } catch(e){ console.error('Error cargando ITEMS:',e); grid.innerHTML='<div style="grid-column:1/-1;color:#b12704;background:#fff;padding:24px;border-radius:12px;text-align:center;"><strong>No pude cargar los productos.</strong><br><span style="font-size:13px;">'+escapeHtml(e.message||String(e))+'</span><br><br><button onclick="loadProducts()" style="background:#ffd814;border:0;border-radius:20px;padding:9px 18px;font-weight:bold;cursor:pointer;">Reintentar</button></div>'; }
 }
 
-async function loginAdmin(){
-    adminActual=null;
-    try{sessionStorage.removeItem('todoenunoCatalogAdmin');}catch(e){}
-    return false;
-}
-function applyAdminUI(){
-    const btn=document.getElementById('signInBtn'), badge=document.getElementById('adminBadge');
-    if(adminActual){btn.innerHTML='<i class="fas fa-sign-out-alt"></i> Salir'; badge.style.display='inline-block'; badge.textContent='ADMIN · '+(adminActual.nombre||adminActual.usuario);}
-    else{btn.innerHTML='<i class="fas fa-user-shield"></i> Sign in'; badge.style.display='none';}
-}
-async function toggleLogin(){
-    if(adminActual){adminActual=null;sessionStorage.removeItem('todoenunoCatalogAdmin');applyAdminUI();await loadProducts();showHomeView(false);return;}
-    document.getElementById('loginError').textContent='';document.getElementById('loginModal').style.display='flex';setTimeout(()=>document.getElementById('loginUser').focus(),50);
-}
 // ========== HERO ==========
 function renderHero() {
     const container = document.getElementById('heroSlides');
@@ -2280,64 +2041,12 @@ function renderHomeCards() {
         grouped.get(p.seccion).push(p);
     });
 
-    const homeState = (p) => {
-        if (!adminActual) {
-            return { cls:'', img:p.imagenEditada || p.imagen || '', original:false };
-        }
-
-        const edited = String(p.imagenEditada || '').trim();
-        const original = String(p.imagenOriginal || '').trim();
-        const available = !!p.dispPaquete;
-        const published = !!p.publicado;
-
-        let cls = '';
-        let label = '';
-
-        /* PRIORIDAD VISUAL:
-           ROJO = sin stock, esté publicado o no.
-           AMARILLO = tiene stock pero falta imagen editada.
-           NARANJA = tiene foto editada + stock, pero NO está publicado.
-           NORMAL = publicado + stock + foto editada. */
-        if (!available) {
-            cls = ' admin-home-sin-stock';
-            label = published ? 'PUBLICADO · SIN STOCK' : 'NO PUBLICADO · SIN STOCK';
-        } else if (!edited) {
-            cls = ' admin-home-falta-editada';
-            label = published ? 'PUBLICADO · FALTA FOTO EDITADA' : 'NO PUBLICADO · FALTA FOTO EDITADA';
-        } else if (!published) {
-            cls = ' admin-home-no-publicado';
-            label = 'NO PUBLICADO';
-        }
-
-        return {
-            cls,
-            label,
-            img: edited || original || '',
-            original: !edited && !!original,
-            published,
-            available,
-            hasEdited: !!edited,
-            hasOriginal: !!original
-        };
-    };
     const homeProductHtml = (p) => {
-        const st = homeState(p);
-        const originalClass = st.original ? ' admin-home-original-ref' : '';
-        const imgHtml = st.img
-            ? `<img src="${escapeHtml(st.img)}" loading="lazy" alt="${escapeHtml(p.nombre)}">`
-            : `<div class="admin-home-no-photo"><i class="fas fa-image"></i><span>Sin imagen</span></div>`;
-
-        const statusHtml = adminActual ? `
-          <div class="admin-home-status">
-            <span class="${st.published ? 'ok' : 'off'}">${st.published ? '✓ PUBLICADO' : '○ NO PUBLICADO'}</span>
-            <span class="${st.available ? 'ok' : 'bad'}">${st.available ? '✓ CON STOCK' : '✕ SIN STOCK'}</span>
-            <span class="${st.hasEdited ? 'ok' : 'warn'}">${st.hasEdited ? '✓ FOTO EDITADA' : '⚠ FALTA FOTO EDITADA'}</span>
-          </div>` : '';
-
-        return `<div class="grid-item${st.cls}${originalClass}" title="${escapeHtml(p.nombre)}">
-            ${imgHtml}
-            <span class="admin-home-full-name">${escapeHtml(p.nombre)}</span>
-            ${statusHtml}
+        const img = p.imagenEditada || p.imagen || '';
+        if (!img) return '';
+        return `<div class="grid-item" title="${escapeHtml(p.nombre)}">
+            <img src="${escapeHtml(img)}" loading="lazy" alt="${escapeHtml(p.nombre)}">
+            <span>${escapeHtml(p.nombre)}</span>
         </div>`;
     };
     let html = '';
@@ -2414,152 +2123,6 @@ function showDescription(product) {
     document.getElementById('descModal').style.display = 'flex';
 }
 
-// ========== ADMIN: EDICIÓN REAL DE ITEMS ==========
-async function adminPost(payload){
-    if(!adminActual || !adminActual.usuario || !adminActual.contrasena) throw new Error('Por seguridad, vuelve a iniciar sesión como ADMIN para guardar cambios.');
-    payload.usuario=adminActual.usuario; payload.contrasena=adminActual.contrasena;
-    const r=await fetch(ITEMS_WEBAPP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-    const txt=await r.text(); let data;
-    try{data=JSON.parse(txt)}catch(e){throw new Error('El Apps Script devolvió una respuesta inválida. Verifica que hayas desplegado el Code.gs V16 corregido.');}
-    if(!data.ok) throw new Error(data.error||'No se pudo realizar la operación.');
-    return data;
-}
-function adminEditorHtml(prod,i){
-    if(!adminActual) return '';
-    return `<div class="admin-editor" data-admin-idx="${i}">
-      <div class="admin-editor-title"><i class="fas fa-user-shield"></i> ADMINISTRAR ITEM
-        <span class="admin-status ${prod.publicado?'on':'off'}">${prod.publicado?'PUBLICADO':'NO PUBLICADO'}</span>
-        <span class="admin-status ${prod.dispPaquete?'on':'off'}">${prod.dispPaquete?'DISPONIBLE':'SIN DISPONIBILIDAD'}</span>
-      </div>
-      <div class="admin-grid">
-        <div class="admin-field"><label>Nombre</label><input class="adm-nombre" value="${escapeHtml(prod.nombre)}"></div>
-        <div class="admin-field"><label>Precio paquete (Bs)</label><input class="adm-precio" type="number" step="0.01" value="${escapeHtml(prod.precioPaquete)}"></div>
-        <div class="admin-field"><label>Cantidad / presentación del paquete</label><input class="adm-cantidad" value="${escapeHtml(prod.unidadesTexto)}"></div>
-        <div class="admin-field admin-edited-photo-field">
-<label>Imagen editada / actualizar foto pública (URL Drive)</label>
-<input class="adm-imagen" value="${escapeHtml(prod.imagenEditadaRaw||'')}">
-<label class="admin-photo-picker-label">
-  <i class="fas fa-camera"></i> Agregar / actualizar foto
-  <input type="file" class="admin-photo-picker" accept="image/jpeg,image/png,image/webp" hidden>
-</label>
-<div class="admin-photo-picker-name"></div>
-</div>
-        <div class="admin-field"><label>Hasta qué fecha</label><input class="adm-hasta" type="date" value="${escapeHtml((prod.hastaFecha||'').match(/^\d{4}-\d{2}-\d{2}$/)?prod.hastaFecha:'')}"></div>
-        <div class="admin-field"><label>Precio especial de oferta (Bs)</label><input class="adm-precio-oferta" type="number" step="0.01" value="${prod.precioOferta||''}"></div>
-      </div>
-      <div class="admin-checks">
-        <label><input type="checkbox" class="adm-publicar" ${prod.publicado?'checked':''}> Publicar en catálogo</label>
-        <label><input type="checkbox" class="adm-disponible" ${prod.dispPaquete?'checked':''}> Disponible por paquete</label>
-        <label><input type="checkbox" class="adm-oferta-dia" ${prod.ofertaDia?'checked':''}> 🔥 Oferta del día</label>
-        <label><input type="checkbox" class="adm-oferta-semana" ${prod.ofertaSemana?'checked':''}> ⚡ Oferta de la semana</label>
-      </div>
-      ${prod.imagenOriginalRaw?`<div class="admin-photo-link"><strong>Original:</strong> ${escapeHtml(prod.imagenOriginalRaw)}</div>`:''}
-      <div class="admin-actions" style="margin-top:11px">
-        <button class="admin-save" data-idx="${i}"><i class="fas fa-save"></i> Guardar cambios</button>
-        <button class="admin-delete" data-idx="${i}"><i class="fas fa-trash"></i> Eliminar solo item</button>
-        <button class="admin-delete-photo" data-idx="${i}"><i class="fas fa-trash-alt"></i> Eliminar item + foto</button>
-      </div>
-    </div>`;
-}
-async function archivoAdminABase64(file){
-    return await new Promise((resolve,reject)=>{
-        const reader=new FileReader();
-        reader.onload=()=>resolve(String(reader.result||'').split(',')[1]||'');
-        reader.onerror=()=>reject(new Error('No se pudo leer la imagen seleccionada.'));
-        reader.readAsDataURL(file);
-    });
-}
-async function guardarAdminItem(i,box){
-    const p=currentResults[i]; if(!p)return;
-    const nombre=box.querySelector('.adm-nombre').value.trim();
-    const precio=box.querySelector('.adm-precio').value.trim();
-    const cantidad=box.querySelector('.adm-cantidad').value.trim();
-    const imagenInput=box.querySelector('.adm-imagen');
-    const fileInput=box.querySelector('.admin-photo-picker');
-    let imagen=imagenInput.value.trim();
-
-    if(!nombre){alert('El nombre no puede quedar vacío.');return;}
-
-    const btn=box.querySelector('.admin-save');
-    const old=btn.innerHTML;
-    btn.disabled=true;
-
-    try{
-      // Si el ADMIN seleccionó una foto nueva, primero subirla a Drive
-      // y escribirla en imagen_editada mediante Code.gs V16.
-      const archivo=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
-      if(archivo){
-        if(!/^image\/(jpeg|png|webp)$/i.test(archivo.type||'')){
-          throw new Error('La foto debe ser JPG, PNG o WEBP.');
-        }
-        if(archivo.size>12*1024*1024){
-          throw new Error('La foto supera 12 MB.');
-        }
-
-        btn.textContent='Subiendo foto...';
-        const base64=await archivoAdminABase64(archivo);
-        const subida=await adminPost({
-          accion:'actualizarImagenEditada',
-          seccionOriginal:p.seccion,
-          nombreOriginal:p.nombre,
-          seccion:p.seccion,
-          nombre:p.nombre,
-          fileName:archivo.name,
-          mimeType:archivo.type,
-          base64:base64
-        });
-
-        imagen=subida.imagen_editada || subida.url || '';
-        if(!imagen) throw new Error('La foto se subió pero no recibí su enlace de Drive.');
-        imagenInput.value=imagen;
-      }
-
-      btn.textContent='Guardando...';
-      await adminPost({
-        accion:'editarCatalogoMayorista',
-        seccionOriginal:p.seccion,
-        nombreOriginal:p.nombre,
-        seccion:p.seccion,
-        nombre:p.nombre,
-        nombreNuevo:nombre,
-        precioPaquete:precio,
-        cantidadPaquete:cantidad,
-        dispPaquete:box.querySelector('.adm-disponible').checked?'si':'no',
-        publicar:box.querySelector('.adm-publicar').checked?'si':'no',
-        imagenEditada:imagen,
-        ofertaDia:box.querySelector('.adm-oferta-dia').checked?'si':'no',
-        ofertaSemana:box.querySelector('.adm-oferta-semana').checked?'si':'no',
-        hastaFecha:box.querySelector('.adm-hasta').value,
-        precioOferta:box.querySelector('.adm-precio-oferta').value
-      });
-
-      if(fileInput) fileInput.value='';
-      const nombreFoto=box.querySelector('.admin-photo-picker-name');
-      if(nombreFoto) nombreFoto.textContent='';
-
-      await loadProducts();
-      showNotif(archivo?'✅ Foto e item actualizados':'✅ Item actualizado');
-      showResultsByCategory(p.seccion,false,window.scrollY);
-    }catch(e){
-      alert(e.message);
-    }finally{
-      btn.disabled=false;
-      btn.innerHTML=old;
-    }
-}
-async function eliminarAdminItem(i,conFoto){
-    const p=currentResults[i]; if(!p)return;
-    const texto=conFoto?'¿Eliminar COMPLETAMENTE este item y también su imagen editada de Drive?':'¿Eliminar solamente este item? La foto de Drive se conservará.';
-    if(!confirm(texto+'\n\n'+p.nombre))return;
-    if(conFoto && !confirm('CONFIRMACIÓN FINAL: esta acción enviará la foto editada a la papelera de Drive. ¿Continuar?'))return;
-    try{
-      await adminPost({accion:conFoto?'eliminarItemYFotoCatalogo':'eliminarItemCatalogo',seccion:p.seccion,nombre:p.nombre});
-      await loadProducts(); showNotif(conFoto?'🗑️ Item y foto eliminados':'🗑️ Item eliminado');
-      showResultsByCategory(p.seccion,false,0);
-    }catch(e){alert(e.message);}
-}
-
-
 // ========== V17: GRID DE 6 PRODUCTOS POR FILA EN PC ==========
 function renderCategoryProducts(products) {
     const disponibles = products.filter(p => p.dispPaquete && p.precioPaquete > 0);
@@ -2573,13 +2136,10 @@ function renderCategoryProducts(products) {
     sortedProducts.forEach((prod, i) => {
         const disponible = prod.dispPaquete && prod.precioPaquete > 0;
         const visual = disponible ? getVisualPrice(prod.precioPaquete) : null;
-        const adminState = adminActual ? (!prod.dispPaquete ? ' admin-sin-stock' : (!prod.imagenEditada ? ' admin-falta-editada' : '')) : '';
         const imageHtml = prod.imagenEditada
           ? `<div class="category-product-image" data-img="${escapeHtml(prod.imagenEditada)}"><img src="${escapeHtml(prod.imagenEditada)}" loading="lazy" alt="${escapeHtml(prod.nombre)}"></div>`
-          : (adminActual
-              ? `<div class="category-product-image admin-photo-pending"><div><i class="fas fa-image"></i>Falta imagen editada<br><small>No aparece en el catálogo público</small></div></div>`
-              : '');
-        cards += `<article class="category-product-card${adminState}">
+          : '';
+        cards += `<article class="category-product-card">
           ${imageHtml}
           <div class="category-product-body">
             <div class="category-product-name" title="${escapeHtml(prod.nombre)}">${escapeHtml(prod.nombre)}</div>`;
@@ -2605,11 +2165,6 @@ function renderCategoryProducts(products) {
         } else {
           cards += `<div class="agotado-mensaje">❌ Producto agotado</div>`;
         }
-        // En modo ADMIN, cada tarjeta debe incluir su editor real.
-        // En público no se genera absolutamente nada administrativo.
-        if (adminActual) {
-          cards += adminEditorHtml(prod, i);
-        }
         cards += `</div></article>`;
     });
 
@@ -2627,26 +2182,6 @@ function renderCategoryProducts(products) {
     container.querySelectorAll('.category-desc').forEach(btn=>btn.onclick=(e)=>{
         e.stopPropagation(); const p=currentResults[+btn.dataset.idx]; if(p) showDescription(p);
     });
-
-    // Controles ADMIN de la cuadrícula moderna.
-    if(adminActual){
-        container.querySelectorAll('.admin-save').forEach(btn=>btn.onclick=(e)=>{
-            e.stopPropagation();
-            const box=btn.closest('.admin-editor');
-            guardarAdminItem(parseInt(btn.dataset.idx),box);
-        });
-        container.querySelectorAll('.admin-delete').forEach(btn=>btn.onclick=(e)=>{
-            e.stopPropagation();
-            eliminarAdminItem(parseInt(btn.dataset.idx),false);
-        });
-        container.querySelectorAll('.admin-delete-photo').forEach(btn=>btn.onclick=(e)=>{
-            e.stopPropagation();
-            eliminarAdminItem(parseInt(btn.dataset.idx),true);
-        });
-        container.querySelectorAll('.admin-editor input').forEach(inp=>{
-            inp.onclick=e=>e.stopPropagation();
-        });
-    }
 }
 
 function categoryCartKey(product){ return `CATPAQ::${product.seccion}::${product.nombre}`; }
@@ -2662,7 +2197,7 @@ function setCategoryCartQty(product, qty){
     if(qty===0){ if(pos>=0) cart.splice(pos,1); }
     else {
         const unitPrice=effectivePrice(product);
-        const obj={ id: pos>=0?cart[pos].id:(Date.now()+Math.random()), categoryKey:key, name:product.nombre, detail:`Paquete x${qty}`, price:unitPrice*qty, qty:qty, unitLabel:'paquete(s)' };
+        const obj={ id: pos>=0?cart[pos].id:(Date.now()+Math.random()), categoryKey:key, name:product.nombre, detail:`Paquete x${qty}`, price:unitPrice, unitPrice:unitPrice, qty:qty, unitLabel:'paquete(s)', unitsPerPackage:Number(product.unidadesNumero)||0, image:product.imagenEditada||product.imagen||'' };
         if(pos>=0) cart[pos]=obj; else cart.push(obj);
     }
     saveCart(); updateCartUI();
@@ -2708,7 +2243,6 @@ function renderResultsList(products) {
         } else {
             html += `<div class="agotado-mensaje">❌ Producto agotado</div>`;
         }
-        if(adminActual) html += adminEditorHtml(prod,i);
         html += `</div></div>`;
     });
     container.innerHTML = html;
@@ -2736,12 +2270,6 @@ function renderResultsList(products) {
             if (prod) showDescription(prod);
         });
     });
-    if(adminActual){
-        container.querySelectorAll('.admin-save').forEach(btn=>btn.onclick=(e)=>{e.stopPropagation();const box=btn.closest('.admin-editor');guardarAdminItem(parseInt(btn.dataset.idx),box);});
-        container.querySelectorAll('.admin-delete').forEach(btn=>btn.onclick=(e)=>{e.stopPropagation();eliminarAdminItem(parseInt(btn.dataset.idx),false);});
-        container.querySelectorAll('.admin-delete-photo').forEach(btn=>btn.onclick=(e)=>{e.stopPropagation();eliminarAdminItem(parseInt(btn.dataset.idx),true);});
-        container.querySelectorAll('.admin-editor input').forEach(inp=>inp.onclick=e=>e.stopPropagation());
-    }
 }
 
 // ========== MODAL PRODUCTO ==========
@@ -2806,7 +2334,7 @@ window.openProductModal = function(product) {
         modalBody.querySelector('#addPackageBtn').onclick = () => {
             const cant = parseInt(qtySpan.textContent);
             const detail = `Paquete x${cant}`;
-            addToCart(product.nombre, detail, effectivePrice(product) * cant, cant, 'paquete(s)');
+            addToCart(product.nombre, detail, effectivePrice(product) * cant, cant, 'paquete(s)', Number(product.unidadesNumero)||0);
             closeModal('productModal');
         };
     }
@@ -2838,7 +2366,25 @@ function productImageByName(name) {
     const p = allProducts.find(x => String(x.nombre||'').trim().toLowerCase() === String(name||'').trim().toLowerCase());
     return p ? (p.imagenEditada || p.imagen || '') : '';
 }
-function addToCart(name, detail, price, qty = 1, unitLabel = 'paquete(s)') {
+
+function productByName(name) {
+    return allProducts.find(x => String(x.nombre||'').trim().toLowerCase() === String(name||'').trim().toLowerCase()) || null;
+}
+function packageUnitsByName(name) {
+    const p = productByName(name);
+    const n = Number(p && p.unidadesNumero);
+    return Number.isFinite(n) && n > 0 ? n : 0;
+}
+function packageDetailText(item) {
+    const qty = Math.max(1, Number(item && item.qty) || 1);
+    const perPack = Number(item && item.unitsPerPackage) || packageUnitsByName(item && item.name);
+    if (String(item && item.unitLabel || '').toLowerCase().includes('paquete') && perPack > 0) {
+        const totalUnits = qty * perPack;
+        return `${qty} paquete${qty===1?'':'s'} (${totalUnits} unidad${totalUnits===1?'':'es'} · ${perPack} por paquete)`;
+    }
+    return (item && item.detail) ? String(item.detail) : `${qty} ${item && item.unitLabel ? item.unitLabel : 'paquete(s)'}`;
+}
+function addToCart(name, detail, price, qty = 1, unitLabel = 'paquete(s)', unitsPerPackage = 0) {
     qty = Math.max(1, Number(qty)||1);
     const unitPrice = Number(price||0) / qty;
     const key = `${String(name).trim().toLowerCase()}::${String(detail).trim().toLowerCase()}::${unitPrice.toFixed(4)}`;
@@ -2849,8 +2395,9 @@ function addToCart(name, detail, price, qty = 1, unitLabel = 'paquete(s)') {
         existing.price = unitPrice;
         existing.image = existing.image || productImageByName(name);
         existing.key = key;
+        existing.unitsPerPackage = Number(unitsPerPackage)||Number(existing.unitsPerPackage)||packageUnitsByName(name);
     }else{
-        cart.push({ id: Date.now() + Math.random(), key, name, detail, unitPrice, price:unitPrice, qty, unitLabel, image:productImageByName(name) });
+        cart.push({ id: Date.now() + Math.random(), key, name, detail, unitPrice, price:unitPrice, qty, unitLabel, unitsPerPackage:Number(unitsPerPackage)||packageUnitsByName(name), image:productImageByName(name) });
     }
     saveCart(); updateCartUI(); showNotif(`✓ ${name} agregado`);
 }
@@ -2860,7 +2407,7 @@ function normalizeCart(){
         const q=Math.max(1,Number(i.qty)||1);
         let up=Number(i.unitPrice);
         if(!Number.isFinite(up)) up=Number(i.price)||0;
-        return {...i,qty:q,unitPrice:up,price:up,image:i.image||productImageByName(i.name)};
+        return {...i,qty:q,unitPrice:up,price:up,unitsPerPackage:Number(i.unitsPerPackage)||packageUnitsByName(i.name),image:i.image||productImageByName(i.name)};
     });
 }
 function loadCart() {
@@ -2871,7 +2418,9 @@ function changeCartQty(idx, delta){
     const item=cart[idx]; if(!item)return;
     item.qty=Math.max(0,(Number(item.qty)||1)+delta);
     if(item.qty<=0) cart.splice(idx,1);
-    saveCart(); updateCartUI();
+    saveCart();
+    if(salirDelCarritoSiQuedoVacio()){ updateCartUI(); return; }
+    updateCartUI();
 }
 function updateCartUI() {
     normalizeCart();
@@ -3115,15 +2664,43 @@ document.getElementById('navRefreshBtn').addEventListener('click', async () => {
 
 let teusCurrentMainView = 'catalog';
 
+function salirDelCarritoSiQuedoVacio(){
+    if(cart.length) return false;
+    teusCurrentMainView='catalog';
+
+    const full=document.getElementById('fullCartView');
+    const checkout=document.getElementById('inlineCheckout');
+    const sidebar=document.getElementById('cartSidebar');
+    if(full) full.style.display='none';
+    if(checkout) checkout.style.display='none';
+    if(sidebar) sidebar.classList.remove('open');
+    document.body.classList.remove('cart-open');
+
+    // Volver a la portada principal del catálogo usando su navegación normal.
+    showHomeView(true);
+    window.scrollTo({top:0,behavior:'smooth'});
+    return true;
+}
+
+
 function renderFullCartView(){
     const box=document.getElementById('fullCartItems'); if(!box)return; normalizeCart();
     let total=0,units=0;
-    if(!cart.length){box.innerHTML='<div style="padding:35px 0">Tu carrito está vacío.</div>';document.getElementById('fullCartSubtotal').textContent='Subtotal: Bs 0.00';return;}
-    box.innerHTML=cart.map((item,idx)=>{const line=(Number(item.unitPrice)||0)*(Number(item.qty)||1);total+=line;units+=Number(item.qty)||1;return `<div class="teus-full-cart-row"><img src="${escapeHtml(item.image||'')}" alt=""><div><div class="teus-full-cart-name">${escapeHtml(item.name)}</div><div class="teus-full-cart-detail">${escapeHtml(item.detail||'Paquete')}</div><div class="teus-full-cart-controls"><div class="teus-full-cart-qty"><button class="full-minus" data-idx="${idx}">${item.qty<=1?'🗑':'−'}</button><span>${item.qty}</span><button class="full-plus" data-idx="${idx}">+</button></div><button class="teus-full-cart-delete" data-idx="${idx}">Eliminar</button></div></div><div class="teus-full-cart-price">Bs ${line.toFixed(2)}</div></div>`}).join('');
+    if(!cart.length){
+        document.getElementById('fullCartSubtotal').textContent='Subtotal: Bs 0.00';
+        salirDelCarritoSiQuedoVacio();
+        return;
+    }
+    box.innerHTML=cart.map((item,idx)=>{const line=(Number(item.unitPrice)||0)*(Number(item.qty)||1);total+=line;units+=Number(item.qty)||1;return `<div class="teus-full-cart-row"><img src="${escapeHtml(item.image||'')}" alt=""><div><div class="teus-full-cart-name">${escapeHtml(item.name)}</div><div class="teus-full-cart-detail">${escapeHtml(packageDetailText(item))}</div><div class="teus-full-cart-controls"><div class="teus-full-cart-qty"><button class="full-minus" data-idx="${idx}">${item.qty<=1?'🗑':'−'}</button><span>${item.qty}</span><button class="full-plus" data-idx="${idx}">+</button></div><button class="teus-full-cart-delete" data-idx="${idx}">Eliminar</button></div></div><div class="teus-full-cart-price">Bs ${line.toFixed(2)}</div></div>`}).join('');
     document.getElementById('fullCartSubtotal').textContent=`Subtotal: Bs ${total.toFixed(2)}`;
     box.querySelectorAll('.full-minus').forEach(b=>b.onclick=()=>changeCartQty(+b.dataset.idx,-1));
     box.querySelectorAll('.full-plus').forEach(b=>b.onclick=()=>changeCartQty(+b.dataset.idx,1));
-    box.querySelectorAll('.teus-full-cart-delete').forEach(b=>b.onclick=()=>{cart.splice(+b.dataset.idx,1);saveCart();updateCartUI();});
+    box.querySelectorAll('.teus-full-cart-delete').forEach(b=>b.onclick=()=>{
+        cart.splice(+b.dataset.idx,1);
+        saveCart();
+        if(salirDelCarritoSiQuedoVacio()){ updateCartUI(); return; }
+        updateCartUI();
+    });
     updateInlineCheckoutTotal();
 }
 
@@ -3376,7 +2953,8 @@ document.getElementById('inlineOrderForm').onsubmit=function(e){
         const precio=Number(item.price ?? item.unitPrice)||0;
         const monto=precio*qty;
         const nombreProducto=(item.name||'Producto').toString().trim();
-        mensaje+=`➡️ ${qty} paquete(s) - ${nombreProducto} - ${monto.toFixed(2).replace(/\.00$/,'')} Bs\n`;
+        const presentacion=packageDetailText(item);
+        mensaje+=`➡️ ${presentacion} - ${nombreProducto} - ${monto.toFixed(2).replace(/\.00$/,'')} Bs\n`;
     });
 
     mensaje+=`\n💰 *Subtotal:* ${subtotal.toFixed(2).replace(/\.00$/,'')} Bs\n`;
@@ -3417,18 +2995,6 @@ document.getElementById('floatingCheckoutBtn').onclick = () => {
     }, 300);
 };
 
-
-document.getElementById('signInBtn').addEventListener('click', toggleLogin);
-document.getElementById('loginSubmit').addEventListener('click', loginAdmin);
-document.getElementById('closeLoginModal').addEventListener('click',()=>document.getElementById('loginModal').style.display='none');
-document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')loginAdmin()});
-try{
-    sessionStorage.removeItem('todoenunoCatalogAdmin');
-    adminActual=null;
-}catch(e){
-    adminActual=null;
-}
-applyAdminUI();
 
 // ========== INIT ==========
 async function init() {
@@ -3475,166 +3041,6 @@ async function refreshCatalogFresh(force=false){
  // refresco automático reconstruya Inicio justo después de entrar a una categoría.
 init();
 </script>
-<script>
-function limpiarFormularioLoginV7(){
-  try{
-    const modal = document.getElementById('loginModal') || document.getElementById('login-modal');
-    const inputs = (modal || document).querySelectorAll('input[type="text"],input[type="password"],input[type="email"]');
-    inputs.forEach(el=>{
-      if(/user|usuario|login|pass|clave|contrase/i.test((el.id||'')+' '+(el.name||'')+' '+(el.placeholder||''))){
-        el.value='';
-        el.defaultValue='';
-        try{ el.setAttribute('autocomplete','off'); }catch(e){}
-      }
-    });
-  }catch(e){}
-}
-</script>
-<script id="teus-admin-general-state-helper">
-function teusAdminMiniState(prod){
-  if(!prod) return {cls:'', img:'', original:false};
-
-  const edited=String(prod.imagenEditada || prod.imagen_editada || '').trim();
-  const original=String(prod.imagenOriginal || prod.imagen_original || '').trim();
-  const available=!!prod.dispPaquete;
-
-  if(!available){
-    return {
-      cls:'admin-mini-sin-stock',
-      img:edited || original || '',
-      original:!edited && !!original
-    };
-  }
-
-  if(!edited){
-    return {
-      cls:'admin-mini-falta-editada',
-      img:original || '',
-      original:!!original
-    };
-  }
-
-  return {cls:'',img:edited,original:false};
-}
-</script>
-
-
-<script id="teus-admin-general-state-decorator">
-(function(){
-  function norm(v){
-    return String(v||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'')
-      .toLowerCase().replace(/\s+/g,' ').trim();
-  }
-
-  function findProductByVisibleName(name){
-    if(!Array.isArray(window.masterProducts) && typeof masterProducts==='undefined') return null;
-    const list=(typeof masterProducts!=='undefined' ? masterProducts : window.masterProducts) || [];
-    const n=norm(name);
-    if(!n) return null;
-
-    let exact=list.find(p=>norm(p.nombre)===n);
-    if(exact) return exact;
-
-    /* La vista antigua puede truncar visualmente con "...". */
-    const prefix=n.replace(/\.{2,}$/,'').trim();
-    if(prefix.length>=5){
-      const candidates=list.filter(p=>norm(p.nombre).startsWith(prefix));
-      if(candidates.length===1) return candidates[0];
-    }
-    return null;
-  }
-
-  function decorateGeneralAdminCards(){
-    if(typeof adminActual==='undefined' || !adminActual) return;
-
-    /* Buscamos mini elementos de producto dentro de tarjetas de categorías,
-       excluyendo la cuadrícula de resultados detallados. */
-    const selectors=[
-      '.category-card .product-mini',
-      '.category-card .mini-product',
-      '.category-card .category-product-mini',
-      '.category-card .product-item',
-      '.home-category-card .product-item',
-      '.home-category-card .mini-product',
-      '.category-box .product-item'
-    ];
-
-    let minis=[...document.querySelectorAll(selectors.join(','))];
-
-    /* Fallback para la estructura visual original: contenedores pequeños con IMG + texto
-       dentro de tarjetas generales, pero nunca las tarjetas grandes de resultados. */
-    if(!minis.length){
-      const cards=[...document.querySelectorAll('.category-card,.home-category-card,.category-box')];
-      cards.forEach(card=>{
-        [...card.querySelectorAll('img')].forEach(img=>{
-          const item=img.closest('a,button,div');
-          if(item && item!==card && !item.closest('.category-product-card')) minis.push(item);
-        });
-      });
-    }
-
-    [...new Set(minis)].forEach(item=>{
-      if(item.closest('.category-product-card')) return;
-
-      const nameEl=item.querySelector(
-        '.mini-product-name,.category-mini-name,.product-mini-name,.mini-name,.product-name'
-      );
-      let visibleName=nameEl ? nameEl.textContent : '';
-
-      if(!visibleName){
-        const img=item.querySelector('img');
-        visibleName=(img && (img.alt||img.title)) || '';
-      }
-
-      const prod=findProductByVisibleName(visibleName);
-      if(!prod) return;
-
-      item.classList.remove('admin-mini-falta-editada','admin-mini-sin-stock','admin-original-reference');
-      const state=teusAdminMiniState(prod);
-      if(state.cls) item.classList.add(state.cls);
-      if(state.original) item.classList.add('admin-original-reference');
-
-      /* ADMIN general:
-         - editada -> editada
-         - sin editada -> original como REFERENCIA administrativa
-         Público no pasa por esta función. */
-      const img=item.querySelector('img');
-      if(img && state.img){
-        const current=img.getAttribute('src')||'';
-        if(current!==state.img) img.src=state.img;
-      }
-
-      if(nameEl){
-        nameEl.textContent=prod.nombre || visibleName;
-        nameEl.title=prod.nombre || visibleName;
-        nameEl.style.whiteSpace='normal';
-        nameEl.style.overflow='visible';
-        nameEl.style.textOverflow='clip';
-        nameEl.style.webkitLineClamp='unset';
-        nameEl.style.maxHeight='none';
-      }
-    });
-  }
-
-  function schedule(){
-    requestAnimationFrame(()=>setTimeout(decorateGeneralAdminCards,0));
-  }
-
-  window.addEventListener('load',schedule);
-  window.addEventListener('hashchange',schedule);
-
-  /* La pantalla se vuelve a dibujar al cargar productos o navegar.
-     Observer solo decora cuando el DOM cambia; no modifica lógica comercial. */
-  const obs=new MutationObserver(function(){
-    if(typeof adminActual!=='undefined' && adminActual) schedule();
-  });
-  obs.observe(document.documentElement,{childList:true,subtree:true});
-
-  window.teusDecorateGeneralAdminCards=decorateGeneralAdminCards;
-})();
-</script>
-
-
 <script id="teus-cart-slider-controller-v5">
 (function(){
   function teusCartCount(){
@@ -3700,16 +3106,6 @@ function teusAdminMiniState(prod){
 */
 </script>
 
-
-<script id="teus-photo-picker-ui-only">
-document.addEventListener('change', function(ev){
-  const el = ev.target;
-  if(!el || !el.classList || !el.classList.contains('admin-photo-picker')) return;
-  const box = el.closest('.admin-edited-photo-field');
-  const name = box ? box.querySelector('.admin-photo-picker-name') : null;
-  if(name) name.textContent = el.files && el.files[0] ? 'Seleccionada: ' + el.files[0].name : '';
-});
-</script>
 
 </body>
 </html>
