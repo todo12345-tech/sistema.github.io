@@ -1729,12 +1729,51 @@
         </div>`).join('');
     }
 
-    async function stockApi(accion, datos={}){
-        const payload={accion,...datos,usuario:currentUser?.username||datos.usuario||''};
-        const r=await fetch(STOCK_APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-        if(!r.ok) throw new Error(`Stock API HTTP ${r.status}`);
-        const res=await r.json();
-        if(!res.ok) throw new Error(res.error||'Operación rechazada por Stock API');
+    // ============================================================
+    // 🌐 V4 · POST compatible con Safari/iPhone + Apps Script
+    // Evita cabeceras manuales que pueden provocar preflight/CORS.
+    // Apps Script recibe el JSON como texto igualmente.
+    // ============================================================
+    async function stockApi(accion, datos={}) {
+        const payload = {
+            accion,
+            ...datos,
+            usuario: currentUser?.username || datos.usuario || ''
+        };
+
+        let r;
+        try {
+            r = await fetch(STOCK_APPS_SCRIPT_URL, {
+                method: 'POST',
+                body: JSON.stringify(payload),
+                redirect: 'follow',
+                cache: 'no-store'
+            });
+        } catch (err) {
+            console.error('❌ STOCK API no llegó al Web App:', err);
+            throw new Error(
+                'No se pudo conectar con el Web App de Stock. ' +
+                'Si usas Safari privado, prueba también fuera de navegación privada. ' +
+                '(' + (err?.message || 'fallo de red') + ')'
+            );
+        }
+
+        if (!r.ok) {
+            throw new Error(`Stock API HTTP ${r.status}`);
+        }
+
+        const texto = await r.text();
+        let res;
+        try {
+            res = JSON.parse(texto);
+        } catch (_) {
+            console.error('Respuesta no JSON de Stock API:', texto);
+            throw new Error('El Web App respondió, pero no devolvió JSON válido.');
+        }
+
+        if (!res.ok) {
+            throw new Error(res.error || 'Operación rechazada por Stock API');
+        }
         return res;
     }
 
