@@ -1356,6 +1356,45 @@ body.admin-mode .admin-field.admin-edited-photo-field{
 </style>
 
 
+
+<style id="teus-mobile-balanced-spacing">
+@media (max-width: 767px) {
+  /* Espacio exterior simétrico en las vistas del catálogo */
+  #home-view,
+  #results-view {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    padding-left: 10px !important;
+    padding-right: 10px !important;
+    margin-left: 0 !important;
+    margin-right: 0 !important;
+  }
+
+  #categoriesGrid,
+  #resultsList {
+    box-sizing: border-box !important;
+    width: 100% !important;
+    max-width: 100% !important;
+    margin-left: auto !important;
+    margin-right: auto !important;
+  }
+
+  /* Dos columnas con separación real y sin desbordarse por la derecha */
+  #categoriesGrid .multi-grid,
+  #resultsList {
+    column-gap: 10px !important;
+    row-gap: 10px !important;
+  }
+
+  #categoriesGrid .grid-item,
+  #resultsList .category-product-card {
+    box-sizing: border-box !important;
+    min-width: 0 !important;
+    max-width: 100% !important;
+  }
+}
+</style>
+
 </head>
 <body>
 
@@ -2380,7 +2419,8 @@ function packageDetailText(item) {
     const perPack = Number(item && item.unitsPerPackage) || packageUnitsByName(item && item.name);
     if (String(item && item.unitLabel || '').toLowerCase().includes('paquete') && perPack > 0) {
         const totalUnits = qty * perPack;
-        return `${qty} paquete${qty===1?'':'s'} (${totalUnits} unidad${totalUnits===1?'':'es'} · ${perPack} por paquete)`;
+        if (qty === 1) return `1 paquete de ${perPack} unidad${perPack===1?'':'es'}`;
+        return `${qty} paquetes de ${perPack} unidad${perPack===1?'':'es'} c/u (${totalUnits} unidad${totalUnits===1?'':'es'})`;
     }
     return (item && item.detail) ? String(item.detail) : `${qty} ${item && item.unitLabel ? item.unitLabel : 'paquete(s)'}`;
 }
