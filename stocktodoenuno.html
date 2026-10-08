@@ -1073,7 +1073,7 @@
     const CATALOGO_ID = '1m9A2-dW71FWU8tgmjx7haibO052AUDM6tqiMQuaGhOw';
     const URL_CATALOGO = `https://docs.google.com/spreadsheets/d/${CATALOGO_ID}/export?format=csv&gid=0`;
     const ITEMS_APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbw_BiqTbqL0eaMRKZTmJqbgsIchHBKQEocRprOGpPbHbIh2HCcTEW4cXYdgmGCPZqn3/exec'; // crea item + carpeta/foto original
-    const UBICACIONES_INICIALES = ['Depósito 1 - Planta baja','Depósito 2 - Piso 1','Depósito 2 - Piso 2','Depósito Comercial','Tienda Comercial','Tienda Feria'];
+    const UBICACIONES_INICIALES = []; // V5: no se suponen ubicaciones
     const UBICACIONES_GID = '95509632';
     const URL_UBICACIONES = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/export?format=csv&gid=${UBICACIONES_GID}`;
     const SHEET_UBICACIONES = 'ubicaciones';
@@ -1689,9 +1689,13 @@
     // 📍 UBICACIONES DINÁMICAS
     // ============================================================
     function ubicacionesActivas() {
-        const desdeHoja = ubicacionesSistema.filter(u => String(u.estado||'ACTIVA').toUpperCase() !== 'INACTIVA').map(u => u.nombre).filter(Boolean);
-        const existentes = todosProductos.map(p => getUbicacion(p)).filter(Boolean);
-        return [...new Set([...UBICACIONES_INICIALES, ...desdeHoja, ...existentes])].sort();
+        // V5: la única autoridad de ubicaciones es la hoja "ubicaciones".
+        return [...new Set(
+            ubicacionesSistema
+                .filter(u => String(u.estado || 'ACTIVA').toUpperCase() !== 'INACTIVA')
+                .map(u => String(u.nombre || '').trim())
+                .filter(Boolean)
+        )].sort((a,b)=>a.localeCompare(b,'es'));
     }
 
     async function cargarUbicaciones() {
@@ -1712,7 +1716,10 @@
         const principal = document.getElementById('ubicacion');
         if (principal) {
             const v=principal.value;
-            principal.innerHTML='<option value="">Selecciona ubicación...</option>'+lista.map(u=>`<option value="${u}">${u}</option>`).join('');
+            principal.innerHTML=(lista.length
+                ? '<option value="">Selecciona ubicación existente...</option>'
+                : '<option value="">Primero crea una ubicación...</option>')+
+                lista.map(u=>`<option value="${u}">${u}</option>`).join('');
             if(lista.includes(v)) principal.value=v;
         }
         const destinoEntrada=document.getElementById('entradaDestino');
@@ -1721,7 +1728,7 @@
 
     function renderizarAdminUbicaciones(){
         const c=document.getElementById('listaUbicacionesAdmin'); if(!c)return;
-        if(!ubicacionesSistema.length){c.innerHTML='<div class="no-datos">Todavía no hay filas en la hoja ubicaciones. Las ubicaciones históricas siguen disponibles.</div>';return;}
+        if(!ubicacionesSistema.length){c.innerHTML='<div class="no-datos">No hay ubicaciones creadas todavía. Crea la primera ubicación para comenzar a registrar stock.</div>';return;}
         c.innerHTML=ubicacionesSistema.map((u,i)=>`<div class="ubicacion-admin-row">
             <div><strong>${u.nombre||''}</strong><br><small>${u.id_ubicacion||''}</small><div class="ubicacion-inicio">Inicio confiable: ${u.fecha_creacion||'sin fecha registrada'}</div></div>
             <div>${u.tipo||'OTRO'}</div><div><span class="badge ${String(u.estado).toUpperCase()==='INACTIVA'?'badge-danger':'badge-success'}">${u.estado||'ACTIVA'}</span></div>
@@ -1787,7 +1794,10 @@
             await stockApi('crearUbicacion',{nombre,tipo});
             Notificaciones.mostrar(`✅ Ubicación creada: ${nombre}`,'success');
             document.getElementById('nuevaUbicacionNombre').value='';
-            await cargarUbicaciones(); renderizarAdminUbicaciones(); actualizarFiltrosYDatalists(); renderizarSliderUbicaciones();
+            await cargarUbicaciones();
+            const principal=document.getElementById('ubicacion');
+            if(principal && [...principal.options].some(o=>o.value===nombre)) principal.value=nombre;
+            renderizarAdminUbicaciones(); actualizarFiltrosYDatalists(); renderizarSliderUbicaciones();
         }catch(e){Notificaciones.mostrar('No se pudo crear ubicación: '+e.message,'error',7000);}
     }
 
@@ -2155,9 +2165,11 @@
     // ============================================================
     function llenarSelectDestino(origen) {
         const sel=document.getElementById('traspasoDestino');
-        const existentes=[...new Set(todosProductos.map(getUbicacion).filter(Boolean))];
-        const lista=[...new Set([...ubicacionesActivas(),...existentes])].filter(u=>u!==origen);
-        sel.innerHTML='<option value="">Selecciona destino...</option>'+lista.map(u=>`<option>${u}</option>`).join('');
+        const lista=ubicacionesActivas().filter(u=>u!==origen);
+        sel.innerHTML=(lista.length
+            ? '<option value="">Selecciona destino...</option>'
+            : '<option value="">Crea otra ubicación para poder traspasar...</option>')+
+            lista.map(u=>`<option>${u}</option>`).join('');
     }
     function abrirModalTraspaso(item) {
         document.getElementById('traspasoIdStock').value=getIdStock(item);
@@ -2191,7 +2203,14 @@
         if(c+p+u<=0){Notificaciones.mostrar('Indica qué cantidad mover','warning');return;}
         const btn=document.getElementById('confirmarTraspasoBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Moviendo...';
         try{
-            await stockApi('traspasarStock',{id_stock:id,destino,cajas:c,paquetes:p,unidades:u,motivo:document.getElementById('traspasoMotivo').value.trim(),sucursal:document.getElementById('traspasoOrigen').value});
+            const origenItem=todosProductos.find(x=>getIdStock(x)===id);
+            await stockApi('traspasarStock',{
+                id_stock:id,destino,cajas:c,paquetes:p,unidades:u,
+                motivo:document.getElementById('traspasoMotivo').value.trim(),
+                sucursal:document.getElementById('traspasoOrigen').value,
+                id_item: origenItem?.id_item || '',
+                codigo_caja: origenItem?.codigo_caja || ''
+            });
             Notificaciones.mostrar('✅ Traspaso registrado correctamente','success',5000);cerrarModalTraspaso();setTimeout(cargarInventario,1200);
         }catch(e){console.error(e);Notificaciones.mostrar('El traspaso no pudo completarse: '+e.message,'error',7000);}
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-exchange-alt"></i> Confirmar traspaso';}
