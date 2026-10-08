@@ -2561,10 +2561,26 @@
             Notificaciones.mostrar('Este registro no tiene un id_stock válido.','warning',7000);
             return;
         }
+
         if(!confirm(`¿ELIMINAR STOCK "${nombre}"?\n\nSe borrará físicamente el STK, pero quedará una bitácora ELIMINACION_STOCK en Movimientos.`)) return;
 
         boton.disabled=true;
         boton.innerHTML='<i class="fas fa-spinner fa-spin"></i>';
+
+        const confirmarDesaparicion = async () => {
+            // Espera breve para que Google Sheets refleje el cambio del Apps Script.
+            await new Promise(r=>setTimeout(r,700));
+            await cargarInventario();
+
+            let existe=todosProductos.some(x=>String(getIdStock(x)||'').trim()===String(id).trim());
+            if(existe){
+                // Segunda lectura: evita falsos negativos por caché/propagación de Sheets.
+                await new Promise(r=>setTimeout(r,900));
+                await cargarInventario();
+                existe=todosProductos.some(x=>String(getIdStock(x)||'').trim()===String(id).trim());
+            }
+            return !existe;
+        };
 
         try{
             const res=await stockApi('eliminarStock',{
@@ -2576,18 +2592,52 @@
                 throw new Error(res?.error || 'El servidor no confirmó la eliminación física.');
             }
 
-            seleccionados.delete(id);
-            await cargarInventario();
-
-            const sigueExistiendo=todosProductos.some(x=>getIdStock(x)===id);
-            if(sigueExistiendo){
+            const desaparecio=await confirmarDesaparicion();
+            if(!desaparecio){
                 throw new Error('El servidor respondió OK, pero el STK todavía aparece en Stock.');
             }
 
-            Notificaciones.mostrar(`✅ "${nombre}" eliminado de Stock. La bitácora quedó registrada.`,'success',4500);
+            seleccionados.delete(id);
+            if(typeof aplicarFiltros==='function') aplicarFiltros();
+            if(typeof actualizarEstadisticas==='function') actualizarEstadisticas();
+
+            Notificaciones.mostrar(
+                `✅ "${nombre}" eliminado de Stock. La eliminación quedó registrada en Movimientos.`,
+                'success',
+                4500
+            );
+
         }catch(e){
-            // IMPORTANTE: un 404 ya NO se interpreta como éxito.
-            Notificaciones.mostrar('No se pudo eliminar el Stock: '+String(e?.message||e),'error',8000);
+            const mensaje=String(e?.message||e||'');
+
+            // Apps Script puede ejecutar correctamente la operación y aun así Safari/GitHub
+            // recibir 404 en la respuesta/redirección. NO asumimos éxito: verificamos el STK.
+            if(/HTTP\s*404/i.test(mensaje)){
+                try{
+                    const desaparecio=await confirmarDesaparicion();
+
+                    if(desaparecio){
+                        seleccionados.delete(id);
+                        if(typeof aplicarFiltros==='function') aplicarFiltros();
+                        if(typeof actualizarEstadisticas==='function') actualizarEstadisticas();
+
+                        Notificaciones.mostrar(
+                            `✅ "${nombre}" eliminado correctamente. La bitácora quedó registrada.`,
+                            'success',
+                            4500
+                        );
+                        return;
+                    }
+                }catch(verificacion){
+                    console.error('Error verificando eliminación después de HTTP 404:',verificacion);
+                }
+            }
+
+            Notificaciones.mostrar(
+                'No se pudo confirmar la eliminación del Stock: '+mensaje,
+                'error',
+                8000
+            );
         }finally{
             boton.disabled=false;
             boton.innerHTML='<i class="fas fa-trash"></i>';
