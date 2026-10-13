@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Gestión de Ventas V26.20 · Estados del día + 3 hojas</title>
+<title>Todoenuno_store - Gestión de Ventas V26.46 · Stock físico controlado</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11">
 // V26.24: ningún importe cambia con la rueda del mouse.
@@ -2083,7 +2083,7 @@ async function extraerDatosDelPedido() {
                 cantidadFisica: 1,
                 detalleFisico: {...d},
                 ubicacionSalida: '',
-                origenTipo: 'PENDIENTE_ORIGEN',
+                origenTipo: 'SIN_REGISTRO',
                 unidadesEquivalentes: (d.unidades||0)
             };
 
@@ -2779,7 +2779,7 @@ function guardarVentaLocal() {
     const diaSemana = dias[new Date().getDay()];
     const idVentaInterno = `VTA-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Date.now().toString().slice(-8)}-${Math.random().toString(36).slice(2,5).toUpperCase()}`;
     const clienteVenta = String(nombreClienteActual || '').trim() || 'Cliente General';
-    const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, id_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,id_item:i.id_item||'',nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'mixto',cantidad:i.cantidadFisica||1,origen_tipo:i.origenTipo||((i.ubicacionSalida||'')?'STOCK':'PENDIENTE_ORIGEN'),ubicacion:i.ubicacionSalida||'',id_stock:i.id_stock||'',id_ubicacion:i.id_ubicacion||'',codigo_caja:i.codigo_caja||'',unidadesEquivalentes:i.unidadesEquivalentes||'',detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: generarTimestampVentaUnico(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, efectivo_recibido:metodoPagoData.efectivo_recibido||metodoPagoData.monto_efectivo||'',devuelto_qr:metodoPagoData.cambio_qr||0, INGRESO_EFECTIVO:'', ...metodoPagoData };
+    const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, id_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,id_item:i.id_item||'',nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'mixto',cantidad:i.cantidadFisica||1,origen_tipo:i.origenTipo||((i.ubicacionSalida||'')?'STOCK':'SIN_REGISTRO'),ubicacion:i.ubicacionSalida||'',id_stock:i.id_stock||'',id_ubicacion:i.id_ubicacion||'',codigo_caja:i.codigo_caja||'',unidadesEquivalentes:i.unidadesEquivalentes||'',detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: generarTimestampVentaUnico(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, efectivo_recibido:metodoPagoData.efectivo_recibido||metodoPagoData.monto_efectivo||'',devuelto_qr:metodoPagoData.cambio_qr||0, INGRESO_EFECTIVO:'', ...metodoPagoData };
     ventasDelDia.push(datosVenta);
     guardarVentasLocalSeguro();
     ventasCajaActual.push(datosVenta);
