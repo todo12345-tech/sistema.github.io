@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<title>Todoenuno_store - Visualización V2 · Dashboard Dinámico</title>
+<title>Todoenuno_store - Visualización V3.1 · Dashboard Optimizado</title>
 <style>
 * {
 margin: 0;
@@ -977,6 +977,17 @@ margin-top: 5px;
 .quick-filters{display:flex;gap:8px;flex-wrap:wrap}.quick-filter-btn{border:1px solid #d9e2ec;background:#fff;color:#34495e;padding:9px 13px;border-radius:20px;cursor:pointer;font-weight:700;font-size:12px}.quick-filter-btn.active,.quick-filter-btn:hover{background:#34495e;color:#fff}
 .dynamic-dashboard{padding:15px;background:#f8fafc;border-top:1px solid #e5e7eb}.dynamic-title{font-size:17px;font-weight:800;color:#2c3e50;margin-bottom:12px}.dynamic-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:10px;margin-bottom:12px}.dynamic-card{background:#fff;border:1px solid #e5e7eb;border-radius:12px;padding:14px;box-shadow:0 2px 8px rgba(0,0,0,.05)}.dynamic-card .k{font-size:11px;color:#7f8c8d;text-transform:uppercase;font-weight:800;margin-bottom:5px}.dynamic-card .v{font-size:20px;color:#2c3e50;font-weight:900}.dynamic-card .sub{font-size:11px;color:#7f8c8d;margin-top:4px}.dynamic-two{display:grid;grid-template-columns:1fr 1fr;gap:12px}.rank-list{margin-top:8px;display:flex;flex-direction:column;gap:7px}.rank-row{display:flex;justify-content:space-between;gap:10px;border-bottom:1px dashed #e5e7eb;padding-bottom:6px;font-size:12px}.rank-name{font-weight:700;color:#34495e;overflow:hidden;text-overflow:ellipsis}.rank-value{font-weight:900;color:#27ae60;white-space:nowrap}.branch-comparison{display:grid;grid-template-columns:1fr 1fr;gap:10px}.branch-box{padding:12px;border-radius:10px;background:#f8f9fa;border-left:4px solid #3498db}.branch-box.feria{border-left-color:#e74c3c}.branch-box strong{display:block;font-size:18px;margin-top:4px}.sheet-ambas{background:#8e44ad;color:#fff}@media(max-width:900px){.dynamic-grid{grid-template-columns:repeat(2,1fr)}.dynamic-two{grid-template-columns:1fr}}@media(max-width:480px){.dynamic-grid,.branch-comparison{grid-template-columns:1fr}}
 
+
+/* V3 - Diseño accesible PC y iPhone 12 */
+body{padding:0;background:#eef2f8} .app-container{max-width:1600px;margin:auto}.app-header{border-radius:0;padding:16px 22px;flex-direction:row;align-items:center;justify-content:space-between}.app-header>div:first-child{text-align:left}.user-info{width:auto;max-width:400px}.main-content{padding:16px}.container{overflow:hidden}.day-panel{display:grid;grid-template-columns:1fr 1.25fr;align-items:center;gap:16px}.day-info{grid-column:1}.total-ventas-box{grid-column:2;grid-row:1;margin:0}.attendance-panel,.cash-control{grid-column:1/-1;display:grid;grid-template-columns:repeat(3,minmax(0,1fr))}.cash-control{grid-template-columns:repeat(2,minmax(0,1fr))}.attendance-item,.cash-item{min-width:0}.controls{gap:12px}.filters-row{display:grid;grid-template-columns:minmax(160px,1fr) minmax(160px,1fr) minmax(220px,2fr);align-items:center}.quick-filters{grid-column:1/-1}.buttons-row{display:grid;grid-template-columns:repeat(4,1fr)}.stats{grid-template-columns:repeat(5,minmax(0,1fr))}.stat-card{min-width:0}.stat-value{font-size:clamp(15px,1.65vw,22px);overflow-wrap:anywhere}.stat-label{font-size:11px}.v3-status,.v3-cash-breakdown{grid-column:1/-1;padding:9px 12px;border-radius:8px;background:#eef4fb;color:#34495e;font-size:13px}.v3-quality{font-size:12px;color:#64748b;margin-bottom:10px}.v3-section-heading{padding:15px 15px 0;display:flex;justify-content:space-between;gap:10px;align-items:center;color:#34495e}.v3-section-heading span{font-size:12px;color:#64748b}.v3-mobile-cards{display:none}.nav-buttons,.liquidity-buttons{flex-wrap:wrap}.nav-btn,.liquidity-btn{min-width:0} .calendar-grid{grid-template-columns:repeat(auto-fit,minmax(145px,1fr))}
+@media(max-width:760px){.app-header{padding:12px;flex-direction:column;gap:10px}.app-header>div:first-child{text-align:center}.user-info{width:100%;max-width:none;flex-wrap:nowrap}.logout-btn{width:auto}.main-content{padding:8px}.container{border-radius:12px}.day-panel{padding:12px;grid-template-columns:1fr}.day-info,.total-ventas-box{grid-column:1;grid-row:auto}.attendance-panel{grid-template-columns:repeat(3,minmax(0,1fr));gap:6px}.attendance-item{padding:10px 3px}.attendance-label{font-size:9px}.attendance-value{font-size:12px;overflow-wrap:anywhere}.cash-control{gap:8px}.cash-item{padding:12px 8px}.cash-label{font-size:10px}.cash-value{font-size:17px}.controls{padding:12px}.filters-row{grid-template-columns:1fr 1fr}.filters-row #searchInput{grid-column:1/-1}.quick-filters{grid-column:1/-1;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:4px}.quick-filter-btn{font-size:10px;padding:9px 3px}.buttons-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:8px}.btn{padding:12px 8px;font-size:13px}.stats{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px;padding:10px}.stat-card{padding:12px 8px}.stat-value{font-size:18px}.dynamic-grid,.branch-comparison{grid-template-columns:repeat(2,minmax(0,1fr))}.dynamic-card{padding:11px}.dynamic-card .v{font-size:16px;overflow-wrap:anywhere}.v3-section-heading{flex-direction:column;align-items:flex-start}.table-container{padding:8px}.v3-mobile-cards{display:grid;gap:9px}.v3-sale-card{border:1px solid #dce4ee;border-radius:12px;padding:12px;background:#fff;min-width:0}.v3-sale-top{display:flex;align-items:start;justify-content:space-between;gap:8px;font-size:13px}.v3-sale-top strong:first-child{overflow-wrap:anywhere;max-width:65%}.v3-sale-meta{font-size:11px;color:#64748b;margin:7px 0}.v3-sale-card summary{font-size:12px;color:#1d70b7;font-weight:700;padding:8px 0;cursor:pointer}.v3-sale-desc{font-size:12px;line-height:1.5;overflow-wrap:anywhere}.table-container table{display:none}.nav-buttons{margin:8px}.mobile-summary{padding:9px}.liquidity-buttons{padding:10px}.liquidity-btn{font-size:12px;padding:11px 4px}.total-final-box{margin:12px}.notification-container{left:8px;right:8px;top:8px}input[type=date]{width:100%;margin:0}#sheetSelector{min-width:0}}
+@media(max-width:390px){.quick-filter-btn{font-size:9px}.app-header h1{font-size:18px}.stat-value{font-size:16px}}
+@media(prefers-reduced-motion:reduce){*,*:before,*:after{animation:none!important;transition:none!important}}
+/* Visualización V3.1: operaciones de caja independientes de las ventas */
+.v31-monedas-row { background:#fff9eb !important; }
+.v31-monedas-row td:nth-child(5) { color:#92630a; font-weight:600; }
+.v31-monedas-row td:nth-child(7) { color:#85670c; font-size:12px; }
+.v32-caja-desglose{margin-top:7px;font-size:11px;line-height:1.5;color:#fff;font-weight:600;opacity:.95;overflow-wrap:anywhere}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -1062,7 +1073,7 @@ margin-top: 5px;
 <div class="attendance-value" id="horaCierre">--:--</div>
 </div>
 </div>
-<div class="cash-control">
+<div class="v3-status">Estado de caja: <strong id="estadoOperativoV3">—</strong></div><div class="cash-control">
 <div class="cash-item">
 <div class="cash-label">Apertura Efectivo</div>
 <div class="cash-value" id="aperturaEfectivoDisplay">0.00</div>
@@ -1071,7 +1082,7 @@ margin-top: 5px;
 <div class="cash-label">Cierre Efectivo</div>
 <div class="cash-value" id="cierreEfectivoDisplay">0.00</div>
 </div>
-</div>
+</div><div class="v3-cash-breakdown" id="cashBreakdownV3"></div>
 </div>
 <div class="controls">
 <div class="filters-row">
@@ -1128,7 +1139,7 @@ margin-top: 5px;
   <!-- 4. Total Ventas (ahora: Apertura + Ventas Efectivo) -->
   <div class="stat-card" id="totalSales">
     <div class="stat-value" id="totalSalesValue">0.00</div>
-    <div class="stat-label">Total Ventas (en caja) </div>
+    <div class="stat-label">Total dinero esperado en caja</div><div class="v32-caja-desglose" id="desgloseCajaTarjeta">Dinero en caja + monedas agregadas</div>
   </div>
   <!-- 5. Cierre Efectivo -->
   <div class="stat-card" id="cierreEfectivo">
@@ -1137,7 +1148,7 @@ margin-top: 5px;
   </div>
 </div>
 <div class="dynamic-dashboard" id="dynamicDashboard">
-<div class="dynamic-title"><i class="fas fa-chart-pie"></i> Resumen inteligente</div>
+<div class="dynamic-title"><i class="fas fa-chart-pie"></i> Resumen inteligente</div><div id="dashDataQualityV3" class="v3-quality">Datos basados en los campos disponibles</div>
 <div class="dynamic-grid">
 <div class="dynamic-card"><div class="k">Ventas QR</div><div class="v" id="dashQR">Bs. 0.00</div><div class="sub">Cobros registrados por QR</div></div>
 <div class="dynamic-card"><div class="k">Ventas Efectivo</div><div class="v" id="dashEfectivo">Bs. 0.00</div><div class="sub">Solo ventas, sin apertura</div></div>
@@ -1172,7 +1183,7 @@ Adelante <i class="fas fa-chevron-right"></i>
 <button class="liquidity-btn" id="btnLiquidezSemanal"><i class="fas fa-calendar-week"></i> Liquidez Semanal</button>
 <button class="liquidity-btn" id="btnLiquidezMensual"><i class="fas fa-calendar-alt"></i> Liquidez Mensual</button>
 </div>
-<div class="table-container" id="normalTableContainer">
+<div class="v3-section-heading"><h3>Detalle de operaciones</h3><span>Solo lectura · desliza la tabla o consulta las tarjetas en móvil</span></div><div class="table-container" id="normalTableContainer">
 <div class="data-message" id="dataError">
 <i class="fas fa-exclamation-triangle"></i>
 <p>Error al cargar datos</p>
@@ -1184,7 +1195,7 @@ Adelante <i class="fas fa-chevron-right"></i>
 <i class="fas fa-inbox"></i>
 <p>No hay datos para esta fecha</p>
 </div>
-<div id="tableWrapper" style="display: none;">
+<div id="tableWrapper" style="display: none;"><div id="mobileCardsV3" class="v3-mobile-cards"></div>
 <table id="salesTable">
 <thead>
 <tr>
@@ -1459,7 +1470,7 @@ const SHEETS_IDS={comercial:VENTAS_SHEET_ID,feria:VENTAS_SHEET_ID};
 let allData = [];
 let filteredData = [];
 let currentPage = 1;
-const recordsPerPage = 1000;
+const recordsPerPage = 50;
 let currentSheet='comercial';
 let quickRange='hoy';
 const ventasElements = {
@@ -1566,6 +1577,12 @@ function parseCSV(csvText) {
     }).filter(obj=>Object.values(obj).some(v=>v!==''));
 }
 
+function moneyV3(v){const z=String(v??'').replace(/\s/g,'').replace(/Bs\.?/ig,'');if(!z)return 0;const n=Number(z.includes(',')&&!z.includes('.')?z.replace(',','.'):z.replace(/,/g,''));return Number.isFinite(n)?n:0;}
+function isSaleV3(x){return x.tipo==='venta'&&!/ANULAD|ELIMINAD/i.test(x.estado_venta||'');}
+function paymentV3(v){const m=normalize(v.metodo_pago||''),t=Number(v.total)||0,e=Number(v.monto_efectivo)||0,q=Number(v.monto_qr)||0,has=e!==0||q!==0;if(has){if(e+q>t+.011){return {ef:Math.max(0,e),qr:Math.max(0,q),warning:true};}return {ef:Math.max(0,e),qr:Math.max(0,q),warning:false};}if(m.includes('mixto'))return {ef:0,qr:0,warning:true};if(m.includes('qr'))return {ef:0,qr:t};if(m.includes('efectivo'))return {ef:t,qr:0};return {ef:0,qr:0,warning:true};}
+function openingV3(){return filteredData.filter(x=>x.tipo==='apertura').sort((a,b)=>a.hora.localeCompare(b.hora));}
+function closingV3(){return filteredData.filter(x=>x.tipo==='cierre').sort((a,b)=>a.hora.localeCompare(b.hora));}
+function cashMoveV3(x){return Number(x.ingreso_efectivo)||Number(x.monto_efectivo)||0;}
 function processData(rawData, sheetType) {
 return rawData.map(item => {
 const idField = Object.keys(item).find(k => k.trim().toLowerCase() === 'id');
@@ -1593,22 +1610,26 @@ fechaFiltro = `${year}-${month.padStart(2,'0')}-${day.padStart(2,'0')}`;
 } else if (fechaOriginal.includes('-')) {
 fechaFiltro = fechaOriginal.split(' ')[0];
 }
-const total = totalVentaField ? parseFloat(item[totalVentaField]) || 0 : 0;
-const montoEfectivo = montoEfectivoField ? parseFloat(item[montoEfectivoField]) || 0 : 0;
-const montoQr = montoQrField ? parseFloat(item[montoQrField]) || 0 : 0;
+const total = totalVentaField ? moneyV3(item[totalVentaField]) : 0;
+const montoEfectivo = montoEfectivoField ? moneyV3(item[montoEfectivoField]) : 0;
+const montoQr = montoQrField ? moneyV3(item[montoQrField]) : 0;
 const aperturaCajaValor = aperturaCajaField ? (item[aperturaCajaField] || '').toUpperCase().trim() : '';
 const cierreCajaValor = cierreCajaField ? (item[cierreCajaField] || '').toUpperCase().trim() : '';
 let tipo = 'venta';
 const idUpper = idReal.toUpperCase();
 const productosLower = productosField ? (item[productosField] || '').toLowerCase() : '';
-if (idUpper.includes('APERTURA') || productosLower.includes('apertura') || (aperturaCajaValor.includes('APERTURA') && montoEfectivo > 0)) tipo = 'apertura';
-if (idUpper.includes('CIERRE') || productosLower.includes('cierre') || (cierreCajaValor.includes('CIERRE') && montoEfectivo > 0)) tipo = 'cierre';
+const ingresoFlag = String(item['ingreso_efectivo']||'').toUpperCase();
+if(idUpper.includes('MONEDA')||productosLower.includes('ingreso de moneda')||ingresoFlag.includes('MONEDA')||ingresoFlag.includes('INGRESO')) tipo='monedas';
+if (idUpper.includes('APERTURA') || productosLower.includes('apertura') || aperturaCajaValor.includes('APERTURA')) tipo = 'apertura';
+if (idUpper.includes('CIERRE') || productosLower.includes('cierre') || cierreCajaValor.includes('CIERRE')) tipo = 'cierre';
 return {
 id: idReal, fecha: fechaOriginal, fechaFiltro, hora: horaField ? item[horaField] || '' : '',
 productos: productosField ? item[productosField] || '' : '', total, metodo_pago: metodoPagoField ? item[metodoPagoField] || '' : '',
 usuario: usuarioField ? item[usuarioField] || '' : '', sucursal: tipoSucursalField ? item[tipoSucursalField] || sheetType : sheetType,
 tipo, monto_efectivo:montoEfectivo, monto_qr:montoQr, hoja_origen:sheetType, apertura_caja:aperturaCajaValor, cierre_caja:cierreCajaValor,
-montos: montosField ? (item[montosField] || '') : ''
+montos: montosField ? (item[montosField] || '') : '',
+ efectivo_recibido:moneyV3(item['efectivo_recibido']),cambio_efectivo:moneyV3(item['cambio_efectivo']),devuelto_qr:moneyV3(item['devuelto_qr']||item['cambio_qr']),
+ ingreso_efectivo:moneyV3(item['ingreso_efectivo']), moneda_monto_registrado:[item['ingreso_efectivo'],item['monto_efectivo']].some(v=>String(v??'').trim()!=='' && moneyV3(v)!==0), estado_venta:String(item['estado_venta']||''), observaciones:String(item['observaciones']||''), id_venta:String(item['id_venta']||'')
 };
 });
 }
@@ -1683,7 +1704,7 @@ async function loadData() {
         ventasElements.dataError.style.display='block';
         ventasElements.dataError.innerHTML=`<i class="fas fa-exclamation-triangle"></i> No se pudieron leer los datos de Google Sheets. `;
         updateSyncBadge('error','Error de conexión');
-        allData=[]; filteredData=[]; filterData();
+        if(allData.length)filterData();else{filteredData=[];filterData();}
     }
 }
 function updateDayPanel(dateString) {
@@ -1700,56 +1721,14 @@ function aplicarFechaRapida(range){const d=new Date();if(range==='ayer')d.setDat
 function filterData() {
 const selectedDate=ventasElements.dateFilter.value,searchTerm=ventasElements.searchInput.value.trim();let dataSource=allData;
 if(searchTerm)dataSource=dataSource.filter(i=>matchesSearch(i,searchTerm));else if(quickRange==='semana'||quickRange==='mes')dataSource=dataSource.filter(i=>fechaEnRangoRapido(i.fechaFiltro,quickRange));else if(selectedDate)dataSource=dataSource.filter(i=>i.fechaFiltro===selectedDate);
-filteredData=dataSource;allUsers.clear();filteredData.forEach(i=>{if(i.usuario&&i.tipo==='venta')allUsers.add(i.usuario);});
+filteredData=[...dataSource].sort((a,b)=>{
+ const ak=String(a.fechaFiltro||'')+'T'+String(a.hora||'').padStart(8,'0');
+ const bk=String(b.fechaFiltro||'')+'T'+String(b.hora||'').padStart(8,'0');
+ return bk.localeCompare(ak);
+});allUsers.clear();filteredData.forEach(i=>{if(i.usuario&&i.tipo==='venta')allUsers.add(i.usuario);});
 if(selectedDate)updateDayPanel(selectedDate);findAttendanceHours(selectedDate);findCashControl(selectedDate);if(quickRange==='hoy'||quickRange==='ayer')checkMultipleOpenClose(selectedDate);calculateTotalVentasDia();calculateStatistics();updateMobileSummary(selectedDate);updateDynamicDashboard();currentPage=1;displayData();updateNavButtons();
 }
-function findAttendanceHours(date) {
-let horaApertura = '--:--', horaCierre = '--:--', usuarioOperando = '--', hayCierre = false;
-const sortedData = [...filteredData].sort((a,b) => (a.hora||'00:00').localeCompare(b.hora||'00:00'));
-if (sortedData.length > 0) {
-const regApertura = sortedData.find(i => i.tipo === 'apertura');
-if (regApertura) {
-horaApertura = regApertura.hora ? regApertura.hora.substring(0,5) : '--:--';
-usuarioOperando = regApertura.usuario || '--';
-} else {
-horaApertura = sortedData[0].hora ? sortedData[0].hora.substring(0,5) : '--:--';
-usuarioOperando = sortedData[0].usuario || '--';
-}
-const regCierre = sortedData.filter(i => i.tipo === 'cierre').pop();
-if (regCierre) {
-horaCierre = regCierre.hora ? regCierre.hora.substring(0,5) : '--:--';
-hayCierre = true;
-} else {
-horaCierre = sortedData[sortedData.length-1].hora ? sortedData[sortedData.length-1].hora.substring(0,5) : '--:--';
-}
-}
-const selectedDateObj = date ? new Date(date+'T00:00:00') : new Date();
-const today = new Date(); today.setHours(0,0,0,0);
-const isPastDate = selectedDateObj < today;
-if (!hayCierre && sortedData.length > 0) {
-if (isPastDate) {
-ventasElements.horaCierre.textContent = 'Operando';
-ventasElements.horaCierre.classList.add('operando-alert');
-ventasElements.horaCierre.classList.remove('operando');
-if (!notificationsShown.has(`pastDate_${date}`)) {
-showNotification('danger', '⚠️ Atención', `El día ${date} aparece como "Operando" pero es fecha pasada.`, 10000);
-notificationsShown.add(`pastDate_${date}`);
-}
-} else {
-ventasElements.horaCierre.textContent = 'Operando';
-ventasElements.horaCierre.classList.add('operando');
-ventasElements.horaCierre.classList.remove('operando-alert');
-}
-} else if (hayCierre) {
-ventasElements.horaCierre.textContent = horaCierre;
-ventasElements.horaCierre.classList.remove('operando','operando-alert');
-} else {
-ventasElements.horaCierre.textContent = '--:--';
-ventasElements.horaCierre.classList.remove('operando','operando-alert');
-}
-ventasElements.horaApertura.textContent = horaApertura;
-ventasElements.usuarioOperando.textContent = usuarioOperando;
-}
+function findAttendanceHours(date){const a=openingV3(),c=closingV3(),lastA=a[a.length-1],lastC=c[c.length-1];ventasElements.horaApertura.textContent=lastA?lastA.hora.slice(0,5):'Sin abrir';ventasElements.usuarioOperando.textContent=lastA?(lastA.usuario||'—'):'—';const status=lastC&&(!lastA||lastC.hora>=lastA.hora)?'Cerrado':lastA?'Operando':'Sin abrir';ventasElements.horaCierre.textContent=status==='Cerrado'?lastC.hora.slice(0,5):status;ventasElements.horaCierre.classList.remove('operando','operando-alert','cierre-alert');if(status==='Operando')ventasElements.horaCierre.classList.add('operando');const st=document.getElementById('estadoOperativoV3');if(st)st.textContent=status;}
 
 function checkMultipleOpenClose(date) {
 const aperturas = filteredData.filter(i => i.tipo === 'apertura');
@@ -1764,58 +1743,17 @@ notificationsShown.add(`multiCierre_${date}`);
 }
 }
 
-function findCashControl(date) {
-let aperturaEfectivo = 0, cierreEfectivo = 0;
-const regApertura = filteredData.find(i => i.tipo === 'apertura' && i.monto_efectivo > 0 && i.apertura_caja.includes('APERTURA'));
-const regsCierre = filteredData.filter(i => i.tipo === 'cierre' && i.cierre_caja.includes('CIERRE') && i.monto_efectivo > 0);
-if (regsCierre.length) cierreEfectivo = regsCierre[regsCierre.length-1].monto_efectivo;
-if (regApertura) aperturaEfectivo = regApertura.monto_efectivo;
-ventasElements.aperturaEfectivoDisplay.textContent = aperturaEfectivo.toFixed(2);
-ventasElements.cierreEfectivoDisplay.textContent = cierreEfectivo.toFixed(2);
-const cierreElement = document.getElementById('cierreEfectivoDisplay');
-const selectedDate = ventasElements.dateFilter.value;
-const today = new Date(); today.setHours(0,0,0,0);
-const selectedDateObj = selectedDate ? new Date(selectedDate+'T00:00:00') : new Date();
-const isPastDate = selectedDateObj < today;
-if (cierreEfectivo === 0 && filteredData.length > 0) {
-cierreElement.classList.add('cierre-alert');
-if (isPastDate && !notificationsShown.has(`cierreCero_${selectedDate}`)) {
-showNotification('danger', '💰 Cierre en Cero', `El día ${selectedDate} tiene cierre en 0.00.`, 10000);
-notificationsShown.add(`cierreCero_${selectedDate}`);
-}
-} else {
-cierreElement.classList.remove('cierre-alert');
-if (isPastDate && cierreEfectivo > 0 && !notificationsShown.has(`cierreCorrecto_${selectedDate}`)) {
-showNotification('success', '✅ Todo Correcto', `Cierre del día ${selectedDate} completo.`, 5000);
-notificationsShown.add(`cierreCorrecto_${selectedDate}`);
-}
-}
-}
+function findCashControl(){const a=openingV3(),c=closingV3(),lastA=a[a.length-1],lastC=c[c.length-1];ventasElements.aperturaEfectivoDisplay.textContent=lastA?lastA.monto_efectivo.toFixed(2):'Sin abrir';ventasElements.cierreEfectivoDisplay.textContent=lastC?lastC.monto_efectivo.toFixed(2):'Pendiente';ventasElements.cierreEfectivoDisplay.classList.remove('cierre-alert');}
 
 function calculateTotalVentasDia() {
-const total = filteredData.filter(i => i.tipo === 'venta').reduce((s,i) => s + i.total, 0);
+const total = filteredData.filter(isSaleV3).reduce((s,i) => s + i.total, 0);
 ventasElements.totalVentasDia.textContent = 'Bs. ' + total.toFixed(2);
 }
 
-function calculateStatistics() {
-    const ventas = filteredData.filter(i => i.tipo === 'venta');
-    const totalVentasDia = ventas.reduce((s,i) => s + i.total, 0);
-    const ventasEfectivo = ventas.filter(v => v.metodo_pago && v.metodo_pago.toLowerCase().includes('efectivo'));
-    const totalVentasEfectivo = ventasEfectivo.reduce((s,v) => s + v.total, 0);
-    const apertura = filteredData.find(i => i.tipo === 'apertura' && i.monto_efectivo > 0 && i.apertura_caja.includes('APERTURA'));
-    const aperturaMonto = apertura ? apertura.monto_efectivo : 0;
-    const cierres = filteredData.filter(i => i.tipo === 'cierre' && i.cierre_caja.includes('CIERRE') && i.monto_efectivo > 0);
-    const cierre = cierres.length ? cierres[cierres.length-1].monto_efectivo : 0;
-    ventasElements.aperturaEfectivoValue.textContent = aperturaMonto.toFixed(2);
-    ventasElements.ventasDiaValue.textContent = totalVentasDia.toFixed(2);
-    ventasElements.ventasEfectivoValue.textContent = totalVentasEfectivo.toFixed(2);
-    const totalEfectivoAcumulado = aperturaMonto + totalVentasEfectivo;
-    ventasElements.totalSalesValue.textContent = totalEfectivoAcumulado.toFixed(2);
-    ventasElements.cierreEfectivoValue.textContent = cierre.toFixed(2);
-}
+function calculateStatistics(){const ventas=filteredData.filter(isSaleV3),total=ventas.reduce((n,x)=>n+x.total,0),ef=ventas.reduce((n,x)=>n+paymentV3(x).ef,0),a=openingV3(),c=closingV3(),ini=a[a.length-1],fin=c[c.length-1],monedas=filteredData.filter(x=>x.tipo==='monedas').reduce((n,x)=>n+cashMoveV3(x),0),efCambio=ventas.reduce((n,x)=>n+x.cambio_efectivo,0),recibido=ventas.reduce((n,x)=>n+(x.efectivo_recibido||paymentV3(x).ef+x.cambio_efectivo),0);ventasElements.aperturaEfectivoValue.textContent=ini?ini.monto_efectivo.toFixed(2):'Sin abrir';ventasElements.ventasDiaValue.textContent=total.toFixed(2);ventasElements.ventasEfectivoValue.textContent=ef.toFixed(2);const dineroSinMonedas=ini?(ini.monto_efectivo+recibido-efCambio):null;ventasElements.totalSalesValue.textContent=ini?(dineroSinMonedas+monedas).toFixed(2):'Sin abrir';const desgloseTarjeta=document.getElementById('desgloseCajaTarjeta');if(desgloseTarjeta)desgloseTarjeta.textContent=ini?'Dinero en caja '+dineroSinMonedas.toFixed(2)+' Bs + Monedas '+monedas.toFixed(2)+' Bs':'Sin apertura registrada';ventasElements.cierreEfectivoValue.textContent=fin?fin.monto_efectivo.toFixed(2):'Pendiente';const extra=document.getElementById('cashBreakdownV3');if(extra)extra.textContent='Monedas +'+monedas.toFixed(2)+' Bs · Cambio efectivo −'+efCambio.toFixed(2)+' Bs · Cambio QR '+ventas.reduce((n,x)=>n+x.devuelto_qr,0).toFixed(2)+' Bs';}
 
 function escV2(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
-function updateDynamicDashboard(){const ventas=filteredData.filter(i=>i.tipo==='venta'),total=ventas.reduce((a,v)=>a+(+v.total||0),0);let qr=0,ef=0;ventas.forEach(v=>{const m=(v.metodo_pago||'').toLowerCase(),q=+v.monto_qr||0,e=+v.monto_efectivo||0;if(q>0)qr+=q;else if(m.includes('qr'))qr+=+v.total||0;if(e>0)ef+=e;else if(m.includes('efectivo'))ef+=+v.total||0;});const set=(id,v)=>{const e=document.getElementById(id);if(e)e.textContent=v};set('dashQR','Bs. '+qr.toFixed(2));set('dashEfectivo','Bs. '+ef.toFixed(2));set('dashCantidad',ventas.length);set('dashPromedio','Bs. '+(ventas.length?total/ventas.length:0).toFixed(2));const c=ventas.filter(v=>v.hoja_origen==='comercial'),f=ventas.filter(v=>v.hoja_origen==='feria');set('dashComercial','Bs. '+c.reduce((a,v)=>a+v.total,0).toFixed(2));set('dashFeria','Bs. '+f.reduce((a,v)=>a+v.total,0).toFixed(2));set('dashComercialCount',c.length+' ventas');set('dashFeriaCount',f.length+' ventas');const vm=new Map();ventas.forEach(v=>{const k=(v.usuario||'Sin usuario').trim(),o=vm.get(k)||{t:0,n:0};o.t+=v.total;o.n++;vm.set(k,o)});document.getElementById('dashVendedores').innerHTML=[...vm].sort((a,b)=>b[1].t-a[1].t).slice(0,5).map(([k,o])=>`<div class="rank-row"><span class="rank-name">${escV2(k)} · ${o.n}</span><span class="rank-value">Bs. ${o.t.toFixed(2)}</span></div>`).join('')||'<div class="rank-row">Sin ventas</div>';const pm=new Map();ventas.forEach(v=>String(v.productos||'').split('|').map(x=>x.trim()).filter(Boolean).forEach(p=>{const k=p.replace(/^\d+\s*(unidad(?:es)?|paquete(?:s)?|caja(?:s)?|dc|docena(?:s)?)?\s*[-–:]?\s*/i,'').trim()||p;pm.set(k,(pm.get(k)||0)+1)}));document.getElementById('dashProductos').innerHTML=[...pm].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,n])=>`<div class="rank-row"><span class="rank-name">${escV2(k)}</span><span class="rank-value">${n} mov.</span></div>`).join('')||'<div class="rank-row">Sin productos</div>';}
+function updateDynamicDashboard(){const ventas=filteredData.filter(isSaleV3),total=ventas.reduce((n,v)=>n+v.total,0),qr=ventas.reduce((n,v)=>n+paymentV3(v).qr,0),ef=ventas.reduce((n,v)=>n+paymentV3(v).ef,0);const set=(id,x)=>{const e=document.getElementById(id);if(e)e.textContent=x};set('dashQR','Bs. '+qr.toFixed(2));set('dashEfectivo','Bs. '+ef.toFixed(2));set('dashCantidad',ventas.length);set('dashPromedio','Bs. '+(ventas.length?total/ventas.length:0).toFixed(2));for(const [k,id,ic] of [['comercial','dashComercial','dashComercialCount'],['feria','dashFeria','dashFeriaCount']]){const v=ventas.filter(x=>x.hoja_origen===k);set(id,'Bs. '+v.reduce((n,x)=>n+x.total,0).toFixed(2));set(ic,v.length+' ventas');}const vm=new Map();ventas.forEach(v=>{const k=v.usuario||'Sin usuario',o=vm.get(k)||{t:0,n:0};o.t+=v.total;o.n++;vm.set(k,o);});document.getElementById('dashVendedores').innerHTML=[...vm].sort((a,b)=>b[1].t-a[1].t).slice(0,5).map(([k,v])=>'<div class="rank-row"><span class="rank-name">'+escV2(k)+' · '+v.n+'</span><span class="rank-value">Bs. '+v.t.toFixed(2)+'</span></div>').join('')||'Sin ventas';const pm=new Map();ventas.forEach(v=>String(v.productos||'').split('|').map(x=>x.trim()).filter(Boolean).forEach(p=>{const k=p.replace(/^\d+\s*(unidad(?:es)?|paquete(?:s)?|caja(?:s)?|dc|docena(?:s)?)?\s*[-–:]?\s*/i,'').trim()||p;pm.set(k,(pm.get(k)||0)+1)}));document.getElementById('dashProductos').innerHTML=[...pm].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,n])=>'<div class="rank-row"><span class="rank-name">'+escV2(k)+'</span><span class="rank-value">'+n+' apariciones</span></div>').join('')||'Sin productos';const alert=ventas.filter(v=>paymentV3(v).warning).length;set('dashDataQualityV3',alert?alert+' pago(s) requieren revisión':'Pagos conciliados según campos disponibles');}
 
 function updateMobileSummary(date) {
 const formattedDate = date ? date.split('-').reverse().join('/') : '--/--/----';
@@ -1878,24 +1816,25 @@ const horaFormateada = item.hora ? (item.hora.includes(':') ? item.hora.substrin
 let rowClass = '';
 if (item.tipo === 'apertura') rowClass = 'class="row-apertura"';
 else if (item.tipo === 'cierre') rowClass = 'class="row-cierre"';
-const productosHTML = item.productos ? item.productos.replace(/\|/g, '<br>') : '--';
-const montosHTML = item.montos ? item.montos.replace(/\|/g, '<br>') : '—';
+else if (item.tipo === 'monedas') rowClass = 'class="v31-monedas-row"';
+const productosHTML = item.tipo==='monedas' ? '<strong>🪙 Monedas agregadas a caja</strong>' : item.productos ? item.productos.split('|').map(escV2).join('<br>') : '--';
+const montosHTML = item.tipo==='monedas' ? (item.moneda_monto_registrado ? '+'+cashMoveV3(item).toFixed(2)+' Bs' : 'Monto no disponible') : item.montos ? item.montos.split('|').map(escV2).join('<br>') : '—';
 const sucLabel=item.hoja_origen==='feria'?'Feria':'Comercial';
 html += `<tr ${rowClass}>
 <td><span class="sheet-indicator ${item.hoja_origen==='feria'?'sheet-feria':'sheet-comercial'}">${sucLabel}</span></td>
-<td>${item.id}</td>
-<td>${item.fecha || '--/--/----'}</td>
+<td>${escV2(item.id)}</td>
+<td>${escV2(item.fecha || '--/--/----')}</td>
 <td>${horaFormateada}</td>
 <td>${productosHTML}</td>
 <td>${montosHTML}</td>
-<td><strong>${item.total.toFixed(2)}</strong></td>
+<td><strong>${item.tipo==='monedas'?'No es venta':item.total.toFixed(2)}</strong></td>
 <td class="${paymentClass}">${metodoAbreviado}</td>
-<td>${item.usuario || '--'}</td>
+<td>${escV2(item.usuario || '--')}</td>
 </tr>`;
 });
-ventasElements.salesBody.innerHTML = html;
+ventasElements.salesBody.innerHTML = html;const mobileCards=document.getElementById('mobileCardsV3');if(mobileCards)mobileCards.innerHTML=filteredData.map(v=>'<article class="v3-sale-card"><div class="v3-sale-top"><strong>'+escV2(v.tipo==='monedas'?'🪙 Monedas agregadas':v.id)+'</strong><strong>'+(v.tipo==='monedas'?(v.moneda_monto_registrado?'+'+cashMoveV3(v).toFixed(2)+' Bs':'Monto no disponible'):'Bs. '+v.total.toFixed(2))+'</strong></div><div class="v3-sale-meta">'+escV2(v.hoja_origen)+' · '+escV2(v.fecha)+' · '+escV2(v.hora)+' · '+escV2(v.metodo_pago)+'</div><details><summary>Ver productos y detalles</summary><div class="v3-sale-desc">'+escV2(v.productos||'—').replace(/\|/g,' · ')+'</div><small>'+escV2(v.usuario)+'</small></details></article>').join('');
 ventasElements.tableWrapper.style.display = 'block';
-const total = filteredData.filter(i => i.tipo === 'venta').reduce((s,i) => s + i.total, 0);
+const total = filteredData.filter(isSaleV3).reduce((s,i) => s + i.total, 0);
 totalFinalAmount.textContent = 'Bs. ' + total.toFixed(2);
 }
 
@@ -1938,7 +1877,7 @@ filterData();
 showUpdateNotification('Datos de ejemplo cargados', 2000);
 }
 
-function startAutoRefresh() { if (dataInterval) clearInterval(dataInterval); dataInterval = setInterval(() => loadData(), 60000); }
+function startAutoRefresh() { if (dataInterval) clearInterval(dataInterval); dataInterval = setInterval(() => {if(!document.hidden && currentUser)loadData();}, 180000); }
 function stopAutoRefresh() { if (dataInterval) { clearInterval(dataInterval); dataInterval = null; } }
 
 function showLiquidity(mode) {
@@ -1995,7 +1934,7 @@ const weekNumber = parseInt(weekStr, 10);
 const { start, end } = getDateRangeOfWeek(parseInt(year), weekNumber);
 liquidityTitle.textContent = `Liquidez Semanal (${start.toLocaleDateString('es-ES')} - ${end.toLocaleDateString('es-ES')})`;
 const ventasPeriodo = allData.filter(item => {
-if (item.tipo !== 'venta') return false;
+if (!isSaleV3(item)) return false;
 const itemDate = new Date(item.fechaFiltro + 'T00:00:00');
 return itemDate >= start && itemDate <= end;
 });
@@ -2009,7 +1948,7 @@ const start = new Date(parseInt(year), parseInt(month)-1, 1);
 const end = new Date(parseInt(year), parseInt(month), 0);
 liquidityTitle.textContent = `Liquidez Mensual (${start.toLocaleDateString('es-ES', {year:'numeric', month:'long'})})`;
 const ventasPeriodo = allData.filter(item => {
-if (item.tipo !== 'venta') return false;
+if (!isSaleV3(item)) return false;
 const itemDate = new Date(item.fechaFiltro + 'T00:00:00');
 return itemDate >= start && itemDate <= end;
 });
