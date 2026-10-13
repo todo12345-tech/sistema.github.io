@@ -1465,87 +1465,71 @@ function convertirImagenDrive(url) {
     return match ? `https://drive.google.com/thumbnail?id=${match[1]}&sz=w400` : texto;
 }
 
+// V26.47: Fuente única de precios e imágenes: pestaña `item` de ITEMS,
+// exactamente la misma que utiliza el catálogo público. Nunca se utiliza
+// la hoja de Stock para asignar precio de venta.
+const VENTAS_ITEMS_SHEET_ID = '1m9A2-dW71FWU8tgmjx7haibO052AUDM6tqiMQuaGhOw';
+const VENTAS_ITEMS_SHEET_NAME = 'item';
+let catalogoCargaV2647 = null;
+function canonHeaderItemsV2647(v) {
+    return normalizarTextoCatalogo(String(v||'').replace(/^\uFEFF/,'')).replace(/\s+/g,' ');
+}
+async function leerCatalogoOficialV2647() {
+    const url = `https://docs.google.com/spreadsheets/d/${VENTAS_ITEMS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(VENTAS_ITEMS_SHEET_NAME)}&_=${Date.now()}`;
+    const resp=await fetch(url,{cache:'no-store',credentials:'omit'});
+    if(!resp.ok)throw new Error('ITEMS no responde ('+resp.status+')');
+    const csv=await resp.text();
+    if(/^\s*<!doctype html|^\s*<html/i.test(csv))throw new Error('ITEMS devolvió HTML');
+    const filas=parsearCSV(csv);
+    if(filas.length<2)throw new Error('ITEMS no devolvió productos');
+    const h=(filas[0]||[]).map(canonHeaderItemsV2647);
+    // Misma estructura A:K que el catálogo público. Se comprueba B:K
+    // antes de usar índices para evitar precios tomados de otra columna.
+    const esperados=['nombre','precio de paquete','cantidad paquete',
+      'hay disponibilidad por paquete','precio unidad','cantidad unidad',
+      'hay disponibilidad por unidad','publicar_catalogo',
+      'imagen_editada','imagen_original'];
+    if(h.length<11 || esperados.some((v,i)=>h[i+1]!==v)){
+        throw new Error('La estructura A:K de ITEMS no coincide con el catálogo público');
+    }
+    const productos=[];
+    for(const r of filas.slice(1)){
+        const nombre=String(r[1]||'').trim();
+        const seccion=String(r[0]||'').trim();
+        if(!nombre||!seccion)continue;
+        const precioPaquete=numeroCatalogo(r[2]);
+        const precioUnidad=numeroCatalogo(r[5]);
+        // Productos de venta internos pueden estar sin publicar, pero jamás
+        // se usa precio de otro archivo. Stock NO es catálogo de precios.
+        if(precioPaquete<=0 && precioUnidad<=0)continue;
+        const cantidad=String(r[3]||'');
+        const imagen=convertirImagenDrive(String(r[9]||'').trim()||String(r[10]||'').trim());
+        productos.push({nombre,seccion,precioPaquete:precioPaquete||precioUnidad,
+            precioUnidad,precioMayor:0,imagen,
+            numUnidades:parseInt(cantidad,10)||1,
+            textoUnidad:cantidad.replace(/^\s*\d+\s*/,'').trim(),
+            origenDatos:'CATÁLOGO',
+            _busqueda:normalizarTextoCatalogo(`${nombre} ${seccion}`)});
+    }
+    if(!productos.length)throw new Error('ITEMS no tiene artículos con precio de venta');
+    return productos;
+}
 function cargarCatalogo() {
-    // Copiado del sistema de Ventas al Por Mayor que ya funciona en CodePen.
-    const url = 'https://docs.google.com/spreadsheets/d/1h7ZNyYRe6ZDIvbjbAuyiCYEvQ37IQmSI/export?format=csv';
-
-    fetch(url)
-        .then(response => {
-            if (!response.ok) throw new Error('Error al descargar la hoja');
-            return response.text();
-        })
-        .then(csv => {
-            const lines = parsearCSV(csv).filter(l => l.some(v => String(v).trim()));
-            if (lines.length < 2) throw new Error('CSV vacío');
-            const headers = lines[0].map(h => String(h).trim().toLowerCase());
-            const idxSeccion = headers.indexOf('seccion');
-            const idxNombre = headers.indexOf('nombre');
-            const idxPrecioPaquete = headers.indexOf('precio de paquete');
-            const idxPrecioMayor = headers.indexOf('precio por mayor');
-            const idxCantidad = headers.indexOf('cantidad');
-            const idxImagen = headers.indexOf('imagen') !== -1 ? headers.indexOf('imagen') : headers.indexOf('imagen_editada');
-            if (idxSeccion === -1 || idxNombre === -1 || idxPrecioPaquete === -1 || idxCantidad === -1) {
-                throw new Error('No se encontraron las columnas esperadas');
-            }
-            const productos = [];
-            for (let i = 1; i < lines.length; i++) {
-                const cols = lines[i].map(c => String(c).trim());
-                if (cols.length < Math.max(idxSeccion, idxNombre, idxPrecioPaquete, idxCantidad) + 1) continue;
-                const seccion = cols[idxSeccion] || '';
-                const nombre = cols[idxNombre] || '';
-                const precioPaquete = parseFloat(cols[idxPrecioPaquete]) || 0;
-                const precioMayor = idxPrecioMayor >= 0 ? (parseFloat(cols[idxPrecioMayor]) || 0) : 0;
-                const cantidadStr = cols[idxCantidad] || '';
-                let numUnidades = 0;
-                let textoUnidad = '';
-                if (cantidadStr) {
-                    const limpio = cantidadStr.trim().toUpperCase();
-                    const match = limpio.match(/^(\d+)\s*(.+)$/);
-                    if (match) {
-                        numUnidades = parseInt(match[1]);
-                        textoUnidad = match[2].trim();
-                    } else {
-                        numUnidades = 1;
-                        textoUnidad = limpio;
-                    }
-                }
-                let imagen = idxImagen >= 0 ? (cols[idxImagen] || '') : '';
-                if (imagen) {
-                    const match = imagen.match(/\/d\/([^\/]+)/);
-                    if (match) imagen = `https://drive.google.com/thumbnail?id=${match[1]}&sz=s0`; else imagen = convertirImagenDrive(imagen);
-                }
-                if (nombre && precioPaquete > 0) {
-                    productos.push({
-                        seccion,
-                        nombre,
-                        precioPaquete,
-                        precioMayor,
-                        imagen,
-                        numUnidades,
-                        textoUnidad,
-                        origenDatos: 'CATÁLOGO',
-                        _busqueda: normalizarTextoCatalogo(`${nombre} ${seccion}`)
-                    });
-                }
-            }
-            catalogoProductos = productos;
-            console.log(`Cargados ${catalogoProductos.length} productos desde Sheets.`);
-            if (descripcionProducto && descripcionProducto.value.trim().length >= 2) {
-                mostrarSugerencias(descripcionProducto.value.trim());
-            }
-        })
-        .catch(err => {
-            console.error('Error al cargar productos:', err);
-            Notificaciones.mostrar('No se pudo cargar la lista de productos desde Google Sheets. Revisa la conexión.', 'error');
-            // Mismo respaldo que tiene el código que ya funciona.
-            catalogoProductos = [
-                { nombre: 'llavero porta retrato N°1', precioPaquete: 160, imagen: 'https://drive.google.com/thumbnail?id=1OJECBhkXd8N5tDuwE770KUrMBCenfYvx&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES', origenDatos:'CATÁLOGO', _busqueda: 'llavero porta retrato n°1 llaveros acrilicos' },
-                { nombre: 'llavero porta retrato N°2 abridor', precioPaquete: 300, imagen: 'https://drive.google.com/thumbnail?id=1EkWdZm9t5pgBo_kGgCEA0bksSWyyKkk0&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES', origenDatos:'CATÁLOGO', _busqueda: 'llavero porta retrato n°2 abridor llaveros acrilicos' }
-            ];
-            if (descripcionProducto && descripcionProducto.value.trim().length >= 2) {
-                mostrarSugerencias(descripcionProducto.value.trim());
-            }
-        });
+    if(catalogoCargaV2647)return catalogoCargaV2647;
+    catalogoCargaV2647=leerCatalogoOficialV2647().then(productos=>{
+        catalogoProductos=productos;
+        if(descripcionProducto && descripcionProducto.value.trim().length>=2)
+            mostrarSugerencias(descripcionProducto.value.trim());
+        return productos;
+    }).catch(error=>{
+        // No mezclar datos viejos como si fueran precios actuales.
+        console.error('Error leyendo catálogo oficial ITEMS:',error);
+        if(!catalogoProductos.length)Notificaciones.mostrar('No se pudo leer ITEMS. Puedes escribir precio manualmente; no se usarán precios antiguos.', 'warning');
+        throw error;
+    }).finally(()=>{catalogoCargaV2647=null;});
+    // Arranque en segundo plano: evita un rechazo sin manejar.
+    catalogoCargaV2647.catch(()=>{});
+    return catalogoCargaV2647;
 }
 
 function formatearPrecio(valor) {
@@ -2002,24 +1986,8 @@ function claveProductoPedidoV2640(texto) {
 }
 
 async function cargarCatalogoV2640() {
-    const url = 'https://docs.google.com/spreadsheets/d/1h7ZNyYRe6ZDIvbjbAuyiCYEvQ37IQmSI/export?format=csv';
-    const r = await fetch(url, {cache:'no-store'});
-    if (!r.ok) throw new Error('No se pudo leer el catálogo');
-    const rows = parsearCSV(await r.text());
-    if (rows.length < 2) throw new Error('Catálogo sin productos');
-    const cab = rows[0].map(v => String(v).trim().toLowerCase());
-    const pos = (...n) => n.map(k => cab.indexOf(k)).find(i => i >= 0) ?? -1;
-    const n=pos('nombre'), sec=pos('seccion'), precio=pos('precio de paquete'), imagen=pos('imagen','imagen_editada'), cantidad=pos('cantidad');
-    if(n<0) throw new Error('Catálogo sin columna nombre');
-    catalogoProductos = rows.slice(1).filter(r=>r[n]).map(r=>{
-        const nombre=String(r[n]||'').trim(), seccion=sec>=0?String(r[sec]||''):'';
-        const strCant=cantidad>=0?String(r[cantidad]||''):'';
-        return {nombre,seccion,imagen:convertirImagenDrive(imagen>=0?r[imagen]:''),
-          precioPaquete:precio>=0?numeroCatalogo(r[precio]):0,
-          numUnidades:parseInt(strCant,10)||1,origenDatos:'CATÁLOGO',
-          _busqueda:normalizarTextoCatalogo(nombre+' '+seccion)};
-    });
-    return catalogoProductos;
+    // Pedidos por Mayor y buscador comparten exactamente la fuente oficial.
+    return cargarCatalogo();
 }
 
 function buscarProductoPedidoV2640(nombre) {
