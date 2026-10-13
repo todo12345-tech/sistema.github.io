@@ -552,6 +552,42 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
  #mobileSidebarBackdrop{position:fixed;inset:0;z-index:10990;background:rgba(5,14,25,.42);display:none;}
  #mobileSidebarBackdrop.active{display:block;}
 }
+
+/* V26.41 controles del carrito: cantidad y posición; compatible móvil */
+.teus-item-controls{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px}
+.teus-item-controls button{width:29px!important;height:29px!important;min-width:29px!important;padding:0!important;border-radius:7px!important;background:#e9f1ff!important;color:#23558e!important;box-shadow:none!important;flex:0 0 auto!important;font-size:13px!important}
+.teus-item-controls button:disabled{opacity:.35!important}
+.teus-item-controls .teus-qty{font-size:12px;font-weight:700;color:#34475a;min-width:65px;text-align:center}
+.teus-item-controls .teus-move{background:#eef0f3!important;color:#39495c!important}
+@media(max-width:600px){.teus-item-controls button{min-width:34px!important;width:34px!important;height:34px!important}.teus-item-controls{gap:6px}.producto-info{margin-right:0!important}}
+
+
+/* V26.42 - controles de carrito y reordenación táctil */
+.teus-cart-toolbar{display:flex;justify-content:flex-end;margin:0 0 8px}
+.teus-vaciar{border:1px solid #fecaca!important;background:#fff1f2!important;color:#b42335!important;border-radius:8px;padding:8px 11px!important;font-size:12px!important;font-weight:700!important;width:auto!important;min-width:0!important}
+.teus-item-acciones{display:flex;align-items:center;gap:6px;flex-wrap:wrap;justify-content:flex-end}
+.teus-item-acciones button{width:34px;height:34px;border:0;border-radius:8px;cursor:pointer;color:white;display:grid;place-items:center;padding:0;flex-shrink:0}
+.teus-ver{background:#1ea85a}.teus-editar{background:#428ae2}.teus-borrar{background:#ff4757}
+.teus-drag-handle{background:#edf1f5!important;color:#45566c!important;touch-action:none;cursor:grab!important}
+.producto-item.teus-dragging{opacity:.45;outline:2px dashed #428ae2}
+.producto-item.teus-drop-target{box-shadow:0 -4px 0 #428ae2!important}
+.teus-edicion-overlay{position:fixed;inset:0;z-index:100090;background:rgba(12,25,40,.6);display:flex;align-items:center;justify-content:center;padding:16px}
+.teus-edicion-panel{background:white;color:#26394a;border-radius:14px;padding:20px;width:min(520px,100%);max-height:90dvh;overflow:auto;box-shadow:0 12px 35px #0003}
+.teus-edicion-panel label{display:block;font-weight:700;font-size:13px;margin:12px 0 5px}
+.teus-edicion-panel input{box-sizing:border-box;width:100%;min-height:43px;padding:10px;border:1px solid #cbd5e1;border-radius:8px;font-size:16px}
+.teus-edicion-botones{display:flex;gap:10px;justify-content:flex-end;margin-top:18px}
+.teus-edicion-botones button{padding:11px 15px;border:0;border-radius:8px;font-weight:700;cursor:pointer}
+@media(max-width:600px){.teus-item-acciones{justify-content:flex-start}.producto-item{flex-wrap:wrap}.teus-edicion-panel{padding:15px}.teus-cart-toolbar{margin-top:5px}}
+
+
+/* V26.44: resumen plegable de pedidos extensos en Ventas del Día. */
+#tablaVentasDia tr:not(.v2644-expandida) .v2644-item-extra { display:none !important; }
+#tablaVentasDia .v2644-ver-mas { display:block; margin-top:7px; padding:5px 9px; border:1px solid #b8d4f6; border-radius:7px; background:#edf6ff; color:#1c5e9c; font-size:12px; font-weight:700; cursor:pointer; white-space:nowrap; }
+#tablaVentasDia .v2644-ver-mas:hover { background:#dcefff; }
+#tablaVentasDia td:nth-child(7) { min-width:155px; max-width:260px; overflow-wrap:anywhere; }
+#tablaVentasDia td:nth-child(8) { min-width:82px; }
+#tablaVentasDia .v2644-item { margin-bottom:2px; }
+
 </style>
 <!-- V26: Apps Script propio, id_venta único, Stock seguro, origen EXTERNO/PENDIENTE, borrador y caja inteligente. -->
 <style id="estado-nube-v2638">
@@ -1439,21 +1475,21 @@ function cargarCatalogo() {
             return response.text();
         })
         .then(csv => {
-            const lines = csv.split('\n').filter(l => l.trim());
+            const lines = parsearCSV(csv).filter(l => l.some(v => String(v).trim()));
             if (lines.length < 2) throw new Error('CSV vacío');
-            const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
+            const headers = lines[0].map(h => String(h).trim().toLowerCase());
             const idxSeccion = headers.indexOf('seccion');
             const idxNombre = headers.indexOf('nombre');
             const idxPrecioPaquete = headers.indexOf('precio de paquete');
             const idxPrecioMayor = headers.indexOf('precio por mayor');
             const idxCantidad = headers.indexOf('cantidad');
-            const idxImagen = headers.indexOf('imagen');
+            const idxImagen = headers.indexOf('imagen') !== -1 ? headers.indexOf('imagen') : headers.indexOf('imagen_editada');
             if (idxSeccion === -1 || idxNombre === -1 || idxPrecioPaquete === -1 || idxCantidad === -1) {
                 throw new Error('No se encontraron las columnas esperadas');
             }
             const productos = [];
             for (let i = 1; i < lines.length; i++) {
-                const cols = lines[i].split(',').map(c => c.trim());
+                const cols = lines[i].map(c => String(c).trim());
                 if (cols.length < Math.max(idxSeccion, idxNombre, idxPrecioPaquete, idxCantidad) + 1) continue;
                 const seccion = cols[idxSeccion] || '';
                 const nombre = cols[idxNombre] || '';
@@ -1476,7 +1512,7 @@ function cargarCatalogo() {
                 let imagen = idxImagen >= 0 ? (cols[idxImagen] || '') : '';
                 if (imagen) {
                     const match = imagen.match(/\/d\/([^\/]+)/);
-                    if (match) imagen = `https://drive.google.com/thumbnail?id=${match[1]}&sz=s0`;
+                    if (match) imagen = `https://drive.google.com/thumbnail?id=${match[1]}&sz=s0`; else imagen = convertirImagenDrive(imagen);
                 }
                 if (nombre && precioPaquete > 0) {
                     productos.push({
@@ -1958,10 +1994,60 @@ function interpretarLineaProductoPedido(linea) {
         };
     }
 
-function extraerDatosDelPedido() {
+// V26.40: búsqueda conservadora por nombre del producto extraído del pedido.
+function claveProductoPedidoV2640(texto) {
+    return normalizarTextoCatalogo(texto)
+        .replace(/[^a-z0-9]+/g, ' ')
+        .replace(/\s+/g, ' ').trim();
+}
+
+async function cargarCatalogoV2640() {
+    const url = 'https://docs.google.com/spreadsheets/d/1h7ZNyYRe6ZDIvbjbAuyiCYEvQ37IQmSI/export?format=csv';
+    const r = await fetch(url, {cache:'no-store'});
+    if (!r.ok) throw new Error('No se pudo leer el catálogo');
+    const rows = parsearCSV(await r.text());
+    if (rows.length < 2) throw new Error('Catálogo sin productos');
+    const cab = rows[0].map(v => String(v).trim().toLowerCase());
+    const pos = (...n) => n.map(k => cab.indexOf(k)).find(i => i >= 0) ?? -1;
+    const n=pos('nombre'), sec=pos('seccion'), precio=pos('precio de paquete'), imagen=pos('imagen','imagen_editada'), cantidad=pos('cantidad');
+    if(n<0) throw new Error('Catálogo sin columna nombre');
+    catalogoProductos = rows.slice(1).filter(r=>r[n]).map(r=>{
+        const nombre=String(r[n]||'').trim(), seccion=sec>=0?String(r[sec]||''):'';
+        const strCant=cantidad>=0?String(r[cantidad]||''):'';
+        return {nombre,seccion,imagen:convertirImagenDrive(imagen>=0?r[imagen]:''),
+          precioPaquete:precio>=0?numeroCatalogo(r[precio]):0,
+          numUnidades:parseInt(strCant,10)||1,origenDatos:'CATÁLOGO',
+          _busqueda:normalizarTextoCatalogo(nombre+' '+seccion)};
+    });
+    return catalogoProductos;
+}
+
+function buscarProductoPedidoV2640(nombre) {
+    const objetivo = claveProductoPedidoV2640(nombre);
+    if (!objetivo) return null;
+    const fuentes = fuentesProductosVenta();
+    // Coincidencia exacta primero: evita confundir variantes similares.
+    const exactos = fuentes.filter(p => claveProductoPedidoV2640(p.nombre) === objetivo);
+    if (exactos.length) return exactos.find(p => p.imagen) || exactos[0];
+    // Para nombres ligeramente distintos, usar únicamente un candidato inequívoco.
+    const proximos = fuentes.filter(p => {
+        const k = claveProductoPedidoV2640(p.nombre);
+        return k.length >= 12 && objetivo.length >= 12 &&
+          (k.includes(objetivo) || objetivo.includes(k));
+    });
+    return proximos.length === 1 ? proximos[0] : null;
+}
+
+async function extraerDatosDelPedido() {
     const texto = cargarPedidoTextarea.value.trim();
     if (!texto) { Notificaciones.mostrar('Pega el texto del pedido primero', 'warning'); return; }
     try {
+        // Actualiza fuentes de fotos antes de buscar; si una fuente falla, continúa con el resto.
+        await Promise.allSettled([
+            (catalogoProductos.length ? Promise.resolve() : cargarCatalogoV2640()),
+            (productosAgregadosCache.length ? Promise.resolve() : cargarProductosAgregadosVenta()),
+            (stockCache.length ? Promise.resolve() : cargarStockInventario())
+        ]);
         let nombre = '', telefono = '', direccion = '', departamento = '', cumpleanos = '', productosTexto = '';
         const nombreMatch = texto.match(/(?:👤\s*)?\*?Nombre\*?:?\s*([^\n]+)/i);
         if (nombreMatch) nombre = nombreMatch[1].trim().replace(/\*/g, '');
@@ -1982,7 +2068,9 @@ function extraerDatosDelPedido() {
             if (!prod || !prod.descripcion || !(prod.monto > 0)) return;
 
             const d = prod.detalleFisico || {cajas:0, paquetes:0, unidades:0};
-            const encontrado = null;
+            // Buscar en las mismas fuentes del autocompletado, preservando foto y metadatos.
+            // No se asume ubicación física de Stock al importar un pedido.
+            const encontrado = buscarProductoPedidoV2640(prod.nombreProducto || prod.descripcion);
 
             let item = {
                 id: Date.now() + productosEncontrados,
@@ -1994,12 +2082,14 @@ function extraerDatosDelPedido() {
                 presentacion: 'mixto',
                 cantidadFisica: 1,
                 detalleFisico: {...d},
-                ubicacionSalida: sucursalSeleccionada,
+                ubicacionSalida: '',
+                origenTipo: 'PENDIENTE_ORIGEN',
                 unidadesEquivalentes: (d.unidades||0)
             };
 
             if (encontrado) {
                 item.productoCatalogo = true;
+                item.id_item = encontrado.id_item || '';
                 item.nombreProducto = encontrado.nombre;
                 item.imagen = encontrado.imagen || item.imagen || '';
                 item.seccion = encontrado.seccion || '';
@@ -2615,48 +2705,58 @@ montoEfectivoMixto.addEventListener('input',refrescarCambioV2633);
 montoQRMixto.addEventListener('input',refrescarCambioV2633);
 montoRecibido.addEventListener('input',refrescarCambioV2633);
 
+// V26.44: el cobro se cierra después del guardado local; Sheets/Stock se confirman sin bloquear la interfaz.
 async function guardarVentaConMetodoPago() {
     if (guardandoVenta) {
-        Notificaciones.mostrar('Esta venta ya se está procesando. Espera un momento.', 'warning', 2500);
+        Notificaciones.mostrar('Ya estamos registrando esta venta.', 'warning', 2500);
         return;
     }
-    try{desgloseCambioV2633();}catch(e){Notificaciones.mostrar(e.message,'error',6500);return;}
+    try { desgloseCambioV2633(); }
+    catch (e) { Notificaciones.mostrar(e.message, 'error', 6500); return; }
     guardandoVenta = true;
     confirmMetodoPago.disabled = true;
-    confirmMetodoPago.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
-    if (metodoPagoSeleccionado === 'Mixto') {
-        const montoEfectivo = parseFloat(montoEfectivoMixto.value) || 0;
-        const montoQR = parseFloat(montoQRMixto.value) || 0;
-        const totalPagadoMixto = montoEfectivo + montoQR;
-        if (totalPagadoMixto + 0.01 < total) {
-            Notificaciones.mostrar('Faltan ' + (total - totalPagadoMixto).toFixed(2) + ' Bs para completar el pago', 'error');
-            guardandoVenta = false; confirmMetodoPago.disabled = false;
-            confirmMetodoPago.innerHTML = '<i class="fas fa-check"></i> Confirmar';
-            return;
-        }
-    }
+    confirmMetodoPago.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Registrando...';
+    actionGuardarVenta.disabled = true;
     try {
-        actionGuardarVenta.disabled = true;
-        actionGuardarVenta.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
         const ventaGuardada = guardarVentaLocal();
-        if (ventaGuardada) {
-            Notificaciones.mostrar('Registro guardado localmente. Confirmando en Google Sheets y Stock...', 'info', 3000);
-            const confirmado=await sincronizarVentaIndividualANube(ventaGuardada);
-            if(confirmado){
-                Notificaciones.mostrar(`Venta ${ventaGuardada.id_venta} confirmada en Sheets.`, 'success', 4500);
-                setTimeout(()=>cargarPanelOperativoV20({forzar:true}),900);
-                // La lectura de Google se refresca después de recibir la confirmación.
-                cargarVentasDiaDesdeSheet({notificar:false,silencioso:true}).catch(()=>{});
-            } // Si falla, sincronizarVentaIndividualANube deja aviso y conserva la venta local.
-        }
-    } catch (error) { console.error('Error real al procesar la venta:', error); Notificaciones.mostrar('Error al procesar la venta: ' + (error?.message || 'revisa los datos del pedido'), 'error', 6000); }
-    finally {
+        if (!ventaGuardada) throw new Error('No se pudo crear el registro local');
+
+        // Primero cerramos el modal y liberamos los controles. Nunca queda una ventana
+        // de cobro abierta mientras Apps Script está respondiendo.
+        metodoPagoModal.style.display = 'none';
+        Notificaciones.mostrar('Venta guardada localmente. Subiendo a Google Sheets...', 'info', 4200);
+        mostrarEstadoSincronizacionV2619('');
+
+        // No esperar la red para volver a atender a otro cliente. El identificador
+        // id_venta ya quedó persistido y el sincronizador controla los reintentos.
+        Promise.resolve().then(async () => {
+            const confirmado = await sincronizarVentaIndividualANube(ventaGuardada);
+            if (confirmado) {
+                Notificaciones.mostrar(`Venta ${ventaGuardada.id_venta} confirmada en Google Sheets.`, 'success', 4500);
+                // Actualizaciones de lectura fuera del proceso de cobro; no afectan al modal.
+                if (typeof ventasDiaEstaVisible === 'function' && ventasDiaEstaVisible()) {
+                    cargarVentasDiaDesdeSheet({notificar:false,silencioso:true}).catch(e=>console.warn('Lectura diferida:',e));
+                }
+            }
+            // En caso de error, sincronizarVentaIndividualANube conserva la venta local,
+            // muestra el motivo y deja disponible el reintento manual por fila.
+        }).catch(error => {
+            console.error('Error de sincronización diferida:',error);
+            ventaGuardada.sincronizada=false;
+            ventaGuardada.errorSincronizacion=String(error?.message||error);
+            guardarVentasLocalSeguro();
+            actualizarVentasDelDia();
+            Notificaciones.mostrar('Venta solo local: no se pudo confirmar en Google Sheets.', 'error', 6500);
+        });
+    } catch (error) {
+        console.error('Error al registrar la venta local:',error);
+        Notificaciones.mostrar('No se pudo guardar la venta: '+(error?.message||'error desconocido'), 'error', 6500);
+    } finally {
         guardandoVenta = false;
         actionGuardarVenta.disabled = false;
         actionGuardarVenta.innerHTML = '<i class="fas fa-save"></i> Guardar Venta';
         confirmMetodoPago.disabled = false;
         confirmMetodoPago.innerHTML = '<i class="fas fa-check"></i> Confirmar';
-        metodoPagoModal.style.display = 'none';
     }
 }
 
@@ -3270,9 +3370,12 @@ function actualizarVentasDelDia() {
         let productosHTML = '', montosHTML = '', totalVenta = 0;
         if (esAperturaCierre) { productosHTML = venta.productos; montosHTML = esMonedasV2620(venta)?`${venta.INGRESO_EFECTIVO||0} Bs`:venta.monto_efectivo ? `${venta.monto_efectivo} Bs` : '-'; }
         else {
-            productosHTML = productosArr.map(p => `<div>${p}</div>`).join('');
+            // V26.44: resumir pedidos extensos sin ocultar el total ni desalinear montos.
+            const largoListado = productosArr.length > 3;
+            productosHTML = productosArr.map((p, i) => `<div class="v2644-item ${largoListado && i >= 3 ? 'v2644-item-extra' : ''}">${p}</div>`).join('');
+            if (largoListado) productosHTML += `<button type="button" class="v2644-ver-mas" aria-expanded="false">Ver más (${productosArr.length - 3}) ▾</button>`;
             let montosLista = '';
-            productosArr.forEach((p, i) => { const montoItem = Number(montosArr[i]) || 0; totalVenta += montoItem; montosLista += `<div>${!String(venta.montos||'').trim() ? '—' : montoItem.toFixed(2)}</div>`; });
+            productosArr.forEach((p, i) => { const montoItem = Number(montosArr[i]) || 0; totalVenta += montoItem; montosLista += `<div class="v2644-item ${largoListado && i >= 3 ? 'v2644-item-extra' : ''}">${!String(venta.montos||'').trim() ? '—' : montoItem.toFixed(2)}</div>`; });
             montosHTML = `<div class="montos-cell"><div class="montos-lista">${montosLista}</div><div class="montos-total">${Number(venta.total_venta || totalVenta).toFixed(2)} Bs</div></div>`;
         }
         const tieneObservaciones = venta.observaciones && venta.observaciones.trim() !== '';
@@ -3293,6 +3396,13 @@ function actualizarVentasDelDia() {
         tablaHTML += `<tr class="${claseFila}"><td>${nombreCliente}</td><td>${telefonoCliente}</td><td>${direccionCliente}</td><td>${departamentoCliente}</td><td>${cumpleanosCliente}</td><td>${registrosTablaV2621===todasVentasHoy ? '' : String(venta.fecha||'')+' · '}${venta.hora}</td><td>${productosHTML}</td><td>${montosHTML}</td><td>${metodoPagoDisplay}</td><td>${tieneObservaciones ? venta.observaciones : ''}</td><td>${estadoGuardado}</td><td><div class="acciones">${botonesVentasDia}</div></td></tr>`;
     });
     tablaVentasDia.innerHTML = tablaHTML;
+    // V26.44: el botón despliega productos e importes de la MISMA fila.
+    document.querySelectorAll('#tablaVentasDia .v2644-ver-mas').forEach(btn => btn.addEventListener('click', () => {
+        const fila=btn.closest('tr'); if(!fila)return;
+        const abierta=fila.classList.toggle('v2644-expandida');
+        btn.setAttribute('aria-expanded', String(abierta));
+        btn.textContent=abierta?'Ver menos ▴':`Ver más (${fila.querySelectorAll('td:nth-child(7) .v2644-item-extra').length}) ▾`;
+    }));
     document.querySelectorAll('#tablaVentasDia .reintentar-fila-v2638').forEach(btn=>btn.addEventListener('click',async()=>{const v=ventasDelDia[Number(btn.dataset.index)];if(!v||v.sincronizada!==false)return;btn.disabled=true;await sincronizarVentaIndividualANube(v);await cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true});actualizarVentasDelDia();}));
     document.querySelectorAll('#tablaVentasDia .editar-venta-v2631').forEach(btn=>btn.addEventListener('click',()=>editarVentaSeguraV2631(Number(btn.dataset.index))));
     document.querySelectorAll('#tablaVentasDia .ajustar-cambio-v2635').forEach(btn=>btn.addEventListener('click',()=>ajustarCambioVentaV2635(Number(btn.dataset.index))));
@@ -3304,10 +3414,6 @@ function actualizarVentasDelDia() {
 function intentarEliminar(index) {
     // Registros solo locales pueden descartarse sin usar la autorización de Sheets.
     if (ventasDelDia[index]?.sincronizada === false) { eliminarVenta(index); return; }
-    if (esAdministrador()) {
-        eliminarVenta(index);
-        return;
-    }
     ventaAEliminarIndex = index;
     adminUsuarioInput.value = '';
     adminPasswordInput.value = '';
@@ -3336,7 +3442,7 @@ async function confirmarAutorizacionEliminar() {
         autorizacionAdminModal.style.display = 'none';
         ventaAEliminarIndex = -1;
         Notificaciones.mostrar(`Autorizado por ${u.nombre}`, 'success', 2500);
-        setTimeout(() => eliminarVenta(idx), 200);
+        eliminarVenta(idx, {usuario: usuario, password: password});
     } else {
         Notificaciones.mostrar('Credenciales de administrador incorrectas', 'error');
     }
@@ -3372,7 +3478,7 @@ function referenciaSeguraVenta(venta){
     return String(venta?.timestamp || '').trim();
 }
 
-async function eliminarVenta(index) {
+async function eliminarVenta(index, autorizacionAdmin = null) {
     const venta=ventasDelDia[index];
     if(!venta)return;
     if(venta.sincronizada===false){
@@ -3421,6 +3527,7 @@ async function eliminarVenta(index) {
         const res=await backendV26('eliminar_venta_definitiva',{
             id_venta:id,huella_legacy:huella,sucursal:venta.sucursal||sucursalSeleccionada,
             usuario:currentUser?.username||currentUser?.nombre||'',rol:currentUser?.rol||'',
+            autorizacion_admin: autorizacionAdmin ? {usuario:autorizacionAdmin.usuario, password:autorizacionAdmin.password} : null,
             motivo:String(confirm.value||'').trim()
         });
         if(!res.ok||!res.eliminada)throw Error(res.error||'No se confirmó la eliminación');
@@ -3625,23 +3732,121 @@ function cerrarLightbox() {
     lightbox.setAttribute('aria-hidden', 'true');
 }
 
+// V26.41: solamente ajusta paquetes cuando son la única presentación de la línea.
+// Evita interpretar "12 unidades" dentro de "1 paquete de 12 unidades" como 12 unidades adicionales.
+function paqueteEditableV2641(item){
+ const d=String(item.descripcion||'');
+ const m=d.match(/^\s*(\d+)\s*paquete(?:s|\(s\))?\b/i);
+ if(!m)return null;
+ if(/\+\s*\d+\s*(?:caja|unidad)/i.test(d))return null;
+ if(item.detalleFisico&&Number(item.detalleFisico.cajas||0)>0)return null;
+ return Number(m[1])>0?Number(m[1]):null;
+}
+function cambiarPaquetesV2641(index,delta){
+ const item=items[index];if(!item)return;
+ const actual=paqueteEditableV2641(item);
+ if(!actual){Notificaciones.mostrar('Este artículo tiene una presentación mixta. Ajusta su cantidad desde el selector del producto.','warning');return;}
+ const nueva=actual+delta;if(nueva<1){Notificaciones.mostrar('Para quitar el artículo usa el botón rojo.','info');return;}
+ const base=Number(item.monto||0)/actual;
+ item.monto=Math.round(base*nueva*100)/100;
+ item.descripcion=String(item.descripcion).replace(/^\s*\d+\s*paquete(?:s|\(s\))?\b/i,nueva===1?'1 paquete':nueva+' paquetes');
+ if(item.detalleFisico){item.detalleFisico.paquetes=nueva;}
+ // Las unidades_equivalentes solo se escalan si se conocen de una fuente fiable.
+ if(Number(item.unidadesEquivalentes)>0){item.unidadesEquivalentes=Math.round(Number(item.unidadesEquivalentes)*nueva/actual);}
+ actualizarListaItems();actualizarPrevisualizacion();guardarBorradorVentaV26();
+}
+// V26.42: operaciones de pedido en preparación (no modifican ventas en Sheets).
+function teusConfirmar(texto){return window.confirm(texto)}
+function teusRefrescarCarrito(){actualizarListaItems();actualizarPrevisualizacion();guardarBorradorVentaV26()}
+function teusVaciarPedido(){if(!items.length)return;if(!teusConfirmar(`¿Vaciar los ${items.length} productos del pedido actual? No afecta ventas guardadas.`))return;items=[];teusRefrescarCarrito();Notificaciones.mostrar('Pedido en preparación vaciado','info',2300)}
+function teusMostrarDetalleItem(index){const a=items[index];if(!a)return;if(a.imagen){abrirLightbox(a.imagen);return;}
+ teusModalItem(index,true)}
+function teusModalItem(index,soloLectura=false){
+ const a=items[index];if(!a)return;
+ const escapeHtml=x=>String(x??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+ const cant=paqueteEditableV2641(a);
+ const overlay=document.createElement('div');overlay.className='teus-edicion-overlay';
+ overlay.innerHTML=`<section class="teus-edicion-panel" role="dialog" aria-modal="true" aria-label="${soloLectura?'Ver':'Editar'} producto">
+ <h3 style="margin:0 0 12px">${soloLectura?'Ver producto':'Editar producto del pedido'}</h3>
+ ${a.imagen?`<img src="${escapeHtml(a.imagen)}" style="max-height:125px;max-width:100%;object-fit:contain" alt="Producto">`:''}
+ <label>Descripción del pedido</label><input id="teusEditDesc" value="${escapeHtml(a.descripcion)}" ${soloLectura?'readonly':''}>
+ <label>Precio total (Bs)</label><input id="teusEditMonto" type="number" min="0" step="0.01" inputmode="decimal" value="${Number(a.monto||0)}" ${soloLectura?'readonly':''}>
+ ${cant?`<label>Paquetes</label><input id="teusEditPaquetes" type="number" min="1" step="1" inputmode="numeric" value="${cant}" ${soloLectura?'readonly':''}>`:''}
+ <div class="teus-edicion-botones"><button type="button" data-cancel style="background:#e5e7eb;color:#334155">Cerrar</button>${soloLectura?'':`<button type="button" data-save style="background:#2563eb;color:#fff">Guardar cambios</button>`}</div>
+ </section>`;
+ document.body.appendChild(overlay);
+ const cerrar=()=>overlay.remove();overlay.querySelector('[data-cancel]').onclick=cerrar;
+ overlay.addEventListener('click',e=>{if(e.target===overlay)cerrar()});
+ if(!soloLectura)overlay.querySelector('[data-save]').onclick=()=>{
+   const descripcion=overlay.querySelector('#teusEditDesc').value.trim();
+   const monto=Number(overlay.querySelector('#teusEditMonto').value);
+   const inputCantidad=overlay.querySelector('#teusEditPaquetes');
+   const nueva=inputCantidad?Number(inputCantidad.value):null;
+   if(!descripcion||!Number.isFinite(monto)||monto<0){Notificaciones.mostrar('Revisa descripción y precio','warning');return}
+   if(inputCantidad&&(!Number.isSafeInteger(nueva)||nueva<1)){Notificaciones.mostrar('La cantidad debe ser un entero positivo','warning');return}
+   if(inputCantidad&&nueva!==cant){
+     // Si cambió la cantidad física se exige resolver stock al confirmar; no asumir un descuento validado.
+     if(a.detalleFisico)a.detalleFisico.paquetes=nueva;
+     if(Number(a.unidadesEquivalentes)>0)a.unidadesEquivalentes=Math.round(Number(a.unidadesEquivalentes)*nueva/cant);
+     if(a.origenTipo==='STOCK')a.estadoStockPrevisto='PENDIENTE_STOCK';
+   }
+   a.descripcion=descripcion;a.monto=Math.round(monto*100)/100;
+   teusRefrescarCarrito();cerrar();
+ };
+}
+function teusPrepararArrastre(){
+ let drag=null, hold=null, origen=-1, objetivo=-1, punto=null;
+ const reset=()=>{clearTimeout(hold);hold=null;if(drag)drag.classList.remove('teus-dragging');productosLista.querySelectorAll('.teus-drop-target').forEach(e=>e.classList.remove('teus-drop-target'));drag=null;origen=-1;objetivo=-1;punto=null};
+ productosLista.querySelectorAll('.teus-drag-handle').forEach(handle=>{
+  handle.addEventListener('pointerdown',e=>{
+   if(e.button!==0&&e.pointerType==='mouse')return;
+   origen=Number(handle.dataset.index);drag=handle.closest('.producto-item');punto={x:e.clientX,y:e.clientY};
+   hold=setTimeout(()=>{if(drag){drag.classList.add('teus-dragging');handle.setPointerCapture(e.pointerId)}},e.pointerType==='mouse'?0:300);
+  });
+  handle.addEventListener('pointermove',e=>{
+   if(!drag||!punto)return;
+   if(!drag.classList.contains('teus-dragging')){if(Math.hypot(e.clientX-punto.x,e.clientY-punto.y)>12)reset();return}
+   e.preventDefault();
+   const el=document.elementFromPoint(e.clientX,e.clientY)?.closest('.producto-item');
+   productosLista.querySelectorAll('.teus-drop-target').forEach(x=>x.classList.remove('teus-drop-target'));
+   if(el&&el!==drag&&productosLista.contains(el)){objetivo=Number(el.dataset.index);el.classList.add('teus-drop-target')}
+  });
+  handle.addEventListener('pointerup',()=>{
+   const valido=drag?.classList.contains('teus-dragging')&&objetivo>=0&&origen>=0&&origen!==objetivo;
+   const desde=origen,hasta=objetivo;reset();
+   if(valido){const [item]=items.splice(desde,1);items.splice(hasta,0,item);teusRefrescarCarrito()}
+  });
+  handle.addEventListener('pointercancel',reset);
+ });
+}
+
 function actualizarListaItems() {
     productosLista.innerHTML = '';
+    const toolbar=document.createElement('div');toolbar.className='teus-cart-toolbar';toolbar.innerHTML='<button type="button" class="teus-vaciar"><i class="fas fa-trash-alt"></i> Vaciar todo</button>';toolbar.querySelector('button').onclick=teusVaciarPedido;productosLista.appendChild(toolbar);
     let subtotal = 0;
     if (items.length === 0) { productosLista.innerHTML = `<div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>No hay productos</p></div>`; totalCompra.textContent = '0.00'; return; }
     items.forEach((item, index) => {
         const productoItem = document.createElement('div');
-        productoItem.className = 'producto-item';
+        productoItem.className = 'producto-item';productoItem.dataset.index=index;
         productoItem.innerHTML = `
             <div class="producto-info" style="display:flex;align-items:center;gap:12px;min-width:0;">
                 ${item.imagen ? `<img src="${item.imagen}" alt="${item.nombreProducto || item.descripcion}" title="Clic para ampliar" class="producto-agregado-img-ampliable" data-index="${index}" style="width:58px;height:72px;object-fit:contain;border-radius:8px;border:1px solid #e1e5ea;background:#fff;flex:0 0 auto;cursor:pointer;" onerror="this.style.display='none'">` : ''}
                 <div style="min-width:0;">
                     <span class="producto-descripcion" title="${item.descripcion}">${item.descripcion}</span>
                     <span class="producto-precio-unitario">Precio editable</span>
+                    <div class="teus-item-controls">
+                        ${paqueteEditableV2641(item) ? `<button type="button" class="teus-paquetes" data-index="${index}" data-delta="-1" title="Quitar un paquete" aria-label="Quitar un paquete"><i class="fas fa-minus"></i></button><span class="teus-qty">${paqueteEditableV2641(item)} paq.</span><button type="button" class="teus-paquetes" data-index="${index}" data-delta="1" title="Agregar un paquete" aria-label="Agregar un paquete"><i class="fas fa-plus"></i></button>` : ''}
+                        <span style="font-size:11px;color:#64748b">Mantén y arrastra con el asa</span>
+                    </div>
                 </div>
             </div>
             <div class="producto-cantidad"><input class="precio-item-editable" data-index="${index}" type="text" inputmode="numeric" pattern="[0-9]*" value="${Math.round(Number(item.monto||0))}" style="width:105px;padding:7px 8px;text-align:right;font-weight:800;color:#ff7e5f;border:1px solid #d8dee4;border-radius:7px"> Bs</div>
-            <button type="button" class="eliminar-btn" data-index="${index}" title="Eliminar"><i class="fas fa-times"></i></button>`;
+            <div class="teus-item-acciones">
+              <button type="button" class="teus-drag-handle" data-index="${index}" title="Mantén presionado y arrastra para mover" aria-label="Arrastrar producto"><i class="fas fa-grip-vertical"></i></button>
+              <button type="button" class="teus-ver" data-index="${index}" title="Ver" aria-label="Ver producto"><i class="fas fa-eye"></i></button>
+              <button type="button" class="teus-editar" data-index="${index}" title="Editar" aria-label="Editar producto"><i class="fas fa-edit"></i></button>
+              <button type="button" class="eliminar-btn teus-borrar" data-index="${index}" title="Eliminar" aria-label="Eliminar producto"><i class="fas fa-trash"></i></button>
+            </div>`;
         productosLista.appendChild(productoItem);
 
         // Clic real sobre la miniatura: abre el mismo lightbox usado en Por Mayor.
@@ -3659,12 +3864,16 @@ function actualizarListaItems() {
     });
     total = subtotal;
     totalCompra.textContent = total.toFixed(2);
-    document.querySelectorAll('.precio-item-editable').forEach(inp => { inp.addEventListener('change', function(){ const i=Number(this.dataset.index); const v=Math.max(0,Math.round(Number(String(this.value).replace(/[^0-9]/g,''))||0)); if(items[i]){items[i].monto=v; actualizarListaItems(); actualizarPrevisualizacion();} }); inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){e.preventDefault();this.blur();} }); });
+    document.querySelectorAll('.precio-item-editable').forEach(inp => { inp.addEventListener('change', function(){ const i=Number(this.dataset.index); const v=Math.max(0,Math.round(Number(String(this.value).replace(/[^0-9]/g,''))||0)); if(items[i]){items[i].monto=v; actualizarListaItems(); actualizarPrevisualizacion(); guardarBorradorVentaV26();} }); inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){e.preventDefault();this.blur();} }); });
+    productosLista.querySelectorAll('.teus-paquetes').forEach(btn=>btn.addEventListener('click',()=>cambiarPaquetesV2641(Number(btn.dataset.index),Number(btn.dataset.delta))));
+    productosLista.querySelectorAll('.teus-ver').forEach(btn=>btn.addEventListener('click',()=>teusMostrarDetalleItem(Number(btn.dataset.index))));
+    productosLista.querySelectorAll('.teus-editar').forEach(btn=>btn.addEventListener('click',()=>teusModalItem(Number(btn.dataset.index))));
+    teusPrepararArrastre();
     document.querySelectorAll('.eliminar-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const index = parseInt(this.getAttribute('data-index'));
             items.splice(index, 1);
-            actualizarListaItems(); actualizarPrevisualizacion();
+            actualizarListaItems(); actualizarPrevisualizacion();guardarBorradorVentaV26();
             Notificaciones.mostrar('Producto eliminado', 'info', 2000);
         });
     });
