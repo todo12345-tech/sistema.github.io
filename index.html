@@ -530,8 +530,36 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
  #metodoPagoModal .modal-actions button{min-height:44px;}
 }
 
+
+
+/* V26.38 — iPhone: cabecera ordenada y menú angosto que se puede cerrar. */
+@media (max-width:819px){
+ .top-bar{display:flex!important;flex-direction:column!important;align-items:stretch!important;padding:9px 12px!important;gap:9px!important;}
+ .top-bar > div:first-child{display:grid!important;grid-template-columns:42px minmax(0,1fr) 42px!important;align-items:center!important;gap:5px!important;width:100%!important;}
+ .top-bar .mobile-menu-toggle{display:flex!important;grid-column:1;align-items:center;justify-content:center;width:42px!important;height:42px!important;padding:7px!important;border-radius:8px;color:#2c3e50;}
+ .top-bar-title{grid-column:2!important;flex:none!important;text-align:center!important;font-size:15px!important;line-height:1.24!important;margin:0!important;overflow-wrap:normal!important;}
+ .user-info{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;align-items:stretch!important;gap:6px!important;width:100%!important;}
+ .user-details{grid-column:1/-1;text-align:left!important;display:flex!important;align-items:baseline!important;gap:6px!important;min-height:17px;}
+ .user-name{font-size:12px!important;}
+ .user-role{font-size:11px!important;}
+ .user-info #cambiarSucursalBtn,.user-info #cambiarUsuarioBtn{width:100%!important;min-width:0!important;margin:0!important;min-height:39px!important;padding:7px 4px!important;font-size:11px!important;line-height:1.25!important;white-space:normal!important;}
+ .user-info #logoutBtn{grid-column:1/-1;width:100%!important;min-height:35px!important;padding:7px!important;margin:0!important;font-size:11px!important;}
+ .sidebar,.sidebar.collapsed{width:min(260px,78vw)!important;max-width:78vw!important;}
+ .sidebar .sidebar-header{min-height:57px!important;padding:10px 12px!important;}
+ .sidebar .sidebar-menu a{padding:11px 12px!important;font-size:13px;gap:10px!important;}
+ .sidebar .sidebar-menu .menu-text{line-height:1.35;overflow-wrap:anywhere;}
+ .sidebar.active .sidebar-toggle{display:flex!important;align-items:center;justify-content:center;width:36px!important;min-width:36px!important;height:36px!important;padding:6px!important;}
+ #mobileSidebarBackdrop{position:fixed;inset:0;z-index:10990;background:rgba(5,14,25,.42);display:none;}
+ #mobileSidebarBackdrop.active{display:block;}
+}
 </style>
 <!-- V26: Apps Script propio, id_venta único, Stock seguro, origen EXTERNO/PENDIENTE, borrador y caja inteligente. -->
+<style id="estado-nube-v2638">
+.estado-venta-nube{display:inline-block;white-space:nowrap;padding:5px 7px;border-radius:6px;font-size:11px;font-weight:700;line-height:1.35}
+.estado-cloud{background:#e1f5e7;color:#176535}.estado-local{background:#fff0d3;color:#824600}
+#tablaVentasDia td:nth-child(11){min-width:105px}
+@media(max-width:768px){#tablaVentasDia td:nth-child(11){min-width:112px}.estado-venta-nube{font-size:11px}}
+</style>
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -759,7 +787,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                         <table class="tabla-ventas-dia">
                             <thead>
                                 <tr>
-                                    <th>Nombre</th><th>Teléfono</th><th>Dirección</th><th>Departamento</th><th>Cumpleaños</th><th>Hora</th><th>Productos</th><th>Montos</th><th>Método Pago</th><th>Observaciones</th><th>Acciones</th>
+                                    <th>Nombre</th><th>Teléfono</th><th>Dirección</th><th>Departamento</th><th>Cumpleaños</th><th>Hora</th><th>Productos</th><th>Montos</th><th>Método Pago</th><th>Observaciones</th><th>Guardado</th><th>Acciones</th>
                                 </tr>
                             </thead>
                             <tbody id="tablaVentasDia"></tbody>
@@ -773,7 +801,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                 <div class="container">
                     <h2><i class="fas fa-globe"></i> <span id="iframeTitulo">Visualización</span></h2>
                     <table id="tablaForzadoraIframe">
-                        <thead><tr><th>Nombre</th><th>Teléfono</th><th>Dirección</th><th>Departamento</th><th>Cumpleaños</th><th>Hora</th><th>Productos</th><th>Montos</th><th>Método Pago</th><th>Observaciones</th><th>Acciones</th></tr></thead>
+                        <thead><tr><th>Nombre</th><th>Teléfono</th><th>Dirección</th><th>Departamento</th><th>Cumpleaños</th><th>Hora</th><th>Productos</th><th>Montos</th><th>Método Pago</th><th>Observaciones</th><th>Guardado</th><th>Acciones</th></tr></thead>
                     </table>
                     <div style="display: flex; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 15px; flex-wrap: wrap;">
                         <button id="recargarIframeBtn" style="width: auto; padding: 8px 15px; background: #3498db; font-size: 13px;"><i class="fas fa-sync-alt"></i> Recargar</button>
@@ -2048,19 +2076,27 @@ async function sincronizarVentaIndividualANube(venta) {
         if(!venta.id_venta && !venta.referencia_venta)throw new Error('Registro sin id_venta; no se puede confirmar en Sheets');
         // Guardamos el identificador ANTES del POST para que todo reintento sea idempotente.
         guardarVentasLocalSeguro();
+        if(venta.__subiendoV2639)return false;
+        venta.__subiendoV2639=true;
         const res=await backendV26('confirmar_venta',{venta});
         if(!res.ok)throw new Error(res.error||'No se confirmó la operación');
+        delete venta.__subiendoV2639;
         venta.sincronizada=true;
+        delete venta.errorSincronizacion;
         venta.id_venta=res.id_venta||venta.id_venta;
         guardarVentasLocalSeguro();
         mostrarEstadoSincronizacionV2619('');
+        if(typeof actualizarVentasDelDia==='function')actualizarVentasDelDia();
         return true;
     } catch(error) {
         console.error('VENTA PENDIENTE en Apps Script:',error,venta);
+        delete venta.__subiendoV2639;
         venta.sincronizada=false;
-        guardarVentasLocalSeguro();
         const detalle=String(error?.message||error);
+        venta.errorSincronizacion=detalle;
+        guardarVentasLocalSeguro();
         mostrarEstadoSincronizacionV2619(detalle,true);
+        if(typeof actualizarVentasDelDia==='function')actualizarVentasDelDia();
         Notificaciones.mostrar(`No se confirmó en Sheets: ${detalle}. El registro queda LOCAL y puedes reintentarlo desde Sincronización → Subir.`, 'error', 9500);
         return false;
     }
@@ -2730,11 +2766,27 @@ function configurarEventListeners() {
     confirmarSucursalBtn.addEventListener('click', function() { localStorage.setItem('sucursalSeleccionada', sucursalSeleccionada); mostrarPantallaPrincipal(); });
     document.getElementById('cambiarSucursalBtn').addEventListener('click', cambiarSucursalSeguroV2631);
     document.getElementById('menuSucursal').addEventListener('click', e=>{e.preventDefault();cambiarSucursalSeguroV2631();});
-    sidebarToggle.addEventListener('click', function() { sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('sidebar-collapsed'); });
+    sidebarToggle.addEventListener('click', function() {
+        if(window.matchMedia('(max-width:819px)').matches){sidebar.classList.remove('active'); document.getElementById('mobileSidebarBackdrop')?.classList.remove('active'); return;}
+        sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('sidebar-collapsed');
+    });
     rightSidebarToggle.addEventListener('click', function() { rightSidebar.classList.toggle('collapsed'); rightSidebarToggle.classList.toggle('collapsed'); mainContent.classList.toggle('right-sidebar-collapsed'); });
     rightSidebarExpandInline.addEventListener('click', function() { rightSidebar.classList.remove('collapsed'); rightSidebarToggle.classList.remove('collapsed'); mainContent.classList.remove('right-sidebar-collapsed'); });
-    mobileMenuToggle.addEventListener('click', function() { sidebar.classList.toggle('active'); });
-    if(window.matchMedia('(max-width:819px)').matches){ document.querySelectorAll('.sidebar-menu a').forEach(a=>a.addEventListener('click',()=>sidebar.classList.remove('active'))); }
+    const mobileSidebarBackdrop=document.createElement('div');
+    mobileSidebarBackdrop.id='mobileSidebarBackdrop';
+    mobileSidebarBackdrop.setAttribute('aria-hidden','true');
+    document.body.appendChild(mobileSidebarBackdrop);
+    function closeMobileSidebar(){sidebar.classList.remove('active');mobileSidebarBackdrop.classList.remove('active');mobileMenuToggle.setAttribute('aria-expanded','false');}
+    mobileMenuToggle.setAttribute('aria-expanded','false');
+    mobileMenuToggle.setAttribute('aria-controls','sidebar');
+    mobileMenuToggle.addEventListener('click', function() {
+        const open=sidebar.classList.toggle('active');
+        mobileSidebarBackdrop.classList.toggle('active',open);
+        mobileMenuToggle.setAttribute('aria-expanded',String(open));
+    });
+    mobileSidebarBackdrop.addEventListener('click',closeMobileSidebar);
+    document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileSidebar();});
+    if(window.matchMedia('(max-width:819px)').matches){ document.querySelectorAll('.sidebar-menu a').forEach(a=>a.addEventListener('click',closeMobileSidebar)); }
 
 
     ['datosCliente', 'cargarPedido', 'sync', 'backup'].forEach(id => {
@@ -3230,14 +3282,18 @@ function actualizarVentasDelDia() {
         let botonesVentasDia = registrosTablaV2621!==todasVentasHoy
             ? (!esAperturaCierre ? `<button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : '')
             : `${!esAperturaCierre ? `<button class="accion-btn editar-venta-v2631" data-index="${ventasDelDia.indexOf(venta)}" style="background:#2476b5"><i class="fas fa-edit"></i> Editar</button><button class="accion-btn ajustar-cambio-v2635" data-index="${ventasDelDia.indexOf(venta)}" title="Corregir cómo se devolvió el cambio"><i class="fas fa-coins"></i> Ajustar cambio</button><button class="accion-btn observacion-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-sticky-note"></i> Obs</button><button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : ''}<button class="accion-btn eliminar-btn-tabla" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-trash"></i> Eliminar</button>`;
+        const estadoGuardado=venta.sincronizada===false
+          ? `<span class="estado-venta-nube estado-local" title="${String(venta.errorSincronizacion||'No confirmado en Google Sheets').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}">⚠ Solo local</span><button class="accion-btn reintentar-fila-v2638" data-index="${ventasDelDia.indexOf(venta)}" style="background:#b66a11;margin-top:5px">↻ Subir esta</button>`
+          : `<span class="estado-venta-nube estado-cloud" title="Registro leído o confirmado en Google Sheets">✓ En la nube</span>`;
         const nombreCliente = esAperturaCierre ? venta.usuario : (venta.nombre_cliente || 'Cliente General');
         const telefonoCliente = esAperturaCierre ? '-' : (venta.telefono || '-');
         const direccionCliente = esAperturaCierre ? '-' : (venta.direccion || '-');
         const departamentoCliente = esAperturaCierre ? '-' : (venta.departamento || '-');
         const cumpleanosCliente = esAperturaCierre ? '-' : (venta.cumpleaños || '-');
-        tablaHTML += `<tr class="${claseFila}"><td>${nombreCliente}</td><td>${telefonoCliente}</td><td>${direccionCliente}</td><td>${departamentoCliente}</td><td>${cumpleanosCliente}</td><td>${registrosTablaV2621===todasVentasHoy ? '' : String(venta.fecha||'')+' · '}${venta.hora}</td><td>${productosHTML}</td><td>${montosHTML}</td><td>${metodoPagoDisplay}</td><td>${tieneObservaciones ? venta.observaciones : ''}</td><td><div class="acciones">${botonesVentasDia}</div></td></tr>`;
+        tablaHTML += `<tr class="${claseFila}"><td>${nombreCliente}</td><td>${telefonoCliente}</td><td>${direccionCliente}</td><td>${departamentoCliente}</td><td>${cumpleanosCliente}</td><td>${registrosTablaV2621===todasVentasHoy ? '' : String(venta.fecha||'')+' · '}${venta.hora}</td><td>${productosHTML}</td><td>${montosHTML}</td><td>${metodoPagoDisplay}</td><td>${tieneObservaciones ? venta.observaciones : ''}</td><td>${estadoGuardado}</td><td><div class="acciones">${botonesVentasDia}</div></td></tr>`;
     });
     tablaVentasDia.innerHTML = tablaHTML;
+    document.querySelectorAll('#tablaVentasDia .reintentar-fila-v2638').forEach(btn=>btn.addEventListener('click',async()=>{const v=ventasDelDia[Number(btn.dataset.index)];if(!v||v.sincronizada!==false)return;btn.disabled=true;await sincronizarVentaIndividualANube(v);await cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true});actualizarVentasDelDia();}));
     document.querySelectorAll('#tablaVentasDia .editar-venta-v2631').forEach(btn=>btn.addEventListener('click',()=>editarVentaSeguraV2631(Number(btn.dataset.index))));
     document.querySelectorAll('#tablaVentasDia .ajustar-cambio-v2635').forEach(btn=>btn.addEventListener('click',()=>ajustarCambioVentaV2635(Number(btn.dataset.index))));
     document.querySelectorAll('#tablaVentasDia .observacion-btn').forEach(btn => { btn.addEventListener('click', function() { abrirModalObservacion(parseInt(this.getAttribute('data-index'))); }); });
@@ -3246,6 +3302,8 @@ function actualizarVentasDelDia() {
 }
 
 function intentarEliminar(index) {
+    // Registros solo locales pueden descartarse sin usar la autorización de Sheets.
+    if (ventasDelDia[index]?.sincronizada === false) { eliminarVenta(index); return; }
     if (esAdministrador()) {
         eliminarVenta(index);
         return;
@@ -3317,7 +3375,28 @@ function referenciaSeguraVenta(venta){
 async function eliminarVenta(index) {
     const venta=ventasDelDia[index];
     if(!venta)return;
-    if(venta.sincronizada===false){Notificaciones.mostrar('Esta venta está pendiente de subir. No se eliminará de Google Sheets.','warning',7000);return;}
+    if(venta.sincronizada===false){
+        if(venta.__subiendoV2639){Notificaciones.mostrar('Esta venta se está enviando. Comprueba primero el resultado de sincronización.','warning',7000);return;}
+        const escapeLocal=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+        const resLocal=await Swal.fire({
+            title:'¿Descartar venta solo local?',icon:'warning',
+            html:`<div style="text-align:left"><p><b>${escapeLocal(venta.productos||'Venta pendiente')}</b></p><p><b>${escapeLocal(venta.total_venta||0)} Bs</b></p><p>Se borrará del navegador <b>sin enviar nada a Google Sheets</b>. Esta operación no puede recuperarse desde la nube.</p></div>`,
+            showCancelButton:true,confirmButtonText:'Sí, eliminar del celular/computadora',cancelButtonText:'Conservar venta',confirmButtonColor:'#d33'
+        });
+        if(!resLocal.isConfirmed)return;
+        // Confirmar que siga siendo el mismo objeto y todavía esté pendiente.
+        if(venta.sincronizada!==false || venta.__subiendoV2639){Notificaciones.mostrar('La venta cambió de estado; actualiza la tabla.','warning');return;}
+        const posicion=ventasDelDia.indexOf(venta);
+        if(posicion<0)return;
+        ventasDelDia.splice(posicion,1);
+        const guardado=guardarVentasLocalSeguro();
+        if(!guardado){ventasDelDia.splice(posicion,0,venta);Notificaciones.mostrar('No se pudo actualizar el respaldo local; la venta se conservó.','error');return;}
+        actualizarVentasDelDia();
+        if(typeof actualizarEstadisticas==='function')actualizarEstadisticas();
+        mostrarEstadoSincronizacionV2619('');
+        Notificaciones.mostrar('Venta pendiente eliminada solo del navegador. No se tocó Google Sheets.','success',6500);
+        return;
+    }
     const id=String(venta.id_venta||'').trim();
     const huella=id?null:{
         fecha:String(venta.fecha||''),hora:String(venta.hora||''),
