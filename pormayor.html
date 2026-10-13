@@ -964,6 +964,51 @@ button:active { transform: translateY(-1px); }
 .ajuste-pagado-actions{display:flex;gap:8px;margin-top:12px}.ajuste-pagado-actions button{padding:10px!important;font-size:12px!important}
 .ajuste-pagado-log{margin-top:12px;max-height:145px;overflow:auto;border-top:1px dashed #ddd;padding-top:8px;font-size:10px;color:#65717b}
 .ajuste-pagado-log div{padding:5px 2px;border-bottom:1px solid #f0f0f0}@media(max-width:600px){.ajuste-pagado-grid{grid-template-columns:1fr}.ajuste-pagado-actions{flex-direction:column}}
+
+/* V4.1 - Modo de alistamiento dedicado, celular y escritorio */
+.mayor-modo-alistar-btn{font-size:14px;padding:13px!important;margin-bottom:9px!important;border-radius:11px!important}
+#mayorPickerScreen{position:fixed;inset:0;z-index:1000001;background:#f5f7fa;color:#243649;display:none;flex-direction:column;overflow:hidden;font-family:inherit}
+body.mayor-solo-alistar #mayorPickerScreen{display:flex}
+body.mayor-solo-alistar{overflow:hidden}
+body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
+.mayor-picker-top{background:#fff;padding:calc(12px + env(safe-area-inset-top, 0px)) 16px 12px;box-shadow:0 2px 12px #24364912;flex-shrink:0}
+.mayor-picker-topline{display:flex;align-items:center;justify-content:space-between;gap:10px}
+.mayor-picker-topline h2{padding:0;margin:0;border:0;font-size:20px;color:#233b54}
+.mayor-picker-exit{width:auto;padding:9px 12px;font-size:13px;border-radius:9px;background:#334e68;flex-shrink:0}
+.mayor-picker-description{margin-top:6px;font-size:12px;color:#617386}
+.mayor-picker-progress{display:flex;justify-content:space-between;gap:10px;align-items:center;margin-top:13px;font-weight:700;font-size:14px}
+.mayor-picker-track{height:9px;border-radius:9px;overflow:hidden;background:#e3e7eb;margin-top:8px}
+#mayorPickerFill{width:0;height:100%;background:#16a46b;transition:width .2s}
+#mayorPickerList{flex:1;min-height:0;overflow-y:auto;overscroll-behavior:contain;padding:14px max(12px,calc((100vw - 900px)/2)) calc(16px + env(safe-area-inset-bottom,0px))}
+.mayor-picker-product{background:white;border:2px solid #e1e5ea;border-radius:15px;margin-bottom:12px;padding:13px;display:flex;align-items:center;gap:12px;min-height:102px;cursor:pointer;box-shadow:0 2px 8px #00000008}
+.mayor-picker-product.done{background:#ebf9f0;border-color:#4bc684}
+.mayor-picker-checkbox{width:27px!important;height:27px!important;min-width:27px;accent-color:#12a46c;pointer-events:none}
+.mayor-picker-photo{width:74px;height:74px;object-fit:cover;border-radius:10px;background:#f0f1f3;flex-shrink:0}
+.mayor-picker-label{font-weight:650;font-size:16px;line-height:1.35;overflow-wrap:anywhere;flex:1}
+.mayor-picker-ph{width:74px;height:74px;border-radius:10px;background:#eef1f3;display:flex;justify-content:center;align-items:center;color:#95a3af;flex-shrink:0}
+.mayor-picker-footer{flex-shrink:0;background:white;padding:11px 16px calc(11px + env(safe-area-inset-bottom,0px));box-shadow:0 -3px 12px #0000000a;display:flex;gap:10px}
+.mayor-picker-footer button{font-size:13px;padding:12px;min-height:44px}
+@media(max-width:480px){.mayor-picker-product{padding:10px;gap:10px}.mayor-picker-label{font-size:15px}.mayor-picker-photo,.mayor-picker-ph{width:64px;height:64px}.mayor-picker-topline h2{font-size:18px}}
+
+/* V4.4 - Herramientas rápidas del pedido mayorista */
+.mayor-lista-toolbar{display:flex;justify-content:flex-end;align-items:center;margin:0 0 12px;gap:8px}
+.mayor-vaciar{width:auto!important;padding:10px 13px!important;background:#fff1f2!important;color:#c81532!important;border:1px solid #fecdd3!important;font-size:13px!important;border-radius:9px!important}
+#productosLista .producto-item{gap:12px;max-width:100%;min-width:0;padding:12px;touch-action:pan-y}
+#productosLista .mayor-item-photo{width:56px;height:56px;object-fit:cover;border-radius:8px;border:1px solid #dde3e9;flex:0 0 56px;background:#fff;cursor:pointer}
+#productosLista .producto-info{max-width:none;min-width:0;flex:1 1 230px}
+#productosLista .producto-info strong{font-size:14px;overflow-wrap:anywhere}
+#productosLista .mayor-item-sub{font-size:11px;color:#7b8794;font-style:italic;margin-top:4px}
+#productosLista .mayor-item-controls{display:flex;flex-wrap:wrap;align-items:center;gap:5px;margin-top:8px}
+#productosLista .mayor-qty-btn{width:32px;height:32px;padding:0;border:0;border-radius:8px;background:#eaf1ff;color:#235aa4;font-size:17px;box-shadow:none}
+#productosLista .mayor-qty-val{min-width:48px;font-size:12px;text-align:center;font-weight:700}
+#productosLista .producto-cantidad{min-width:72px;width:auto;border:0;margin:0;padding:0;font-size:15px}
+#productosLista .producto-actions{flex:0 0 auto;align-items:center;flex-wrap:wrap;gap:6px}
+#productosLista .producto-actions button{padding:0!important;width:38px;height:38px;font-size:14px}
+#productosLista .mayor-drag-handle{background:#e7eef6;color:#334e68;cursor:grab;touch-action:none;border-radius:8px}
+#productosLista .mayor-drag-handle:active{cursor:grabbing}
+#productosLista .producto-item.mayor-dragging{opacity:.6;outline:2px solid #4a90e2}
+#productosLista .producto-item.mayor-drop-here{border-top:4px solid #4a90e2}
+@media(max-width:700px){#productosLista .producto-item{flex-direction:row;flex-wrap:wrap;align-items:center}#productosLista .mayor-item-photo{width:54px;height:54px;flex-basis:54px}#productosLista .producto-info{flex:1 1 calc(100% - 80px)}#productosLista .producto-cantidad{width:auto;min-width:55px}#productosLista .producto-actions{margin-left:auto}#productosLista{padding:10px!important}}
 </style>
 
 <style id="loginMayorStyles">
@@ -1151,6 +1196,7 @@ button:active { transform: translateY(-1px); }
                 <div class="form-group">
                     <h3><i class="fas fa-list"></i> Items agregados:</h3>
                     <div class="productos-container">
+                        <div class="mayor-lista-toolbar"><button type="button" class="mayor-vaciar" id="vaciarMayorTodo"><i class="fas fa-trash-alt"></i> Vaciar todo</button></div>
                         <div class="productos-lista" id="productosLista">
                             <div class="empty-cart">
                                 <i class="fas fa-shopping-cart"></i>
@@ -1207,22 +1253,6 @@ button:active { transform: translateY(-1px); }
         </div>
     </div>
     <div class="side-panel">
-        <div class="ajuste-pagado-launch" id="ajustePagadoLaunch">
-<button type="button" id="activarAjustePagado" onclick="window.iniciarAjustePagadoSeguroV4 && window.iniciarAjustePagadoSeguroV4(); return false;"><i class="fas fa-rotate"></i> Ajustar pedido ya pagado</button>
-<p style="font-size:11px;color:#6d7983;margin-top:9px"><i class="fas fa-info-circle"></i> Actívalo solo cuando el cliente ya pagó y después necesitas modificar su pedido.</p>
-</div>
-<div class="ajuste-pagado-panel" id="ajustePagadoPanel">
-<div class="ajuste-pagado-head"><h3><i class="fas fa-wallet"></i> Pedido en ajuste</h3><p style="font-size:11px;color:#6f7780">El pago queda congelado; puedes editar, quitar y agregar productos normalmente.</p></div>
-<div class="ajuste-pagado-grid">
-<div class="ajuste-pagado-card"><small>MONTO YA PAGADO</small><strong><span id="pagoCongeladoValor">0</span> Bs</strong></div>
-<div class="ajuste-pagado-card"><small>TOTAL ACTUAL</small><strong><span id="pedidoActualValor">0</span> Bs</strong></div>
-</div>
-<div class="ajuste-pagado-estado exacto" id="estadoSaldoPagado">Pedido cuadrado.</div>
-<div class="ajuste-pagado-log" id="historialAjustePagado"></div>
-<div class="ajuste-pagado-actions">
-<button type="button" class="btn-success" id="finalizarAjustePagado"><i class="fas fa-check"></i> Finalizar ajuste</button>
-<button type="button" class="btn-danger" id="cancelarAjustePagado"><i class="fas fa-times"></i> Cancelar modo ajuste</button>
-</div></div>
 <div class="ajuste-monto-container" id="ajusteMontoContainer">
             <div class="ajuste-monto-header">
                 <div class="ajuste-monto-title"><i class="fas fa-scale-balanced"></i> Ajuste inteligente</div>
@@ -1291,6 +1321,7 @@ button:active { transform: translateY(-1px); }
                 </div>
                 <div class="alistar-stats" id="alistarStats">0/0 items</div>
             </div>
+            <button type="button" id="abrirModoAlistar" class="btn-info mayor-modo-alistar-btn"><i class="fas fa-expand"></i> Solo alistar pedido · Pantalla completa</button>
             <div class="alistar-items" id="alistarItems">
                 <div class="alistar-empty">
                     <i class="fas fa-clipboard-list"></i>
@@ -1384,6 +1415,16 @@ button:active { transform: translateY(-1px); }
         <img id="lightboxImage" src="" alt="Vista ampliada">
     </div>
 </div>
+<section id="mayorPickerScreen" aria-label="Solo alistar pedido">
+  <div class="mayor-picker-top">
+    <div class="mayor-picker-topline"><h2><i class="fas fa-clipboard-check"></i> Alistar pedido</h2><button type="button" class="mayor-picker-exit" id="mayorPickerExit"><i class="fas fa-times"></i> Cerrar</button></div>
+    <div class="mayor-picker-description">Solo productos y cantidades. Marca cada uno al prepararlo.</div>
+    <div class="mayor-picker-progress"><span id="mayorPickerCount">0 / 0 listos</span><span id="mayorPickerPercent">0%</span></div>
+    <div class="mayor-picker-track"><div id="mayorPickerFill"></div></div>
+  </div>
+  <div id="mayorPickerList"></div>
+  <div class="mayor-picker-footer"><button type="button" class="btn-success" id="mayorPickerAll"><i class="fas fa-check-double"></i> Marcar todos</button><button type="button" class="btn-secondary" id="mayorPickerNone"><i class="fas fa-undo"></i> Desmarcar</button></div>
+</section>
 <script>
 function abrirLightbox(src) {
     if (!src) return;
@@ -1407,6 +1448,45 @@ document.addEventListener('DOMContentLoaded', function() {
     const LOGIN_SHEET_CSV = 'https://docs.google.com/spreadsheets/d/1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok/export?format=csv';
     let usuariosMayor = [];
     let usuarioMayorActual = null;
+    // V4.3: sesión recordada; expira tras una hora fuera de la página.
+    const MAYOR_SESION_KEY = 'teus_mayor_sesion_v43';
+    const MAYOR_SESION_LIMITE = 60 * 60 * 1000;
+    const esChecklistCompartido = location.hash.startsWith('#alistarpedido=');
+    function leerSesionMayor(){
+        try { return JSON.parse(localStorage.getItem(MAYOR_SESION_KEY) || 'null'); } catch (_) { return null; }
+    }
+    function borrarSesionMayor(){ try { localStorage.removeItem(MAYOR_SESION_KEY); } catch (_) {} }
+    function guardarSesionMayor(u){
+        try { localStorage.setItem(MAYOR_SESION_KEY, JSON.stringify({usuario:u.usuario, nombre:u.nombre, rol:u.rol, ultimoAcceso:Date.now()})); } catch (_) {}
+    }
+    function bloquearSesionMayor(){
+        usuarioMayorActual = null; window.usuarioMayorActual = null;
+        document.getElementById('usuarioMayorBar').style.display='none';
+        document.getElementById('loginMayorClave').value='';
+        document.getElementById('loginMayorOverlay').style.display='flex';
+    }
+    function registrarSalidaMayor(){
+        if (esChecklistCompartido || !usuarioMayorActual) return;
+        const sesion=leerSesionMayor();
+        if (!sesion) return;
+        sesion.ultimoAcceso=Date.now();
+        try {localStorage.setItem(MAYOR_SESION_KEY,JSON.stringify(sesion));} catch (_) {}
+    }
+    async function restaurarSesionMayor(){
+        if (esChecklistCompartido) return;
+        const sesion=leerSesionMayor();
+        if (!sesion) return;
+        if (!Number.isFinite(Number(sesion.ultimoAcceso)) || Date.now()-Number(sesion.ultimoAcceso)>=MAYOR_SESION_LIMITE || Date.now()<Number(sesion.ultimoAcceso)) {
+            borrarSesionMayor(); bloquearSesionMayor(); return;
+        }
+        try {
+            if (!usuariosMayor.length) await cargarUsuariosMayor();
+            const u=usuariosMayor.find(x=>norm(x.usuario)===norm(sesion.usuario) && ['administrador','admin','vendedor'].includes(norm(x.rol)));
+            if(!u){ borrarSesionMayor(); bloquearSesionMayor(); return; }
+            // No se almacena ni se reenvía la contraseña de usuario.
+            mostrarSesionMayor(u);
+        } catch (_) { bloquearSesionMayor(); }
+    }
     const norm = v => String(v ?? '').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
     const parseCSVLogin = csv => {
         const rows=[]; let row=[], field='', q=false;
@@ -1436,6 +1516,7 @@ document.addEventListener('DOMContentLoaded', function() {
         document.getElementById('usuarioMayorBar').style.display='flex';
         document.getElementById('usuarioMayorNombre').textContent=u.nombre||u.usuario;
         document.getElementById('usuarioMayorRol').textContent=u.rol;
+        guardarSesionMayor(u);
     }
     async function intentarLoginMayor(){
         const err=document.getElementById('loginMayorError'), btn=document.getElementById('loginMayorBtn'); err.style.display='none'; btn.disabled=true; btn.textContent='Verificando...';
@@ -1451,8 +1532,23 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     document.getElementById('loginMayorBtn').addEventListener('click',intentarLoginMayor);
     ['loginMayorUsuario','loginMayorClave'].forEach(id=>document.getElementById(id).addEventListener('keydown',e=>{if(e.key==='Enter')intentarLoginMayor()}));
-    document.getElementById('logoutMayorBtn').addEventListener('click',()=>{usuarioMayorActual=null;window.usuarioMayorActual=null;document.getElementById('usuarioMayorBar').style.display='none';document.getElementById('loginMayorClave').value='';document.getElementById('loginMayorOverlay').style.display='flex';document.getElementById('loginMayorUsuario').focus();});
-    cargarUsuariosMayor().catch(()=>{});
+    document.getElementById('logoutMayorBtn').addEventListener('click',()=>{borrarSesionMayor(); bloquearSesionMayor(); document.getElementById('loginMayorUsuario').focus();});
+    // Mientras la página permanece abierta y visible, la sesión no caduca.
+    // Al salir/ocultar pestaña, queda la hora del último uso para medir 60 min fuera.
+    document.addEventListener('visibilitychange',()=>{
+        if (document.hidden) registrarSalidaMayor();
+        else if (!esChecklistCompartido && usuarioMayorActual) {
+            const ss=leerSesionMayor();
+            if (!ss || Date.now()-Number(ss.ultimoAcceso)>=MAYOR_SESION_LIMITE || Date.now()<Number(ss.ultimoAcceso)) {
+                borrarSesionMayor(); bloquearSesionMayor();
+            } else guardarSesionMayor(usuarioMayorActual);
+        }
+    });
+    window.addEventListener('pagehide',registrarSalidaMayor);
+    window.addEventListener('pageshow',()=>{
+        if (!esChecklistCompartido && !usuarioMayorActual) restaurarSesionMayor();
+    });
+    if (!esChecklistCompartido) restaurarSesionMayor();
 
     const departmentSelect = document.getElementById('department');
     const provinciaRadio = document.getElementById('provinciaSantaCruz');
@@ -2324,6 +2420,76 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
+    // Solo cambiar una presentación sencilla; no modificar cajas/unidades mixtas.
+    function presentacionSimpleMayor(descripcion) {
+        const d=String(descripcion||'').trim();
+        let m=d.match(/^(\d+)\s+paquete(?:s|\(s\))?\s+de\s+(\d+)\s+unidades\s*[-–]\s*(.+)$/i);
+        if(m) return {cantidad:Number(m[1]),unidades:Number(m[2]),nombre:m[3],forma:'paquete'};
+        m=d.match(/^(\d+)\s+paquete(?:s|\(s\))?\s*[-–]\s*(.+)$/i);
+        if(m) return {cantidad:Number(m[1]),unidades:0,nombre:m[2],forma:'paquete'};
+        return null;
+    }
+    function cambiarCantidadMayor(index,direccion){
+        const it=items[index];if(!it)return;
+        const p=presentacionSimpleMayor(it.descripcion);
+        if(!p||!Number.isInteger(p.cantidad)||p.cantidad<1)return;
+        const siguiente=p.cantidad+direccion;
+        if(siguiente<1||siguiente>999)return;
+        const precioUnitario=Number(it.monto)/p.cantidad;
+        it.monto=Math.round(precioUnitario*siguiente*100)/100;
+        it.descripcion=`${siguiente} ${siguiente===1?'paquete':'paquetes'}${p.unidades?' de '+p.unidades+' unidades':''} - ${p.nombre}`;
+        it.alistado=false;
+        actualizarListaItems();
+    }
+    function intercambiarOrdenMayor(from,to){
+        if(from===to||from<0||to<0||from>=items.length||to>=items.length)return;
+        const [movido]=items.splice(from,1);items.splice(to,0,movido);
+        if(editingIndex!==null){if(editingIndex===from)editingIndex=to;else if(from<editingIndex&&to>=editingIndex)editingIndex--;else if(from>editingIndex&&to<=editingIndex)editingIndex++;}
+        actualizarListaItems();
+    }
+    function conectarArrastreMayor(){
+        productosLista.querySelectorAll('.mayor-drag-handle').forEach(handle=>{
+            handle.addEventListener('pointerdown',ev=>{
+                if(ev.button!==0)return;
+                ev.preventDefault();
+                const origen=Number(handle.dataset.index);
+                const tarjeta=handle.closest('.producto-item');
+                if(!tarjeta)return;
+                let destino=origen;
+                tarjeta.classList.add('mayor-dragging');
+                handle.setPointerCapture(ev.pointerId);
+                const mover=e=>{
+                    const debajo=document.elementFromPoint(e.clientX,e.clientY);
+                    const fila=debajo?.closest?.('#productosLista .producto-item');
+                    productosLista.querySelectorAll('.mayor-drop-here').forEach(el=>el.classList.remove('mayor-drop-here'));
+                    if(fila){destino=Number(fila.dataset.index);fila.classList.add('mayor-drop-here')}
+                    const rect=productosLista.getBoundingClientRect();
+                    if(e.clientY>rect.bottom-25)productosLista.scrollTop+=12;
+                    if(e.clientY<rect.top+25)productosLista.scrollTop-=12;
+                };
+                const fin=e=>{
+                    handle.removeEventListener('pointermove',mover);
+                    handle.removeEventListener('pointerup',fin);
+                    handle.removeEventListener('pointercancel',cancelar);
+                    tarjeta.classList.remove('mayor-dragging');
+                    productosLista.querySelectorAll('.mayor-drop-here').forEach(el=>el.classList.remove('mayor-drop-here'));
+                    if(e.type==='pointerup')intercambiarOrdenMayor(origen,destino);
+                };
+                const cancelar=e=>fin(e);
+                handle.addEventListener('pointermove',mover);
+                handle.addEventListener('pointerup',fin);
+                handle.addEventListener('pointercancel',cancelar);
+            });
+        });
+    }
+    document.getElementById('vaciarMayorTodo')?.addEventListener('click',()=>{
+        if(!items.length)return;
+        if(!confirm(`¿Vaciar los ${items.length} productos del pedido en preparación? No borra ventas guardadas.`))return;
+        items.length=0;
+        cancelarEdicion();
+        actualizarListaItems();
+        Notificaciones.mostrar('Pedido vaciado','info');
+    });
     function actualizarListaItems() {
         productosLista.innerHTML = '';
         let subtotal = 0;
@@ -2335,42 +2501,39 @@ document.addEventListener('DOMContentLoaded', function() {
             items.forEach((item, index) => {
                 const productoItem = document.createElement('div');
                 productoItem.className = 'producto-item';
+                productoItem.dataset.index=String(index);
+                // Imagen desde el artículo importado o el catálogo; no generar imágenes ficticias.
+                const encontrado=item.productoRef || encontrarProductoEnDescripcion(item.descripcion);
+                const imagen=encontrado?.imagen || '';
+                const simple=presentacionSimpleMayor(item.descripcion);
                 productoItem.innerHTML = `
-                    <div class="producto-info"><strong>${item.descripcion}</strong></div>
+                    ${imagen?'<img class="mayor-item-photo" alt="Foto del producto">':'<div class="mayor-item-photo" style="display:flex;align-items:center;justify-content:center;color:#aaa"><i class="fas fa-box"></i></div>'}
+                    <div class="producto-info"><strong></strong><div class="mayor-item-sub">Precio editable</div>
+                       ${simple?`<div class="mayor-item-controls"><button type="button" class="mayor-qty-btn mayor-qty-minus" data-index="${index}" aria-label="Quitar paquete">−</button><span class="mayor-qty-val">${simple.cantidad} paq.</span><button type="button" class="mayor-qty-btn mayor-qty-plus" data-index="${index}" aria-label="Agregar paquete">+</button></div>`:''}
+                    </div>
                     <div class="producto-cantidad">${formatearPrecio(item.monto)} Bs</div>
                     <div class="producto-actions">
+                        <button type="button" class="mayor-drag-handle" data-index="${index}" title="Mantén y arrastra para reordenar" aria-label="Arrastrar producto"><i class="fas fa-grip-vertical"></i></button>
                         <button type="button" class="ver-detalle-btn" data-index="${index}" title="Ver detalle"><i class="fas fa-eye"></i></button>
                         <button type="button" class="editar-btn" data-index="${index}" title="Editar producto"><i class="fas fa-edit"></i></button>
                         <button type="button" class="eliminar-btn" data-index="${index}" title="Eliminar producto"><i class="fas fa-trash"></i></button>
-                    </div>
-                `;
+                    </div>`;
+                productoItem.querySelector('.producto-info strong').textContent=item.descripcion;
+                if(imagen){const img=productoItem.querySelector('img.mayor-item-photo');img.src=imagen;img.addEventListener('click',()=>abrirLightbox(imagen));}
                 productosLista.appendChild(productoItem);
-                subtotal += item.monto;
+                subtotal += Number(item.monto)||0;
             });
-            productosLista.querySelectorAll('.ver-detalle-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const index = parseInt(this.getAttribute('data-index'));
-                    const item = items[index];
-                    if (!item) return;
-                    let found = item.productoRef || encontrarProductoEnDescripcion(item.descripcion);
-                    if (found && found.imagen) abrirLightbox(found.imagen);
-                });
-            });
-            document.querySelectorAll('.editar-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const index = parseInt(this.getAttribute('data-index'));
-                    editarProducto(index);
-                });
-            });
-            document.querySelectorAll('.eliminar-btn').forEach(btn => {
-                btn.addEventListener('click', function(e) {
-                    e.preventDefault();
-                    const index = parseInt(this.getAttribute('data-index'));
-                    eliminarProducto(index);
-                });
-            });
+            productosLista.querySelectorAll('.ver-detalle-btn').forEach(btn=>btn.addEventListener('click',e=>{
+                e.preventDefault();const it=items[Number(btn.dataset.index)];if(!it)return;
+                const p=it.productoRef||encontrarProductoEnDescripcion(it.descripcion);
+                if(p?.imagen)abrirLightbox(p.imagen);
+                else Notificaciones.mostrar('No hay fotografía disponible para este artículo','info');
+            }));
+            productosLista.querySelectorAll('.editar-btn').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();editarProducto(Number(btn.dataset.index))}));
+            productosLista.querySelectorAll('.eliminar-btn').forEach(btn=>btn.addEventListener('click',e=>{e.preventDefault();eliminarProducto(Number(btn.dataset.index))}));
+            productosLista.querySelectorAll('.mayor-qty-minus').forEach(btn=>btn.addEventListener('click',()=>cambiarCantidadMayor(Number(btn.dataset.index),-1)));
+            productosLista.querySelectorAll('.mayor-qty-plus').forEach(btn=>btn.addEventListener('click',()=>cambiarCantidadMayor(Number(btn.dataset.index),1)));
+            conectarArrastreMayor();
         }
         const costo = calcularCostoEnvio();
         total = subtotal + costo;
@@ -2425,6 +2588,19 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         actualizarProgreso();
     }
+
+    // Panel independiente: un pedido compartido se marca en el celular del receptor.
+    // Esta versión NO sincroniza sus tildes con el dispositivo del creador.
+    function productosSoloAlistar() {
+        return items.map(item=>{
+            const producto=item.productoRef || encontrarProductoEnDescripcion(item.descripcion);
+            return {n:item.descripcion, i:producto?.imagen||'', c:!!item.alistado};
+        });
+    }
+    window.__teusChecklistSync = (index,checked)=>{
+        if(items[index]){items[index].alistado=checked;actualizarAlistamiento();guardarPedidoMayorEnCurso()}
+    };
+    document.getElementById('abrirModoAlistar').addEventListener('click',()=>window.__teusMostrarPicker(productosSoloAlistar()));
 
     function actualizarProgreso() {
         const totalItems = items.length;
@@ -3230,6 +3406,61 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     inicializar();
 });
+</script>
+<script>
+/* Modo de alistamiento V4.1: solo nombres, fotos, cantidad; no incluye precios ni datos personales. */
+(function(){
+  const PREFIX='#alistarpedido=';
+  const isShare = window.location.hash.startsWith(PREFIX);
+  const $=id=>document.getElementById(id);
+  let data=[]; let source='local'; let persistKey='';
+  const safeImage=url=>/^https:\/\//i.test(String(url||''))?String(url):'';
+  const stringify=x=>JSON.stringify(x);
+  function keyFor(array){const raw=stringify(array.map(x=>[x.n,x.i]));let h=0;for(let i=0;i<raw.length;i++)h=(Math.imul(31,h)+raw.charCodeAt(i))|0;return 'teus_alistar_v1_'+(h>>>0).toString(36)}
+  function readChecks(){try{return JSON.parse(localStorage.getItem(persistKey)||'{}')}catch(e){return {}}}
+  function saveChecks(){try{localStorage.setItem(persistKey,JSON.stringify(Object.fromEntries(data.map((x,i)=>[i,!!x.c]))))}catch(e){}}
+  function paint(){
+    const list=$('mayorPickerList');list.replaceChildren();
+    data.forEach((x,i)=>{
+      const card=document.createElement('label');card.className='mayor-picker-product'+(x.c?' done':'');
+      const check=document.createElement('input');check.type='checkbox';check.className='mayor-picker-checkbox';check.checked=!!x.c;check.setAttribute('aria-label','Marcar '+x.n);
+      const img=safeImage(x.i);let picture;
+      if(img){picture=document.createElement('img');picture.className='mayor-picker-photo';picture.src=img;picture.alt='Producto';picture.loading='lazy';picture.referrerPolicy='no-referrer';picture.onerror=()=>{picture.replaceWith(document.createTextNode('📦'))}} 
+      else {picture=document.createElement('div');picture.className='mayor-picker-ph';picture.textContent='📦'}
+      const title=document.createElement('div');title.className='mayor-picker-label';title.textContent=x.n;
+      card.append(check,picture,title);
+      card.addEventListener('click',()=>{x.c=!x.c;saveChecks();if(source==='local' && window.__teusChecklistSync)window.__teusChecklistSync(i,x.c);paint()});
+      list.append(card);
+    });
+    const done=data.filter(x=>x.c).length;const pct=data.length?Math.round(done*100/data.length):0;
+    $('mayorPickerCount').textContent=`${done} / ${data.length} listos`;
+    $('mayorPickerPercent').textContent=pct+'%';$('mayorPickerFill').style.width=pct+'%';
+  }
+  function show(arr,mode){
+    source=mode;data=arr.map(x=>({n:String(x.n||'Producto'),i:safeImage(x.i),c:!!x.c}));persistKey=keyFor(data);
+    if(mode==='compartido'){const saved=readChecks();data.forEach((x,i)=>{if(saved[i]!==undefined)x.c=!!saved[i]})}
+    document.body.classList.add('mayor-solo-alistar');$('mayorPickerExit').style.display=mode==='compartido'?'none':'';paint();
+  }
+  function shareParse(){
+    try{const raw=decodeURIComponent(window.location.hash.slice(PREFIX.length));if(raw.length>90000)throw Error('Enlace demasiado grande');const parsed=JSON.parse(raw);if(!Array.isArray(parsed)||parsed.length>150)throw Error('Pedido inválido');show(parsed,'compartido');}
+    catch(err){document.body.classList.add('mayor-solo-alistar');$('mayorPickerList').textContent='No se pudo abrir el pedido. Solicita un nuevo enlace.';}
+  }
+  window.__teusMostrarPicker=arr=>show(arr,'local');
+  window.__teusCompartirPicker=async arr=>{
+    if(!arr.length){alert('Primero agrega productos al pedido');return}
+    const compact=arr.map(x=>({n:String(x.n),i:safeImage(x.i)}));
+    const url=window.location.href.split('#')[0]+PREFIX+encodeURIComponent(stringify(compact));
+    // No acortar ni ocultar la URL. Se comparte solo el listado sin precios ni datos del cliente.
+    if(navigator.share){try{await navigator.share({title:'Alistar pedido - Todoenuno_store',text:'Lista de productos para preparar',url});return}catch(err){if(err.name==='AbortError')return}}
+    try{await navigator.clipboard.writeText(url);alert('Enlace copiado. Envíalo a tu vendedora por WhatsApp.')}catch(err){prompt('Copia este enlace y envíalo por WhatsApp:',url)}
+  };
+  document.addEventListener('DOMContentLoaded',()=>{
+    if(isShare)shareParse();
+    $('mayorPickerExit').addEventListener('click',()=>document.body.classList.remove('mayor-solo-alistar'));
+    $('mayorPickerAll').addEventListener('click',()=>{data.forEach((x,i)=>{x.c=true;if(source==='local'&&window.__teusChecklistSync)window.__teusChecklistSync(i,true)});saveChecks();paint()});
+    $('mayorPickerNone').addEventListener('click',()=>{data.forEach((x,i)=>{x.c=false;if(source==='local'&&window.__teusChecklistSync)window.__teusChecklistSync(i,false)});saveChecks();paint()});
+  });
+})();
 </script>
 </body>
 </html>
