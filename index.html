@@ -3,9 +3,15 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Gestión de Ventas V25 · Pago Mixto con Cambio</title>
+<title>Todoenuno_store - Gestión de Ventas V26.20 · Estados del día + 3 hojas</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+<script src="https://cdn.jsdelivr.net/npm/sweetalert2@11">
+// V26.24: ningún importe cambia con la rueda del mouse.
+document.addEventListener('wheel', function(e){
+  const el=document.activeElement;
+  if(el && el.matches && el.matches('input[type="number"]') && el===e.target){el.blur();}
+}, {passive:true});
+</script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
 <style>
 * { box-sizing: border-box; margin: 0; padding: 0; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
@@ -328,8 +334,126 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .operativo-actions{display:flex;gap:6px;align-items:center}
 @media(max-width:650px){.operativo-card{flex-basis:190px}.operativo-head{align-items:flex-start}.operativo-actions{flex-wrap:wrap;justify-content:flex-end}}
 
+
+/* V26.5 — barra principal: 5 vendedor / 6 admin */
+#accionesPrincipalesV265{
+  display:grid !important;
+  grid-template-columns:repeat(5,minmax(0,1fr)) !important;
+  gap:12px !important;
+  width:100% !important;
+  align-items:stretch !important;
+}
+#accionesPrincipalesV265:has(#btnVentaAntigua:not([style*="display: none"]):not(.oculto):not([hidden])){
+  grid-template-columns:repeat(6,minmax(0,1fr)) !important;
+}
+#accionesPrincipalesV265 > .action-card{
+  width:100% !important;
+  min-width:0 !important;
+  max-width:none !important;
+  margin:0 !important;
+  padding:18px 8px !important;
+  min-height:142px !important;
+  display:flex !important;
+  flex-direction:column !important;
+  align-items:center !important;
+  justify-content:center !important;
+  text-align:center !important;
+  box-sizing:border-box !important;
+}
+#accionesPrincipalesV265 > .action-card i{font-size:30px !important;margin-bottom:12px !important;}
+#accionesPrincipalesV265 > .action-card strong{
+  display:block !important;font-size:14px !important;line-height:1.25 !important;
+  white-space:normal !important;word-break:normal !important;
+}
+#accionesPrincipalesV265 > .action-card span{
+  display:block !important;font-size:12px !important;line-height:1.3 !important;
+  margin-top:7px !important;white-space:normal !important;word-break:normal !important;
+}
+@media(max-width:1100px){
+ #accionesPrincipalesV265,#accionesPrincipalesV265:has(#btnVentaAntigua:not([style*="display: none"]):not(.oculto):not([hidden])){
+   grid-template-columns:repeat(3,minmax(0,1fr)) !important;
+ }
+}
+@media(max-width:650px){
+ #accionesPrincipalesV265,#accionesPrincipalesV265:has(#btnVentaAntigua:not([style*="display: none"]):not(.oculto):not([hidden])){
+   grid-template-columns:repeat(2,minmax(0,1fr)) !important;
+ }
+}
+
+
+
+/* V26.30 · iPhone 12 (390 CSS px) — solo presentación, sin alterar lógica */
+@media (max-width: 767px) {
+  html,body{width:100%;max-width:100%;margin:0;overflow-x:hidden;-webkit-text-size-adjust:100%;}
+  *,*::before,*::after{box-sizing:border-box;}
+  body{min-width:0!important;}
+  .main-content,.main-content.sidebar-collapsed,.main-content.right-sidebar-collapsed,
+  .main-content.sidebar-collapsed.right-sidebar-collapsed{
+    margin-left:0!important;margin-right:0!important;width:100%!important;min-width:0!important;
+  }
+  .content-area{width:100%;max-width:100%;min-width:0;padding:10px!important;overflow-x:hidden;}
+  .container{padding:12px!important;width:100%;max-width:100%;min-width:0;margin-bottom:12px;}
+  .top-bar{padding:10px 12px;gap:7px;flex-wrap:wrap;min-width:0;}
+  .top-bar-title{font-size:15px;min-width:0;max-width:100%;overflow-wrap:anywhere;}
+  .user-info{display:flex;flex-wrap:wrap;gap:6px;min-width:0;}
+  .user-info button{width:auto;max-width:100%;padding:9px 10px;font-size:12px;}
+  .sidebar,.right-sidebar{width:min(330px,88vw)!important;max-width:88vw;z-index:11000;box-shadow:0 10px 30px #0004;}
+  .sidebar:not(.active){transform:translateX(-105%)!important;}
+  .right-sidebar:not(.active){transform:translateX(105%)!important;}
+  .sidebar.active,.right-sidebar.active{transform:translateX(0)!important;}
+  .sidebar.collapsed,.right-sidebar.collapsed{width:min(330px,88vw)!important;}
+  .sidebar.active.collapsed .menu-text,.right-sidebar.active.collapsed .right-sidebar-content{display:block!important;}
+  .sidebar.active.collapsed .sidebar-header{justify-content:space-between;}
+  .sidebar.active.collapsed .store-logo span{display:inline;}
+  .right-sidebar.active.collapsed .right-sidebar-header{display:flex!important;}
+  .right-sidebar.active.collapsed .right-sidebar-expand-inline{display:none!important;}
+  .actions-grid,#accionesPrincipalesV265,#accionesPrincipalesV265:has(#btnVentaAntigua:not([style*="display: none"]):not(.oculto):not([hidden])){
+    display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:9px!important;width:100%;min-width:0;
+  }
+  .actions-grid >*,#accionesPrincipalesV265 >*{min-width:0!important;width:100%!important;margin:0!important;padding:12px 7px!important;min-height:112px;height:auto!important;overflow-wrap:break-word;}
+  #accionesPrincipalesV265 > .action-card strong{font-size:12px!important;line-height:1.25!important;}
+  #accionesPrincipalesV265 > .action-card span{font-size:11px!important;}
+  .producto-item{width:100%;min-width:0;gap:9px;padding:10px!important;}
+  .producto-info{min-width:0;max-width:100%;width:100%;margin-right:0!important;}
+  .producto-descripcion{white-space:normal!important;overflow-wrap:anywhere!important;word-break:normal;}
+  .producto-item input,.producto-item select{max-width:100%;}
+  .producto-cantidad{min-width:0!important;max-width:100%;}
+  .producto-unidad,.form-row,.input-group{max-width:100%;min-width:0;flex-wrap:wrap;}
+  .autocomplete-wrapper,.descripcion-input{min-width:0!important;max-width:100%;}
+  input,select,textarea{min-width:0;max-width:100%;font-size:16px!important;}
+  .total-container{text-align:right;font-size:14px;overflow-wrap:anywhere;}
+  .resumen-ventas-dia{min-width:0;padding:10px;}
+  .resumen-ventas-dia .resumen-fila{gap:10px;align-items:flex-start;}
+  .resumen-ventas-dia .resumen-fila >*:first-child{min-width:0;overflow-wrap:anywhere;}
+  .resumen-ventas-dia .resumen-valor-dia{white-space:nowrap;text-align:right;flex-shrink:0;}
+  .ventas-table-container{width:100%!important;max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;}
+  .tabla-ventas-dia,#tablaForzadoraIframe{width:max-content!important;min-width:900px!important;max-width:none!important;table-layout:auto!important;}
+  .tabla-ventas-dia th,.tabla-ventas-dia td{overflow:visible!important;text-overflow:clip!important;white-space:normal;min-width:72px;}
+  .modal-overlay,.venta-smart-modal{padding:8px!important;align-items:center;}
+  .modal-content,.venta-smart-card{width:100%!important;max-width:100%!important;max-height:calc(100dvh - 20px)!important;overflow-y:auto!important;overscroll-behavior:contain;padding:15px!important;}
+  .modal-actions{flex-wrap:wrap;}
+  .modal-actions > button{flex:1 1 125px;}
+  .venta-stock-cards,.stock-ubicaciones-venta{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch;}
+  .venta-counters{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:5px!important;}
+  .venta-counter{padding:8px 2px!important;min-width:0;}
+  .venta-counter b{font-size:11px;}
+  .venta-counter-row{gap:3px!important;justify-content:space-around;}
+  .venta-counter button{height:35px;width:30px;min-width:30px;padding:0;font-size:17px;}
+  .venta-counter span{font-size:16px;min-width:15px;}
+  .venta-smart-price{grid-template-columns:1fr!important;}
+  .venta-smart-actions{flex-wrap:wrap;}
+  .venta-smart-actions button{flex:1 1 125px;}
+  .notification-container,.notification{max-width:calc(100vw - 20px)!important;}
+  .login-container{margin:20px auto;width:calc(100% - 20px);max-width:450px;padding:18px;}
+}
+@media (max-width: 360px){
+  .actions-grid,#accionesPrincipalesV265{gap:7px!important;}
+  .actions-grid >*,#accionesPrincipalesV265 >*{padding:10px 4px!important;}
+  .venta-counter button{width:27px;min-width:27px;}
+}
+
 </style>
-<!-- V25: V24 + pago mixto permite monto recibido superior al total y calcula cambio sin inflar caja. -->
+<!-- V26: Apps Script propio, id_venta único, Stock seguro, origen EXTERNO/PENDIENTE, borrador y caja inteligente. -->
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -373,10 +497,13 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
             <li><a href="#" class="active" id="menuInicio"><i class="fas fa-home"></i><span class="menu-text">Inicio</span></a></li>
             <li><a href="#" id="menuSucursal"><i class="fas fa-map-marker-alt"></i><span class="menu-text" id="sidebarSucursal">Sucursal: Feria</span></a></li>
             <li><a href="#" id="menuVentasDia"><i class="fas fa-chart-line"></i><span class="menu-text">Ventas del Día</span></a></li>
+            <li class="permiso-admin"><a href="#" id="menuAgregarVentaAntigua"><i class="fas fa-history"></i><span class="menu-text">Agregar venta antigua</span></a></li>
             <li class="menu-divider"></li>
             <li class="menu-external"><a href="#" id="menuStock"><i class="fas fa-boxes"></i><span class="menu-text">Stock</span></a></li>
             <li class="menu-external"><a href="#" id="menuVisualizacion"><i class="fas fa-chart-pie"></i><span class="menu-text">Visualización</span></a></li>
             <li class="menu-external"><a href="#" id="menuVentasMayor"><i class="fas fa-truck"></i><span class="menu-text">Sistema de Ventas por Mayor</span></a></li>
+            <li class="menu-external"><a href="#" id="menuCatalogoEditable"><i class="fas fa-tags"></i><span class="menu-text">Catálogo Editable</span></a></li>
+            <li class="permiso-admin"><a href="#" id="menuAdministrarSucursales"><i class="fas fa-store-alt"></i><span class="menu-text">Administrar Sucursales</span></a></li>
         </ul>
     </div>
 
@@ -391,6 +518,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                     <div class="user-name" id="currentUserName"></div>
                     <div class="user-role" id="currentUserRole"></div>
                 </div>
+                <button class="logout-btn" id="cambiarSucursalBtn" type="button" style="background:#2476b5;margin-right:8px"><i class="fas fa-exchange-alt"></i> Cambiar Sucursal</button>
                 <button class="logout-btn" id="cambiarUsuarioBtn" style="background: #f39c12; margin-right: 8px;"><i class="fas fa-user-circle"></i> Cambiar Usuario</button>
                 <button class="logout-btn" id="logoutBtn"><i class="fas fa-sign-out-alt"></i> Cerrar Sesión</button>
             </div>
@@ -399,7 +527,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
             <div id="seccionInicio" class="seccion-contenido activa">
                 <div class="container">
                     <div class="fecha-hora-display"><i class="fas fa-clock"></i> <span id="fechaHoraActual"></span></div>
-                    <div class="info-box" id="cajaInfo"><i class="fas fa-cash-register"></i> <span id="cajaStatus">Caja cerrada</span></div>
+                    <div class="info-box" id="cajaInfo" hidden style="display:none!important" aria-hidden="true"><i class="fas fa-cash-register"></i> <span id="cajaStatus">Caja cerrada</span></div>
                     <div class="collapsible-section permiso-admin">
                         <div class="collapsible-header" id="estadisticasHeader">
                             <span><i class="fas fa-chart-bar"></i> Estadísticas de Ventas</span>
@@ -411,7 +539,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                     </div>
                     <div id="ventasInfo" style="display:none!important"><span id="contadorVentas">0 ventas</span></div>
                     
-                    <div class="actions-grid">
+                    <!-- V26.21: Panel "Estado de caja" retirado por solicitud del usuario.
+                         Mantenemos el nodo oculto para que los cálculos internos y eventos
+                         de apertura/cierre sigan funcionando sin cambiar sus firmas. -->
+                    <div id="resumenCajaV267" hidden style="display:none!important" aria-hidden="true"></div>
+                    <div class="actions-grid" id="accionesPrincipalesV265">
                         <div class="action-card" id="actionGuardarVenta">
                             <i class="fas fa-save"></i>
                             <div class="action-title">Guardar Venta</div>
@@ -422,7 +554,19 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                             <div class="action-title">Imprimir Nota</div>
                             <div class="action-description">Imprimir nota de venta</div>
                         </div>
-                        <div class="action-card" id="actionWhatsApp">
+                        
+                <div class="action-card permiso-caja" id="btnAgregarSencillo" style="cursor:pointer">
+                    <i class="fas fa-coins"></i>
+                    <strong>Agregar efectivo</strong>
+                    <span>Sencillo / monedas</span>
+                </div>
+
+                <div class="action-card permiso-admin" id="btnVentaAntigua" style="cursor:pointer;">
+    <i class="fas fa-history"></i>
+    <strong>Venta antigua</strong>
+    <span>Cargar historial</span>
+</div>
+<div class="action-card" id="actionWhatsApp">
                             <i class="fab fa-whatsapp"></i>
                             <div class="action-title">Enviar WhatsApp</div>
                             <div class="action-description">Enviar resumen del día</div>
@@ -440,7 +584,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                                 <input type="text" class="descripcion-input" id="descripcionProducto" placeholder="Escribe el producto (mínimo 2 caracteres)" style="padding: 12px;" autocomplete="off">
                                 <div class="autocomplete-list" id="autocompleteList"></div>
                             </div>
-                            <input type="number" class="monto-input" id="montoProducto" placeholder="Precio Bs" min="0" step="1" style="padding: 12px;">
+                            <input type="text" inputmode="numeric" pattern="[0-9]*" class="monto-input" id="montoProducto" placeholder="Precio Bs" style="padding: 12px;">
                         </div>
                         <div id="ventaFisicaBox" style="display:none"></div>
                         <div id="stockVentaInfo" style="display:none"></div>
@@ -517,11 +661,14 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                         <span><i class="fas fa-cloud"></i> <strong>Fuente:</strong> <span id="ventasDiaFuenteTexto">Consultando Sheet...</span></span>
                         <button type="button" id="recargarVentasDiaBtn" style="width:auto;padding:7px 12px;background:#3498db;font-size:11px;"><i class="fas fa-sync-alt"></i> Actualizar desde Sheet</button>
                     </div>
+                    <div id="avisoSincronizacionV2619" style="display:none;padding:9px 12px;margin:7px 0;background:#fff8e8;border:1px solid #f2ddb0;border-radius:7px;font-size:12px"></div>
+                    <button type="button" id="reintentarPendientesV2619" style="width:auto;background:#226e9e;padding:8px 12px;font-size:12px;margin:5px 0 8px;"><i class="fas fa-cloud-upload-alt"></i> Subir pendientes a Sheets</button>
                     <div class="resumen-ventas-dia">
                         <h3>Resumen del Día</h3>
                         <div class="resumen-fila"><strong><i class="fas fa-cash-register"></i> Apertura de Caja:</strong><span class="resumen-valor-dia"><span id="aperturaCajaDia">0.00</span> Bs</span></div>
                         <div class="resumen-fila"><strong><i class="fas fa-chart-line"></i> Total Recaudado:</strong><span class="resumen-valor-dia"><span id="totalRecaudadoDia">0.00</span> Bs</span></div>
                         <div class="resumen-fila"><strong><i class="fas fa-money-bill-wave"></i> Ventas en Efectivo:</strong><span class="resumen-valor-dia"><span id="ventasEfectivoDia">0.00</span> Bs</span></div>
+                        <div class="resumen-fila"><strong><i class="fas fa-coins"></i> Monedas / Efectivo agregado:</strong><span class="resumen-valor-dia" style="color:#16934b">+<span id="monedasAgregadasDia">0.00</span> Bs</span></div>
                         <div class="resumen-fila"><strong><i class="fas fa-wallet"></i> Total en Caja (Dinero):</strong><span class="resumen-valor-dia"><span id="totalEnCajaDia">0.00</span> Bs</span></div>
                         <div class="resumen-fila"><strong><i class="fas fa-lock"></i> Cierre Efectivo:</strong><span class="resumen-valor-dia"><span id="cierreEfectivoDia">0.00</span> Bs</span></div>
                         <div class="resumen-fila" style="margin-top: 8px; padding-top: 8px; border-top: 2px solid #dee2e6;"><strong><i class="fas fa-shopping-cart"></i> Total de Ventas:</strong><span class="resumen-valor-dia"><span id="totalVentasDia">0</span></span></div>
@@ -529,6 +676,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
                         <button id="imprimirResumenDiaBtn" class="imprimir-resumen-dia-btn"><i class="fas fa-print"></i> Imprimir Resumen del Día</button>
                         <button id="imprimirTodasVentasDiaBtn" class="imprimir-resumen-dia-btn"><i class="fas fa-print"></i> Imprimir Todas las Ventas del Día</button>
                     </div>
+                    <div id="avisoHistorialV2621" role="status" style="display:none;margin:10px 0;padding:10px 12px;border:1px solid #d5e3f3;background:#f4f8fd;color:#294967;border-radius:7px;font-size:12px;"></div>
                     <div class="compacto ventas-table-container">
                         <table class="tabla-ventas-dia">
                             <thead>
@@ -625,7 +773,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
             <div id="camposCambio" class="cambio-section" style="display: none;">
                 <h4><i class="fas fa-calculator"></i> Cálculo de Cambio</h4>
                 <div class="form-group"><label for="montoRecibido">Monto Recibido (Bs):</label><input type="number" id="montoRecibido" step="0.01" min="0" placeholder="Monto recibido"></div>
-                <div id="resultadoCambio" class="resumen-pago" style="display: none;"></div>
+                <div id="resultadoCambio" class="resumen-pago" style="display: none;"></div><div class="form-group" id="medioCambioWrap" style="display:none;margin-top:12px"><label><b>¿Cómo entregarás el cambio?</b></label><select id="medioCambio" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px"><option value="EFECTIVO">Efectivo</option><option value="QR">QR</option></select></div>
             </div>
             <div class="modal-actions"><button class="form-btn btn-cancel" id="cancelMetodoPago"><i class="fas fa-times"></i> Cancelar</button><button class="form-btn btn-save" id="confirmMetodoPago"><i class="fas fa-check"></i> Confirmar</button></div>
         </div>
@@ -689,10 +837,10 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
       <div class="venta-counter"><b>PAQUETES</b><div class="venta-counter-row"><button type="button" data-vtipo="paquetes" data-delta="-1">−</button><span id="ventaCntPaquetes">0</span><button type="button" data-vtipo="paquetes" data-delta="1">+</button></div></div>
       <div class="venta-counter"><b>UNIDADES</b><div class="venta-counter-row"><button type="button" data-vtipo="unidades" data-delta="-1">−</button><span id="ventaCntUnidades">0</span><button type="button" data-vtipo="unidades" data-delta="1">+</button></div></div>
     </div>
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button type="button" class="venta-half-btn" id="ventaHalfBtn"><i class="fas fa-divide"></i> Agregar ½ paquete</button><button type="button" class="venta-half-btn" id="ventaResetBtn" style="background:#e74c3c"><i class="fas fa-rotate-left"></i> Resetear</button></div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button type="button" class="venta-half-btn" id="ventaResetBtn" style="background:#e74c3c"><i class="fas fa-rotate-left"></i> Resetear</button></div>
     <div class="venta-smart-summary" id="ventaSmartResumen">Selecciona una cantidad</div>
     <div class="venta-smart-warning" id="ventaSmartWarning"></div>
-    <div class="venta-smart-price"><label><b>Precio total de este producto (Bs)</b><br><small>Puedes corregirlo manualmente.</small></label><input type="number" id="ventaSmartPrecio" min="0" step="0.01"></div>
+    <div class="venta-smart-price"><label><b>Precio total de este producto (Bs)</b><br><small>Puedes corregirlo manualmente.</small></label><input type="text" id="ventaSmartPrecio" inputmode="numeric" pattern="[0-9]*" autocomplete="off"></div>
     <div class="venta-smart-actions"><button type="button" class="venta-cancel" id="ventaSmartCancel">Cancelar</button><button type="button" class="venta-confirm" id="ventaSmartConfirm"><i class="fas fa-plus"></i> Agregar a la venta</button></div>
   </div>
 </div>
@@ -710,12 +858,15 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
+// V26.17: funciones en el mismo alcance, con DOM ya construido.
+// V26: la rueda del mouse nunca altera inputs numéricos accidentalmente.
+document.addEventListener('wheel',e=>{if(e.target instanceof HTMLInputElement && e.target.type==='number' && document.activeElement===e.target)e.target.blur();},{passive:true});
 
 const usuarios = {};
 const LOGIN_SHEET_ID = '1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok';
 const LOGIN_CSV_URL = `https://docs.google.com/spreadsheets/d/${LOGIN_SHEET_ID}/export?format=csv`;
-const INVENTARIO_API = 'https://sheetdb.io/api/v1/ls2s3slkkege5';
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbwKZTxeNX15zulRXgwqTS2ckjvYKiIOn4NyniitAHfTNBeD1lmgDtVPGmdx9FJhcduj/exec';
+const INVENTARIO_API = APPS_SCRIPT_URL; // V26: backend propio Apps Script
 let usuariosCargados = false;
 let productoCatalogoSeleccionado = null;
 let stockCache = [];
@@ -860,6 +1011,14 @@ function fuentesProductosVenta(){
     return salida;
 }
 
+async function backendV26(accion, payload={}){
+    if(!APPS_SCRIPT_URL || APPS_SCRIPT_URL.includes('PEGA_AQUI')) throw new Error('Falta configurar APPS_SCRIPT_URL con la URL del Web App de Code.gs');
+    const r=await fetch(APPS_SCRIPT_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify({accion,...payload})});
+    const txt=await r.text(); let data;
+    try{ data=JSON.parse(txt); }catch(e){ throw new Error('Respuesta inválida de Apps Script'); }
+    if(!data.ok) throw new Error(data.error||'Error de Apps Script');
+    return data;
+}
 function nStock(v){ const n=parseInt(String(v??'').replace(/[^0-9-]/g,''),10); return isNaN(n)?0:n; }
 function stockCoincidente(nombre,ubicacion){
     const nn=normalizarTextoCatalogo(nombre||'');
@@ -875,53 +1034,17 @@ function descontarFisico(row,presentacion,cantidad){
     while(unidades<needU){ if(paquetes>0){paquetes--;unidades+=upp;} else if(cajas>0){cajas--;paquetes+=ppc-1;unidades+=upp;} else return null; }
     unidades-=needU; return {cajas,paquetes,unidades,upp,ppc};
 }
-async function postMovimiento(data){
-    const r=await fetch(`${INVENTARIO_API}?sheet=movimientos`,{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})});
-    if(!r.ok) throw new Error('No se pudo registrar movimiento'); return r.json().catch(()=>({}));
-}
-async function actualizarFilaStock(id_stock,data){
-    const r=await fetch(`${INVENTARIO_API}/id_stock/${encodeURIComponent(id_stock)}?sheet=stock`,{method:'PATCH',headers:{'Content-Type':'application/json'},body:JSON.stringify({data})});
-    if(!r.ok) throw new Error('No se pudo actualizar stock'); return r.json().catch(()=>({}));
-}
-const movimientosVentaEnProceso=new Set();
-const movimientosVentaCompletados=new Set(JSON.parse(localStorage.getItem('movimientosVentaCompletadosV20')||'[]'));
+async function postMovimiento(data){ return backendV26('registrar_movimiento',{movimiento:data}); }
+async function actualizarFilaStock(id_stock,data){ return backendV26('actualizar_stock',{id_stock,data}); }
 async function procesarMovimientosVenta(venta){
-    const ref=String(venta?.referencia_venta||venta?.timestamp||'').trim();
-    if(ref && (movimientosVentaEnProceso.has(ref)||movimientosVentaCompletados.has(ref))) {
-        console.warn('Movimiento de venta duplicado bloqueado:',ref);
-        return;
-    }
-    if(ref)movimientosVentaEnProceso.add(ref);
-    const detalles=venta.detalles_stock||[]; if(!detalles.length){if(ref)movimientosVentaEnProceso.delete(ref);return;}
-    await cargarStockInventario();
-    for(const d of detalles){
-        if(!d.productoCatalogo) continue;
-        const now=new Date(), fecha=now.toLocaleDateString('es-ES'), hora=now.toLocaleTimeString('es-ES');
-        const baseSinOrigen=!String(d.ubicacion||'').trim();
-        const row=baseSinOrigen?null:stockCoincidente(d.nombre,d.ubicacion);
-        const base={id:`MOV-${venta.referencia_venta || venta.id}-${Math.random().toString(36).slice(2,7).toUpperCase()}`,fecha,hora,producto:d.nombre,seccion:d.seccion||'',tipo:'SALIDA',presentacion:d.presentacion,cantidad:d.cantidad,unidades_equivalentes:d.unidadesEquivalentes||'',origen:d.ubicacion||'',destino:'CLIENTE',motivo:'VENTA',usuario:venta.usuario||'',sucursal:venta.sucursal||'',referencia:`VENTA-${venta.referencia_venta || venta.id}`};
-        if(!row){ await postMovimiento({...base,cajas_anterior:'',paquetes_anterior:'',unidades_anterior:'',cajas_nueva:'',paquetes_nueva:'',unidades_nueva:'',motivo:baseSinOrigen?'VENTA - STOCK PENDIENTE DE DEFINIR':'VENTA - STOCK NO DISPONIBLE EN ORIGEN',estado:baseSinOrigen?'PENDIENTE_ORIGEN':'PENDIENTE_STOCK'}); continue; }
-        let nuevo;
-        if(d.presentacion==='mixto' && d.detalleFisico){
-            nuevo={cajas:nStock(row.cajas),paquetes:nStock(row.paquetes),unidades:nStock(row.unidades),upp:Math.max(1,nStock(row.unidades_por_paquete)||1),ppc:Math.max(1,nStock(row.paquetes_por_caja)||1)};
-            const pasos=[['caja',nStock(d.detalleFisico.cajas)],['paquete',nStock(d.detalleFisico.paquetes)],['unidad',nStock(d.detalleFisico.unidades)]];
-            for(const [tp,ct] of pasos){ if(!ct)continue; const x=descontarFisico(nuevo,tp,ct); if(!x){nuevo=null;break} nuevo=x; }
-        } else nuevo=descontarFisico(row,d.presentacion,d.cantidad);
-        if(!nuevo){ await postMovimiento({...base,cajas_anterior:row.cajas||0,paquetes_anterior:row.paquetes||0,unidades_anterior:row.unidades||0,cajas_nueva:row.cajas||0,paquetes_nueva:row.paquetes||0,unidades_nueva:row.unidades||0,estado:'PENDIENTE_STOCK'}); continue; }
-        await actualizarFilaStock(row.id_stock,{cajas:nuevo.cajas,paquetes:nuevo.paquetes,unidades:nuevo.unidades,usuario_quien_agrego_o_edito:venta.usuario||'',fecha_de_edicion:`${fecha} ${hora.slice(0,5)}`});
-        await postMovimiento({...base,unidades_equivalentes:d.presentacion==='caja'?d.cantidad*nuevo.ppc*nuevo.upp:d.presentacion==='paquete'?d.cantidad*nuevo.upp:d.cantidad,cajas_anterior:row.cajas||0,paquetes_anterior:row.paquetes||0,unidades_anterior:row.unidades||0,cajas_nueva:nuevo.cajas,paquetes_nueva:nuevo.paquetes,unidades_nueva:nuevo.unidades,estado:'APLICADO'});
-        Object.assign(row,{cajas:nuevo.cajas,paquetes:nuevo.paquetes,unidades:nuevo.unidades});
-    }
-    if(ref){
-        movimientosVentaEnProceso.delete(ref);
-        movimientosVentaCompletados.add(ref);
-        const ultimos=[...movimientosVentaCompletados].slice(-500);
-        localStorage.setItem('movimientosVentaCompletadosV20',JSON.stringify(ultimos));
-    }
+    // V26: el backend confirma venta + descuenta stock + registra movimientos de forma atómica.
+    // Se conserva esta función para compatibilidad visual; NO vuelve a descontar.
+    return {ok:true,backend:true};
 }
 
 
-const sucursales = {
+
+let sucursales = {
     "Feria Barrio Lindo": { nombre: "Feria Barrio Lindo", descripcion: "Venta directa en feria", ubicacion: "Asociación 3 de marzo, pasillo 1, puesto 1", telefono: "61439475", tipo: "feria", sheet: "feria", icono: "fa-store" },
     "Centro Comercial Avenida Brasil": { nombre: "Centro Comercial Avenida Brasil", descripcion: "Puesto comercial fijo", ubicacion: "Puesto D2, Av. Brasil", telefono: "61439475", tipo: "centro", sheet: "comercial", icono: "fa-shopping-cart" }
 };
@@ -929,6 +1052,7 @@ const sucursales = {
 const LINK_STOCK         = "https://todo12345-tech.github.io/sistema.github.io/stocktodoenuno";
 const LINK_VISUALIZACION = "https://todo12345-tech.github.io/sistema.github.io/visualizacion";
 const LINK_VENTAS_MAYOR  = "https://todo12345-tech.github.io/sistema.github.io/pormayor";
+const LINK_CATALOGO_EDITABLE = "https://todo12345-tech.github.io/sistema.github.io/catalogoeditable";
 
 const HORA_INICIO_LABORAL = 8;
 const HORA_FIN_LABORAL = 20;
@@ -946,20 +1070,13 @@ const UMBRAL_STOCK_BAJO_INICIO=5;
 const DIAS_PROXIMO_VENCIMIENTO_INICIO=30;
 
 
-const API_URL_BASE = 'https://sheetdb.io/api/v1/kh5t9g90zly1x'; // V22: API única para comercial + feria
+const API_URL_BASE = APPS_SCRIPT_URL; // V26: Backend Apps Script
     function obtenerHojaVentasV22() {
-        const suc = String(sucursalActual || '').toLowerCase();
-        return suc.includes('feria') ? 'feria' : 'comercial';
+        return obtenerHojaVentasPorSucursal(sucursalSeleccionada);
     }
     function obtenerHojaVentasPorSucursal(sucursalNombre) {
-        const nombre = String(sucursalNombre || '').trim().toLowerCase();
-        const suc = sucursales[sucursalNombre];
-        const tipo = String((suc && suc.tipo) || '').trim().toLowerCase();
-
-        // La hoja se decide por la venta que se está sincronizando,
-        // NO por la sucursal actualmente seleccionada en pantalla.
-        if (nombre.includes('feria') || tipo.includes('feria')) return 'feria';
-        return 'comercial';
+        const suc = sucursales[sucursalNombre] || {};
+        return String(suc.sheet || suc.hoja_ventas || 'comercial');
     }
 
     function obtenerApiVentasV22(sucursalNombre) {
@@ -967,7 +1084,7 @@ const API_URL_BASE = 'https://sheetdb.io/api/v1/kh5t9g90zly1x'; // V22: API úni
         return `${API_URL_BASE}?sheet=${encodeURIComponent(hoja)}`;
     }
 
-function obtenerUrlSheetDB(sucursalNombre) {
+function obtenerUrlBackendVentas(sucursalNombre) {
     return obtenerApiVentasV22(sucursalNombre);
 }
 
@@ -995,6 +1112,7 @@ const rightSidebarExpandInline = document.getElementById('rightSidebarExpandInli
 const menuInicio = document.getElementById('menuInicio');
 const menuVentasDia = document.getElementById('menuVentasDia');
 const menuStock = document.getElementById('menuStock');
+const menuCatalogoEditable = document.getElementById('menuCatalogoEditable');
 const menuVisualizacion = document.getElementById('menuVisualizacion');
 const menuVentasMayor = document.getElementById('menuVentasMayor');
 const seccionInicio = document.getElementById('seccionInicio');
@@ -1091,6 +1209,8 @@ const testCloudBtn = document.getElementById('testCloudBtn');
 const cloudStatus = document.getElementById('cloudStatus');
 const camposCambio = document.getElementById('camposCambio');
 const montoRecibido = document.getElementById('montoRecibido');
+const medioCambio = document.getElementById('medioCambio');
+const medioCambioWrap = document.getElementById('medioCambioWrap');
 const resultadoCambio = document.getElementById('resultadoCambio');
 const cargarPedidoTextarea = document.getElementById('cargarPedidoTextarea');
 const extraerDatosBtn = document.getElementById('extraerDatosBtn');
@@ -1105,6 +1225,7 @@ let total = 0;
 let ventasDelDia = [];
 let currentUser = null;
 let cajaAbierta = false;
+let estadoCajaHoyV2620='SIN_ABRIR';
 let horaAperturaCaja = null;
 let ventasCajaActual = [];
 let sucursalSeleccionada = Object.keys(sucursales)[0];
@@ -1353,8 +1474,27 @@ function empaqueVentaSmart(){const f=ventaSmartFilas[0]||{};return {upp:Math.max
 function ventaSmartUE(){const e=empaqueVentaSmart();return ventaSmartCant.unidades+ventaSmartCant.paquetes*e.upp+ventaSmartCant.cajas*e.ppc*e.upp}
 function ventaSmartFilaOrigen(){return ventaSmartFilas.find(r=>normalizarTextoCatalogo(r.ubicacion||'')===normalizarTextoCatalogo(ventaSmartOrigen||''))||null}
 function ventaSmartPrecioSugerido(){const e=empaqueVentaSmart(), pp=Number(ventaSmartProducto?.precioPaquete||0);if(!pp)return 0;return ventaSmartCant.paquetes*pp+(e.upp?ventaSmartCant.unidades*(pp/e.upp):0)+(e.ppc?ventaSmartCant.cajas*e.ppc*pp:0)}
-function renderVentaSmartStock(){const box=document.getElementById('ventaSmartStock');if(!ventaSmartFilas.length){box.innerHTML='<b>Sin stock registrado todavía.</b><br><span style="color:#777;font-size:12px">Puedes continuar con la venta. La venta se guardará y el stock quedará pendiente de definir; no se descontará automáticamente de inventario agregado después.</span>';return}box.innerHTML='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen);return `<div class="venta-stock-card ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${u}</div><div class="qty">${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${unidadesTotalesFilaVenta(r)} unidades equivalentes</div><div class="pick">${sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación'}</div></div>`}).join('')+'</div>';box.querySelectorAll('[data-vstock]').forEach(el=>el.onclick=()=>{ventaSmartOrigen=ventaSmartFilas[Number(el.dataset.vstock)].ubicacion||'';renderVentaSmartStock();actualizarVentaSmart()})}
-function actualizarVentaSmart(){document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=part.length?`${part.join(' + ')} = ${ventaSmartUE()} unidades equivalentes`:'Selecciona una cantidad';document.getElementById('ventaHalfBtn').style.display=e.upp>1?'inline-block':'none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> <b>Stock pendiente de definir.</b> Si sabes de dónde salió físicamente, selecciona la ubicación. Si no lo sabes, puedes continuar: la venta se guardará pero NO se descontará de ninguna ubicación.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. Puedes continuar, pero el movimiento quedará pendiente y no se descontará stock.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual)price.value=ventaSmartPrecioSugerido()?ventaSmartPrecioSugerido().toFixed(2):(Number(ventaSmartProducto?.precioPaquete||0)||'');document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0}
+function renderVentaSmartStock(){
+ const box=document.getElementById('ventaSmartStock'); if(!box)return;
+ let html='';
+ if(ventaSmartFilas.length){
+   html='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen);return `<div class="venta-stock-card ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${u}</div><div class="qty">${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${unidadesTotalesFilaVenta(r)} unidades equivalentes</div><div class="pick">${sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación'}</div></div>`}).join('')+'</div>';
+ }else html='<div style="padding:8px 0;color:#777"><b>Sin stock registrado actualmente.</b></div>';
+ html+=`<div class="venta-stock-cards" style="margin-top:10px"><div class="venta-stock-card ${ventaSmartOrigen==='__EXTERNO__'?'selected':''}" data-vorigen="__EXTERNO__"><div class="loc">🌐 Venta externa / no es de mi inventario</div><div class="eq">Registra la venta, pero nunca descuenta Stock.</div></div><div class="venta-stock-card ${ventaSmartOrigen===''?'selected':''}" data-vorigen=""><div class="loc">❓ Es de mi inventario, pero no sé de qué ubicación salió</div><div class="eq">Queda PENDIENTE_ORIGEN hasta definir la ubicación correcta.</div></div></div>`;
+ box.innerHTML=html;
+ box.querySelectorAll('[data-vstock]').forEach(el=>el.onclick=()=>{ventaSmartOrigen=ventaSmartFilas[Number(el.dataset.vstock)].ubicacion||'';renderVentaSmartStock();actualizarVentaSmart()});
+ box.querySelectorAll('[data-vorigen]').forEach(el=>el.onclick=()=>{ventaSmartOrigen=el.dataset.vorigen;renderVentaSmartStock();actualizarVentaSmart()});
+}
+
+function descripcionCantidadV26(c,e){
+ const p=[]; const upp=Math.max(1,Number(e?.upp)||1), ppc=Math.max(0,Number(e?.ppc)||0);
+ if(c.cajas){ const packs=c.cajas*ppc, units=packs*upp; p.push(`${c.cajas} ${c.cajas===1?'caja':'cajas'}${ppc?` de ${ppc} paquetes c/u (${packs} paquetes / ${units} unidades)`:''}`); }
+ if(c.paquetes){ const units=c.paquetes*upp; p.push(c.paquetes===1?`1 paquete de ${upp} unidades`:`${c.paquetes} paquetes de ${upp} unidades c/u (${units} unidades)`); }
+ if(c.unidades) p.push(`${c.unidades} ${c.unidades===1?'unidad':'unidades'}`);
+ return p.join(' + ')||'0 unidades';
+}
+
+function actualizarVentaSmart(){document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=ventaSmartUE()?descripcionCantidadV26(ventaSmartCant,e):'Selecciona una cantidad';const hb=document.getElementById('ventaHalfBtn');if(hb)hb.style.display='none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartOrigen==='__EXTERNO__'){warn.style.display='block';warn.innerHTML='<i class="fas fa-globe"></i> <b>Venta externa.</b> Esta venta se registrará normalmente y NO descontará tu Stock.'}else if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> <b>Stock pendiente de definir.</b> Si sabes de dónde salió físicamente, selecciona la ubicación. Si no lo sabes, puedes continuar: la venta se guardará pero NO se descontará de ninguna ubicación.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. Puedes continuar, pero el movimiento quedará pendiente y no se descontará stock.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual){const ps=ventaSmartPrecioSugerido()||Number(ventaSmartProducto?.precioPaquete||0)||0;price.value=ps?String(Math.round(ps)):''};document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0}
 async function abrirVentaSmart(producto){ventaSmartProducto=producto;ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen='';document.getElementById('ventaSmartPrecio').dataset.manual='';document.getElementById('ventaSmartNombre').textContent=producto.nombre||'Producto';const img=document.getElementById('ventaSmartImg');if(producto.imagen){img.src=producto.imagen;img.style.display='inline-block'}else img.style.display='none';document.getElementById('ventaSmartModal').style.display='flex';ventaSmartTipoActivo='unidades';setTimeout(()=>{const b=document.querySelector('[data-vtipo="unidades"][data-delta="1"]');if(b)b.focus()},50);document.getElementById('ventaSmartStock').innerHTML='<span><i class="fas fa-spinner fa-spin"></i> Consultando stock...</span>';await cargarStockInventario();ventaSmartFilas=filasStockProductoVenta(producto);const e=empaqueVentaSmart();const eq=[];if(e.upp>1)eq.push(`1 paquete = ${e.upp} unidades`);if(e.ppc>0)eq.push(`1 caja = ${e.ppc} paquetes = ${e.ppc*e.upp} unidades`);document.getElementById('ventaSmartEquiv').innerHTML='<b>Presentación registrada:</b> '+(eq.length?eq.join(' · '):'venta por unidad / sin equivalencia registrada');renderVentaSmartStock();actualizarVentaSmart()}
 function limpiarCapturaProductoVenta(){
     descripcionProducto.value='';
@@ -1429,14 +1569,39 @@ document.addEventListener('click', function(e) {
 montoProducto.addEventListener('input', function() { precioEditado = true; });
 
 document.querySelectorAll('[data-vtipo]').forEach(btn=>btn.addEventListener('click',()=>{const t=btn.dataset.vtipo,d=Number(btn.dataset.delta);ventaSmartCant[t]=Math.max(0,(ventaSmartCant[t]||0)+d);document.getElementById('ventaSmartPrecio').dataset.manual='';actualizarVentaSmart()}));
-document.getElementById('ventaHalfBtn').addEventListener('click',()=>{const e=empaqueVentaSmart();ventaSmartCant.unidades+=Math.floor(e.upp/2);document.getElementById('ventaSmartPrecio').dataset.manual='';actualizarVentaSmart()});
+document.getElementById('ventaHalfBtn')?.addEventListener('click',()=>{const e=empaqueVentaSmart();ventaSmartCant.unidades+=Math.floor(e.upp/2);document.getElementById('ventaSmartPrecio').dataset.manual='';actualizarVentaSmart()});
 document.getElementById('ventaResetBtn').addEventListener('click',()=>{ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen='';const p=document.getElementById('ventaSmartPrecio');p.dataset.manual='';p.value='';renderVentaSmartStock();actualizarVentaSmart()});
 let ventaSmartTipoActivo='unidades';
 document.querySelectorAll('[data-vtipo]').forEach(btn=>btn.addEventListener('focus',()=>{ventaSmartTipoActivo=btn.dataset.vtipo}));
-document.getElementById('ventaSmartModal').addEventListener('keydown',function(e){if(this.style.display!=='flex')return;if(['INPUT','TEXTAREA'].includes(document.activeElement?.tagName)&&document.activeElement?.id==='ventaSmartPrecio')return;if(e.key==='ArrowRight'){e.preventDefault();ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)+1);actualizarVentaSmart();}else if(e.key==='ArrowLeft'){e.preventDefault();ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)-1);actualizarVentaSmart();}else if(e.key==='ArrowUp'||e.key==='ArrowDown'){e.preventDefault();const a=['cajas','paquetes','unidades'];let i=a.indexOf(ventaSmartTipoActivo);i=(i+(e.key==='ArrowDown'?1:-1)+a.length)%a.length;ventaSmartTipoActivo=a[i];const b=document.querySelector(`[data-vtipo="${ventaSmartTipoActivo}"][data-delta="1"]`);if(b)b.focus();}else if(e.key==='Enter'){e.preventDefault();document.getElementById('ventaSmartConfirm').click();}else if(e.key.toLowerCase()==='r'){e.preventDefault();document.getElementById('ventaResetBtn').click();}else if(e.key==='Escape'){e.preventDefault();cerrarVentaSmart(true);}});
-document.getElementById('ventaSmartPrecio').addEventListener('input',function(){this.dataset.manual='1'});
+document.getElementById('ventaSmartModal').addEventListener('keydown',function(e){
+    if(this.style.display!=='flex')return;
+    const precioActivo=document.activeElement?.id==='ventaSmartPrecio';
+    if(precioActivo && !['Escape','Enter'].includes(e.key))return;
+    const a=['cajas','paquetes','unidades'];
+    let i=a.indexOf(ventaSmartTipoActivo); if(i<0)i=1;
+    if(e.key==='ArrowRight'){
+        e.preventDefault(); ventaSmartTipoActivo=a[(i+1)%a.length];
+        document.querySelector(`[data-vtipo="${ventaSmartTipoActivo}"][data-delta="1"]`)?.focus();
+    }else if(e.key==='ArrowLeft'){
+        e.preventDefault(); ventaSmartTipoActivo=a[(i-1+a.length)%a.length];
+        document.querySelector(`[data-vtipo="${ventaSmartTipoActivo}"][data-delta="1"]`)?.focus();
+    }else if(e.key==='ArrowUp'){
+        e.preventDefault(); ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)+1);
+        document.getElementById('ventaSmartPrecio').dataset.manual=''; actualizarVentaSmart();
+    }else if(e.key==='ArrowDown'){
+        e.preventDefault(); ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)-1);
+        document.getElementById('ventaSmartPrecio').dataset.manual=''; actualizarVentaSmart();
+    }else if(e.key==='Enter'){
+        e.preventDefault(); document.getElementById('ventaSmartConfirm').click();
+    }else if(e.key.toLowerCase()==='r'){
+        e.preventDefault(); document.getElementById('ventaResetBtn').click();
+    }else if(e.key==='Escape'){
+        e.preventDefault(); cerrarVentaSmart(true);
+    }
+});
+document.getElementById('ventaSmartPrecio').addEventListener('input',function(){this.value=this.value.replace(/\D+/g,'');this.dataset.manual='1'});
 document.getElementById('ventaSmartClose').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartCancel').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartModal').addEventListener('click',e=>{if(e.target.id==='ventaSmartModal')cerrarVentaSmart(true)});
-document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!ventaSmartOrigen)estadoPrev='PENDIENTE_ORIGEN';else if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),descripcion:`${part.join(' + ')} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:'mixto',cantidadFisica:1,detalleFisico:{...ventaSmartCant},ubicacionSalida:ventaSmartOrigen||'',unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
+document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!ventaSmartOrigen)estadoPrev='PENDIENTE_ORIGEN';else if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),id_item:ventaSmartProducto.id_item||'',descripcion:`${descripcionCantidadV26(ventaSmartCant,empaqueVentaSmart())} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:'mixto',cantidadFisica:1,detalleFisico:{...ventaSmartCant},origenTipo:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':(ventaSmartOrigen?'STOCK':'PENDIENTE_ORIGEN'),ubicacionSalida:ventaSmartOrigen==='__EXTERNO__'?'':(ventaSmartOrigen||''),id_stock:fila?.id_stock||'',id_ubicacion:fila?.id_ubicacion||'',codigo_caja:fila?.codigo_caja||'',unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
         productosContent.classList.add('expanded');
         const iconoProductosSmart = productosHeader.querySelector('.collapsible-icon');
         if (iconoProductosSmart) iconoProductosSmart.classList.add('rotated');if(!productosContent.classList.contains('expanded')){productosContent.classList.add('expanded');productosHeader.querySelector('.collapsible-icon').classList.add('rotated')}cerrarVentaSmart(true);Notificaciones.mostrar('Producto agregado a la venta','success',2000)});
@@ -1459,8 +1624,12 @@ function generarTarjetasSucursales() {
         });
         sucursalesContainer.appendChild(card);
     });
-    if (nombresSucursales.length > 0) { sucursalSeleccionada = nombresSucursales[0]; indiceSucursalSeleccionada = 0; }
+    if (nombresSucursales.length && !sucursales[sucursalSeleccionada]) { sucursalSeleccionada=nombresSucursales[0];indiceSucursalSeleccionada=0; }
 }
+
+
+async function cargarSucursalesDinamicasV26(){return {ok:true,sucursales:Object.values(sucursales)};}
+async function administrarSucursalesV26(){Notificaciones.mostrar('Se trabaja directamente con las hojas comercial y feria; no existe hoja sucursales.','info',4500);}
 
 function actualizarSeleccionVisualSucursal() {
     const cards = sucursalesContainer.querySelectorAll('.sucursal-card');
@@ -1609,7 +1778,8 @@ function cerrarSesionAutomatica() {
             const datosSucursal = obtenerDatosSucursal();
             const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
             const diaSemana = dias[new Date().getDay()];
-            const registroCierre = { id: 'CIERRE', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: 'CIERRE DE CAJA', montos: '', total_venta: '0', numero_productos: 0, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: 'Cierre automático por fin de horario', metodo_pago: 'EFECTIVO', monto_efectivo: '0', monto_qr: '', apertura_caja: '', cierre_caja: 'CIERRE DE CAJA', sincronizada: false, dia: diaSemana, nombre_cliente: '', telefono: '', direccion: '', departamento: '', cumpleaños: '' };
+            const registroCierre = { id: 'CIERRE', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, id_sucursal: datosSucursal.id_sucursal || '', ubicacion: datosSucursal.ubicacion, productos: 'CIERRE DE CAJA', montos: '', total_venta: '0', numero_productos: 0, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: 'Cierre automático por fin de horario', metodo_pago: 'EFECTIVO', monto_efectivo: '0', monto_qr: '', apertura_caja: '', cierre_caja: 'CIERRE DE CAJA', sincronizada: false, dia: diaSemana, nombre_cliente: '', telefono: '', direccion: '', departamento: '', cumpleaños: '' };
+        asegurarIdVentaCajaV2619(registroCierre);
             ventasDelDia.push(registroCierre);
             guardarVentasLocalSeguro();
             sincronizarVentaIndividualANube(registroCierre);
@@ -1747,9 +1917,9 @@ function extraerDatosDelPedido() {
     } catch (error) { Notificaciones.mostrar('Error al procesar el texto', 'error'); }
 }
 
-async function probarConexionSheetDB() {
-    // IMPORTANTE: no hacemos GET a SheetDB para "probar conexión",
-    // porque cada consulta consume una operación del plan.
+async function probarConexionBackendV26() {
+    // IMPORTANTE: no hacemos consultas innecesarias al backend para "probar conexión",
+    // porque cada consulta consume una operación innecesaria.
     // La conexión real se comprueba cuando se realiza una operación necesaria
     // (POST de venta, PATCH o DELETE).
     const online = navigator.onLine;
@@ -1763,39 +1933,81 @@ async function probarConexionSheetDB() {
     return false;
 }
 
+// V26.19 — identificación estable para operaciones de caja, incluidas pendientes antiguas.
+function asegurarIdVentaCajaV2619(venta){
+    if(!venta || (venta.productos!=='APERTURA DE CAJA' && venta.productos!=='CIERRE DE CAJA')) return;
+    if(String(venta.id_venta||'').trim()) return;
+    // Se fija UNA VEZ en localStorage antes de cualquier envío; reintentar usa el mismo ID.
+    const txt=[venta.productos,venta.timestamp||'',venta.fecha||'',venta.hora||'',venta.sucursal||'',venta.usuario||''].join('|');
+    let hash=2166136261;
+    for(let i=0;i<txt.length;i++){hash=Math.imul(hash^txt.charCodeAt(i),16777619)>>>0;}
+    const pref=venta.productos==='APERTURA DE CAJA'?'APE':'CIE';
+    venta.id_venta=`${pref}-${String(venta.fecha||'').replace(/\D/g,'')}-${String(hash).padStart(10,'0')}`;
+    venta.referencia_venta=venta.id_venta;
+}
+function contarPendientesV2619(){return (Array.isArray(ventasDelDia)?ventasDelDia:[]).filter(v=>v?.sincronizada===false).length;}
+function mostrarEstadoSincronizacionV2619(mensaje,esError=false){
+    const fuente=document.getElementById('ventasDiaFuenteTexto');
+    const n=contarPendientesV2619();
+    if(fuente){
+        const dato=fuente.dataset.googleEstadoV2619||'Google Sheets: lectura independiente';
+        fuente.textContent=`${dato} · ${n} pendiente(s) de subir${esError?' · '+mensaje:''}`;
+        fuente.style.color=esError?'#a34a13':(n?'#8d5900':'#16835f');
+    }
+    const aviso=document.getElementById('avisoSincronizacionV2619');
+    if(aviso){
+        aviso.textContent=n?`${n} registro(s) guardado(s) localmente, todavía NO confirmados por Sheets. Usa “Subir pendientes” para reintentar. ${esError?mensaje:''}`:'Todas las operaciones locales recibieron confirmación del backend (verifica la lectura de Google por separado).';
+        aviso.style.display='block';
+        aviso.style.color=n?'#8d5900':'#16835f';
+    }
+}
 async function sincronizarVentaIndividualANube(venta) {
     try {
-        const url = obtenerUrlSheetDB(venta.sucursal);
-        let montoEfectivo = '', montoQR = '', aperturaCaja = '', cierreCaja = '';
-        if (venta.productos === 'APERTURA DE CAJA') { aperturaCaja = 'APERTURA'; montoEfectivo = venta.monto_efectivo || ''; }
-        else if (venta.productos === 'CIERRE DE CAJA') { cierreCaja = 'CIERRE'; montoEfectivo = venta.monto_efectivo || ''; }
-        else { montoEfectivo = venta.monto_efectivo || ''; montoQR = venta.monto_qr || ''; }
-        const idVenta = venta.id;
-        const datosParaSheetDB = { id: idVenta, fecha: venta.fecha || '', hora: venta.hora || '', sucursal: venta.sucursal || '', 'ubicación': venta.ubicacion || '', productos: venta.productos || '', montos: venta.montos || '', total_venta: venta.total_venta || '0', timestamp: venta.timestamp || new Date().toISOString(), tipo_sucursal: venta.tipo_sucursal || '', usuario: venta.usuario || '', observaciones: venta.observaciones || '', metodo_pago: venta.metodo_pago || '', monto_efectivo: montoEfectivo, monto_qr: montoQR, apertura_caja: aperturaCaja, cierre_caja: cierreCaja, dia: venta.dia || '', sincronizada: 'TRUE', numero_productos: venta.numero_productos || '0', direccion: venta.direccion || '', departamento: venta.departamento || '', telefono: venta.telefono || '', cumpleaños: venta.cumpleaños || '' };
-        Object.keys(datosParaSheetDB).forEach(key => { if (datosParaSheetDB[key] === undefined) datosParaSheetDB[key] = ''; });
-        const response = await fetch(url, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ data: datosParaSheetDB }) });
-        if (response.ok) {
-            const ventaIndex = ventasDelDia.findIndex(v =>
-                (v.timestamp && venta.timestamp && v.timestamp === venta.timestamp) ||
-                (v.referencia_venta && venta.referencia_venta && v.referencia_venta === venta.referencia_venta) ||
-                (v.id === venta.id && v.fecha === venta.fecha && v.hora === venta.hora)
-            );
-            if (ventaIndex !== -1) {
-                ventasDelDia[ventaIndex].sincronizada = true;
-                guardarVentasLocalSeguro();
-            }
-            cloudStatus.innerHTML = '<i class="fas fa-circle online"></i> <span>Sincronizado</span>';
-            cloudStatus.className = 'right-sidebar-status online';
-            return true;
-        }
-        const detalleError = await response.text().catch(()=>'');
-        console.error('SheetDB rechazó la venta:', response.status, detalleError, 'URL:', url, 'Venta:', venta);
+        asegurarIdVentaCajaV2619(venta);
+        if(!venta.id_venta && !venta.referencia_venta)throw new Error('Registro sin id_venta; no se puede confirmar en Sheets');
+        // Guardamos el identificador ANTES del POST para que todo reintento sea idempotente.
+        guardarVentasLocalSeguro();
+        const res=await backendV26('confirmar_venta',{venta});
+        if(!res.ok)throw new Error(res.error||'No se confirmó la operación');
+        venta.sincronizada=true;
+        venta.id_venta=res.id_venta||venta.id_venta;
+        guardarVentasLocalSeguro();
+        mostrarEstadoSincronizacionV2619('');
+        return true;
+    } catch(error) {
+        console.error('VENTA PENDIENTE en Apps Script:',error,venta);
+        venta.sincronizada=false;
+        guardarVentasLocalSeguro();
+        const detalle=String(error?.message||error);
+        mostrarEstadoSincronizacionV2619(detalle,true);
+        Notificaciones.mostrar(`No se confirmó en Sheets: ${detalle}. El registro queda LOCAL y puedes reintentarlo desde Sincronización → Subir.`, 'error', 9500);
         return false;
-    } catch (error) { console.error('Error SheetDB:', error, 'Venta:', venta); return false; }
+    }
 }
 
+// Reintento seguro desde Ventas del Día: NO envía de golpe ventas antiguas ni otras sucursales.
+async function reintentarPendientesJornadaV2619(){
+    const hoy=fechaComparableVentas(new Date().toLocaleDateString('es-ES'));
+    const pendientes=(ventasDelDia||[]).filter(v=>v?.sincronizada===false);
+    const actuales=pendientes.filter(v=>fechaComparableVentas(v.fecha)===hoy && perteneceVentaASucursal(v));
+    const antiguos=pendientes.length-actuales.length;
+    if(!actuales.length){Notificaciones.mostrar(antiguos?`No hay pendientes de hoy en esta sucursal. Hay ${antiguos} pendientes antiguos/de otra sucursal que no se tocaron.`:'No hay operaciones pendientes de subir','info',5500);return;}
+    const resumen=actuales.slice(0,8).map(v=>`${v.hora||''} · ${v.productos||'Registro'} · ${v.total_venta||'0'} Bs`).join('\n');
+    if(!confirm(`Se reintentará subir ${actuales.length} registro(s) de HOY de esta sucursal.\n\n${resumen}${actuales.length>8?'\n...':''}\n\nOtros ${antiguos} registro(s) antiguos/de otra sucursal NO se tocarán.\n\nSi un registro ya existe, el backend usará su id_venta para no duplicarlo. ¿Continuar?`))return;
+    const btn=document.getElementById('reintentarPendientesV2619');if(btn)btn.disabled=true;
+    try{
+        let ok=0,err=0;
+        for(const venta of actuales){if(await sincronizarVentaIndividualANube(venta))ok++;else err++;}
+        Notificaciones.mostrar(`${ok} registro(s) confirmados, ${err} pendientes.`,err?'warning':'success',6000);
+        mostrarEstadoSincronizacionV2619('');
+        if(ok)await cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true});
+    }finally{if(btn)btn.disabled=false;}
+}
 async function sincronizarVentasANube() {
-    const ventasParaSincronizar = ventasDelDia.filter(v => !v.sincronizada);
+    const ventasParaSincronizar = ventasDelDia.filter(v => v && v.sincronizada === false);
+    // Evita el rechazo de las aperturas/cierres guardados con versiones antiguas.
+    ventasParaSincronizar.forEach(asegurarIdVentaCajaV2619);
+    guardarVentasLocalSeguro();
     if (ventasParaSincronizar.length === 0) { Notificaciones.mostrar('No hay ventas nuevas', 'info'); return; }
     try {
         syncToCloudBtn.disabled = true;
@@ -1835,6 +2047,13 @@ function filaVentaDesdeCSV(headers, vals) {
         metodo_pago: get('metodo_pago'),
         monto_efectivo: get('monto_efectivo'),
         monto_qr: get('monto_qr'),
+        estado_venta: get('estado_venta'),
+        efectivo_recibido: get('efectivo_recibido'),
+        cambio_efectivo: get('cambio_efectivo'),
+        cambio_qr: get('cambio_qr','devuelto_qr'),
+        devuelto_qr: get('devuelto_qr'),
+        INGRESO_EFECTIVO: get('INGRESO_EFECTIVO'),
+        id_venta: get('id_venta'),
         apertura_caja: get('apertura_caja'),
         cierre_caja: get('cierre_caja'),
         dia: get('dia'),
@@ -1961,7 +2180,7 @@ function diasVInicio(s){const d=fechaVInicio(s);if(!d)return null;const h=new Da
 function escInicio(s){return String(s??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]))}
 function actualizarResumenHoyInicio(){
  const hoy=fechaComparableVentas(new Date().toLocaleDateString('es-ES'));
- const ventas=ventasDelDia.filter(v=>fechaComparableVentas(v.fecha)===hoy).filter(v=>{const t=normalizarTextoCatalogo(v.productos||'');return t!=='apertura de caja'&&t!=='cierre de caja'});
+ const ventas=ventasDelDia.filter(v=>fechaComparableVentas(v.fecha)===hoy).filter(perteneceVentaASucursal).filter(v=>!esAperturaV2617(v)&&!esCierreV2617(v)&&!esMonedasV2620(v)&&!esAnuladaV2620(v));
  let total=0,ef=0,qr=0;ventas.forEach(v=>{const z=nInicio(v.total_venta);total+=z;const m=normalizarTextoCatalogo(v.metodo_pago||'');if(m.includes('mixto')){ef+=nInicio(v.monto_efectivo);qr+=nInicio(v.monto_qr)}else if(m.includes('qr'))qr+=z;else ef+=z});
  const set=(id,x)=>{const e=document.getElementById(id);if(e)e.textContent=x};set('miniVentasHoy',ventas.length);set('miniTotalHoy',`Bs ${total.toFixed(2)}`);set('miniEfectivoHoy',`Bs ${ef.toFixed(2)}`);set('miniQrHoy',`Bs ${qr.toFixed(2)}`);
 }
@@ -1984,7 +2203,7 @@ async function cargarAlertasNegocioInicio({forzar=false}={}){
 // GOOGLE SHEETS: ACTUALIZACIÓN AUTOMÁTICA DE VENTAS DEL DÍA
 // ============================================================
 // Solo consulta Google mientras Ventas del Día está visible.
-// NO usa GET de SheetDB.
+// NO usa GET del backend antiguo.
 const VENTAS_GOOGLE_AUTO_MS = 4000;
 let ventasGoogleAutoTimer = null;
 let ultimaFirmaGoogleVentas = '';
@@ -2023,28 +2242,45 @@ let lecturaGoogleVentasEnCurso = null;
 
 async function descargarCSVGoogleVentas() {
     const suc=sucursales[sucursalSeleccionada];
-    const esComercial = sucursalSeleccionada === 'comercial' || normalizarTextoCatalogo((suc&&suc.nombre)||'').includes('comercial');
-    const hoja = esComercial ? 'comercial' : ((suc&&suc.sheet) ? suc.sheet : 'feria');
-    const nonce = `${Date.now()}_${Math.random().toString(36).slice(2)}`;
-    const urls = [
-        // PRIMERO CSV directo: conserva literalmente celdas como
-        // "84.00 | 72.00" de la columna montos.
-        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(hoja)}&_=${nonce}`,
-        // GViz queda solamente como respaldo.
-        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(hoja)}&tq=${encodeURIComponent('select *')}&_=${nonce}`
+    const esComercial=sucursalSeleccionada==='comercial' || normalizarTextoCatalogo((suc&&suc.nombre)||'').includes('comercial');
+    const hoja=esComercial?'comercial':((suc&&suc.sheet)?suc.sheet:'feria');
+    const nonce=Date.now();
+    // Misma prioridad que el GitHub funcional: export CSV conserva la columna montos.
+    const urls=[
+      `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(hoja)}&_=${nonce}`,
+      `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(hoja)}&tq=${encodeURIComponent('select *')}&_=${nonce}`
     ];
     let ultimoError=null;
     for(const url of urls){
         try{
-            const r=await fetch(url,{method:'GET',cache:'no-store',credentials:'omit'});
-            if(!r.ok)throw new Error(`Google Ventas HTTP ${r.status}`);
+            const r=await fetch(url,{cache:'no-store',credentials:'omit'});
+            if(!r.ok)throw new Error('Google Ventas HTTP '+r.status);
             const csv=await r.text();
-            const ini=csv.trim().slice(0,180).toLowerCase();
-            if(!csv.trim()||ini.includes('<html')||ini.includes('<!doctype html'))throw new Error('Google Ventas devolvió HTML');
+            const inicio=csv.trim().slice(0,180).toLowerCase();
+            if(!csv.trim()||inicio.includes('<html')||inicio.includes('<!doctype html'))throw new Error('Google devolvió HTML en lugar de CSV');
+            const rows=parseCSVSeguro(csv);
+            if(rows.length<1)throw new Error('La respuesta CSV no contiene encabezados');
+            const headers=rows[0].map(x=>normalizarTextoCatalogo(x).replace(/ /g,'_'));
+            const sucIndex=headers.indexOf('sucursal');
+            if(sucIndex>=0){
+                const comprobables=rows.slice(1,151).filter(row=>row.some(x=>String(x||'').trim())&&String(row[sucIndex]||'').trim());
+                const coinciden=comprobables.filter(row=>perteneceVentaASucursal({sucursal:row[sucIndex]}));
+                if(comprobables.length&&!coinciden.length)throw new Error('CSV corresponde a otra sucursal');
+            }
+            // Si se trata de una fuente que omitió por completo los montos,
+            // probamos la otra antes de aceptar datos incompletos.
+            const mi=headers.indexOf('montos'),pi=headers.indexOf('productos');
+            if(mi>=0&&pi>=0){
+                const ventas=rows.slice(1,151).filter(row=>{
+                    const p=normalizarTextoCatalogo(row[pi]||'');
+                    return p&&!['apertura de caja','cierre de caja','ingreso de monedas'].includes(p);
+                });
+                if(ventas.length && ventas.every(row=>!String(row[mi]||'').trim()))throw new Error('Fuente sin desglose de montos');
+            }
             return csv;
-        }catch(e){ultimoError=e;}
+        }catch(e){ultimoError=e;console.warn('Fuente de ventas no válida '+hoja,e.message||e);}
     }
-    throw ultimoError||new Error(`No se pudo leer ventas (${hoja})`);
+    throw ultimoError||new Error(`No se pudo leer la pestaña ${hoja} de Ventas`);
 }
 
 async function cargarVentasDiaDesdeSheet({notificar=true, forzar=false, silencioso=false} = {}) {
@@ -2078,7 +2314,7 @@ async function cargarVentasDiaDesdeSheet({notificar=true, forzar=false, silencio
                 .map(v => {
                     v.sincronizada = true;
                     const tipo = normalizarTextoCatalogo(v.productos || '');
-                    if (tipo === 'apertura de caja' || tipo === 'cierre de caja') {
+                    if (tipo === 'apertura de caja' || tipo === 'cierre de caja' || tipo === 'ingreso de monedas') {
                         v.total_venta = '0';
                         v.montos = '';
                     }
@@ -2091,12 +2327,17 @@ async function cargarVentasDiaDesdeSheet({notificar=true, forzar=false, silencio
 
             // Solo redibujamos cuando Google realmente cambió.
             const firmaNueva = firmaVentasGoogle(filasGoogle);
+            const fuenteV2619=document.getElementById('ventasDiaFuenteTexto');
+            if(fuenteV2619) fuenteV2619.dataset.googleEstadoV2619=`Google Sheets conectado · ${filasGoogle.length} registro(s)`;
             const huboCambioGoogle = firmaNueva !== ultimaFirmaGoogleVentas;
 
             if (!huboCambioGoogle && ultimaFirmaGoogleVentas) {
+                cajaVentasLeidasV2617=true;
+                pintarCajaDesdeVentasV2617();
                 if (fuenteTexto && miSecuencia === lecturaGoogleVentasSecuencia) {
                     fuenteTexto.innerHTML =
-                        `<span style="color:#16835f"><i class="fas fa-check-circle"></i> Google Sheets conectado · ${filasGoogle.length} registro(s)</span>`;
+                        `Google Sheets conectado · ${filasGoogle.length} registro(s)`;
+                    mostrarEstadoSincronizacionV2619('');
                 }
                 return true;
             }
@@ -2106,11 +2347,11 @@ async function cargarVentasDiaDesdeSheet({notificar=true, forzar=false, silencio
             // Conservamos únicamente ventas realmente pendientes de SUBIR.
             const pendientesLocales = ventasDelDia.filter(v => v.sincronizada === false);
             const idsGoogle = new Set(
-                filasGoogle.map(v => String(v.id ?? '').trim()).filter(Boolean)
+                filasGoogle.map(v => String(v.id_venta || v.referencia_venta || '').trim()).filter(Boolean)
             );
 
             const pendientesReales = pendientesLocales.filter(v => {
-                const id = String(v.id ?? '').trim();
+                const id = String(v.id_venta || v.referencia_venta || '').trim();
                 return !id || !idsGoogle.has(id);
             });
 
@@ -2123,10 +2364,13 @@ async function cargarVentasDiaDesdeSheet({notificar=true, forzar=false, silencio
             actualizarEstadisticas();
             actualizarVentasDelDia();
             actualizarResumenHoyInicio();
+            cajaVentasLeidasV2617=true;
+            pintarCajaDesdeVentasV2617();
 
             if (fuenteTexto) {
                 fuenteTexto.innerHTML =
-                    `<span style="color:#16835f"><i class="fas fa-check-circle"></i> Google Sheets conectado · ${filasGoogle.length} registro(s)</span>`;
+                    `Google Sheets conectado · ${filasGoogle.length} registro(s)`;
+                mostrarEstadoSincronizacionV2619('');
             }
             if (notificar) {
                 Notificaciones.mostrar(
@@ -2183,6 +2427,11 @@ function actualizarFechaHora() { const ahora = new Date(); fechaHoraActual.textC
 actualizarFechaHora();
 setInterval(actualizarFechaHora, 1000);
 
+const BORRADOR_VENTA_KEY='teus_venta_borrador_v26';
+function guardarBorradorVentaV26(){try{localStorage.setItem(BORRADOR_VENTA_KEY,JSON.stringify({items,nombreClienteActual,telefonoClienteActual,direccionClienteActual,departamentoClienteActual,cumpleanosClienteActual,sucursalSeleccionada,ts:Date.now()}));}catch(e){}}
+function restaurarBorradorVentaV26(){try{const d=JSON.parse(localStorage.getItem(BORRADOR_VENTA_KEY)||'null');if(!d||!Array.isArray(d.items)||!d.items.length)return;items=d.items;nombreClienteActual=d.nombreClienteActual||'';telefonoClienteActual=d.telefonoClienteActual||'';direccionClienteActual=d.direccionClienteActual||'';departamentoClienteActual=d.departamentoClienteActual||'';cumpleanosClienteActual=d.cumpleanosClienteActual||'';actualizarListaItems();actualizarPrevisualizacion();Notificaciones.mostrar('Venta en curso restaurada','info',2500);}catch(e){}}
+function limpiarBorradorVentaV26(){localStorage.removeItem(BORRADOR_VENTA_KEY);}
+
 async function guardarVentaCompleta() {
     if (guardandoVenta) return;
     if (!validarFormulario()) { Notificaciones.mostrar('Agrega al menos un producto', 'warning'); return; }
@@ -2195,7 +2444,7 @@ async function guardarVentaCompleta() {
     camposCambio.style.display = 'block';
     totalMixto.textContent = total.toFixed(2);
     montoRecibido.value = '';
-    resultadoCambio.style.display = 'none';
+    resultadoCambio.style.display = 'none'; if(medioCambioWrap) medioCambioWrap.style.display='none';
 }
 
 async function guardarVentaConMetodoPago() {
@@ -2222,10 +2471,14 @@ async function guardarVentaConMetodoPago() {
         actionGuardarVenta.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
         const ventaGuardada = guardarVentaLocal();
         if (ventaGuardada) {
-            Notificaciones.mostrar('Venta guardada. Actualizando inventario...', 'info', 2500);
-            try { await procesarMovimientosVenta(ventaGuardada); Notificaciones.mostrar('Venta y movimiento procesados correctamente', 'success', 3500); setTimeout(()=>cargarPanelOperativoV20({forzar:true}),900); }
-            catch(invErr){ console.error(invErr); Notificaciones.mostrar('Venta guardada, pero hubo un problema al sincronizar Stock/Movimientos. Revisa conexión.', 'warning', 5000); }
-            setTimeout(async () => await sincronizarVentaIndividualANube(ventaGuardada), 500);
+            Notificaciones.mostrar('Registro guardado localmente. Confirmando en Google Sheets y Stock...', 'info', 3000);
+            const confirmado=await sincronizarVentaIndividualANube(ventaGuardada);
+            if(confirmado){
+                Notificaciones.mostrar(`Venta ${ventaGuardada.id_venta} confirmada en Sheets.`, 'success', 4500);
+                setTimeout(()=>cargarPanelOperativoV20({forzar:true}),900);
+                // La lectura de Google se refresca después de recibir la confirmación.
+                cargarVentasDiaDesdeSheet({notificar:false,silencioso:true}).catch(()=>{});
+            } // Si falla, sincronizarVentaIndividualANube deja aviso y conserva la venta local.
         }
     } catch (error) { console.error('Error real al procesar la venta:', error); Notificaciones.mostrar('Error al procesar la venta: ' + (error?.message || 'revisa los datos del pedido'), 'error', 6000); }
     finally {
@@ -2255,24 +2508,35 @@ function guardarVentaLocal() {
         const totalVentaMixto = Number(total) || 0;
         const totalRecibidoMixto = efectivoRecibido + qrRecibido;
         const cambioMixto = Math.max(0, totalRecibidoMixto - totalVentaMixto);
-
-        // El cambio se devuelve normalmente del efectivo.
-        // Para caja guardamos solo lo que realmente quedó de la venta.
-        const efectivoAplicado = Math.max(0, Math.min(efectivoRecibido, totalVentaMixto - Math.min(qrRecibido, totalVentaMixto)));
-        const qrAplicado = Math.max(0, totalVentaMixto - efectivoAplicado);
-
-        metodoPagoData.monto_efectivo = Number(efectivoAplicado.toFixed(2));
-        metodoPagoData.monto_qr = Number(qrAplicado.toFixed(2));
+        const medio = cambioMixto>0 ? (medioCambio?.value||'EFECTIVO') : '';
+        const cambioEfectivo = medio==='EFECTIVO'?cambioMixto:0;
+        const cambioQR = medio==='QR'?cambioMixto:0;
+        // monto_efectivo / monto_qr representan la venta, no el dinero entregado por el cliente.
+        // Cada método se calcula NETO de su devolución, para reconstruir caja física.
+        const efectivoVenta = Math.max(0, efectivoRecibido - cambioEfectivo);
+        const qrVenta = Math.max(0, qrRecibido - cambioQR);
+        metodoPagoData.monto_efectivo = Number(efectivoVenta.toFixed(2));
+        metodoPagoData.monto_qr = Number(qrVenta.toFixed(2));
         metodoPagoData.efectivo_recibido = Number(efectivoRecibido.toFixed(2));
-        metodoPagoData.qr_recibido = Number(qrRecibido.toFixed(2));
-        metodoPagoData.cambio = Number(cambioMixto.toFixed(2));
+        metodoPagoData.cambio_efectivo = Number(cambioEfectivo.toFixed(2));
+        metodoPagoData.cambio_qr = Number(cambioQR.toFixed(2));
+    } else if (metodoPagoSeleccionado === 'Efectivo') {
+        const recibido=parseFloat(montoRecibido.value)||Number(total)||0;
+        const cambio=Math.max(0,recibido-(Number(total)||0));
+        const medio=cambio>0?(medioCambio?.value||'EFECTIVO'):'';
+        metodoPagoData.monto_efectivo=Number((Number(total)||0).toFixed(2));
+        metodoPagoData.monto_qr=0;
+        metodoPagoData.efectivo_recibido=Number(recibido.toFixed(2));
+        metodoPagoData.cambio_efectivo=medio==='EFECTIVO'?Number(cambio.toFixed(2)):0;
+        metodoPagoData.cambio_qr=medio==='QR'?Number(cambio.toFixed(2)):0;
+    } else {
+        metodoPagoData.monto_efectivo=0; metodoPagoData.monto_qr=Number((Number(total)||0).toFixed(2)); metodoPagoData.efectivo_recibido=0; metodoPagoData.cambio_efectivo=0; metodoPagoData.cambio_qr=0;
     }
-    else { metodoPagoData.monto_efectivo = ''; metodoPagoData.monto_qr = ''; }
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const diaSemana = dias[new Date().getDay()];
-    const idVentaInterno = `${Date.now()}-${Math.random().toString(36).slice(2,8).toUpperCase()}`;
+    const idVentaInterno = `VTA-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Date.now().toString().slice(-8)}-${Math.random().toString(36).slice(2,5).toUpperCase()}`;
     const clienteVenta = String(nombreClienteActual || '').trim() || 'Cliente General';
-    const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'paquete',cantidad:i.cantidadFisica||1,ubicacion:i.ubicacionSalida||'',unidadesEquivalentes:i.unidadesEquivalentes||'', detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: generarTimestampVentaUnico(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, ...metodoPagoData };
+    const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, id_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,id_item:i.id_item||'',nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'mixto',cantidad:i.cantidadFisica||1,origen_tipo:i.origenTipo||((i.ubicacionSalida||'')?'STOCK':'PENDIENTE_ORIGEN'),ubicacion:i.ubicacionSalida||'',id_stock:i.id_stock||'',id_ubicacion:i.id_ubicacion||'',codigo_caja:i.codigo_caja||'',unidadesEquivalentes:i.unidadesEquivalentes||'',detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: generarTimestampVentaUnico(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, efectivo_recibido:metodoPagoData.efectivo_recibido||metodoPagoData.monto_efectivo||'',devuelto_qr:metodoPagoData.cambio_qr||0, INGRESO_EFECTIVO:'', ...metodoPagoData };
     ventasDelDia.push(datosVenta);
     guardarVentasLocalSeguro();
     ventasCajaActual.push(datosVenta);
@@ -2282,6 +2546,7 @@ function guardarVentaLocal() {
     nombreClienteActual = ''; telefonoClienteActual = ''; direccionClienteActual = ''; departamentoClienteActual = ''; cumpleanosClienteActual = '';
     clienteNombreInput.value = ''; clienteTelefonoInput.value = ''; clienteDireccionInput.value = ''; clienteDepartamentoInput.value = ''; clienteCumpleanosInput.value = '';
     actualizarListaItems(); actualizarPrevisualizacion();
+    limpiarBorradorVentaV26();
     if (typeof actualizarContadorVentas === 'function') actualizarContadorVentas();
     if (typeof actualizarEstadisticas === 'function') actualizarEstadisticas();
     if (typeof actualizarVentasDelDia === 'function') actualizarVentasDelDia();
@@ -2303,13 +2568,14 @@ function inicializar() {
     // IMPORTANTE: cargar el catálogo PRIMERO.
     // Así un error posterior en sesión/caja/estadísticas no puede bloquear el buscador.
     cargarCatalogo();
-    // Lecturas auxiliares directas desde Google Sheets: NO consumen GET de SheetDB.
+    // Lecturas auxiliares directas desde Google Sheets: NO consumen GET del backend antiguo.
     Promise.allSettled([cargarProductosAgregadosVenta(),cargarStockInventario()]).then(()=>{
         if(descripcionProducto && descripcionProducto.value.trim().length>=2) mostrarSugerencias(descripcionProducto.value.trim());
         cargarPanelOperativoV20();
     });
 
     generarTarjetasSucursales();
+    backendV26('inicializar_sistema',{}).then(()=>cargarSucursalesDinamicasV26()).catch(e=>console.warn(e));
     configurarEventListeners();
     cargarVentasDelDia();
     actualizarVentasDelDia();
@@ -2320,7 +2586,8 @@ function inicializar() {
     }
     setupActivityListeners();
     resetSessionTimer();
-    setTimeout(probarConexionSheetDB, 2000);
+    setTimeout(()=>{restaurarBorradorVentaV26();},700); // V26
+    // Backend Apps Script: Apps Script se valida al confirmar la primera operación.
 }
 
 function abrirEnIframe(url, titulo) {
@@ -2354,6 +2621,8 @@ function configurarEventListeners() {
         else if (e.key === 'Enter') { e.preventDefault(); confirmarSucursalBtn.click(); }
     });
     confirmarSucursalBtn.addEventListener('click', function() { localStorage.setItem('sucursalSeleccionada', sucursalSeleccionada); mostrarPantallaPrincipal(); });
+    document.getElementById('cambiarSucursalBtn').addEventListener('click', cambiarSucursalSeguroV2631);
+    document.getElementById('menuSucursal').addEventListener('click', e=>{e.preventDefault();cambiarSucursalSeguroV2631();});
     sidebarToggle.addEventListener('click', function() { sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('sidebar-collapsed'); });
     rightSidebarToggle.addEventListener('click', function() { rightSidebar.classList.toggle('collapsed'); rightSidebarToggle.classList.toggle('collapsed'); mainContent.classList.toggle('right-sidebar-collapsed'); });
     rightSidebarExpandInline.addEventListener('click', function() { rightSidebar.classList.remove('collapsed'); rightSidebarToggle.classList.remove('collapsed'); mainContent.classList.remove('right-sidebar-collapsed'); });
@@ -2377,6 +2646,7 @@ function configurarEventListeners() {
     menuVentasDia.addEventListener('click', function(e) { e.preventDefault(); cambiarSeccion('ventasDia'); });
     const recargarVentasDiaBtn = document.getElementById('recargarVentasDiaBtn');
     if (recargarVentasDiaBtn) recargarVentasDiaBtn.addEventListener('click', function() { cargarVentasDiaDesdeSheet({notificar:true}); });
+    const retryV2619=document.getElementById('reintentarPendientesV2619'); if(retryV2619)retryV2619.addEventListener('click',reintentarPendientesJornadaV2619);
     // Si vuelves a la pestaña/ventana, revisa Google inmediatamente.
     document.addEventListener('visibilitychange', function() {
         if (!document.hidden && ventasDiaEstaVisible()) {
@@ -2390,6 +2660,9 @@ function configurarEventListeners() {
     });
     menuStock.addEventListener('click', function(e) { e.preventDefault(); if (LINK_STOCK.indexOf('CAMBIAR') !== -1) Notificaciones.mostrar('⚠️ Configura el link de Stock en el código', 'warning', 6000); else abrirEnIframe(LINK_STOCK, 'Stock'); });
     menuVisualizacion.addEventListener('click', function(e) { e.preventDefault(); if (LINK_VISUALIZACION.indexOf('CAMBIAR') !== -1) Notificaciones.mostrar('⚠️ Configura el link', 'warning', 6000); else abrirEnIframe(LINK_VISUALIZACION, 'Visualización'); });
+    menuCatalogoEditable.addEventListener('click', function(e){e.preventDefault();abrirEnIframe(LINK_CATALOGO_EDITABLE,'Catálogo Editable');});
+    const menuAdministrarSucursales=document.getElementById('menuAdministrarSucursales');
+    if(menuAdministrarSucursales) menuAdministrarSucursales.addEventListener('click',function(e){e.preventDefault();administrarSucursalesV26();});
     menuVentasMayor.addEventListener('click', function(e) { e.preventDefault(); if (LINK_VENTAS_MAYOR.indexOf('CAMBIAR') !== -1) Notificaciones.mostrar('⚠️ Configura el link', 'warning', 6000); else abrirEnIframe(LINK_VENTAS_MAYOR, 'Sistema de Ventas por Mayor'); });
     cerrarIframeBtn.addEventListener('click', function() { iframeExterno.src = 'about:blank'; urlIframeActual = ''; cambiarSeccion('inicio'); });
     recargarIframeBtn.addEventListener('click', function() { if (urlIframeActual) iframeExterno.src = urlIframeActual; });
@@ -2437,7 +2710,7 @@ function configurarEventListeners() {
 
     syncToCloudBtn.addEventListener('click', sincronizarVentasANube);
     syncFromCloudBtn.addEventListener('click', sincronizarDesdeNube);
-    testCloudBtn.addEventListener('click', probarConexionSheetDB);
+    testCloudBtn.addEventListener('click', probarConexionBackendV26);
     backupBtn.addEventListener('click', realizarBackupCompleto);
     restoreBtn.addEventListener('click', function() { restoreFile.click(); });
     restoreFile.addEventListener('change', function(e) { if (e.target.files.length > 0) { restaurarBackup(e.target.files[0]); e.target.value = ''; } });
@@ -2457,6 +2730,7 @@ function configurarEventListeners() {
         items.push({id:Date.now(),descripcion,monto,productoCatalogo:false,nombreProducto:descripcion,seccion:'',imagen:'',presentacion:'unidad',cantidadFisica:1,ubicacionSalida:'',unidadesEquivalentes:1});
         actualizarListaItems();
         actualizarPrevisualizacion();
+        guardarBorradorVentaV26();
 
         // Mostrar inmediatamente "Productos Agregados" también para items manuales.
         productosContent.classList.add('expanded');
@@ -2534,8 +2808,24 @@ function configurarEventListeners() {
     imprimirTodasVentasDiaBtn.addEventListener('click', function() { imprimirTodasVentasDia(); });
 }
 
-function mostrarModalAperturaCaja() { montoAperturaCaja.value = ''; aperturaCajaModal.style.display = 'flex'; }
-function mostrarModalCierreCaja() { montoCierreCaja.value = ''; cierreCajaModal.style.display = 'flex'; }
+function mostrarModalAperturaCaja() {
+  if(!cajaVentasLeidasV2617){Notificaciones.mostrar('Primero verifica las operaciones de HOY en Google Sheets antes de abrir la caja.','warning',6000);cargarVentasDiaDesdeSheet({notificar:false,forzar:true}).catch(()=>{});return;}
+  if(estadoCajaHoyV2620==='OPERANDO'){Notificaciones.mostrar('Esta sucursal YA está operando hoy.','warning',4000);return;}
+  montoAperturaCaja.value='';aperturaCajaModal.style.display='flex';
+}
+function mostrarModalCierreCaja() {
+  montoCierreCaja.value = '';
+  let vista=document.getElementById('cierrePrevisualizacionV2617');
+  if(!vista){
+    vista=document.createElement('div');
+    vista.id='cierrePrevisualizacionV2617';
+    vista.style.cssText='font-size:12px;color:#31546f;background:#eef7ff;padding:10px;border-radius:8px;margin:8px 0';
+    montoCierreCaja.parentNode.appendChild(vista);
+    montoCierreCaja.addEventListener('input',pintarCajaDesdeVentasV2617);
+  }
+  pintarCajaDesdeVentasV2617();
+  cierreCajaModal.style.display = 'flex';
+}
 
 function abrirCaja(registrarApertura = true) {
     cajaAbierta = true;
@@ -2548,10 +2838,12 @@ function abrirCaja(registrarApertura = true) {
         const datosSucursal = obtenerDatosSucursal();
         const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
         const diaSemana = dias[new Date().getDay()];
-        const registroApertura = { id: 'APERTURA', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: 'APERTURA DE CAJA', montos: '', total_venta: '0', numero_productos: 0, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', metodo_pago: 'EFECTIVO', monto_efectivo: montoApertura.toString(), monto_qr: '', apertura_caja: montoApertura.toString(), cierre_caja: '', sincronizada: false, dia: diaSemana, nombre_cliente: '', telefono: '', direccion: '', departamento: '', cumpleaños: '' };
+        const registroApertura = { id: 'APERTURA', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: 'APERTURA DE CAJA', montos: '', total_venta: '0', numero_productos: 0, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', metodo_pago: 'EFECTIVO', monto_efectivo: montoApertura.toString(), monto_qr: '', apertura_caja: 'APERTURA', cierre_caja: '', sincronizada: false, dia: diaSemana, nombre_cliente: '', telefono: '', direccion: '', departamento: '', cumpleaños: '' };
+        asegurarIdVentaCajaV2619(registroApertura);
         ventasDelDia.push(registroApertura);
         guardarVentasLocalSeguro();
         actualizarEstadoCaja(); actualizarVentasDelDia();
+        pintarCajaDesdeVentasV2617();
         Notificaciones.mostrar(`Caja abierta en ${sucursalSeleccionada}`, 'success');
         setTimeout(async () => { const exito = await sincronizarVentaIndividualANube(registroApertura); if (exito) Notificaciones.mostrar('Apertura sincronizada', 'success'); }, 1000);
     } else {
@@ -2565,11 +2857,12 @@ function abrirCaja(registrarApertura = true) {
 }
 
 function cerrarCaja() {
-    if (!cajaAbierta) { Notificaciones.mostrar('La caja ya está cerrada', 'warning'); return; }
+    if (!cajaAbierta || estadoCajaHoyV2620!=='OPERANDO') { Notificaciones.mostrar('La caja no está operando actualmente', 'warning'); return; }
     const datosSucursal = obtenerDatosSucursal();
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const diaSemana = dias[new Date().getDay()];
     const registroCierre = { id: 'CIERRE', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: 'CIERRE DE CAJA', montos: '', total_venta: '0', numero_productos: 0, timestamp: new Date().toISOString(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', metodo_pago: 'EFECTIVO', monto_efectivo: montoCierre.toString(), monto_qr: '', apertura_caja: '', cierre_caja: 'CIERRE DE CAJA', sincronizada: false, dia: diaSemana, nombre_cliente: '', telefono: '', direccion: '', departamento: '', cumpleaños: '' };
+        asegurarIdVentaCajaV2619(registroCierre);
     ventasDelDia.push(registroCierre);
     guardarVentasLocalSeguro();
     const resumen = { efectivo: 0, qr: 0, tarjeta: 0, total: 0, numeroVentas: ventasCajaActual.length, horaApertura: horaAperturaCaja, horaCierre: new Date().toISOString(), montoApertura: montoApertura, montoCierre: montoCierre };
@@ -2590,7 +2883,8 @@ function cerrarCaja() {
     localStorage.removeItem('ventasCajaActual'); localStorage.removeItem('montoApertura');
     localStorage.removeItem('montoCierre');
     actualizarEstadoCaja(); actualizarVentasDelDia();
-    Notificaciones.mostrar('Caja cerrada correctamente', 'success');
+    pintarCajaDesdeVentasV2617(); // Refrescar último cierre y esperado, sin nueva petición Google.
+    Notificaciones.mostrar('Cierre guardado LOCALMENTE. Confirmando registro en Sheets...', 'info', 4000);
     setTimeout(async () => { const exito = await sincronizarVentaIndividualANube(registroCierre); if (exito) Notificaciones.mostrar('Cierre sincronizado', 'success'); }, 1000);
 }
 
@@ -2614,13 +2908,55 @@ function calcularCambio() {
     const montoRecibidoValor = parseFloat(montoRecibido.value) || 0;
     if (montoRecibidoValor >= total) {
         const cambio = montoRecibidoValor - total;
-        resultadoCambio.style.display = 'block';
+        resultadoCambio.style.display = 'block'; if(medioCambioWrap) medioCambioWrap.style.display=cambio>0?'block':'none';
         resultadoCambio.innerHTML = `<p><strong>Cambio:</strong> <span style="font-size: 20px; font-weight: bold; color: #28a745;">${cambio.toFixed(2)}</span> Bs</p><p style="color: #28a745;"><i class="fas fa-check-circle"></i> Pago completo</p>`;
     } else if (montoRecibidoValor > 0 && montoRecibidoValor < total) {
         const faltante = total - montoRecibidoValor;
         resultadoCambio.style.display = 'block';
         resultadoCambio.innerHTML = `<p style="color: #dc3545;"><strong>Faltante:</strong> ${faltante.toFixed(2)} Bs</p>`;
     } else resultadoCambio.style.display = 'none';
+}
+
+
+// V26.31: cambio seguro de sucursal sin cerrar sesión.
+async function cambiarSucursalSeguroV2631(){
+  if(!currentUser)return;
+  const noSincronizadas=(ventasDelDia||[]).filter(v=>v&&v.sincronizada===false);
+  if(noSincronizadas.length){Notificaciones.mostrar('Sincroniza primero las ventas pendientes antes de cambiar de sucursal.','warning',7000);return;}
+  if(Array.isArray(items)&&items.length){Notificaciones.mostrar('Termina o vacía la venta en preparación antes de cambiar de sucursal.','warning',7000);return;}
+  const opciones=Object.entries(sucursales).map(([key,s])=>`<option value="${key}" ${key===sucursalSeleccionada?'selected':''}>${String(s.nombre||key).replace(/</g,'&lt;')}</option>`).join('');
+  const r=await Swal.fire({title:'Cambiar de sucursal',html:`<p style="margin-bottom:12px">Usuario: ${String(currentUser.username||'').replace(/</g,'&lt;')}</p><select id="sucursalDestinoV2631" class="swal2-select" style="width:90%;margin:0">${opciones}</select>`,showCancelButton:true,confirmButtonText:'Cambiar sucursal',cancelButtonText:'Cancelar',preConfirm:()=>document.getElementById('sucursalDestinoV2631').value});
+  if(!r.isConfirmed||!sucursales[r.value]||r.value===sucursalSeleccionada)return;
+  detenerAutoGoogleVentas();
+  sucursalSeleccionada=r.value;
+  indiceSucursalSeleccionada=Object.keys(sucursales).indexOf(r.value);
+  localStorage.setItem('sucursalSeleccionada',r.value);
+  ventasDelDia=[];guardarVentasLocalSeguro();
+  cajaAbierta=false;horaAperturaCaja=null;ventasCajaActual=[];
+  mostrarPantallaPrincipal();
+  cambiarSeccion('inicio');
+  await cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true});
+  Notificaciones.mostrar('Sucursal activa: '+sucursales[r.value].nombre,'success');
+}
+// Editar solo ventas modernas con ID. No modifica Stock ni la cantidad realmente pagada.
+async function editarVentaSeguraV2631(index){
+  if(!esAdministrador()){Notificaciones.mostrar('Solo ADMIN puede editar ventas.','warning');return;}
+  const venta=ventasDelDia[index]; if(!venta)return;
+  const id=String(venta.id_venta||'').trim();
+  // Para ventas históricas se usa una huella verificada en servidor, nunca una fila supuesta.
+  const huellaLegada=id?null:{fecha:String(venta.fecha||''),hora:String(venta.hora||''),cliente:String(venta.id||''),productos:String(venta.productos||''),total_venta:String(venta.total_venta||'')};
+  if(venta.sincronizada===false){Notificaciones.mostrar('Sincroniza primero esta venta.','warning');return;}
+  const escape=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+  const campos=[['nombre_cliente','Cliente'],['telefono','Teléfono'],['direccion','Dirección'],['departamento','Departamento'],['observaciones','Observaciones'],['productos','Productos (separados por |)'],['montos','Montos (separados por |)']];
+  const formulario=campos.map(([k,t])=>`<label style="display:block;text-align:left;margin:9px 0 3px">${t}</label><textarea id="ev31_${k}" class="swal2-textarea" style="width:100%;margin:0;min-height:45px;padding:8px">${escape((k==='nombre_cliente'?(venta.nombre_cliente||venta.id):venta[k])||'')}</textarea>`).join('');
+  const r=await Swal.fire({title:'Editar venta',width:'min(650px,96vw)',html:`<p style="font-size:12px">${id?'ID: '+escape(id):'Venta anterior sin ID (verificación por datos originales)'} · Solo cambios administrativos. El total y los pagos se mantienen.</p>${formulario}<label style="display:block;text-align:left;margin:9px 0 3px">Motivo obligatorio</label><input id="ev31_motivo" class="swal2-input" style="width:100%;margin:0" placeholder="Ej. corregir nombre o detalle">`,showCancelButton:true,confirmButtonText:'Guardar corrección',cancelButtonText:'Cancelar',preConfirm:()=>{const data=Object.fromEntries(campos.map(([k])=>[k,document.getElementById('ev31_'+k).value.trim()]));data.motivo=document.getElementById('ev31_motivo').value.trim();if(!data.motivo){Swal.showValidationMessage('Debes indicar un motivo');return false;}return data;}});
+  if(!r.isConfirmed)return;
+  try{
+    const res=await backendV26('editar_venta',{id_venta:id,huella_legacy:huellaLegada,sucursal:sucursalSeleccionada,usuario:currentUser.username,rol:currentUser.rol,...r.value});
+    if(!res.ok)throw Error(res.error||'No confirmado');
+    await cargarVentasDiaDesdeSheet({notificar:false,forzar:true});
+    Notificaciones.mostrar('Venta corregida en Sheets y registrada en historial.','success');
+  }catch(e){Notificaciones.mostrar('No se pudo editar: '+e.message,'error',9000);}
 }
 
 function cambiarSeccion(seccion) {
@@ -2633,6 +2969,7 @@ function cambiarSeccion(seccion) {
         case 'inicio':
             seccionInicio.classList.add('activa');
             menuInicio.classList.add('active');
+            refrescarCajaAlEntrarV2617({google:!cajaVentasLeidasV2617});
             break;
         case 'ventasDia':
             seccionVentasDia.classList.add('activa');
@@ -2694,18 +3031,21 @@ function obtenerMontosVenta(venta, cantidadProductos) {
 }
 
 function actualizarVentasDelDia() {
-    const hoy = new Date().toLocaleDateString('es-ES');
-    const hoyCmp = fechaComparableVentas(hoy);
-    const todasVentasHoy = ventasDelDia.filter(v => fechaComparableVentas(v.fecha) === hoyCmp);
-    const ventasNormales = todasVentasHoy.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA');
-    const registroApertura = todasVentasHoy.find(v => v.productos === 'APERTURA DE CAJA');
-    const registroCierre = todasVentasHoy.find(v => v.productos === 'CIERRE DE CAJA');
+    const hoyCmp = fechaComparableVentas(diaLocalV2617());
+    const todasVentasHoy = ventasDelDia.filter(v => fechaComparableVentas(v.fecha) === hoyCmp).filter(perteneceVentaASucursal);
+    const ventasNormales = todasVentasHoy.filter(v=>!esAperturaV2617(v)&&!esCierreV2617(v)&&!esMonedasV2620(v)&&!esAnuladaV2620(v));
+    const registroApertura = [...todasVentasHoy].reverse().find(esAperturaV2617);
+    const registroCierre = [...todasVentasHoy].reverse().find(esCierreV2617);
     const aperturaMonto = registroApertura ? parseFloat(registroApertura.monto_efectivo) || 0 : 0;
     const cierreMonto = registroCierre ? parseFloat(registroCierre.monto_efectivo) || 0 : 0;
     const totalRecaudado = ventasNormales.reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
     const promedio = ventasNormales.length > 0 ? totalRecaudado / ventasNormales.length : 0;
     const ventasEfectivo = ventasNormales.reduce((sum, v) => { if (v.metodo_pago === 'Efectivo') return sum + parseFloat(v.total_venta); if (v.metodo_pago === 'Mixto') return sum + (parseFloat(v.monto_efectivo) || 0); return sum; }, 0);
-    const totalEnCaja = aperturaMonto + ventasEfectivo;
+    // Mostrar las monedas por separado; el total de caja ya las incluye UNA sola vez.
+    const monedasAgregadas = todasVentasHoy.filter(esMonedasV2620).reduce((s,v)=>s+numeroCajaV2617(v.INGRESO_EFECTIVO),0);
+    const totalEnCaja = aperturaMonto + ventasEfectivo + monedasAgregadas;
+    const monedasAgregadasDia = document.getElementById('monedasAgregadasDia');
+    if (monedasAgregadasDia) monedasAgregadasDia.textContent = monedasAgregadas.toFixed(2);
     totalVentasDia.textContent = ventasNormales.length;
     totalRecaudadoDia.textContent = totalRecaudado.toFixed(2);
     promedioVentaDia.textContent = promedio.toFixed(2);
@@ -2713,34 +3053,63 @@ function actualizarVentasDelDia() {
     ventasEfectivoDia.textContent = ventasEfectivo.toFixed(2);
     totalEnCajaDia.textContent = totalEnCaja.toFixed(2);
     cierreEfectivoDia.textContent = cierreMonto.toFixed(2);
-    if (todasVentasHoy.length === 0) { tablaVentasDia.innerHTML = ''; noVentasDiaMessage.style.display = 'block'; return; }
-    else noVentasDiaMessage.style.display = 'none';
+    // Los totales anteriores SIEMPRE son solo de hoy. Si hoy no hubo ventas,
+    // no escondemos el historial que ya leyó Google: mostramos las últimas 50
+    // operaciones de fechas anteriores, con un aviso inequívoco.
+    const avisoHistorialV2621 = document.getElementById('avisoHistorialV2621');
+    let registrosTablaV2621 = todasVentasHoy;
+    if (todasVentasHoy.length === 0) {
+        const anteriores = ventasDelDia
+            .filter(perteneceVentaASucursal)
+            .filter(v => fechaComparableVentas(v.fecha) !== hoyCmp)
+            .sort((a,b)=>{
+                const da=String(a.fecha||'').match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+                const db=String(b.fecha||'').match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);
+                const ta=da?new Date(+da[3],+da[2]-1,+da[1]).getTime():0;
+                const tb=db?new Date(+db[3],+db[2]-1,+db[1]).getTime():0;
+                return (tb-ta)||String(b.hora||'').localeCompare(String(a.hora||''));
+            });
+        registrosTablaV2621=anteriores.slice(0,50);
+        if (avisoHistorialV2621) {
+            avisoHistorialV2621.style.display=anteriores.length?'block':'none';
+            avisoHistorialV2621.textContent=anteriores.length
+              ? `No hay ventas de hoy. Mostrando ${registrosTablaV2621.length} registro(s) anteriores de esta sucursal como historial (no suman al resumen de hoy).`
+              : '';
+        }
+    } else if (avisoHistorialV2621) {
+        avisoHistorialV2621.style.display='none';
+    }
+    if (!registrosTablaV2621.length) { tablaVentasDia.innerHTML = ''; noVentasDiaMessage.style.display = 'block'; return; }
+    noVentasDiaMessage.style.display = 'none';
     let tablaHTML = '';
-    todasVentasHoy.forEach(venta => {
+    registrosTablaV2621.forEach(venta => {
         const productosArr = venta.productos.split(' | ');
         const montosArr = obtenerMontosVenta(venta, productosArr.length);
-        const esAperturaCierre = venta.productos === 'APERTURA DE CAJA' || venta.productos === 'CIERRE DE CAJA';
+        const esAperturaCierre = esAperturaV2617(venta)||esCierreV2617(venta)||esMonedasV2620(venta);
         let productosHTML = '', montosHTML = '', totalVenta = 0;
-        if (esAperturaCierre) { productosHTML = venta.productos; montosHTML = venta.monto_efectivo ? `${venta.monto_efectivo} Bs` : '-'; }
+        if (esAperturaCierre) { productosHTML = venta.productos; montosHTML = esMonedasV2620(venta)?`${venta.INGRESO_EFECTIVO||0} Bs`:venta.monto_efectivo ? `${venta.monto_efectivo} Bs` : '-'; }
         else {
             productosHTML = productosArr.map(p => `<div>${p}</div>`).join('');
             let montosLista = '';
-            productosArr.forEach((p, i) => { const montoItem = Number(montosArr[i]) || 0; totalVenta += montoItem; montosLista += `<div>${montoItem.toFixed(2)}</div>`; });
-            montosHTML = `<div class="montos-cell"><div class="montos-lista">${montosLista}</div><div class="montos-total">${totalVenta.toFixed(2)} Bs</div></div>`;
+            productosArr.forEach((p, i) => { const montoItem = Number(montosArr[i]) || 0; totalVenta += montoItem; montosLista += `<div>${!String(venta.montos||'').trim() ? '—' : montoItem.toFixed(2)}</div>`; });
+            montosHTML = `<div class="montos-cell"><div class="montos-lista">${montosLista}</div><div class="montos-total">${Number(venta.total_venta || totalVenta).toFixed(2)} Bs</div></div>`;
         }
         const tieneObservaciones = venta.observaciones && venta.observaciones.trim() !== '';
         let metodoPagoDisplay = venta.metodo_pago || '';
         if (String(venta.metodo_pago || '').toLowerCase() === 'mixto') metodoPagoDisplay = `Mixto (Ef: ${venta.monto_efectivo || 0}, QR: ${venta.monto_qr || 0})`;
         const claseFila = esAperturaCierre ? 'fila-apertura-cierre' : '';
-        let botonesVentasDia = `${!esAperturaCierre ? `<button class="accion-btn observacion-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-sticky-note"></i> Obs</button><button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : ''}<button class="accion-btn eliminar-btn-tabla" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-trash"></i> Eliminar</button>`;
+        let botonesVentasDia = registrosTablaV2621!==todasVentasHoy
+            ? (!esAperturaCierre ? `<button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : '')
+            : `${!esAperturaCierre ? `<button class="accion-btn editar-venta-v2631" data-index="${ventasDelDia.indexOf(venta)}" style="background:#2476b5"><i class="fas fa-edit"></i> Editar</button><button class="accion-btn observacion-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-sticky-note"></i> Obs</button><button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : ''}<button class="accion-btn eliminar-btn-tabla" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-trash"></i> Eliminar</button>`;
         const nombreCliente = esAperturaCierre ? venta.usuario : (venta.nombre_cliente || 'Cliente General');
         const telefonoCliente = esAperturaCierre ? '-' : (venta.telefono || '-');
         const direccionCliente = esAperturaCierre ? '-' : (venta.direccion || '-');
         const departamentoCliente = esAperturaCierre ? '-' : (venta.departamento || '-');
         const cumpleanosCliente = esAperturaCierre ? '-' : (venta.cumpleaños || '-');
-        tablaHTML += `<tr class="${claseFila}"><td>${nombreCliente}</td><td>${telefonoCliente}</td><td>${direccionCliente}</td><td>${departamentoCliente}</td><td>${cumpleanosCliente}</td><td>${venta.hora}</td><td>${productosHTML}</td><td>${montosHTML}</td><td>${metodoPagoDisplay}</td><td>${tieneObservaciones ? venta.observaciones : ''}</td><td><div class="acciones">${botonesVentasDia}</div></td></tr>`;
+        tablaHTML += `<tr class="${claseFila}"><td>${nombreCliente}</td><td>${telefonoCliente}</td><td>${direccionCliente}</td><td>${departamentoCliente}</td><td>${cumpleanosCliente}</td><td>${registrosTablaV2621===todasVentasHoy ? '' : String(venta.fecha||'')+' · '}${venta.hora}</td><td>${productosHTML}</td><td>${montosHTML}</td><td>${metodoPagoDisplay}</td><td>${tieneObservaciones ? venta.observaciones : ''}</td><td><div class="acciones">${botonesVentasDia}</div></td></tr>`;
     });
     tablaVentasDia.innerHTML = tablaHTML;
+    document.querySelectorAll('#tablaVentasDia .editar-venta-v2631').forEach(btn=>btn.addEventListener('click',()=>editarVentaSeguraV2631(Number(btn.dataset.index))));
     document.querySelectorAll('#tablaVentasDia .observacion-btn').forEach(btn => { btn.addEventListener('click', function() { abrirModalObservacion(parseInt(this.getAttribute('data-index'))); }); });
     document.querySelectorAll('#tablaVentasDia .imprimir-btn').forEach(btn => { btn.addEventListener('click', function() { imprimirNotaVentaGuardada(ventasDelDia[parseInt(this.getAttribute('data-index'))]); }); });
     document.querySelectorAll('#tablaVentasDia .eliminar-btn-tabla').forEach(btn => { btn.addEventListener('click', function() { intentarEliminar(parseInt(this.getAttribute('data-index'))); }); });
@@ -2819,100 +3188,61 @@ async function eliminarVenta(index) {
     const venta = ventasDelDia[index];
     if (!venta) return;
 
-    const firma = firmaVisibleVenta(venta);
-    const timestampSeguro = referenciaSeguraVenta(venta);
+    const idVenta=String(venta.id_venta||'').trim();
     const clienteVisible = venta.nombre_cliente || venta.id || 'Cliente General';
-    const sheetVenta = obtenerSheetDeVenta(venta);
 
-    // Doble seguridad local: la fila que se va a tocar debe seguir siendo exactamente
-    // la que el usuario seleccionó: cliente + fecha + hora + sucursal.
-    if (!ventaCoincideConFirma(ventasDelDia[index], firma)) {
-        Notificaciones.mostrar('Seguridad: la venta cambió desde que fue seleccionada. Actualiza Ventas del Día e inténtalo nuevamente.', 'error', 7000);
-        return;
-    }
-
-    // Una venta sincronizada debe tener una llave realmente única.
-    // NUNCA se permite borrar del Sheet usando "Cliente General" como identificador.
-    if (venta.sincronizada && !timestampSeguro) {
+    if(!idVenta){
         await Swal.fire({
-            title: 'No se puede eliminar con seguridad',
-            html: `<div style="text-align:left;font-size:14px;">
-                <p>Esta venta no tiene una <strong>referencia única (timestamp)</strong>.</p>
-                <p>Por seguridad <strong>no se enviará ningún DELETE</strong> al Sheet.</p>
-                <p style="color:#c0392b">Así evitamos borrar por error otras ventas de <strong>${clienteVisible}</strong>.</p>
-            </div>`,
-            icon: 'error',
-            confirmButtonText: 'Entendido'
+            title:'Venta histórica sin id_venta',
+            html:'Esta venta pertenece al formato anterior. Por seguridad no se anulará automáticamente ni se tocará Stock.<br><br>Las ventas nuevas V26 sí podrán anularse y reponer inventario.',
+            icon:'warning',
+            confirmButtonText:'Entendido'
         });
         return;
     }
-
-    const result = await Swal.fire({
-        title: '¿Eliminar únicamente esta venta?',
-        html: `<div style="text-align:left;font-size:14px;line-height:1.65">
-            <p><strong>Cliente:</strong> ${clienteVisible}</p>
-            <p><strong>Fecha:</strong> ${venta.fecha || '-'}</p>
-            <p><strong>Hora:</strong> ${venta.hora || '-'}</p>
-            <p><strong>Sucursal:</strong> ${venta.sucursal || '-'}</p>
-            <p><strong>Productos:</strong> ${venta.productos || '-'}</p>
-            <p><strong>Total:</strong> ${venta.total_venta || 0} Bs</p>
-            <hr style="margin:10px 0;border:0;border-top:1px solid #ddd">
-            <p style="color:#176b4d"><strong>Seguridad:</strong> se verificará Cliente + Fecha + Hora + Sucursal.</p>
-            <p style="color:#176b4d"><strong>Llave de eliminación:</strong> referencia interna única de esta venta.</p>
-            <p style="color:#c0392b"><strong>Nunca se eliminará usando “Cliente General” como llave.</strong></p>
-        </div>`,
-        icon: 'warning',
-        showCancelButton: true,
-        confirmButtonColor: '#d33',
-        cancelButtonColor: '#3085d6',
-        confirmButtonText: 'Sí, eliminar solo esta venta',
-        cancelButtonText: 'Cancelar'
-    });
-    if (!result.isConfirmed) return;
-
-    // Verificación final justo antes de escribir.
-    const actual = ventasDelDia[index];
-    if (!actual || !ventaCoincideConFirma(actual, firma) || referenciaSeguraVenta(actual)!==timestampSeguro) {
-        Notificaciones.mostrar('Seguridad: los datos ya no coinciden. No se eliminó nada.', 'error', 7000);
+    if(String(venta.estado_venta||'').toUpperCase()==='ANULADA'){
+        Notificaciones.mostrar('Esta venta ya está anulada','warning');
         return;
     }
 
-    // Si vino del Sheet, DELETE exclusivamente por timestamp único.
-    // SheetDB se usa solo para esta escritura; NO hacemos GET.
-    if (venta.sincronizada) {
-        try {
-            const url = `${API_URL_BASE}/timestamp/${encodeURIComponent(timestampSeguro)}?sheet=${encodeURIComponent(sheetVenta)}`;
-            const r = await fetch(url, { method: 'DELETE' });
-            if (!r.ok) throw new Error(`SheetDB HTTP ${r.status}`);
-        } catch (e) {
-            console.error('No se pudo eliminar la venta exacta del Sheet:', e);
-            Notificaciones.mostrar('No se eliminó nada: falló la escritura de la venta exacta en el Sheet.', 'error', 6500);
-            return;
-        }
+    const r=await Swal.fire({
+        title:'¿Anular esta venta?',
+        html:`<div style="text-align:left;line-height:1.6">
+          <p><strong>ID venta:</strong> ${idVenta}</p>
+          <p><strong>Cliente:</strong> ${clienteVisible}</p>
+          <p><strong>Productos:</strong> ${venta.productos||'-'}</p>
+          <p><strong>Total:</strong> ${venta.total_venta||0} Bs</p>
+          <p style="color:#b03a2e"><strong>No se borrará la fila.</strong> Quedará marcada ANULADA y el Stock descontado por esta venta será repuesto mediante movimiento inverso.</p>
+        </div>`,
+        input:'text',
+        inputLabel:'Motivo de anulación',
+        inputPlaceholder:'Ej.: venta cancelada / error de registro',
+        showCancelButton:true,
+        confirmButtonColor:'#d33',
+        confirmButtonText:'Anular venta',
+        cancelButtonText:'Cancelar',
+        inputValidator:v=>!String(v||'').trim()?'Debes indicar el motivo':undefined
+    });
+    if(!r.isConfirmed)return;
+
+    try{
+        const resp=await backendV26('anular_venta',{
+            id_venta:idVenta,
+            usuario:currentUser?.nombre||'',
+            sucursal:venta.sucursal||'',
+            motivo:String(r.value||'').trim()
+        });
+        if(!resp.ok)throw new Error(resp.error||'No se pudo anular');
+        venta.observaciones=String(venta.observaciones||'')+' | [ANULADA] '+String(r.value||'').trim();
+        venta._anuladaV2620=true;
+        guardarVentasLocalSeguro();
+        actualizarVentasDelDia();
+        actualizarEstadisticas();
+        Notificaciones.mostrar(`Venta ${idVenta} anulada. Stock repuesto: ${resp.stock_repuesto||0} movimiento(s).`,'success',6000);
+    }catch(e){
+        console.error(e);
+        Notificaciones.mostrar('No se anuló la venta: '+(e.message||e),'error',7000);
     }
-
-    crearBackupAutomatico();
-
-    // El respaldo local también se elimina SOLO por la misma referencia única.
-    // Si por alguna razón no hay timestamp (venta aún no sincronizada), se elimina
-    // únicamente el índice exacto que el usuario confirmó.
-    ventasDelDia = ventasDelDia.filter((v, i) => {
-        if (timestampSeguro) return String(v.timestamp ?? '').trim() !== timestampSeguro;
-        return i !== index;
-    });
-    ventasCajaActual = (ventasCajaActual || []).filter(v => {
-        if (timestampSeguro) return String(v.timestamp ?? '').trim() !== timestampSeguro;
-        return !(ventaCoincideConFirma(v,firma) && String(v.productos||'')===String(venta.productos||'') && String(v.total_venta||'')===String(venta.total_venta||''));
-    });
-
-    guardarVentasLocalSeguro();
-    localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
-    if (typeof actualizarContadorVentas === 'function') actualizarContadorVentas();
-    actualizarEstadisticas();
-    actualizarVentasDelDia();
-    Notificaciones.mostrar(`Venta de ${clienteVisible} eliminada de forma segura`, 'success', 4000);
-
-    // No GET a SheetDB. La próxima lectura se hace directamente desde Google Sheets.
 }
 
 function generarNotaVenta() {
@@ -2920,9 +3250,9 @@ function generarNotaVenta() {
     let totalVenta = items.reduce((sum, item) => sum + item.monto, 0);
     let notaHTML = `<div class="nota-venta"><div class="nota-header"><div class="nota-titulo">TODOENUNO_STORE</div><div class="nota-subtitulo">${datosSucursal.nombre}</div><div class="nota-detalle">${datosSucursal.ubicacion}</div><div class="nota-detalle">TEL: ${datosSucursal.telefono}</div><div class="nota-detalle">SANTA CRUZ - BOLIVIA</div></div><div class="nota-seccion"><div class="nota-seccion-titulo">NOTA DE VENTA</div><div class="nota-info-cliente"><div class="nota-info-item"><span class="nota-info-label">FECHA:</span> ${new Date().toLocaleDateString('es-ES')} ${new Date().toLocaleTimeString('es-ES')}</div><div class="nota-info-item"><span class="nota-info-label">LUGAR:</span> ${datosSucursal.nombre}</div>${nombreClienteActual ? `<div class="nota-info-item"><span class="nota-info-label">CLIENTE:</span> ${nombreClienteActual}</div>` : ''}${telefonoClienteActual ? `<div class="nota-info-item"><span class="nota-info-label">TELÉFONO:</span> ${telefonoClienteActual}</div>` : ''}${direccionClienteActual ? `<div class="nota-info-item"><span class="nota-info-label">DIRECCIÓN:</span> ${direccionClienteActual}</div>` : ''}${departamentoClienteActual ? `<div class="nota-info-item"><span class="nota-info-label">DEPARTAMENTO:</span> ${departamentoClienteActual}</div>` : ''}${cumpleanosClienteActual ? `<div class="nota-info-item"><span class="nota-info-label">CUMPLEAÑOS:</span> ${cumpleanosClienteActual}</div>` : ''}</div></div><table class="nota-tabla"><thead><tr><th class="descripcion">DESCRIPCIÓN</th><th class="cantidad">CANT.</th><th class="precio">PRECIO</th></tr></thead><tbody>`;
     items.forEach(item => { notaHTML += `<tr><td class="descripcion">${item.descripcion}</td><td class="cantidad">1</td><td class="precio">${item.monto.toFixed(2)} Bs</td></tr>`; });
-    notaHTML += `</tbody></table><div class="nota-total">TOTAL: ${totalVenta.toFixed(2)} Bs</div>`;
+    notaHTML += `</tbody></table><div class="nota-total">TOTAL: ${Math.round(totalVenta)} Bs</div>`;
     const montoRecibidoValor = parseFloat(montoRecibido.value) || 0;
-    const cambio = montoRecibidoValor > totalVenta ? (montoRecibidoValor - totalVenta).toFixed(2) : 0;
+    const cambio = montoRecibidoValor > totalVenta ? String(Math.round(montoRecibidoValor - totalVenta)) : 0;
     if (metodoPagoSeleccionado === 'Mixto') {
         const montoEfectivo = parseFloat(montoEfectivoMixto.value) || 0;
         const montoQR = parseFloat(montoQRMixto.value) || 0;
@@ -3059,7 +3389,7 @@ function imprimirTodasVentasDia() {
             html += `<tr><td>${p}</td><td>${monto.toFixed(2)} Bs</td></tr>`;
         });
 
-        html += `</tbody></table><div class="total">TOTAL: ${totalVenta.toFixed(2)} Bs</div></div>`;
+        html += `</tbody></table><div class="total">TOTAL: ${Math.round(totalVenta)} Bs</div></div>`;
     });
 
     html += `<div class="resumen">
@@ -3121,7 +3451,7 @@ function actualizarListaItems() {
                     <span class="producto-precio-unitario">Precio editable</span>
                 </div>
             </div>
-            <div class="producto-cantidad"><input class="precio-item-editable" data-index="${index}" type="number" min="0" step="0.01" value="${Number(item.monto||0).toFixed(2)}" style="width:105px;padding:7px 8px;text-align:right;font-weight:800;color:#ff7e5f;border:1px solid #d8dee4;border-radius:7px"> Bs</div>
+            <div class="producto-cantidad"><input class="precio-item-editable" data-index="${index}" type="text" inputmode="numeric" pattern="[0-9]*" value="${Math.round(Number(item.monto||0))}" style="width:105px;padding:7px 8px;text-align:right;font-weight:800;color:#ff7e5f;border:1px solid #d8dee4;border-radius:7px"> Bs</div>
             <button type="button" class="eliminar-btn" data-index="${index}" title="Eliminar"><i class="fas fa-times"></i></button>`;
         productosLista.appendChild(productoItem);
 
@@ -3140,7 +3470,7 @@ function actualizarListaItems() {
     });
     total = subtotal;
     totalCompra.textContent = total.toFixed(2);
-    document.querySelectorAll('.precio-item-editable').forEach(inp => { inp.addEventListener('change', function(){ const i=Number(this.dataset.index); const v=Math.max(0,Number(this.value)||0); if(items[i]){items[i].monto=v; actualizarListaItems(); actualizarPrevisualizacion();} }); inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){e.preventDefault();this.blur();} }); });
+    document.querySelectorAll('.precio-item-editable').forEach(inp => { inp.addEventListener('change', function(){ const i=Number(this.dataset.index); const v=Math.max(0,Math.round(Number(String(this.value).replace(/[^0-9]/g,''))||0)); if(items[i]){items[i].monto=v; actualizarListaItems(); actualizarPrevisualizacion();} }); inp.addEventListener('keydown', function(e){ if(e.key==='Enter'){e.preventDefault();this.blur();} }); });
     document.querySelectorAll('.eliminar-btn').forEach(btn => {
         btn.addEventListener('click', function() {
             const index = parseInt(this.getAttribute('data-index'));
@@ -3155,16 +3485,16 @@ function actualizarEstadisticas() {
     if (!currentUser || !esAdministrador()) return;
     const hoy = new Date().toLocaleDateString('es-ES');
     const hoyCmp = fechaComparableVentas(hoy);
-    const ventasHoy = ventasDelDia.filter(v => fechaComparableVentas(v.fecha) === hoyCmp && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA');
+    const ventasHoy = ventasDelDia.filter(v => fechaComparableVentas(v.fecha) === hoyCmp && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS');
     const totalHoy = ventasHoy.reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
-    const totalGeneral = ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
-    const efectivo = ventasDelDia.filter(v => v.metodo_pago === 'Efectivo' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
-    const qr = ventasDelDia.filter(v => v.metodo_pago === 'QR' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
-    const mixto = ventasDelDia.filter(v => v.metodo_pago === 'Mixto' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const totalGeneral = ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const efectivo = ventasDelDia.filter(v => v.metodo_pago === 'Efectivo' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const qr = ventasDelDia.filter(v => v.metodo_pago === 'QR' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const mixto = ventasDelDia.filter(v => v.metodo_pago === 'Mixto' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
     if (statsContainer) {
         statsContainer.innerHTML = `
             <div class="stat-card"><div class="stat-label">Ventas Hoy</div><div class="stat-value">${ventasHoy.length}</div><div class="stat-detail">${totalHoy.toFixed(2)} Bs</div></div>
-            <div class="stat-card"><div class="stat-label">Total General</div><div class="stat-value">${ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length}</div><div class="stat-detail">${totalGeneral.toFixed(2)} Bs</div></div>
+            <div class="stat-card"><div class="stat-label">Total General</div><div class="stat-value">${ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').length}</div><div class="stat-detail">${totalGeneral.toFixed(2)} Bs</div></div>
             <div class="stat-card"><div class="stat-label">Efectivo</div><div class="stat-value">${efectivo.toFixed(2)}</div><div class="stat-detail">Bs</div></div>
             <div class="stat-card"><div class="stat-label">QR</div><div class="stat-value">${qr.toFixed(2)}</div><div class="stat-detail">Bs</div></div>
             <div class="stat-card"><div class="stat-label">Mixto</div><div class="stat-value">${mixto.toFixed(2)}</div><div class="stat-detail">Bs</div></div>
@@ -3199,13 +3529,13 @@ function cargarVentasDelDia() {
 function actualizarEstadisticas() {
     if (!esAdministrador()) return;
     const hoy = new Date().toLocaleDateString('es-ES');
-    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA');
+    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS');
     const totalHoy = ventasHoy.reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
-    const totalGeneral = ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
-    const efectivo = ventasDelDia.filter(v => v.metodo_pago === 'Efectivo' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
-    const qr = ventasDelDia.filter(v => v.metodo_pago === 'QR' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
-    const mixto = ventasDelDia.filter(v => v.metodo_pago === 'Mixto' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
-    statsContainer.innerHTML = `<div class="stat-card"><div class="stat-label">Ventas Hoy</div><div class="stat-value">${ventasHoy.length}</div><div class="stat-detail">${totalHoy.toFixed(2)} Bs</div></div><div class="stat-card"><div class="stat-label">Total General</div><div class="stat-value">${ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length}</div><div class="stat-detail">${totalGeneral.toFixed(2)} Bs</div></div><div class="stat-card"><div class="stat-label">Efectivo</div><div class="stat-value">${efectivo.toFixed(2)}</div><div class="stat-detail">Bs</div></div><div class="stat-card"><div class="stat-label">QR</div><div class="stat-value">${qr.toFixed(2)}</div><div class="stat-detail">Bs</div></div><div class="stat-card"><div class="stat-label">Mixto</div><div class="stat-value">${mixto.toFixed(2)}</div><div class="stat-detail">Bs</div></div>`;
+    const totalGeneral = ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const efectivo = ventasDelDia.filter(v => v.metodo_pago === 'Efectivo' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const qr = ventasDelDia.filter(v => v.metodo_pago === 'QR' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    const mixto = ventasDelDia.filter(v => v.metodo_pago === 'Mixto' && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').reduce((sum, v) => sum + parseFloat(v.total_venta), 0);
+    statsContainer.innerHTML = `<div class="stat-card"><div class="stat-label">Ventas Hoy</div><div class="stat-value">${ventasHoy.length}</div><div class="stat-detail">${totalHoy.toFixed(2)} Bs</div></div><div class="stat-card"><div class="stat-label">Total General</div><div class="stat-value">${ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').length}</div><div class="stat-detail">${totalGeneral.toFixed(2)} Bs</div></div><div class="stat-card"><div class="stat-label">Efectivo</div><div class="stat-value">${efectivo.toFixed(2)}</div><div class="stat-detail">Bs</div></div><div class="stat-card"><div class="stat-label">QR</div><div class="stat-value">${qr.toFixed(2)}</div><div class="stat-detail">Bs</div></div><div class="stat-card"><div class="stat-label">Mixto</div><div class="stat-value">${mixto.toFixed(2)}</div><div class="stat-detail">Bs</div></div>`;
 }
 
 function abrirModalObservacion(index) { ventaConObservacionIndex = index; observacionText.value = ventasDelDia[index].observaciones || ''; observacionModal.style.display = 'flex'; }
@@ -3227,11 +3557,9 @@ function verificarSesionActiva() {
             mostrarPantallaPrincipal();
             if (montoAperturaGuardado) montoApertura = parseFloat(montoAperturaGuardado);
             if (montoCierreGuardado) montoCierre = parseFloat(montoCierreGuardado);
-            if (cajaAbiertaGuardada === 'true' && horaAperturaGuardada) {
-                cajaAbierta = true; horaAperturaCaja = horaAperturaGuardada;
-                if (ventasCajaGuardadas) ventasCajaActual = JSON.parse(ventasCajaGuardadas);
-                actualizarEstadoCaja();
-            } else { cajaAbierta = false; horaAperturaCaja = null; ventasCajaActual = []; actualizarEstadoCaja(); }
+            // El navegador no puede reabrir una caja por un estado antiguo; manda la hoja de HOY.
+            cajaAbierta=false;horaAperturaCaja=null;ventasCajaActual=[];actualizarEstadoCaja();
+            cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true}).catch(()=>{});
         } else mostrarPantallaSeleccionSucursal();
     }
 }
@@ -3267,37 +3595,81 @@ function mostrarPantallaPrincipal() {
     currentUserName.textContent = currentUser.username;
     currentUserRole.textContent = `(${currentUser.rol})`;
     sidebarSucursal.textContent = `Sucursal: ${sucursalSeleccionada}`;
+    cajaVentasLeidasV2617=false;cajaAbierta=false;horaAperturaCaja=null;estadoCajaHoyV2620='SIN_ABRIR';
     aplicarPermisosPorRolV21();
     actualizarSeleccionSucursal();
+    setTimeout(()=>refrescarCajaAlEntrarV2617({google:true}),50);
 }
 
 function mostrarModalCambiarUsuario() { usuarioActualNombre.textContent = currentUser.nombre + ' (' + currentUser.rol + ')'; nuevoUsuarioInput.value = ''; nuevaPasswordInput.value = ''; cambiarUsuarioModal.style.display = 'flex'; nuevoUsuarioInput.focus(); }
 
-function cambiarUsuario() {
+async function cambiarUsuario() {
     const nuevoUsuario = nuevoUsuarioInput.value.trim().toLowerCase();
     const nuevaPassword = nuevaPasswordInput.value;
-    if (!nuevoUsuario || !nuevaPassword) { Notificaciones.mostrar('Completa usuario y contraseña', 'warning'); return; }
-    if (usuarios[nuevoUsuario] && usuarios[nuevoUsuario].password === nuevaPassword) {
-        const cajaAbiertaGuardada = cajaAbierta; const horaAperturaGuardada = horaAperturaCaja;
-        const ventasCajaGuardadas = [...ventasCajaActual];
-        const montoAperturaGuardado = montoApertura; const montoCierreGuardado = montoCierre;
-        currentUser = normalizarUsuarioSesion({ username: nuevoUsuario, nombre: usuarios[nuevoUsuario].nombre, rol: usuarios[nuevoUsuario].rol });
-        cajaAbierta = cajaAbiertaGuardada; horaAperturaCaja = horaAperturaGuardada; ventasCajaActual = ventasCajaGuardadas;
-        montoApertura = montoAperturaGuardado; montoCierre = montoCierreGuardado;
-        localStorage.setItem('currentUser', JSON.stringify(currentUser));
-        localStorage.setItem('cajaAbierta', cajaAbierta.toString());
-        localStorage.setItem('horaAperturaCaja', horaAperturaCaja || '');
-        localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
-        localStorage.setItem('montoApertura', montoApertura.toString());
-        localStorage.setItem('montoCierre', montoCierre.toString());
-        currentUserName.textContent = currentUser.nombre;
-        currentUserRole.textContent = `(${currentUser.rol})`;
-        if (esAdministrador()) document.querySelectorAll('.permiso-admin').forEach(el => el.style.display = 'block');
-        else document.querySelectorAll('.permiso-admin').forEach(el => el.style.display = 'none');
-        actualizarEstadoCaja(); actualizarVentasDelDia();
-        cambiarUsuarioModal.style.display = 'none';
-        Notificaciones.mostrar(`Usuario cambiado a: ${currentUser.nombre}`, 'success');
-    } else Notificaciones.mostrar('Usuario o contraseña incorrectos', 'error');
+
+    if (!nuevoUsuario || !nuevaPassword) {
+        Notificaciones.mostrar('Completa usuario y contraseña', 'warning');
+        return;
+    }
+
+    // MISMA FUENTE QUE EL LOGIN: refrescar usuarios antes de validar.
+    Notificaciones.mostrar('Verificando usuario...', 'info', 1500);
+    const okCarga = await cargarUsuariosLogin();
+    if (!okCarga) {
+        Notificaciones.mostrar('No se pudo consultar el Sheet de usuarios', 'error');
+        return;
+    }
+
+    const u = usuarios[nuevoUsuario];
+    if (!u || u.password !== nuevaPassword) {
+        Notificaciones.mostrar('Usuario o contraseña incorrectos', 'error');
+        return;
+    }
+
+    // Cambiar usuario SIN cerrar ni alterar la caja actual.
+    const cajaAbiertaGuardada = cajaAbierta;
+    const horaAperturaGuardada = horaAperturaCaja;
+    const ventasCajaGuardadas = [...ventasCajaActual];
+    const montoAperturaGuardado = montoApertura;
+    const montoCierreGuardado = montoCierre;
+
+    currentUser = normalizarUsuarioSesion({
+        username: nuevoUsuario,
+        nombre: u.nombre,
+        rol: u.rol
+    });
+
+    cajaAbierta = cajaAbiertaGuardada;
+    horaAperturaCaja = horaAperturaGuardada;
+    ventasCajaActual = ventasCajaGuardadas;
+    montoApertura = montoAperturaGuardado;
+    montoCierre = montoCierreGuardado;
+
+    localStorage.setItem('currentUser', JSON.stringify(currentUser));
+    localStorage.setItem('cajaAbierta', cajaAbierta.toString());
+    localStorage.setItem('horaAperturaCaja', horaAperturaCaja || '');
+    localStorage.setItem('ventasCajaActual', JSON.stringify(ventasCajaActual));
+    localStorage.setItem('montoApertura', montoApertura.toString());
+    localStorage.setItem('montoCierre', montoCierre.toString());
+
+    currentUserName.textContent = currentUser.nombre || currentUser.username;
+    currentUserRole.textContent = `(${currentUser.rol})`;
+
+    // Reaplicar TODOS los permisos con la misma función usada al entrar.
+    aplicarPermisosPorRolV21();
+    setTimeout(resumenCajaV267,50);
+    actualizarEstadoCaja();
+    actualizarVentasDelDia();
+
+    // Recalcular la fila: 5 vendedor / 6 admin.
+    if (typeof ajustarAccionesPrincipalesV265 === 'function') {
+        setTimeout(ajustarAccionesPrincipalesV265, 50);
+    }
+
+    cambiarUsuarioModal.style.display = 'none';
+    nuevoUsuarioInput.value = '';
+    nuevaPasswordInput.value = '';
+    Notificaciones.mostrar(`Usuario cambiado a: ${currentUser.nombre || currentUser.username}`, 'success', 3000);
 }
 
 function mostrarResumenCierre(resumen) {
@@ -3326,14 +3698,14 @@ function actualizarEstadoCaja() {
     if (cajaAbierta) {
         cajaStatus.textContent = `Caja abierta en ${sucursalSeleccionada} desde ${new Date(horaAperturaCaja).toLocaleTimeString()}`;
         cajaInfo.style.borderLeftColor = '#28a745';
-        actionCerrarCaja.innerHTML = '<i class="fas fa-cash-register"></i> Cerrar Caja';
+        const t=actionCerrarCaja.querySelector('.action-title'); if(t)t.textContent='Cerrar Caja';
         agregarProductoBtn.disabled = false;
         actionGuardarVenta.disabled = false;
         actionImprimir.disabled = false;
     } else {
-        cajaStatus.textContent = 'Caja cerrada - Presiona "Abrir/Cerrar Caja" para abrir';
+        cajaStatus.textContent = estadoCajaHoyV2620==='CERRADA'?'Caja cerrada hoy — jornada finalizada':'Sucursal sin abrir hoy — pulsa Abrir Caja';
         cajaInfo.style.borderLeftColor = '#dc3545';
-        actionCerrarCaja.innerHTML = '<i class="fas fa-cash-register"></i> Abrir Caja';
+        const t=actionCerrarCaja.querySelector('.action-title'); if(t)t.textContent='Abrir Caja';
         agregarProductoBtn.disabled = true;
         actionGuardarVenta.disabled = true;
         actionImprimir.disabled = true;
@@ -3342,7 +3714,7 @@ function actualizarEstadoCaja() {
 
 function realizarBackupCompleto() {
     try {
-        const backupData = { ventas: ventasDelDia, configuracion: { usuario: currentUser, sucursal: sucursalSeleccionada, ultimaActualizacion: new Date().toISOString() }, version: '3.0', totalVentas: ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length, totalRecaudado: ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').reduce((sum, v) => sum + parseFloat(v.total_venta), 0) };
+        const backupData = { ventas: ventasDelDia, configuracion: { usuario: currentUser, sucursal: sucursalSeleccionada, ultimaActualizacion: new Date().toISOString() }, version: '3.0', totalVentas: ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').length, totalRecaudado: ventasDelDia.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').reduce((sum, v) => sum + parseFloat(v.total_venta), 0) };
         const blob = new Blob([JSON.stringify(backupData, null, 2)], { type: 'application/json' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
@@ -3357,7 +3729,7 @@ function restaurarBackup(archivo) {
     reader.onload = function(e) {
         try {
             const backupData = JSON.parse(e.target.result);
-            Swal.fire({ title: '¿Restaurar Backup?', html: `<p><strong>Esta acción reemplazará todos los datos actuales.</strong></p><p>Ventas en backup: ${backupData.ventas.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA').length}</p>`, icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, restaurar', cancelButtonText: 'Cancelar' }).then((result) => {
+            Swal.fire({ title: '¿Restaurar Backup?', html: `<p><strong>Esta acción reemplazará todos los datos actuales.</strong></p><p>Ventas en backup: ${backupData.ventas.filter(v => v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS').length}</p>`, icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, restaurar', cancelButtonText: 'Cancelar' }).then((result) => {
                 if (result.isConfirmed) { crearBackupAutomatico(); ventasDelDia = backupData.ventas; guardarVentasLocalSeguro(); actualizarContadorVentas(); actualizarEstadisticas(); actualizarVentasDelDia(); Notificaciones.mostrar('Backup restaurado', 'success'); }
             });
         } catch (error) { Notificaciones.mostrar('Archivo inválido', 'error'); }
@@ -3396,14 +3768,16 @@ function limpiarBackupsAntiguos() {
 
 function imprimirResumenVentasDia() {
     const hoy = new Date().toLocaleDateString('es-ES');
-    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA');
+    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS');
     if (ventasHoy.length === 0) { Notificaciones.mostrar('No hay ventas hoy', 'warning'); return; }
     let resumen = { efectivo: 0, qr: 0, mixto: 0, total: 0, numeroVentas: ventasHoy.length };
     ventasHoy.forEach(venta => { const monto = parseFloat(venta.total_venta); resumen.total += monto; if (venta.metodo_pago === 'Efectivo') resumen.efectivo += monto; else if (venta.metodo_pago === 'QR') resumen.qr += monto; else if (String(venta.metodo_pago || '').toLowerCase() === 'mixto') { resumen.mixto += monto; resumen.efectivo += venta.monto_efectivo || 0; resumen.qr += venta.monto_qr || 0; } });
     const iframe = document.createElement('iframe');
     iframe.style.position = 'absolute'; iframe.style.left = '-9999px';
     document.body.appendChild(iframe);
-    const html = `<!DOCTYPE html><html><head><title>Resumen</title><style>body{font-family:Arial,sans-serif;padding:20px;font-size:14px;}.header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px;}.totales{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}.total{padding:15px;border:1px solid #000;border-radius:8px;text-align:center;}.valor{font-size:20px;font-weight:bold;}</style></head><body><div class="header"><h1>TODOENUNO_STORE</h1><h2>Resumen del Día: ${hoy}</h2><p>Sucursal: ${sucursalSeleccionada}</p></div><div class="totales"><div class="total"><div>Efectivo</div><div class="valor">${resumen.efectivo.toFixed(2)} Bs</div></div><div class="total"><div>QR</div><div class="valor">${resumen.qr.toFixed(2)} Bs</div></div><div class="total"><div>Mixto</div><div class="valor">${resumen.mixto.toFixed(2)} Bs</div></div><div class="total"><div>Total</div><div class="valor">${resumen.total.toFixed(2)} Bs</div></div></div><p style="margin-top:20px"><strong>Número de Ventas:</strong> ${resumen.numeroVentas}</p><p><strong>Generado por:</strong> ${currentUser.nombre}</p></body></html>`;
+    const html = `<!DOCTYPE html><html><head><title>Resumen</title><style>body{font-family:Arial,sans-serif;padding:20px;font-size:14px;}.header{text-align:center;border-bottom:2px solid #000;padding-bottom:10px;margin-bottom:20px;}.totales{display:grid;grid-template-columns:repeat(2,1fr);gap:15px;}.total{padding:15px;border:1px solid #000;border-radius:8px;text-align:center;}.valor{font-size:20px;font-weight:bold;}
+
+</style></head><body><div class="header"><h1>TODOENUNO_STORE</h1><h2>Resumen del Día: ${hoy}</h2><p>Sucursal: ${sucursalSeleccionada}</p></div><div class="totales"><div class="total"><div>Efectivo</div><div class="valor">${resumen.efectivo.toFixed(2)} Bs</div></div><div class="total"><div>QR</div><div class="valor">${resumen.qr.toFixed(2)} Bs</div></div><div class="total"><div>Mixto</div><div class="valor">${resumen.mixto.toFixed(2)} Bs</div></div><div class="total"><div>Total</div><div class="valor">${resumen.total.toFixed(2)} Bs</div></div></div><p style="margin-top:20px"><strong>Número de Ventas:</strong> ${resumen.numeroVentas}</p><p><strong>Generado por:</strong> ${currentUser.nombre}</p></body></html>`;
     const iframeDoc = iframe.contentWindow.document;
     iframeDoc.open(); iframeDoc.write(html); iframeDoc.close();
     setTimeout(() => { try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) {} setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 1000); }, 500);
@@ -3428,8 +3802,7 @@ function setupActivityListeners() {
     const btnRefPanel=document.getElementById('refrescarPanelOperativo');
     if(btnRefPanel)btnRefPanel.addEventListener('click',async()=>{btnRefPanel.disabled=true;btnRefPanel.innerHTML='<i class="fas fa-spinner fa-spin"></i>';await cargarPanelOperativoV20({forzar:true});btnRefPanel.disabled=false;btnRefPanel.innerHTML='<i class="fas fa-sync-alt"></i>'});
 
-    inicializar();
-});
+    document.addEventListener('DOMContentLoaded', inicializar);
 
 window.addEventListener('load',()=>setTimeout(()=>{actualizarResumenHoyInicio();cargarAlertasNegocioInicio({forzar:true})},1200));
 window.addEventListener('focus',()=>{actualizarResumenHoyInicio();cargarAlertasNegocioInicio()});
@@ -3474,11 +3847,364 @@ setInterval(posicionarPanelAlertasV17,2000);
 
 
 document.addEventListener('DOMContentLoaded', function() {
+// V26: la rueda del mouse nunca altera inputs numéricos accidentalmente.
+document.addEventListener('wheel',e=>{if(e.target instanceof HTMLInputElement && e.target.type==='number' && document.activeElement===e.target)e.target.blur();},{passive:true});
     const lightbox = document.getElementById('imageLightbox');
     const closeBtn = document.getElementById('lightboxCloseBtn');
     if (closeBtn) closeBtn.addEventListener('click', function(e){ e.stopPropagation(); cerrarLightbox(); });
     if (lightbox) lightbox.addEventListener('click', function(e){ if (e.target === lightbox) cerrarLightbox(); });
     document.addEventListener('keydown', function(e){ if (e.key === 'Escape') cerrarLightbox(); });
+
+});
+
+
+async function agregarVentaAntiguaV261(){
+  if(!esAdministrador()){Notificaciones.mostrar('Solo ADMIN puede cargar ventas antiguas','warning');return;}
+  if(!Array.isArray(items)||!items.length){Notificaciones.mostrar('Primero agrega los productos a Productos Agregados','warning');return;}
+  const suc=obtenerDatosSucursal();
+  if(!suc || !suc.nombre){Notificaciones.mostrar('Selecciona una sucursal antes de registrar','warning');return;}
+  const entrada=prompt('Fecha de la venta antigua (DD/MM/AAAA):','');
+  if(entrada===null)return;
+  const fecha=entrada.trim();
+  const m=fecha.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+  if(!m){Notificaciones.mostrar('Fecha inválida. Usa DD/MM/AAAA','warning');return;}
+  const d=new Date(Number(m[3]),Number(m[2])-1,Number(m[1]));
+  if(d.getFullYear()!==Number(m[3])||d.getMonth()!==Number(m[2])-1||d.getDate()!==Number(m[1])||d.getTime()>Date.now()){
+    Notificaciones.mostrar('La fecha no existe o está en el futuro','warning');return;
+  }
+  const fechaReal=[String(d.getDate()).padStart(2,'0'),String(d.getMonth()+1).padStart(2,'0'),d.getFullYear()].join('/');
+  const horaEntrada=prompt('Hora de esa venta (HH:MM):','12:00');
+  if(horaEntrada===null)return;
+  const hora=horaEntrada.trim();
+  if(!/^([01]?\d|2[0-3]):[0-5]\d$/.test(hora)){Notificaciones.mostrar('Hora inválida. Usa HH:MM','warning');return;}
+  const pagoEntrada=prompt('Método de pago (EFECTIVO / QR / MIXTO / DESCONOCIDO):','DESCONOCIDO');
+  if(pagoEntrada===null)return;
+  const metodo_pago=pagoEntrada.trim().toUpperCase();
+  if(!['EFECTIVO','QR','MIXTO','DESCONOCIDO'].includes(metodo_pago)){Notificaciones.mostrar('Método de pago inválido','warning');return;}
+  const productos=items.map(i=>String(i.descripcion||'')).join(' | ');
+  const montos=items.map(i=>(Number(i.monto)||0).toFixed(2)).join(' | ');
+  const suma=items.reduce((n,i)=>n+(Number(i.monto)||0),0);
+  const totalVenta=Number(suma.toFixed(2));
+  const clave='teus_historica_pendiente_v2628';
+  let pendiente=null;
+  try{pendiente=JSON.parse(localStorage.getItem(clave)||'null');}catch(e){}
+  const huella=JSON.stringify({fecha:fechaReal,hora,sucursal:suc.nombre,productos,montos,totalVenta,metodo_pago});
+  if(pendiente&&pendiente.huella!==huella){
+    Notificaciones.mostrar('Hay otra venta antigua pendiente de confirmar. Revisa su registro antes de preparar una diferente.','warning',7000);return;
+  }
+  const id_venta=pendiente?.id_venta || `VTA-HIST-${Date.now()}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
+  const ok=confirm(`VENTA ANTIGUA\nSucursal: ${suc.nombre}\nFecha: ${fechaReal} ${hora}\n${productos.replaceAll(' | ','\n')}\nTotal: ${totalVenta.toFixed(2)} Bs\nPago: ${metodo_pago}\n\nNo modificará Stock ni la caja actual. ¿Guardar en Google Sheets?`);
+  if(!ok)return;
+  localStorage.setItem(clave,JSON.stringify({id_venta,huella}));
+  try{
+    const r=await backendV26('venta_historica',{
+      id_venta,fecha:fechaReal,hora,sucursal:suc.nombre,productos,montos,
+      total_venta:totalVenta,numero_productos:items.length,metodo_pago,
+      nombre_cliente:String(nombreClienteActual||'').trim()||'Cliente General',
+      telefono:telefonoClienteActual||'',direccion:direccionClienteActual||'',departamento:departamentoClienteActual||'',
+      observaciones:'Carga histórica desde Productos Agregados',usuario:currentUser?.nombre||'',rol:currentUser?.rol||''
+    });
+    if(!r?.ok||r.id_venta!==id_venta)throw new Error(r?.error||'El servidor no confirmó el ID de venta.');
+    localStorage.removeItem(clave);
+    items=[]; actualizarListaItems();actualizarPrevisualizacion();limpiarBorradorVentaV26();
+    Notificaciones.mostrar(`Venta antigua ${r.id_venta} registrada en ${r.hoja||suc.nombre}. No afectó caja ni Stock.`, 'success',6500);
+  }catch(e){Notificaciones.mostrar('No se confirmó la venta antigua: '+(e.message||e)+'. Conservamos el carrito y el ID para reintentar sin duplicar.','error',9000);}
+}
+document.addEventListener('click',function(e){
+  const a=e.target.closest?.('#menuAgregarVentaAntigua');
+  if(a){e.preventDefault();agregarVentaAntiguaV261();}
+});
+
+
+// V26.3 — accesos visibles acordados
+async function agregarSencilloCajaV263(){
+  if(!cajaAbierta){
+    Notificaciones.mostrar('Primero debes abrir la caja para agregar sencillo / monedas.','warning',5000);
+    return;
+  }
+  const entrada=prompt('¿Cuánto efectivo físico agregarás a la caja?\nEjemplo: 10','');
+  if(entrada===null)return;
+  const monto=Math.round(Number(String(entrada).replace(',','.')));
+  if(!Number.isFinite(monto)||monto<=0){
+    Notificaciones.mostrar('Ingresa un monto entero mayor a 0','warning');
+    return;
+  }
+  const motivo=prompt('Motivo:','Agregar sencillo / monedas')||'Agregar sencillo / monedas';
+  const keyPend='teus_monedas_pendientes_'+normalizarTextoCatalogo(sucursalSeleccionada).replace(/\s+/g,'_');
+  let pendiente=null;try{pendiente=JSON.parse(localStorage.getItem(keyPend)||'null')}catch(e){}
+  const hoyMonedas=diaLocalV2617();
+  if(pendiente && pendiente.fecha!==hoyMonedas){Notificaciones.mostrar('Existe un movimiento antiguo sin confirmar. Revisa su ID antes de registrar más monedas: '+pendiente.id_operacion,'error',9000);return;}
+  if(pendiente && (pendiente.monto!==monto||pendiente.motivo!==motivo)){Notificaciones.mostrar('Hay monedas pendientes de confirmar. Primero reintenta el mismo importe y motivo: '+pendiente.monto+' Bs, '+pendiente.motivo,'warning',7000);return;}
+  if(!confirm(`Agregar ${monto} Bs de efectivo físico a caja?\n\nEsto NO aumentará las ventas.`))return;
+  if(!pendiente){pendiente={id_operacion:`MON-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,monto,motivo,fecha:hoyMonedas};localStorage.setItem(keyPend,JSON.stringify(pendiente));}
+
+  const btn=document.getElementById('btnAgregarSencillo');
+  if(btn) btn.style.pointerEvents='none';
+  try{
+    // Primero verificar que la implementación pública sea la NUEVA.
+    const prueba=await fetch(APPS_SCRIPT_URL+'?accion=ping&_='+Date.now(),{cache:'no-store'});
+    if(!prueba.ok)throw new Error('Apps Script no responde (HTTP '+prueba.status+').');
+    const estado=await prueba.json();
+    if(!estado.ok || estado.servicio!=='V26.27-MONEDAS-DIAGNOSTICO')
+      throw new Error('Code.gs antiguo publicado. Implementa una NUEVA VERSIÓN del Web App antes de guardar monedas. Versión detectada: '+String(estado.servicio||'desconocida'));
+    const verif=await backendV26('verificar_monedas',{
+      sucursal:sucursalSeleccionada||'',id_operacion:pendiente.id_operacion
+    });
+    if(verif.existe){
+      if(Math.abs(Number(verif.monto)-monto)>0.001)throw new Error('Movimiento pendiente con importe diferente.');
+      localStorage.removeItem(keyPend);
+      Notificaciones.mostrar('Los '+monto+' Bs ya estaban en '+verif.hoja+' (fila '+verif.fila+'). No se duplicó el ingreso.','success',9000);
+      return;
+    }
+    Notificaciones.mostrar('Registrando MONEDAS en la hoja de esta sucursal...','info',2500);
+    const r=await backendV26('movimiento_caja',{
+      tipo:'INGRESO_EFECTIVO',
+      id_operacion:pendiente.id_operacion,
+      monto,
+      motivo,
+      usuario:currentUser?.nombre||currentUser?.username||'',
+      sucursal:sucursalSeleccionada||'',
+      metodo:'EFECTIVO',
+      observaciones:'Ingreso manual de sencillo; no es venta'
+    });
+
+    if(!r || r.confirmado!==true || !r.id_venta){
+      throw new Error('Apps Script no confirmó la fila. Respuesta: '+JSON.stringify(r||{}).slice(0,450));
+    }
+
+
+    // Mismo ID estable en todo reintento; no genera una segunda fila.
+    localStorage.removeItem(keyPend);
+    // La escritura YA fue verificada por Apps Script. Refrescar datos es secundario.
+    cajaManualV2617.actualizado=0;
+    await cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true});
+    consultarMovimientosCajaV2617({forzar:true}).catch(()=>{});
+
+    const ultimo=document.getElementById('rcUltimoMovimiento');
+    if(ultimo){
+      ultimo.textContent=`CONFIRMADO EN SHEETS: +${monto} Bs · ${motivo} · ID ${r.id_evento}`;
+    }
+    Notificaciones.mostrar(
+      `+${monto} Bs confirmados en hoja ${r.hoja}. ID: ${r.id_venta}. No aumenta las ventas. ${r.aviso||''}`,
+      'success',8000
+    );
+    if(typeof actualizarEstadoCaja==='function') actualizarEstadoCaja();
+  }catch(e){
+    Notificaciones.mostrar(
+      'NO se registró el efectivo: '+(e.message||e),
+      'error',9000
+    );
+  }finally{
+    if(btn) btn.style.pointerEvents='';
+  }
+}
+document.addEventListener('click',function(e){
+  if(e.target.closest?.('#btnAgregarSencillo')){e.preventDefault();agregarSencilloCajaV263();}
+  if(e.target.closest?.('#btnVentaAntigua')){e.preventDefault();agregarVentaAntiguaV261();}
+});
+// Regla visual: precios de producto enteros y sin rueda/spinner.
+document.addEventListener('input',function(e){
+  const el=e.target;
+  if(!el)return;
+  if(el.id==='ventaSmartPrecio' || /precio/i.test(el.id||'')){
+    const limpio=String(el.value||'').replace(/\D+/g,'');
+    if(el.value!==limpio)el.value=limpio;
+  }
+},true);
+document.addEventListener('wheel',function(e){
+  const el=e.target;
+  if(el?.matches?.('input[type="number"]')) el.blur();
+},{passive:true,capture:true});
+
+
+function ajustarAccionesPrincipalesV265(){
+  const box=document.getElementById('accionesPrincipalesV265');
+  if(!box)return;
+  const cards=[...box.children].filter(x=>x.classList?.contains('action-card'));
+  const visibles=cards.filter(x=>{
+    const s=getComputedStyle(x);
+    return s.display!=='none' && !x.hidden && !x.classList.contains('oculto');
+  }).length;
+  box.style.setProperty('grid-template-columns',`repeat(${Math.max(1,visibles)},minmax(0,1fr))`,'important');
+}
+document.addEventListener('DOMContentLoaded',()=>setTimeout(ajustarAccionesPrincipalesV265,300));
+document.addEventListener('click',()=>setTimeout(ajustarAccionesPrincipalesV265,100));
+window.addEventListener('resize',ajustarAccionesPrincipalesV265);
+setTimeout(ajustarAccionesPrincipalesV265,800);
+
+
+// V26.7 — tarjeta histórica ADMIN + resumen visible de caja.
+function movimientosCajaLocalesV267(){
+  try{return JSON.parse(localStorage.getItem('movimientosCajaV267')||'[]')}catch(e){return[]}
+}
+function registrarMovimientoCajaLocalV267(tipo,monto,motivo){
+  const a=movimientosCajaLocalesV267();
+  a.push({tipo,monto:Number(monto)||0,motivo:motivo||'',fecha:new Date().toISOString(),sucursal:sucursalSeleccionada||''});
+  localStorage.setItem('movimientosCajaV267',JSON.stringify(a));
+}
+// V26.17: estado de caja: UN lector de ventas, no bloquea la pantalla con una segunda lectura.
+let cajaManualV2617={estado:'pendiente',sucursal:'',fecha:'',ingresos:0,retiros:0,movimientos:[],actualizado:0,promesa:null};
+let cajaVentasLeidasV2617=false;
+let cajaRevisionV2617={esperado:null,aperturaSesion:0,aperturaDia:null,ventas:0,cambio:0,manualVerificado:false};
+function numeroCajaV2617(v){
+  if(typeof v==='number')return Number.isFinite(v)?v:0;
+  const s=String(v??'').trim().replace(/\s*Bs\.?/gi,'').replace(/\s/g,'');
+  if(!s)return 0;
+  // 1.629,00 / 1629.00 / 1629,00
+  let t=s;
+  if(t.includes(',')&&t.includes('.'))t=t.lastIndexOf(',')>t.lastIndexOf('.')?t.replace(/\./g,'').replace(',','.'):t.replace(/,/g,'');
+  else if(t.includes(','))t=t.replace(',','.');
+  const n=Number(t);return Number.isFinite(n)?n:0;
+}
+function diaLocalV2617(){return new Date().toLocaleDateString('es-ES',{timeZone:'America/La_Paz'});}
+function fechaVentaV2617(v){return fechaComparableVentas(v?.fecha||'')===fechaComparableVentas(diaLocalV2617());}
+function esAperturaV2617(v){
+  const p=normalizarTextoCatalogo(v?.productos||''),id=normalizarTextoCatalogo(v?.id||'');
+  return p.includes('apertura de caja')||id.startsWith('apertura')||String(v?.apertura_caja||'').toUpperCase()==='APERTURA';
+}
+function esCierreV2617(v){
+  const p=normalizarTextoCatalogo(v?.productos||''),id=normalizarTextoCatalogo(v?.id||'');
+  return p.includes('cierre de caja')||id.startsWith('cierre')||String(v?.cierre_caja||'').toUpperCase().includes('CIERRE');
+}
+function horaVentaV2617(v){
+  const h=String(v?.hora||'').match(/(\d{1,2}):(\d{2})(?::(\d{2}))?/);
+  if(h)return (+h[1])*3600+(+h[2])*60+(+(h[3]||0));
+  const ts=Date.parse(v?.timestamp||'');
+  if(Number.isFinite(ts)){
+    const d=new Date(ts);
+    const parts=d.toLocaleTimeString('en-GB',{timeZone:'America/La_Paz',hour12:false}).split(':').map(Number);
+    return parts[0]*3600+parts[1]*60+(parts[2]||0);
+  }
+  return null;
+}
+function inicioSesionSegundosV2617(){
+  if(!cajaAbierta||!horaAperturaCaja)return null;
+  const d=new Date(horaAperturaCaja);if(!Number.isFinite(d.getTime()))return null;
+  const p=d.toLocaleTimeString('en-GB',{timeZone:'America/La_Paz',hour12:false}).split(':').map(Number);
+  return p[0]*3600+p[1]*60+(p[2]||0);
+}
+function dineroV2617(n){return (Math.round((Number(n)||0)*100)/100).toLocaleString('es-BO',{maximumFractionDigits:2})+' Bs';}
+function actualizaTextoCajaV2617(id,valor){const el=document.getElementById(id);if(el)el.textContent=valor;}
+function pintarCajaDesdeVentasV2617(){
+  const panel=document.getElementById('resumenCajaV267');if(!panel)return;
+  const filas=(Array.isArray(ventasDelDia)?ventasDelDia:[]).filter(fechaVentaV2617).filter(perteneceVentaASucursal);
+  const hora=(v)=>horaVentaV2617(v)??-1;
+  const ordenados=[...filas].sort((a,b)=>hora(a)-hora(b));
+  const eventos=ordenados.filter(v=>esAperturaV2617(v)||esCierreV2617(v));
+  const ultimo=eventos.length?eventos[eventos.length-1]:null;
+  const estado=!ultimo?'SIN_ABRIR':esCierreV2617(ultimo)?'CERRADA':'OPERANDO';
+  const apertura=estado==='SIN_ABRIR'?null:ultimo && esAperturaV2617(ultimo)?ultimo:(()=>{
+    const prev=ordenados.filter(v=>esAperturaV2617(v)&&hora(v)<=hora(ultimo));
+    return prev.length?prev[prev.length-1]:null;
+  })();
+  const desde=apertura?hora(apertura):null,hasta=estado==='CERRADA'?hora(ultimo):null;
+  const enTurno=v=>{
+    const h=hora(v);
+    return desde!==null&&h>=desde&&(hasta===null||h<=hasta);
+  };
+  const operaciones=apertura?ordenados.filter(enTurno):[];
+  const normales=operaciones.filter(v=>!esAperturaV2617(v)&&!esCierreV2617(v)&&!esMonedasV2620(v)&&!esAnuladaV2620(v));
+  const monedas=operaciones.filter(esMonedasV2620);
+  const aperturaMonto=apertura?numeroCajaV2617(apertura.monto_efectivo||apertura.apertura_caja):0;
+  const contado=estado==='CERRADA'?numeroCajaV2617(ultimo?.monto_efectivo):null;
+  const ingresos=monedas.reduce((s,x)=>s+numeroCajaV2617(x.INGRESO_EFECTIVO),0);
+  let efectivo=0,cambioEfectivo=0;
+  for(const v of normales){
+    const metodo=normalizarTextoCatalogo(v.metodo_pago||'');
+    const ventaEfectivo=numeroCajaV2617(v.monto_efectivo);
+    const recibido=numeroCajaV2617(v.efectivo_recibido);
+    const devueltoQR=numeroCajaV2617(v.devuelto_qr||v.cambio_qr);
+    let cambioCash=Math.max(0,recibido-ventaEfectivo-devueltoQR);
+    if(!recibido)cambioCash=numeroCajaV2617(v.cambio_efectivo);
+    const base=metodo==='qr'?0:(recibido||ventaEfectivo);
+    efectivo+=base;
+    cambioEfectivo+=cambioCash;
+  }
+  const confirmado=cajaVentasLeidasV2617 || operaciones.some(v=>v.sincronizada===true);
+  const manualOk=cajaManualV2617.estado==='ok'&&cajaManualV2617.sucursal===String(sucursalSeleccionada)&&cajaManualV2617.fecha===diaLocalV2617();
+  // MONEDAS viene de la columna X de ventas; el historial solo audita, no vuelve a sumar.
+  const retiros=manualOk&&apertura?cajaManualV2617.movimientos.filter(x=>x.tipo==='RETIRO_EFECTIVO'&&enTurno(x)).reduce((s,x)=>s+numeroCajaV2617(x.monto),0):0;
+  const esperado=apertura?aperturaMonto+efectivo-cambioEfectivo+ingresos-retiros:null;
+  const verificado=confirmado&&!!apertura&&manualOk;
+  estadoCajaHoyV2620=estado;
+  // Nunca permitir que la caja abierta de otra sucursal o de ayer sobreviva en memoria.
+  cajaAbierta=estado==='OPERANDO';
+  horaAperturaCaja=estado==='OPERANDO'&&apertura?fechaHoraRegistroHoyV2620(apertura):null;
+  montoApertura=cajaAbierta?aperturaMonto:0;
+  localStorage.setItem('cajaAbierta',String(cajaAbierta));
+  if(horaAperturaCaja)localStorage.setItem('horaAperturaCaja',horaAperturaCaja);
+  else localStorage.removeItem('horaAperturaCaja');
+  actualizarEstadoCaja();
+  cajaRevisionV2617={esperado:cajaAbierta&&verificado?esperado:null,aperturaSesion:aperturaMonto,aperturaDia:aperturaMonto,ventas:efectivo,cambio:cambioEfectivo,manualVerificado:manualOk};
+  const texto=estado==='SIN_ABRIR'?'Sin abrir hoy':estado==='OPERANDO'?'Operando':'Cerrada';
+  actualizaTextoCajaV2617('rcEstado',texto+' · '+normales.length+' venta(s) del turno · '+(confirmado?'Sheets leído':'lectura sin confirmar'));
+  actualizaTextoCajaV2617('rcApertura',apertura?dineroV2617(aperturaMonto):'Sin apertura hoy');
+  actualizaTextoCajaV2617('rcAperturaSesion',apertura?dineroV2617(aperturaMonto):'Sin apertura hoy');
+  actualizaTextoCajaV2617('rcVentas',dineroV2617(efectivo));
+  actualizaTextoCajaV2617('rcCambio',dineroV2617(cambioEfectivo));
+  actualizaTextoCajaV2617('rcSencillo','+'+dineroV2617(ingresos));
+  actualizaTextoCajaV2617('rcRetiros',manualOk?dineroV2617(retiros):'Sin verificar');
+  const titulo=estado==='SIN_ABRIR'?'SIN APERTURA HOY':estado==='OPERANDO'?'EFECTIVO ESPERADO EN CAJA':'EFECTIVO CONTADO AL CERRAR';
+  const principal=estado==='SIN_ABRIR'?'Sin abrir':estado==='CERRADA'?dineroV2617(contado):confirmado&&apertura?(dineroV2617(esperado)+(manualOk?'':' (provisional)')):'Pendiente de Sheets';
+  actualizaTextoCajaV2617('rcEfectivoTitulo',titulo);
+  actualizaTextoCajaV2617('rcEfectivoCaja',principal);
+  actualizaTextoCajaV2617('rcEsperadoTitulo',estado==='CERRADA'?'ESPERADO AL CIERRE':'CIERRE ESPERADO');
+  actualizaTextoCajaV2617('rcEsperado',estado==='SIN_ABRIR'?'Sin abrir':confirmado&&apertura?(dineroV2617(esperado)+(manualOk?'':' (provisional)')):'Pendiente de Sheets');
+  actualizaTextoCajaV2617('rcCierreRegistrado',estado==='CERRADA'?dineroV2617(contado):'Sin cierre hoy');
+  const etiqueta=document.getElementById('rcAperturaSesionEtiqueta');if(etiqueta&&etiqueta.firstChild)etiqueta.firstChild.textContent='Apertura de este turno: ';
+  actualizaTextoCajaV2617('rcUltimoMovimiento',estado==='SIN_ABRIR'?'No existe APERTURA de la fecha actual en esta sucursal.':estado==='OPERANDO'?'Sucursal operando desde '+(apertura?.hora||'')+'.': 'Cierre registrado hoy a las '+(ultimo?.hora||'')+'.');
+  if(!manualOk && estado!=='SIN_ABRIR')actualizaTextoCajaV2617('rcUltimoMovimiento',(document.getElementById('rcUltimoMovimiento')?.textContent||'')+' Retiros manuales sin verificar; el saldo esperado es provisional.');
+  const vis=document.getElementById('cierrePrevisualizacionV2617');if(vis){
+    const n=numeroCajaV2617(document.getElementById('montoCierreCaja')?.value);
+    vis.textContent=estado==='OPERANDO'&&verificado?'Esperado '+dineroV2617(esperado)+' · Contado '+dineroV2617(n)+' · Diferencia '+dineroV2617(n-esperado):'No hay efectivo esperado verificado todavía.';
+  }
+}
+function esMonedasV2620(v){return normalizarTextoCatalogo(v?.id||'')==='monedas'||normalizarTextoCatalogo(v?.productos||'').includes('ingreso de monedas');}
+function esAnuladaV2620(v){return !!v&&(v._anuladaV2620===true||String(v.observaciones||'').includes('[ANULADA]'));}
+function fechaHoraRegistroHoyV2620(v){
+  const h=String(v?.hora||'00:00:00').match(/(\d{1,2}):(\d{1,2})(?::(\d{1,2}))?/);
+  const hoy=new Date();const dia=hoy.toLocaleDateString('en-CA',{timeZone:'America/La_Paz'});
+  return new Date(dia+'T'+String(h?+h[1]:0).padStart(2,'0')+':'+String(h?+h[2]:0).padStart(2,'0')+':'+String(h&&h[3]?+h[3]:0).padStart(2,'0')+'-04:00').toISOString();
+}
+
+async function consultarMovimientosCajaV2617({forzar=false}={}){
+  const suc=String(sucursalSeleccionada||''),fecha=diaLocalV2617();
+  if(!suc)return;
+  if(cajaManualV2617.promesa&&!forzar)return cajaManualV2617.promesa;
+  if(!forzar&&cajaManualV2617.estado==='ok'&&cajaManualV2617.sucursal===suc&&cajaManualV2617.fecha===fecha&&Date.now()-cajaManualV2617.actualizado<25000)return;
+  const tarea=(async()=>{
+    try{
+      const resultado=await Promise.race([
+        backendV26('resumen_caja',{sucursal:suc,fecha}),
+        new Promise((_,reject)=>setTimeout(()=>reject(new Error('La consulta tardó demasiado')),8000))
+      ]);
+      if(String(sucursalSeleccionada)!==suc)return;
+      cajaManualV2617={estado:'ok',sucursal:suc,fecha,ingresos:numeroCajaV2617(resultado.ingresos),retiros:numeroCajaV2617(resultado.retiros),movimientos:Array.isArray(resultado.movimientos)?resultado.movimientos:[],actualizado:Date.now(),promesa:null};
+    }catch(e){
+      if(String(sucursalSeleccionada)===suc){
+        cajaManualV2617={estado:'error',sucursal:suc,fecha,ingresos:0,retiros:0,movimientos:[],actualizado:Date.now(),promesa:null};
+        console.warn('Movimientos de caja no verificados:',e.message||e);
+      }
+    }finally{pintarCajaDesdeVentasV2617();}
+  })();
+  cajaManualV2617.promesa=tarea;
+  return tarea;
+}
+function refrescarCajaAlEntrarV2617({google=true}={}){
+  pintarCajaDesdeVentasV2617();
+  if(google){
+    cargarVentasDiaDesdeSheet({notificar:false,silencioso:true}).then(ok=>{
+      if(ok)cajaVentasLeidasV2617=true;
+      pintarCajaDesdeVentasV2617();
+    }).catch(e=>{console.warn('No se pudieron refrescar ventas',e);pintarCajaDesdeVentasV2617();});
+  }
+  consultarMovimientosCajaV2617().catch(()=>{});
+}
+// Compatibilidad con el botón Agregar efectivo, sin esperar a que Apps Script termine de consultar un segundo resumen.
+function resumenCajaV267(){refrescarCajaAlEntrarV2617({google:false});}
+document.addEventListener('DOMContentLoaded',()=>{
+  aplicarPermisosPorRolV21();
+  setTimeout(()=>refrescarCajaAlEntrarV2617({google:true}),500);
 });
 
 </script>
