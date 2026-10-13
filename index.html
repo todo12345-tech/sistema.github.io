@@ -452,6 +452,84 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
   .venta-counter button{width:27px;min-width:27px;}
 }
 
+
+/* V26.35: cobro rápido en dos columnas, sin desplazamiento vertical en escritorio */
+@media (min-width: 820px) {
+ #metodoPagoModal .modal-content {max-width:910px;width:min(94vw,910px);max-height:min(92dvh,780px);}
+ #metodoPagoModalContent {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:18px;align-items:start;}
+ #metodoPagoModalContent>.metodo-pago-modal-option {grid-column:1;min-height:64px;margin-bottom:8px;padding:10px 12px;}
+ #metodoPagoModalContent>#camposMixto {grid-column:1;grid-row:4;margin-top:0;}
+ #metodoPagoModalContent>#camposCambio {grid-column:2;grid-row:1 / span 4;margin:0;padding:15px;min-height:220px;}
+ #metodoPagoModalContent>.modal-actions {grid-column:1 / -1;margin-top:10px;}
+ #metodoPagoModal .pago-mixto-container {padding:10px;margin:6px 0;}
+ #metodoPagoModal .pago-mixto-opciones {display:none;}
+ #metodoPagoModal .resumen-pago {margin-top:8px;padding:9px;}
+ #metodoPagoModal .form-group {margin-bottom:9px;}
+}
+@media(max-width:819px){#metodoPagoModal .modal-content{width:min(96vw,500px);max-height:calc(100dvh - 24px);overflow-y:auto;} }
+#metodoPagoModal .metodo-pago-modal-option {touch-action:manipulation;}
+#metodoPagoModal .cambio-section {border-radius:9px;}
+#metodoPagoModal .modal-actions {position:sticky;bottom:0;background:#fff;padding-top:8px;z-index:1;}
+.ajustar-cambio-v2635{background:#7c3aed!important;color:#fff!important;}
+
+/* V26.36 — teléfono 390px: layout vertical estable, cobro compacto. */
+@media (max-width: 819px) {
+ html,body{max-width:100%;overflow-x:clip!important;min-height:100%;-webkit-text-size-adjust:100%;}
+ body{display:block!important;}
+ .main-content,.main-content.sidebar-collapsed,.main-content.right-sidebar-collapsed{width:100%!important;max-width:100%!important;margin:0!important;min-width:0!important;}
+ .content-area{padding:8px!important;max-width:100%;overflow-x:clip!important;}
+ .container{width:100%!important;max-width:100%!important;padding:12px!important;overflow:visible;}
+ .top-bar{padding:10px;flex-wrap:wrap;gap:7px;}
+ .top-bar-title{font-size:15px;flex:1 1 100%;}
+ .user-info{width:100%;justify-content:space-between;gap:5px;}
+ .user-info button{font-size:11px!important;padding:8px 6px!important;min-width:0;white-space:normal;}
+ .sidebar,.right-sidebar{height:100dvh!important;max-height:100dvh;overscroll-behavior:contain;}
+ .right-sidebar{right:0!important;}
+ .actions-grid,#accionesPrincipalesV265{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:8px!important;}
+ #accionesPrincipalesV265 .action-card{padding:10px 6px!important;min-height:104px!important;}
+ #accionesPrincipalesV265 .action-card i{font-size:23px!important;margin-bottom:7px!important;}
+ #accionesPrincipalesV265 .action-title{font-size:12px!important;line-height:1.3;}
+ #accionesPrincipalesV265 .action-description{font-size:10px!important;line-height:1.35;}
+ .producto-unidad{display:flex!important;flex-direction:column!important;gap:8px;}
+ .descripcion-input,.monto-input{width:100%!important;flex:0 0 auto!important;}
+ .producto-item{max-width:100%;}
+ .ventas-table-container{max-width:100%!important;overflow-x:auto!important;-webkit-overflow-scrolling:touch;overscroll-behavior-x:contain;}
+ .tabla-ventas-dia{min-width:940px!important;}
+ .resumen-ventas-dia .resumen-fila{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:8px;}
+ .resumen-ventas-dia .resumen-valor-dia{white-space:normal!important;overflow-wrap:anywhere;text-align:right;}
+ .modal-overlay{padding:6px!important;align-items:center!important;}
+ .modal-content{border-radius:12px!important;max-height:calc(100dvh - 12px)!important;max-width:100%!important;padding:12px!important;overflow-x:hidden!important;overflow-y:auto!important;}
+ .modal-header{margin-bottom:9px;padding-bottom:8px;gap:8px;}
+ .modal-header h3{font-size:16px;line-height:1.25;}
+ .modal-actions{position:sticky;bottom:0;padding:9px 0 max(8px,env(safe-area-inset-bottom))!important;margin-top:8px!important;background:white;z-index:5;display:flex!important;flex-wrap:nowrap!important;gap:7px!important;}
+ .modal-actions button{flex:1 1 0!important;min-width:0!important;width:50%!important;padding:12px 5px!important;font-size:13px!important;}
+ .swal2-popup{width:calc(100vw - 16px)!important;max-width:500px!important;padding:12px!important;max-height:calc(100dvh - 18px)!important;overflow-y:auto!important;}
+ .swal2-html-container{margin:10px 0!important;overflow-x:hidden!important;}
+ .swal2-input,.swal2-select{max-width:100%!important;box-sizing:border-box!important;margin-left:0!important;margin-right:0!important;}
+ input,select,textarea{font-size:16px!important;}
+}
+@media (max-width: 480px){
+ #metodoPagoModal .modal-content{width:calc(100vw - 12px)!important;max-height:calc(100dvh - 12px)!important;}
+ #metodoPagoModalContent{display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:7px!important;align-items:start;}
+ #metodoPagoModalContent>.metodo-pago-modal-option{grid-column:auto!important;grid-row:1!important;display:flex!important;flex-direction:column!important;align-items:center!important;justify-content:center!important;text-align:center;padding:9px 3px!important;margin:0!important;min-height:81px!important;gap:4px!important;min-width:0!important;}
+ #metodoPagoModalContent .metodo-pago-modal-icon{font-size:19px!important;width:auto!important;line-height:1.1;}
+ #metodoPagoModalContent .metodo-pago-modal-name{font-size:12px!important;line-height:1.2;}
+ #metodoPagoModalContent .metodo-pago-modal-desc{font-size:10px!important;line-height:1.2;}
+ #metodoPagoModalContent>#camposMixto{grid-column:1/-1!important;grid-row:2!important;margin:0!important;min-width:0;}
+ #metodoPagoModalContent>#camposCambio{grid-column:1/-1!important;grid-row:3!important;margin:0!important;padding:10px!important;min-width:0;}
+ #metodoPagoModalContent>.modal-actions{grid-column:1/-1!important;grid-row:4!important;}
+ #metodoPagoModal .pago-mixto-container{padding:9px!important;margin:3px 0!important;}
+ #metodoPagoModal .pago-mixto-container h3{font-size:15px!important;margin-bottom:4px;}
+ #metodoPagoModal .pago-mixto-opciones{display:none!important;}
+ #metodoPagoModal .form-group{margin-bottom:8px!important;}
+ #metodoPagoModal label{font-size:13px;margin-bottom:4px;}
+ #metodoPagoModal input,#metodoPagoModal select{padding:10px!important;font-size:16px!important;}
+ #metodoPagoModal .cambio-section h4{font-size:14px;margin-bottom:8px;}
+ #metodoPagoModal .resumen-pago{padding:9px!important;margin-top:7px!important;}
+ #metodoPagoModal .resumen-pago p{font-size:13px;margin:4px 0;}
+ #metodoPagoModal .modal-actions button{min-height:44px;}
+}
+
 </style>
 <!-- V26: Apps Script propio, id_venta único, Stock seguro, origen EXTERNO/PENDIENTE, borrador y caja inteligente. -->
 </head>
@@ -763,17 +841,17 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
             <div id="camposMixto" class="pago-mixto-campos">
                 <div class="pago-mixto-container">
                     <h3>Pago Mixto</h3>
-                    <p>Total a pagar: $<span id="totalMixto">0.00</span></p>
+                    <p>Total a pagar: Bs <span id="totalMixto">0.00</span></p>
                     <div class="pago-mixto-opciones"><div class="pago-mixto-opcion active" data-tipo="efectivo-primero">Efectivo primero</div><div class="pago-mixto-opcion" data-tipo="qr-primero">QR primero</div></div>
                     <div class="form-group"><label for="montoEfectivoMixto">Monto en Efectivo:</label><input type="number" id="montoEfectivoMixto" step="0.01" min="0" value="0"></div>
                     <div class="form-group"><label for="montoQRMixto">Monto con QR:</label><input type="number" id="montoQRMixto" step="0.01" min="0" value="0"></div>
-                    <div id="resumenMixto" class="resumen-pago" style="display: none;"><p><strong>Resumen:</strong></p><p>Efectivo: $<span id="resumenEfectivo">0.00</span></p><p>QR: $<span id="resumenQR">0.00</span></p><p>Total pagado: $<span id="totalPagado">0.00</span></p><p id="mensajeFaltante" style="color: #dc3545; display: none;">Falta: $<span id="montoFaltante">0.00</span></p><p id="mensajeCambio" style="color: #28a745; display: none;">Cambio: $<span id="montoCambioMixto">0.00</span></p></div>
+                    <div id="resumenMixto" class="resumen-pago" style="display: none;"><p><strong>Resumen:</strong></p><p>Efectivo: Bs <span id="resumenEfectivo">0.00</span></p><p>QR: Bs <span id="resumenQR">0.00</span></p><p>Total pagado: Bs <span id="totalPagado">0.00</span></p><p id="mensajeFaltante" style="color: #dc3545; display: none;">Falta: Bs <span id="montoFaltante">0.00</span></p><p id="mensajeCambio" style="color: #28a745; display: none;">Cambio: Bs <span id="montoCambioMixto">0.00</span></p></div>
                 </div>
             </div>
             <div id="camposCambio" class="cambio-section" style="display: none;">
                 <h4><i class="fas fa-calculator"></i> Cálculo de Cambio</h4>
                 <div class="form-group"><label for="montoRecibido">Monto Recibido (Bs):</label><input type="number" id="montoRecibido" step="0.01" min="0" placeholder="Monto recibido"></div>
-                <div id="resultadoCambio" class="resumen-pago" style="display: none;"></div><div class="form-group" id="medioCambioWrap" style="display:none;margin-top:12px"><label><b>¿Cómo entregarás el cambio?</b></label><select id="medioCambio" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px"><option value="EFECTIVO">Efectivo</option><option value="QR">QR</option></select></div>
+                <div id="resultadoCambio" class="resumen-pago" style="display: none;"></div><div class="form-group" id="medioCambioWrap" style="display:none;margin-top:12px"><label><b>¿Cómo entregarás el cambio?</b></label><select id="medioCambio" style="width:100%;padding:10px;border:1px solid #ddd;border-radius:6px"><option value="EFECTIVO">Todo en efectivo</option><option value="QR">Todo por QR</option><option value="MIXTO">Mixto: efectivo + QR</option></select><div id="cambioMixtoMontoWrapV2633" style="display:none;margin-top:10px"><label for="cambioEfectivoParcialV2633">Cambio devuelto en efectivo (Bs)</label><input id="cambioEfectivoParcialV2633" type="number" min="0" step="0.01" value="0" inputmode="decimal"><p id="cambioMixtoDesgloseV2633" style="font-size:12px;margin-top:6px"></p></div></div>
             </div>
             <div class="modal-actions"><button class="form-btn btn-cancel" id="cancelMetodoPago"><i class="fas fa-times"></i> Cancelar</button><button class="form-btn btn-save" id="confirmMetodoPago"><i class="fas fa-check"></i> Confirmar</button></div>
         </div>
@@ -1212,6 +1290,9 @@ const montoRecibido = document.getElementById('montoRecibido');
 const medioCambio = document.getElementById('medioCambio');
 const medioCambioWrap = document.getElementById('medioCambioWrap');
 const resultadoCambio = document.getElementById('resultadoCambio');
+const cambioMixtoMontoWrapV2633=document.getElementById('cambioMixtoMontoWrapV2633');
+const cambioEfectivoParcialV2633=document.getElementById('cambioEfectivoParcialV2633');
+const cambioMixtoDesgloseV2633=document.getElementById('cambioMixtoDesgloseV2633');
 const cargarPedidoTextarea = document.getElementById('cargarPedidoTextarea');
 const extraerDatosBtn = document.getElementById('extraerDatosBtn');
 const clienteNombreInput = document.getElementById('clienteNombreInput');
@@ -2442,16 +2523,68 @@ async function guardarVentaCompleta() {
     metodoPagoOptions[0].classList.add('selected');
     camposMixto.classList.remove('active');
     camposCambio.style.display = 'block';
+    if(montoRecibido.closest('.form-group'))montoRecibido.closest('.form-group').style.display='';
     totalMixto.textContent = total.toFixed(2);
-    montoRecibido.value = '';
+    montoRecibido.value = String(Number(total)||0);
+    medioCambio.value='EFECTIVO';cambioEfectivoParcialV2633.value='0';
     resultadoCambio.style.display = 'none'; if(medioCambioWrap) medioCambioWrap.style.display='none';
 }
+
+// V26.33: cálculo del vuelto por efectivo, QR o combinado (sin movimientos todavía).
+function desgloseCambioV2633(){
+  const totalCent=Math.round((Number(total)||0)*100);
+  if(metodoPagoSeleccionado==='Efectivo' && String(montoRecibido.value).trim()==='')throw new Error('Indica cuánto efectivo recibiste del cliente.');
+  const efectivo=metodoPagoSeleccionado==='Mixto'?Number(montoEfectivoMixto.value):metodoPagoSeleccionado==='Efectivo'?Number(montoRecibido.value):0;
+  const qr=metodoPagoSeleccionado==='Mixto'?Number(montoQRMixto.value):metodoPagoSeleccionado==='QR'?Number(total):0;
+  if(!Number.isFinite(efectivo)||!Number.isFinite(qr)||efectivo<0||qr<0)throw new Error('Importes recibidos inválidos.');
+  const efectivoCent=Math.round(efectivo*100),qrCent=Math.round(qr*100);
+  if(efectivoCent+qrCent<totalCent)throw new Error('El cliente aún debe '+((totalCent-efectivoCent-qrCent)/100).toFixed(2)+' Bs.');
+  const vueltoCent=efectivoCent+qrCent-totalCent;
+  const medio=vueltoCent>0?medioCambio.value:'EFECTIVO';
+  let vueltoEfectivoCent=0;
+  if(medio==='EFECTIVO')vueltoEfectivoCent=vueltoCent;
+  else if(medio==='QR')vueltoEfectivoCent=0;
+  else if(medio==='MIXTO'){
+    const raw=String(cambioEfectivoParcialV2633.value).trim();
+    if(raw==='')throw new Error('Indica cuánto cambio devuelves en efectivo.');
+    const valor=Number(raw);
+    if(!Number.isFinite(valor)||valor<0)throw new Error('Cambio en efectivo inválido.');
+    vueltoEfectivoCent=Math.round(valor*100);
+    if(vueltoEfectivoCent<=0||vueltoEfectivoCent>=vueltoCent)throw new Error('Para cambio mixto, el efectivo debe ser mayor a 0 y menor al cambio total.');
+  }else throw new Error('Selecciona cómo devuelves el cambio.');
+  if(vueltoEfectivoCent>efectivoCent)throw new Error('El cambio en efectivo supera el dinero recibido en efectivo.');
+  const vueltoQRCent=vueltoCent-vueltoEfectivoCent;
+  // monto_efectivo y monto_qr reparten exclusivamente el VALOR DE LA VENTA.
+  // El movimiento real de caja se calcula con efectivo_recibido - cambio_efectivo.
+  const creditoQR=Math.min(qrCent,totalCent), creditoCash=totalCent-creditoQR;
+  return {monto_efectivo:creditoCash/100,monto_qr:creditoQR/100,
+    efectivo_recibido:efectivoCent/100,cambio_efectivo:vueltoEfectivoCent/100,
+    cambio_qr:vueltoQRCent/100,devuelto_qr:vueltoQRCent/100,
+    cambio_total:vueltoCent/100};
+}
+function refrescarCambioV2633(){
+  const pagoCash=metodoPagoSeleccionado==='Mixto'?Number(montoEfectivoMixto.value||0):metodoPagoSeleccionado==='Efectivo'?Number(montoRecibido.value||0):0;
+  const pagoQR=metodoPagoSeleccionado==='Mixto'?Number(montoQRMixto.value||0):metodoPagoSeleccionado==='QR'?Number(total):0;
+  const excedente=Math.round((pagoCash+pagoQR-Number(total))*100)/100;
+  if(medioCambioWrap)medioCambioWrap.style.display=excedente>0?'block':'none';
+  if(cambioMixtoMontoWrapV2633)cambioMixtoMontoWrapV2633.style.display=excedente>0&&medioCambio.value==='MIXTO'?'block':'none';
+  if(cambioMixtoDesgloseV2633&&medioCambio.value==='MIXTO'){
+    const cash=Math.max(0,Number(cambioEfectivoParcialV2633.value)||0);
+    cambioMixtoDesgloseV2633.textContent='Cambio por QR: '+Math.max(0,excedente-cash).toFixed(2)+' Bs · Cambio total: '+Math.max(0,excedente).toFixed(2)+' Bs';
+  }
+}
+medioCambio.addEventListener('change',refrescarCambioV2633);
+cambioEfectivoParcialV2633.addEventListener('input',refrescarCambioV2633);
+montoEfectivoMixto.addEventListener('input',refrescarCambioV2633);
+montoQRMixto.addEventListener('input',refrescarCambioV2633);
+montoRecibido.addEventListener('input',refrescarCambioV2633);
 
 async function guardarVentaConMetodoPago() {
     if (guardandoVenta) {
         Notificaciones.mostrar('Esta venta ya se está procesando. Espera un momento.', 'warning', 2500);
         return;
     }
+    try{desgloseCambioV2633();}catch(e){Notificaciones.mostrar(e.message,'error',6500);return;}
     guardandoVenta = true;
     confirmMetodoPago.disabled = true;
     confirmMetodoPago.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Guardando...';
@@ -2501,37 +2634,11 @@ function generarTimestampVentaUnico(){
 
 function guardarVentaLocal() {
     const datosSucursal = obtenerDatosSucursal();
-    let metodoPagoData = { metodo_pago: metodoPagoSeleccionado };
-    if (metodoPagoSeleccionado === 'Mixto') {
-        const efectivoRecibido = parseFloat(montoEfectivoMixto.value) || 0;
-        const qrRecibido = parseFloat(montoQRMixto.value) || 0;
-        const totalVentaMixto = Number(total) || 0;
-        const totalRecibidoMixto = efectivoRecibido + qrRecibido;
-        const cambioMixto = Math.max(0, totalRecibidoMixto - totalVentaMixto);
-        const medio = cambioMixto>0 ? (medioCambio?.value||'EFECTIVO') : '';
-        const cambioEfectivo = medio==='EFECTIVO'?cambioMixto:0;
-        const cambioQR = medio==='QR'?cambioMixto:0;
-        // monto_efectivo / monto_qr representan la venta, no el dinero entregado por el cliente.
-        // Cada método se calcula NETO de su devolución, para reconstruir caja física.
-        const efectivoVenta = Math.max(0, efectivoRecibido - cambioEfectivo);
-        const qrVenta = Math.max(0, qrRecibido - cambioQR);
-        metodoPagoData.monto_efectivo = Number(efectivoVenta.toFixed(2));
-        metodoPagoData.monto_qr = Number(qrVenta.toFixed(2));
-        metodoPagoData.efectivo_recibido = Number(efectivoRecibido.toFixed(2));
-        metodoPagoData.cambio_efectivo = Number(cambioEfectivo.toFixed(2));
-        metodoPagoData.cambio_qr = Number(cambioQR.toFixed(2));
-    } else if (metodoPagoSeleccionado === 'Efectivo') {
-        const recibido=parseFloat(montoRecibido.value)||Number(total)||0;
-        const cambio=Math.max(0,recibido-(Number(total)||0));
-        const medio=cambio>0?(medioCambio?.value||'EFECTIVO'):'';
-        metodoPagoData.monto_efectivo=Number((Number(total)||0).toFixed(2));
-        metodoPagoData.monto_qr=0;
-        metodoPagoData.efectivo_recibido=Number(recibido.toFixed(2));
-        metodoPagoData.cambio_efectivo=medio==='EFECTIVO'?Number(cambio.toFixed(2)):0;
-        metodoPagoData.cambio_qr=medio==='QR'?Number(cambio.toFixed(2)):0;
-    } else {
-        metodoPagoData.monto_efectivo=0; metodoPagoData.monto_qr=Number((Number(total)||0).toFixed(2)); metodoPagoData.efectivo_recibido=0; metodoPagoData.cambio_efectivo=0; metodoPagoData.cambio_qr=0;
-    }
+    const pagoCalculado=desgloseCambioV2633();
+    let metodoPagoData = {metodo_pago:metodoPagoSeleccionado,
+      monto_efectivo:pagoCalculado.monto_efectivo,monto_qr:pagoCalculado.monto_qr,
+      efectivo_recibido:pagoCalculado.efectivo_recibido,cambio_efectivo:pagoCalculado.cambio_efectivo,
+      cambio_qr:pagoCalculado.cambio_qr,devuelto_qr:pagoCalculado.devuelto_qr};
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
     const diaSemana = dias[new Date().getDay()];
     const idVentaInterno = `VTA-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Date.now().toString().slice(-8)}-${Math.random().toString(36).slice(2,5).toUpperCase()}`;
@@ -2627,6 +2734,8 @@ function configurarEventListeners() {
     rightSidebarToggle.addEventListener('click', function() { rightSidebar.classList.toggle('collapsed'); rightSidebarToggle.classList.toggle('collapsed'); mainContent.classList.toggle('right-sidebar-collapsed'); });
     rightSidebarExpandInline.addEventListener('click', function() { rightSidebar.classList.remove('collapsed'); rightSidebarToggle.classList.remove('collapsed'); mainContent.classList.remove('right-sidebar-collapsed'); });
     mobileMenuToggle.addEventListener('click', function() { sidebar.classList.toggle('active'); });
+    if(window.matchMedia('(max-width:819px)').matches){ document.querySelectorAll('.sidebar-menu a').forEach(a=>a.addEventListener('click',()=>sidebar.classList.remove('active'))); }
+
 
     ['datosCliente', 'cargarPedido', 'sync', 'backup'].forEach(id => {
         const header = document.getElementById(id + 'Header');
@@ -2754,8 +2863,9 @@ function configurarEventListeners() {
             metodoPagoSeleccionado = this.getAttribute('data-metodo');
             if (metodoPagoSeleccionado === 'Mixto') { camposMixto.classList.add('active'); totalMixto.textContent = total.toFixed(2); actualizarPagoMixto(); }
             else camposMixto.classList.remove('active');
-            if (metodoPagoSeleccionado === 'Efectivo' || metodoPagoSeleccionado === 'Mixto') { camposCambio.style.display = 'block'; montoRecibido.value = ''; resultadoCambio.style.display = 'none'; }
-            else camposCambio.style.display = 'none';
+            camposCambio.style.display = metodoPagoSeleccionado === 'QR' ? 'none' : 'block'; if(metodoPagoSeleccionado !== 'QR'){montoRecibido.value=String(Number(total)||0);resultadoCambio.style.display='none';}
+            if(montoRecibido.closest('.form-group')) montoRecibido.closest('.form-group').style.display=metodoPagoSeleccionado==='Mixto'?'none':'';
+            medioCambio.value='EFECTIVO';cambioEfectivoParcialV2633.value='0';refrescarCambioV2633();
         });
     });
 
@@ -2897,6 +3007,7 @@ function actualizarPagoMixto() {
     document.getElementById('resumenQR').textContent = montoQR.toFixed(2);
     document.getElementById('totalPagado').textContent = totalPagado.toFixed(2);
     resumenMixto.style.display = 'block';
+    refrescarCambioV2633();
     const faltante = totalVenta - totalPagado;
     const cambio = totalPagado - totalVenta;
     if (faltante > 0) { document.getElementById('mensajeFaltante').style.display = 'block'; document.getElementById('montoFaltante').textContent = faltante.toFixed(2); document.getElementById('mensajeCambio').style.display = 'none'; }
@@ -2908,13 +3019,14 @@ function calcularCambio() {
     const montoRecibidoValor = parseFloat(montoRecibido.value) || 0;
     if (montoRecibidoValor >= total) {
         const cambio = montoRecibidoValor - total;
-        resultadoCambio.style.display = 'block'; if(medioCambioWrap) medioCambioWrap.style.display=cambio>0?'block':'none';
+        resultadoCambio.style.display = 'block'; refrescarCambioV2633();
         resultadoCambio.innerHTML = `<p><strong>Cambio:</strong> <span style="font-size: 20px; font-weight: bold; color: #28a745;">${cambio.toFixed(2)}</span> Bs</p><p style="color: #28a745;"><i class="fas fa-check-circle"></i> Pago completo</p>`;
     } else if (montoRecibidoValor > 0 && montoRecibidoValor < total) {
         const faltante = total - montoRecibidoValor;
         resultadoCambio.style.display = 'block';
         resultadoCambio.innerHTML = `<p style="color: #dc3545;"><strong>Faltante:</strong> ${faltante.toFixed(2)} Bs</p>`;
     } else resultadoCambio.style.display = 'none';
+    refrescarCambioV2633();
 }
 
 
@@ -2957,6 +3069,23 @@ async function editarVentaSeguraV2631(index){
     await cargarVentasDiaDesdeSheet({notificar:false,forzar:true});
     Notificaciones.mostrar('Venta corregida en Sheets y registrada en historial.','success');
   }catch(e){Notificaciones.mostrar('No se pudo editar: '+e.message,'error',9000);}
+}
+
+
+// V26.35: corrección de modalidad de cambio SIN agregar ni eliminar movimientos de dinero.
+async function ajustarCambioVentaV2635(index){
+  if(!currentUser || !['admin','vendedor'].includes(normalizarRolSistema(currentUser.rol))){Notificaciones.mostrar('Debes iniciar sesión para ajustar el cambio','warning');return;}
+  const v=ventasDelDia[index];if(!v)return;
+  const id=String(v.id_venta||'').trim();
+  if(!id){Notificaciones.mostrar('Esta venta no tiene id_venta: no se puede corregir el cambio automáticamente.','warning');return;}
+  if(v.sincronizada===false){Notificaciones.mostrar('Sincroniza primero esta venta','warning');return;}
+  const actualE=Number(v.cambio_efectivo||0),actualQ=Number(v.devuelto_qr||v.cambio_qr||0);
+  const recibido=Number(v.efectivo_recibido||0);
+  const totalCambio=Math.round((actualE+actualQ)*100)/100;
+  if(totalCambio<=0){Notificaciones.mostrar('Esta venta no tiene un cambio registrado. No se modificarán pagos sin verificar el cobro original.','warning',6000);return;}
+  const r=await Swal.fire({title:'Ajustar cambio entregado',width:'min(520px,96vw)',html:`<div style="text-align:left"><p><b>Cambio original:</b> ${totalCambio.toFixed(2)} Bs</p><p style="font-size:12px;margin:5px 0 12px">Esto corrige el registro de cómo devolviste el cambio. No envía QR ni entrega efectivo automáticamente.</p><label>¿Cómo devolviste el cambio?</label><select id="aj35_tipo" class="swal2-select" style="display:block;width:100%;margin:8px 0"><option value="EFECTIVO">Todo en efectivo</option><option value="QR">Todo por QR</option><option value="MIXTO">Mixto</option></select><div id="aj35_parcial" style="display:none"><label>Parte devuelta en efectivo (Bs)</label><input id="aj35_cash" class="swal2-input" type="number" min="0" max="${totalCambio}" step="0.01" style="width:100%;margin:6px 0" value="${actualE}"></div><p id="aj35_res" style="font-size:13px;padding:8px;background:#f3f4f6;border-radius:6px"></p><label>Motivo de corrección</label><input id="aj35_motivo" class="swal2-input" style="width:100%;margin:6px 0" placeholder="Ej.: devolví por QR, no en efectivo"></div>`,showCancelButton:true,confirmButtonText:'Guardar ajuste',cancelButtonText:'Cancelar',didOpen:()=>{const tipo=document.getElementById('aj35_tipo'),cash=document.getElementById('aj35_cash'),par=document.getElementById('aj35_parcial'),res=document.getElementById('aj35_res');tipo.value=actualQ>0?(actualE>0?'MIXTO':'QR'):'EFECTIVO';function upd(){par.style.display=tipo.value==='MIXTO'?'block':'none';const ef=tipo.value==='EFECTIVO'?totalCambio:tipo.value==='QR'?0:Number(cash.value||0);res.textContent='Efectivo: '+ef.toFixed(2)+' Bs | QR: '+(totalCambio-ef).toFixed(2)+' Bs';}tipo.addEventListener('change',upd);cash.addEventListener('input',upd);upd();},preConfirm:()=>{const tipo=document.getElementById('aj35_tipo').value;const cash=tipo==='EFECTIVO'?totalCambio:tipo==='QR'?0:Number(document.getElementById('aj35_cash').value);const motivo=document.getElementById('aj35_motivo').value.trim();if(!Number.isFinite(cash)||cash<0||cash>totalCambio||cash>recibido||tipo==='MIXTO'&&(cash<=0||cash>=totalCambio)){Swal.showValidationMessage('Importe de cambio en efectivo inválido');return false;}if(motivo.length<3){Swal.showValidationMessage('Indica un motivo');return false;}return{cambio_efectivo:cash,devuelto_qr:Math.round((totalCambio-cash)*100)/100,motivo};}});
+  if(!r.isConfirmed)return;
+  try{const res=await backendV26('ajustar_cambio',{...r.value,id_venta:id,sucursal:sucursalSeleccionada,usuario:currentUser.username,rol:currentUser.rol,cambio_efectivo_anterior:actualE,devuelto_qr_anterior:actualQ});if(!res.ok)throw Error(res.error||'No se confirmó el ajuste');await cargarVentasDiaDesdeSheet({notificar:false,forzar:true});Notificaciones.mostrar('Cambio corregido en Sheets e historial','success');}catch(e){Notificaciones.mostrar('No se pudo ajustar: '+e.message,'error',8500);}
 }
 
 function cambiarSeccion(seccion) {
@@ -3100,7 +3229,7 @@ function actualizarVentasDelDia() {
         const claseFila = esAperturaCierre ? 'fila-apertura-cierre' : '';
         let botonesVentasDia = registrosTablaV2621!==todasVentasHoy
             ? (!esAperturaCierre ? `<button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : '')
-            : `${!esAperturaCierre ? `<button class="accion-btn editar-venta-v2631" data-index="${ventasDelDia.indexOf(venta)}" style="background:#2476b5"><i class="fas fa-edit"></i> Editar</button><button class="accion-btn observacion-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-sticky-note"></i> Obs</button><button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : ''}<button class="accion-btn eliminar-btn-tabla" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-trash"></i> Eliminar</button>`;
+            : `${!esAperturaCierre ? `<button class="accion-btn editar-venta-v2631" data-index="${ventasDelDia.indexOf(venta)}" style="background:#2476b5"><i class="fas fa-edit"></i> Editar</button><button class="accion-btn ajustar-cambio-v2635" data-index="${ventasDelDia.indexOf(venta)}" title="Corregir cómo se devolvió el cambio"><i class="fas fa-coins"></i> Ajustar cambio</button><button class="accion-btn observacion-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-sticky-note"></i> Obs</button><button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : ''}<button class="accion-btn eliminar-btn-tabla" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-trash"></i> Eliminar</button>`;
         const nombreCliente = esAperturaCierre ? venta.usuario : (venta.nombre_cliente || 'Cliente General');
         const telefonoCliente = esAperturaCierre ? '-' : (venta.telefono || '-');
         const direccionCliente = esAperturaCierre ? '-' : (venta.direccion || '-');
@@ -3110,6 +3239,7 @@ function actualizarVentasDelDia() {
     });
     tablaVentasDia.innerHTML = tablaHTML;
     document.querySelectorAll('#tablaVentasDia .editar-venta-v2631').forEach(btn=>btn.addEventListener('click',()=>editarVentaSeguraV2631(Number(btn.dataset.index))));
+    document.querySelectorAll('#tablaVentasDia .ajustar-cambio-v2635').forEach(btn=>btn.addEventListener('click',()=>ajustarCambioVentaV2635(Number(btn.dataset.index))));
     document.querySelectorAll('#tablaVentasDia .observacion-btn').forEach(btn => { btn.addEventListener('click', function() { abrirModalObservacion(parseInt(this.getAttribute('data-index'))); }); });
     document.querySelectorAll('#tablaVentasDia .imprimir-btn').forEach(btn => { btn.addEventListener('click', function() { imprimirNotaVentaGuardada(ventasDelDia[parseInt(this.getAttribute('data-index'))]); }); });
     document.querySelectorAll('#tablaVentasDia .eliminar-btn-tabla').forEach(btn => { btn.addEventListener('click', function() { intentarEliminar(parseInt(this.getAttribute('data-index'))); }); });
@@ -3185,64 +3315,44 @@ function referenciaSeguraVenta(venta){
 }
 
 async function eliminarVenta(index) {
-    const venta = ventasDelDia[index];
-    if (!venta) return;
-
-    const idVenta=String(venta.id_venta||'').trim();
-    const clienteVisible = venta.nombre_cliente || venta.id || 'Cliente General';
-
-    if(!idVenta){
-        await Swal.fire({
-            title:'Venta histórica sin id_venta',
-            html:'Esta venta pertenece al formato anterior. Por seguridad no se anulará automáticamente ni se tocará Stock.<br><br>Las ventas nuevas V26 sí podrán anularse y reponer inventario.',
-            icon:'warning',
-            confirmButtonText:'Entendido'
-        });
-        return;
-    }
-    if(String(venta.estado_venta||'').toUpperCase()==='ANULADA'){
-        Notificaciones.mostrar('Esta venta ya está anulada','warning');
-        return;
-    }
-
-    const r=await Swal.fire({
-        title:'¿Anular esta venta?',
+    const venta=ventasDelDia[index];
+    if(!venta)return;
+    if(venta.sincronizada===false){Notificaciones.mostrar('Esta venta está pendiente de subir. No se eliminará de Google Sheets.','warning',7000);return;}
+    const id=String(venta.id_venta||'').trim();
+    const huella=id?null:{
+        fecha:String(venta.fecha||''),hora:String(venta.hora||''),
+        cliente:String(venta.id||''),productos:String(venta.productos||''),
+        total_venta:String(venta.total_venta||'')
+    };
+    const escape=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    const confirm=await Swal.fire({
+        title:'¿Eliminar esta venta definitivamente?',icon:'warning',
         html:`<div style="text-align:left;line-height:1.6">
-          <p><strong>ID venta:</strong> ${idVenta}</p>
-          <p><strong>Cliente:</strong> ${clienteVisible}</p>
-          <p><strong>Productos:</strong> ${venta.productos||'-'}</p>
-          <p><strong>Total:</strong> ${venta.total_venta||0} Bs</p>
-          <p style="color:#b03a2e"><strong>No se borrará la fila.</strong> Quedará marcada ANULADA y el Stock descontado por esta venta será repuesto mediante movimiento inverso.</p>
-        </div>`,
-        input:'text',
-        inputLabel:'Motivo de anulación',
-        inputPlaceholder:'Ej.: venta cancelada / error de registro',
-        showCancelButton:true,
-        confirmButtonColor:'#d33',
-        confirmButtonText:'Anular venta',
-        cancelButtonText:'Cancelar',
-        inputValidator:v=>!String(v||'').trim()?'Debes indicar el motivo':undefined
+        <p><b>Cliente:</b> ${escape(venta.id||venta.nombre_cliente||'Cliente General')}</p>
+        <p><b>Fecha:</b> ${escape(venta.fecha||'')} ${escape(venta.hora||'')}</p>
+        <p><b>Total:</b> ${escape(venta.total_venta||0)} Bs</p>
+        <p style="color:#b03a2e"><b>Se borrará la fila de ${escape(obtenerSheetDeVenta(venta))}.</b> No quedará marcada como ANULADA. Sí quedará una evidencia en Historial de Ventas.</p>
+        <p>Si la venta tiene una salida física de Stock, el sistema bloqueará el borrado para proteger el inventario.</p></div>`,
+        input:'text',inputLabel:'Motivo de eliminación (obligatorio)',inputPlaceholder:'Ej.: registro duplicado por error',
+        showCancelButton:true,confirmButtonColor:'#d33',confirmButtonText:'Eliminar definitivamente',cancelButtonText:'Cancelar',
+        inputValidator:v=>String(v||'').trim().length<3?'Indica el motivo de eliminación':undefined
     });
-    if(!r.isConfirmed)return;
-
+    if(!confirm.isConfirmed)return;
     try{
-        const resp=await backendV26('anular_venta',{
-            id_venta:idVenta,
-            usuario:currentUser?.nombre||'',
-            sucursal:venta.sucursal||'',
-            motivo:String(r.value||'').trim()
+        const res=await backendV26('eliminar_venta_definitiva',{
+            id_venta:id,huella_legacy:huella,sucursal:venta.sucursal||sucursalSeleccionada,
+            usuario:currentUser?.username||currentUser?.nombre||'',rol:currentUser?.rol||'',
+            motivo:String(confirm.value||'').trim()
         });
-        if(!resp.ok)throw new Error(resp.error||'No se pudo anular');
-        venta.observaciones=String(venta.observaciones||'')+' | [ANULADA] '+String(r.value||'').trim();
-        venta._anuladaV2620=true;
+        if(!res.ok||!res.eliminada)throw Error(res.error||'No se confirmó la eliminación');
+        // Siempre recargar desde la hoja oficial; no mantener la venta en el respaldo local.
+        ventasDelDia=ventasDelDia.filter(v=>v!==venta);
+        ultimaFirmaGoogleVentas='';
         guardarVentasLocalSeguro();
+        await cargarVentasDiaDesdeSheet({notificar:false,forzar:true});
         actualizarVentasDelDia();
-        actualizarEstadisticas();
-        Notificaciones.mostrar(`Venta ${idVenta} anulada. Stock repuesto: ${resp.stock_repuesto||0} movimiento(s).`,'success',6000);
-    }catch(e){
-        console.error(e);
-        Notificaciones.mostrar('No se anuló la venta: '+(e.message||e),'error',7000);
-    }
+        Notificaciones.mostrar('Venta eliminada de Sheets. Evento registrado: '+res.id_evento,'success',7000);
+    }catch(e){console.error(e);Notificaciones.mostrar('No se eliminó: '+(e.message||e),'error',9000);}
 }
 
 function generarNotaVenta() {
@@ -4114,8 +4224,7 @@ function pintarCajaDesdeVentasV2617(){
     const ventaEfectivo=numeroCajaV2617(v.monto_efectivo);
     const recibido=numeroCajaV2617(v.efectivo_recibido);
     const devueltoQR=numeroCajaV2617(v.devuelto_qr||v.cambio_qr);
-    let cambioCash=Math.max(0,recibido-ventaEfectivo-devueltoQR);
-    if(!recibido)cambioCash=numeroCajaV2617(v.cambio_efectivo);
+    let cambioCash=(v.cambio_efectivo!==undefined&&v.cambio_efectivo!==''&&v.cambio_efectivo!==null)?numeroCajaV2617(v.cambio_efectivo):Math.max(0,recibido-ventaEfectivo-devueltoQR);
     const base=metodo==='qr'?0:(recibido||ventaEfectivo);
     efectivo+=base;
     cambioEfectivo+=cambioCash;
