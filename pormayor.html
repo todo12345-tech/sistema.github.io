@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Ventas al Por Mayor · V4 Ajuste Pedido Pagado Corregido</title>
+<title>Todoenuno_store - Ventas al Por Mayor · V4.7 ITEMS · búsqueda confiable</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -934,6 +934,12 @@ button:active { transform: translateY(-1px); }
     font-style: italic;
 }
 
+/* V4.8 · Productos agotados: visibles, rojos e inhabilitados */
+.autocomplete-item.mayor-agotado{background:#fff0f1!important;border-left:5px solid #d92d45!important;cursor:not-allowed!important;opacity:.92}
+.autocomplete-item.mayor-agotado:hover,.autocomplete-item.mayor-agotado.highlighted{background:#ffe4e7!important}
+.autocomplete-item.mayor-agotado .autocomplete-item-nombre,.autocomplete-item.mayor-agotado .mayor-estado-disponibilidad{color:#a61b32!important;font-weight:800}
+.autocomplete-item.mayor-agotado .autocomplete-item-precio{color:#a61b32!important}
+.mayor-agotado-aviso{display:inline-block;background:#d92d45;color:#fff;font-size:11px;font-weight:800;padding:3px 8px;border-radius:6px;margin-top:3px}
 /* ===== V2 · AJUSTE INTELIGENTE DEL PEDIDO ===== */
 .ajuste-monto-container{display:none!important;background:#fff;border-radius:20px;box-shadow:0 10px 30px rgba(0,0,0,.1);padding:22px;margin-bottom:20px}
 .ajuste-monto-header{display:flex;justify-content:space-between;align-items:center;gap:10px;padding-bottom:13px;border-bottom:2px solid #f0f0f0;margin-bottom:15px}
@@ -1009,6 +1015,7 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
 #productosLista .producto-item.mayor-dragging{opacity:.6;outline:2px solid #4a90e2}
 #productosLista .producto-item.mayor-drop-here{border-top:4px solid #4a90e2}
 @media(max-width:700px){#productosLista .producto-item{flex-direction:row;flex-wrap:wrap;align-items:center}#productosLista .mayor-item-photo{width:54px;height:54px;flex-basis:54px}#productosLista .producto-info{flex:1 1 calc(100% - 80px)}#productosLista .producto-cantidad{width:auto;min-width:55px}#productosLista .producto-actions{margin-left:auto}#productosLista{padding:10px!important}}
+.mayor-estado-disponibilidad{font-size:11px;font-weight:650;color:#486677;margin-top:3px;white-space:normal}
 </style>
 
 <style id="loginMayorStyles">
@@ -1735,77 +1742,153 @@ document.addEventListener('DOMContentLoaded', function() {
     let tipoPedidoActivo = 'unidades';
 
     // ========== CARGAR PRODUCTOS DESDE GOOGLE SHEETS ==========
-    function cargarProductosDesdeSheets() {
-        const url = 'https://docs.google.com/spreadsheets/d/1h7ZNyYRe6ZDIvbjbAuyiCYEvQ37IQmSI/export?format=csv';
-        fetch(url)
-            .then(response => {
-                if (!response.ok) throw new Error('Error al descargar la hoja');
-                return response.text();
-            })
-            .then(csv => {
-                const lines = csv.split('\n').filter(l => l.trim());
-                if (lines.length < 2) throw new Error('CSV vacío');
-                const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-                const idxSeccion = headers.indexOf('seccion');
-                const idxNombre = headers.indexOf('nombre');
-                const idxPrecioPaquete = headers.indexOf('precio de paquete');
-                const idxPrecioMayor = headers.indexOf('precio por mayor');
-                const idxCantidad = headers.indexOf('cantidad');
-                const idxImagen = headers.indexOf('imagen');
-                if (idxSeccion === -1 || idxNombre === -1 || idxPrecioPaquete === -1 || idxCantidad === -1) {
-                    throw new Error('No se encontraron las columnas esperadas');
-                }
-                const productos = [];
-                for (let i = 1; i < lines.length; i++) {
-                    const cols = lines[i].split(',').map(c => c.trim());
-                    if (cols.length < Math.max(idxSeccion, idxNombre, idxPrecioPaquete, idxCantidad) + 1) continue;
-                    const seccion = cols[idxSeccion] || '';
-                    const nombre = cols[idxNombre] || '';
-                    const precioPaquete = parseFloat(cols[idxPrecioPaquete]) || 0;
-                    const precioMayor = parseFloat(cols[idxPrecioMayor]) || 0;
-                    const cantidadStr = cols[idxCantidad] || '';
-                    let numUnidades = 0;
-                    let textoUnidad = '';
-                    if (cantidadStr) {
-                        const limpio = cantidadStr.trim().toUpperCase();
-                        const match = limpio.match(/^(\d+)\s*(.+)$/);
-                        if (match) {
-                            numUnidades = parseInt(match[1]);
-                            textoUnidad = match[2].trim();
-                        } else {
-                            numUnidades = 1;
-                            textoUnidad = limpio;
-                        }
-                    }
-                    let imagen = cols[idxImagen] || '';
-                    if (imagen) {
-                        const match = imagen.match(/\/d\/([^\/]+)/);
-                        if (match) imagen = `https://drive.google.com/thumbnail?id=${match[1]}&sz=s0`;
-                    }
-                    if (nombre && precioPaquete > 0) {
-                        productos.push({
-                            seccion,
-                            nombre,
-                            precioPaquete,
-                            precioMayor,
-                            imagen,
-                            numUnidades,
-                            textoUnidad
-                        });
-                    }
-                }
-                productosData = productos;
-                console.log(`Cargados ${productosData.length} productos desde Sheets.`);
-            })
-            .catch(err => {
-                console.error('Error al cargar productos:', err);
-                Notificaciones.mostrar('No se pudo cargar la lista de productos desde Google Sheets. Revisa la conexión.', 'error');
-                productosData = [
-                    { nombre: 'llavero porta retrato N°1', precioPaquete: 160, imagen: 'https://drive.google.com/thumbnail?id=1OJECBhkXd8N5tDuwE770KUrMBCenfYvx&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES' },
-                    { nombre: 'llavero porta retrato N°2 abridor', precioPaquete: 300, imagen: 'https://drive.google.com/thumbnail?id=1EkWdZm9t5pgBo_kGgCEA0bksSWyyKkk0&sz=s0', seccion: 'LLAVEROS ACRILICOS', numUnidades: 100, textoUnidad: 'UNIDADES' }
-                ];
-            });
+    // V4.5: ITEMS es la fuente oficial del catálogo (igual que Sistema de Ventas).
+    // Stock se sigue leyendo de su libro separado, solo para existencias y ubicaciones.
+    const MAYOR_ITEMS_ID = '1m9A2-dW71FWU8tgmjx7haibO052AUDM6tqiMQuaGhOw';
+    const MAYOR_ITEMS_PESTANA = 'item';
+    function leerCsvFilasMayor(csv) {
+        const filas = [];
+        let fila = [], campo = '', quoted = false;
+        for (let i = 0; i < csv.length; i++) {
+            const ch = csv[i];
+            if (ch === '"') {
+                if (quoted && csv[i+1] === '"') { campo += '"'; i++; }
+                else quoted = !quoted;
+            } else if (ch === ',' && !quoted) { fila.push(campo.trim()); campo=''; }
+            else if ((ch === '\r' || ch === '\n') && !quoted) {
+                if (ch === '\r' && csv[i+1] === '\n') i++;
+                fila.push(campo.trim()); campo='';
+                if (fila.some(v => v)) filas.push(fila);
+                fila=[];
+            } else campo += ch;
+        }
+        if (campo || fila.length) { fila.push(campo.trim()); if (fila.some(v => v)) filas.push(fila); }
+        return filas;
     }
+    function precioNumeroMayor(valor) {
+        let t = String(valor == null ? '' : valor).replace(/\s/g,'').replace(/[^0-9,.\-]/g,'');
+        if (t.includes(',') && !t.includes('.')) t=t.replace(',','.');
+        else if (t.includes(',') && t.includes('.')) t=t.replace(/,/g,'');
+        return Number.parseFloat(t) || 0;
+    }
+    function imagenOficialMayor(raw) {
+        const str=String(raw||'').trim();
+        const match=str.match(/\/d\/([^/?]+)/) || str.match(/[?&]id=([^&]+)/);
+        return match ? `https://drive.google.com/thumbnail?id=${encodeURIComponent(match[1])}&sz=w400` : str;
+    }
+    // V4.6: comprobación ligera cada 5 segundos. Se actualiza la lista ÚNICAMENTE
+    // cuando el contenido oficial cambia. Nunca consulta el Excel antiguo.
+    let mayorHuellaCatalogo = null;
+    let mayorConsultaEnCurso = false;
+    let mayorUltimoError = false;
+    let mayorCatalogoEstado = 'cargando';
+    let mayorCatalogoDetalle = '';
+    const MAYOR_INTERVALO_CATALOGO = 5000;
+    const mayorEsSi = v => /^(si|sí|true|1|disponible|hay|yes)$/i.test(String(v||'').trim());
+    function mayorEstadoDisponibilidad(v) {
+        const t=String(v == null ? '' : v).trim();
+        if (!t) return null; // Sin dato explícito, no inventar agotado.
+        return mayorEsSi(t);
+    }
+    function mayorEscapar(s) {
+        return String(s||'').replace(/[&<>"']/g, ch=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[ch]));
+    }
+    function mayorEstaAgotado(p) {
+        // Agotado por paquete implica que no se puede añadir ese artículo al pedido mayorista.
+        // Si solo hay estado por unidad, respetamos también ese agotamiento.
+        return !!p && (p.disponiblePaquete === false ||
+            (p.disponiblePaquete === null && p.disponibleUnidad === false));
+    }
+    function mayorProductoAgotadoEnTexto(descripcion) {
+        const p=encontrarProductoEnDescripcion(descripcion);
+        return p && mayorEstaAgotado(p) ? p : null;
+    }
+    function mayorAvisarAgotado(p) {
+        Notificaciones.mostrar('AGOTADO: '+mayorEscapar(p.nombre)+' no se puede agregar al pedido.', 'error', 4500);
+    }
+    function mayorTextoDisponibilidad(p) {
+        const estados=[];
+        if(p.disponiblePaquete!==null) estados.push(`Paquete: ${p.disponiblePaquete?'Disponible':'Agotado'}`);
+        if(p.disponibleUnidad!==null) estados.push(`Unidad: ${p.disponibleUnidad?'Disponible':'Agotado'}`);
+        return estados.join(' · ');
+    }
+    async function cargarProductosDesdeSheets() {
+        if (mayorConsultaEnCurso || document.hidden) return;
+        mayorConsultaEnCurso=true;
+        const url = `https://docs.google.com/spreadsheets/d/${MAYOR_ITEMS_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(MAYOR_ITEMS_PESTANA)}&_=${Date.now()}`;
+        try {
+            const response=await fetch(url,{cache:'no-store',credentials:'omit'});
+            if (!response.ok) throw new Error('ITEMS no responde ('+response.status+')');
+            const csv=await response.text();
+            if (/^\s*<!doctype html|^\s*<html/i.test(csv)) throw new Error('ITEMS devolvió HTML (revisar permisos)');
+            const filas=leerCsvFilasMayor(csv);
+            if (filas.length<2) throw new Error('ITEMS no devolvió artículos');
+            // Los encabezados se resuelven por su nombre, no por posiciones fijas.
+            // Esto evita bloquear el catálogo cuando se reordenan columnas en ITEMS.
+            const canon = v => String(v||'').replace(/^\uFEFF/,'').trim().toLowerCase()
+                .normalize('NFD').replace(/[\u0300-\u036f]/g,'')
+                .replace(/[_-]+/g,' ').replace(/\s+/g,' ');
+            const headers=filas[0].map(canon);
+            const indice=(...nombres)=>headers.findIndex(h=>nombres.map(canon).includes(h));
+            const iNombre=indice('nombre','producto');
+            const iSeccion=indice('seccion','sección','categoria','categoría');
+            const iPrecioPaquete=indice('precio de paquete','precio paquete','precio por paquete');
+            const iPrecioUnidad=indice('precio unidad','precio de unidad','precio por unidad');
+            const iCantidadPaquete=indice('cantidad paquete','cantidad por paquete');
+            const iDisponiblePaquete=indice('hay disponibilidad por paquete','disponibilidad por paquete','disponible paquete');
+            const iDisponibleUnidad=indice('hay disponibilidad por unidad','disponibilidad por unidad','disponible unidad');
+            const iImagenEditada=indice('imagen editada','imagen_editada');
+            const iImagenOriginal=indice('imagen original','imagen_original');
+            if(iNombre<0 || (iPrecioPaquete<0 && iPrecioUnidad<0)) {
+                throw new Error('ITEMS: faltan columnas nombre o precio. Encabezados: '+headers.join(', '));
+            }
+            const leer=(fila,idx)=>idx<0?'':String(fila[idx]||'').trim();
+            const productos=[];
+            for (const c of filas.slice(1)) {
+                const seccion=leer(c,iSeccion)||'GENERAL', nombre=leer(c,iNombre);
+                const precioPaquete=precioNumeroMayor(leer(c,iPrecioPaquete));
+                const precioUnidad=precioNumeroMayor(leer(c,iPrecioUnidad));
+                if (!nombre || (precioPaquete<=0 && precioUnidad<=0)) continue;
+                const cantidadStr=leer(c,iCantidadPaquete);
+                const match=cantidadStr.match(/^(\d+)\s*(.*)$/);
+                const numUnidades=match ? Number(match[1]) : 1;
+                const textoUnidad=match ? (match[2]||'unidades').trim() : (cantidadStr||'unidades');
+                productos.push({
+                    seccion,nombre,precioPaquete:precioPaquete || precioUnidad,
+                    precioMayor:0,precioUnidad,
+                    imagen:imagenOficialMayor(leer(c,iImagenEditada)||leer(c,iImagenOriginal)),
+                    numUnidades,textoUnidad,
+                    disponiblePaquete:mayorEstadoDisponibilidad(leer(c,iDisponiblePaquete)),
+                    disponibleUnidad:mayorEstadoDisponibilidad(leer(c,iDisponibleUnidad)),
+                    origenDatos:'ITEMS'
+                });
+            }
+            if (!productos.length) throw new Error('No hay productos con precio en ITEMS');
+            const huella=JSON.stringify(productos);
+            if (huella!==mayorHuellaCatalogo) {
+                mayorHuellaCatalogo=huella;
+                productosData=productos;
+                // Solo la lista de resultados visibles: no reescribir carrito, precios ya pactados, ni Alistar.
+                if (descripcionProducto && descripcionProducto.value.trim().length>=2 &&
+                    modalCantidad.style.display!=='flex') mostrarSugerencias(descripcionProducto.value.trim());
+                console.log(`ITEMS actualizado: ${productos.length} productos.`);
+            }
+            mayorUltimoError=false;
+            mayorCatalogoEstado='listo';
+            mayorCatalogoDetalle='';
+        } catch (err) {
+            console.warn('No se pudo comprobar ITEMS:',err);
+            mayorCatalogoEstado=productosData.length?'desactualizado':'error';
+            mayorCatalogoDetalle=String(err&&err.message||err);
+            if(descripcionProducto && descripcionProducto.value.trim().length>=2) mostrarSugerencias(descripcionProducto.value.trim());
+            // Mantener última lista válida, pero NUNCA usar el Excel antiguo ni inventar disponibles.
+            if (!mayorUltimoError) Notificaciones.mostrar('Sin conexión al catálogo ITEMS. Se conserva la última lista verificada.', 'warning', 4000);
+            mayorUltimoError=true;
+        } finally { mayorConsultaEnCurso=false; }
+    }
+    setInterval(()=>{if(!document.hidden) cargarProductosDesdeSheets();},MAYOR_INTERVALO_CATALOGO);
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)cargarProductosDesdeSheets();});
+    window.addEventListener('focus',()=>cargarProductosDesdeSheets());
 
     function encontrarProductoEnDescripcion(descripcion) {
         if (!descripcion) return null;
@@ -1843,7 +1926,10 @@ document.addEventListener('DOMContentLoaded', function() {
         }).slice(0, 30);
 
         if (sugerenciasActuales.length === 0) {
-            autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">No se encontraron productos</div>';
+            const mensaje = mayorCatalogoEstado==='cargando' ? 'Cargando catálogo ITEMS…' :
+                mayorCatalogoEstado==='error' ? 'No se pudo cargar ITEMS. Revisa que el nuevo Google Sheets permita lectura. ' + mayorEscapar(mayorCatalogoDetalle) :
+                'No se encontraron productos para esta búsqueda';
+            autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">'+mensaje+'</div>';
             autocompleteList.classList.add('active');
             return;
         }
@@ -1853,11 +1939,14 @@ document.addEventListener('DOMContentLoaded', function() {
             const imgHtml = p.imagen
                 ? `<img src="${p.imagen}" class="autocomplete-item-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="autocomplete-item-img" style="display:none;">S/F</div>`
                 : `<div class="autocomplete-item-img">S/F</div>`;
-            html += `<div class="autocomplete-item" data-index="${i}">
+            const agotado=mayorEstaAgotado(p);
+            html += `<div class="autocomplete-item${agotado ? ' mayor-agotado' : ''}" data-index="${i}" aria-disabled="${agotado}" title="${agotado ? 'Producto agotado: no se puede agregar' : 'Seleccionar producto'}">
                 ${imgHtml}
                 <div class="autocomplete-item-info">
-                    <div class="autocomplete-item-nombre">${p.nombre || ''}</div>
-                    <div class="autocomplete-item-seccion">${p.seccion || ''}</div>
+                    <div class="autocomplete-item-nombre">${mayorEscapar(p.nombre || '')}</div>
+                    <div class="autocomplete-item-seccion">${mayorEscapar(p.seccion || '')}</div>
+                    <div class="mayor-estado-disponibilidad">${mayorEscapar(mayorTextoDisponibilidad(p))}</div>
+                    ${agotado ? '<span class="mayor-agotado-aviso">AGOTADO · NO DISPONIBLE</span>' : ''}
                 </div>
                 <div class="autocomplete-item-precio">${formatearPrecio(p.precioPaquete)} Bs</div>
             </div>`;
@@ -1868,12 +1957,15 @@ document.addEventListener('DOMContentLoaded', function() {
 
         autocompleteList.querySelectorAll('.autocomplete-item').forEach(el => {
             el.addEventListener('click', function() {
+                const p=sugerenciasActuales[parseInt(this.getAttribute('data-index'))];
+                if(mayorEstaAgotado(p)) { mayorAvisarAgotado(p); return; }
                 seleccionarSugerencia(parseInt(this.getAttribute('data-index')));
             });
             el.addEventListener('mouseenter', function() {
                 autocompleteList.querySelectorAll('.autocomplete-item').forEach(e => e.classList.remove('highlighted'));
                 this.classList.add('highlighted');
-                indiceHighlight = parseInt(this.getAttribute('data-index'));
+                indiceHighlight = mayorEstaAgotado(sugerenciasActuales[parseInt(this.getAttribute('data-index'))])
+                    ? -1 : parseInt(this.getAttribute('data-index'));
             });
         });
     }
@@ -1881,6 +1973,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function seleccionarSugerencia(idx) {
         const p = sugerenciasActuales[idx];
         if (!p) return;
+        if (mayorEstaAgotado(p)) { mayorAvisarAgotado(p); return; }
         descripcionProducto.value = p.nombre;
         if (!precioEditado) {
             montoProducto.value = formatearPrecio(p.precioPaquete);
@@ -2082,6 +2175,7 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     function mostrarModalCantidad(producto) {
+        if (mayorEstaAgotado(producto)) { mayorAvisarAgotado(producto); return; }
         productoSeleccionado = producto;
         unidadesPorPaquete = producto.numUnidades || 0;
         textoUnidad = producto.textoUnidad || 'UNIDADES';
@@ -2090,6 +2184,9 @@ document.addEventListener('DOMContentLoaded', function() {
         tipoPedidoActivo = 'unidades';
         if (producto.imagen) { modalProductoImagen.src = producto.imagen; modalProductoImagen.style.display='block'; } else modalProductoImagen.style.display='none';
         modalProductoNombre.textContent = producto.nombre;
+        let avisoDisp=document.getElementById('mayorEstadoModal');
+        if(!avisoDisp){avisoDisp=document.createElement('div');avisoDisp.id='mayorEstadoModal';avisoDisp.style.cssText='font-size:13px;font-weight:700;margin:8px 0;color:#ad3e20';modalProductoNombre.insertAdjacentElement('afterend',avisoDisp);}
+        avisoDisp.textContent=mayorTextoDisponibilidad(producto)||'Disponibilidad no indicada en ITEMS';
         const repetidos = items.filter(item => item.productoRef && normalizarNombreStock(item.productoRef.nombre) === normalizarNombreStock(producto.nombre)).length;
         if (repetidos) { modalProductoDuplicado.style.display='block'; mensajeDuplicado.textContent=`Ya tienes este producto agregado ${repetidos} vez/veces en el pedido.`; } else modalProductoDuplicado.style.display='none';
         const e = obtenerEmpaqueProducto(producto);
@@ -2186,6 +2283,9 @@ document.addEventListener('DOMContentLoaded', function() {
 
     confirmarCantidad.addEventListener('click', function() {
         if(!productoSeleccionado) return cerrarModalCantidad();
+        // La hoja puede cambiar mientras el usuario tiene abierto el modal.
+        const vigente=productosData.find(p=>p.nombre===productoSeleccionado.nombre && p.seccion===productoSeleccionado.seccion);
+        if(vigente && mayorEstaAgotado(vigente)) { mayorAvisarAgotado(vigente); cerrarModalCantidad(true); return; }
         const c=cantidadesPedido.cajas, p=cantidadesPedido.paquetes, u=cantidadesPedido.unidades;
         if(c+p+u <= 0) { Notificaciones.mostrar('Selecciona al menos una caja, paquete o unidad', 'error'); return; }
         const e=obtenerEmpaqueProducto(productoSeleccionado);
@@ -2652,6 +2752,8 @@ document.addEventListener('DOMContentLoaded', function() {
         if (editingIndex === null || editingIndex >= items.length) { cancelarEdicion(); return; }
         const descripcion = descripcionProducto.value.trim();
         const monto = parseFloat(montoProducto.value);
+        const agotado=mayorProductoAgotadoEnTexto(descripcion);
+        if(agotado){ mayorAvisarAgotado(agotado); return; }
         if (!descripcion) { Notificaciones.mostrar('La descripción no puede estar vacía', 'error'); return; }
         if (isNaN(monto) || monto <= 0) { Notificaciones.mostrar('El monto debe ser un número mayor a cero', 'error'); return; }
         const encontrado = encontrarProductoEnDescripcion(descripcion);
@@ -2669,6 +2771,8 @@ document.addEventListener('DOMContentLoaded', function() {
     function agregarProducto() {
         const descripcion = descripcionProducto.value.trim();
         const monto = parseFloat(montoProducto.value);
+        const agotado=mayorProductoAgotadoEnTexto(descripcion);
+        if(agotado){ mayorAvisarAgotado(agotado); return; }
         if (!descripcion) { Notificaciones.mostrar('La descripción no puede estar vacía', 'error'); return; }
         if (isNaN(monto) || monto <= 0) { Notificaciones.mostrar('El monto debe ser un número mayor a cero', 'error'); return; }
         const nuevoItem = { descripcion, monto, alistado: false };
