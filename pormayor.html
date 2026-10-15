@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Ventas al Por Mayor · V4.10 ITEMS · precios enteros</title>
+<title>Todoenuno_store - Ventas al Por Mayor · V4.12 ITEMS · Buscar y tildar alistar</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -1039,6 +1039,19 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
 .mayor-modal-acciones button{flex:1!important;width:auto!important;min-width:0;padding:12px 10px!important;font-size:14px!important}
 @media(max-width:730px){.mayor-modal-grid{grid-template-columns:1fr;gap:8px}.mayor-modal-premium{width:96vw;max-height:90dvh;padding:14px!important}.mayor-modal-izq #modalProductoImagen{max-width:80px!important;max-height:80px!important}.mayor-modal-izq #stockConsultaBox{padding:8px!important;margin-bottom:5px!important}.mayor-modal-acciones{bottom:-14px}.mayor-modal-der{gap:3px}}
 
+
+/* V4.12 — Búsqueda y checklist accesibles en Solo alistar */
+.mayor-picker-searchbar{display:flex;gap:9px;align-items:center;margin-top:12px}
+.mayor-picker-searchbar input{flex:1;min-width:0;width:100%;padding:12px 13px!important;font-size:16px!important;border-radius:11px;border:2px solid #cbd8e5;background:#fff;color:#22384b}
+.mayor-picker-searchbar input:focus{outline:none;border-color:#2385d0;box-shadow:0 0 0 3px #2385d01f}
+.mayor-picker-search-clear{width:auto!important;min-width:42px;padding:10px!important;background:#e8eef4!important;color:#28435c!important;font-size:15px!important;border-radius:9px}
+.mayor-picker-results{font-size:12px;color:#60758a;margin-top:6px;min-height:16px}
+.mayor-picker-product{user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.mayor-picker-product:focus-visible{outline:3px solid #2385d0;outline-offset:2px}
+.mayor-picker-checkbox{pointer-events:auto!important;cursor:pointer}
+.mayor-picker-product.done .mayor-picker-label{text-decoration:line-through;text-decoration-color:#6ba982;color:#526f60}
+.mayor-picker-empty{padding:25px 18px;text-align:center;color:#687b8f;border:2px dashed #d6e1eb;border-radius:12px;background:#fff}
+@media(max-width:480px){.mayor-picker-searchbar input{padding:11px!important}.mayor-picker-top{padding-bottom:10px}}
 </style>
 
 <style id="loginMayorStyles">
@@ -1458,6 +1471,8 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
   <div class="mayor-picker-top">
     <div class="mayor-picker-topline"><h2><i class="fas fa-clipboard-check"></i> Alistar pedido</h2><button type="button" class="mayor-picker-exit" id="mayorPickerExit"><i class="fas fa-times"></i> Cerrar</button></div>
     <div class="mayor-picker-description">Solo productos y cantidades. Marca cada uno al prepararlo.</div>
+    <div class="mayor-picker-searchbar"><input id="mayorPickerSearch" type="search" autocomplete="off" placeholder="Buscar producto dentro del pedido…" aria-label="Buscar productos para alistar"><button type="button" id="mayorPickerSearchClear" class="mayor-picker-search-clear" aria-label="Limpiar búsqueda" title="Limpiar búsqueda"><i class="fas fa-times"></i></button></div>
+    <div class="mayor-picker-results" id="mayorPickerResults" aria-live="polite"></div>
     <div class="mayor-picker-progress"><span id="mayorPickerCount">0 / 0 listos</span><span id="mayorPickerPercent">0%</span></div>
     <div class="mayor-picker-track"><div id="mayorPickerFill"></div></div>
   </div>
@@ -3573,25 +3588,43 @@ document.addEventListener('DOMContentLoaded', function() {
   function keyFor(array){const raw=stringify(array.map(x=>[x.n,x.i]));let h=0;for(let i=0;i<raw.length;i++)h=(Math.imul(31,h)+raw.charCodeAt(i))|0;return 'teus_alistar_v1_'+(h>>>0).toString(36)}
   function readChecks(){try{return JSON.parse(localStorage.getItem(persistKey)||'{}')}catch(e){return {}}}
   function saveChecks(){try{localStorage.setItem(persistKey,JSON.stringify(Object.fromEntries(data.map((x,i)=>[i,!!x.c]))))}catch(e){}}
+  const normalized=s=>String(s||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLocaleLowerCase('es').trim();
+  let searchText='';
+  function toggleCheck(index,checked){
+    const product=data[index];if(!product)return;
+    product.c=!!checked;
+    saveChecks();
+    if(source==='local' && window.__teusChecklistSync)window.__teusChecklistSync(index,product.c);
+    paint();
+  }
   function paint(){
     const list=$('mayorPickerList');list.replaceChildren();
+    const query=normalized(searchText);
+    let visible=0;
     data.forEach((x,i)=>{
-      const card=document.createElement('label');card.className='mayor-picker-product'+(x.c?' done':'');
+      if(query&&!normalized(x.n).includes(query))return;
+      visible++;
+      // La tarjeta es un DIV, no LABEL: evita que un toque cambie dos veces el checkbox.
+      const card=document.createElement('div');card.className='mayor-picker-product'+(x.c?' done':'');
+      card.setAttribute('role','group');card.setAttribute('aria-label',x.n);
       const check=document.createElement('input');check.type='checkbox';check.className='mayor-picker-checkbox';check.checked=!!x.c;check.setAttribute('aria-label','Marcar '+x.n);
       const img=safeImage(x.i);let picture;
-      if(img){picture=document.createElement('img');picture.className='mayor-picker-photo';picture.src=img;picture.alt='Producto';picture.loading='lazy';picture.referrerPolicy='no-referrer';picture.onerror=()=>{picture.replaceWith(document.createTextNode('📦'))}} 
+      if(img){picture=document.createElement('img');picture.className='mayor-picker-photo';picture.src=img;picture.alt='Producto';picture.loading='lazy';picture.referrerPolicy='no-referrer';picture.onerror=()=>{picture.replaceWith(document.createTextNode('📦'))}}
       else {picture=document.createElement('div');picture.className='mayor-picker-ph';picture.textContent='📦'}
       const title=document.createElement('div');title.className='mayor-picker-label';title.textContent=x.n;
       card.append(check,picture,title);
-      card.addEventListener('click',()=>{x.c=!x.c;saveChecks();if(source==='local' && window.__teusChecklistSync)window.__teusChecklistSync(i,x.c);paint()});
+      check.addEventListener('change',()=>toggleCheck(i,check.checked));
+      card.addEventListener('click',ev=>{if(ev.target===check)return;toggleCheck(i,!x.c)});
       list.append(card);
     });
+    if(!visible){const empty=document.createElement('div');empty.className='mayor-picker-empty';empty.textContent=data.length?'No hay productos que coincidan con la búsqueda.':'Este pedido todavía no contiene productos.';list.append(empty)}
     const done=data.filter(x=>x.c).length;const pct=data.length?Math.round(done*100/data.length):0;
     $('mayorPickerCount').textContent=`${done} / ${data.length} listos`;
     $('mayorPickerPercent').textContent=pct+'%';$('mayorPickerFill').style.width=pct+'%';
+    $('mayorPickerResults').textContent=query?`Mostrando ${visible} de ${data.length} productos · ${done} preparados`:`${data.length} productos · toca cualquier artículo para tildarlo`;
   }
   function show(arr,mode){
-    source=mode;data=arr.map(x=>({n:String(x.n||'Producto'),i:safeImage(x.i),c:!!x.c}));persistKey=keyFor(data);
+    searchText='';$('mayorPickerSearch').value='';source=mode;data=arr.map(x=>({n:String(x.n||'Producto'),i:safeImage(x.i),c:!!x.c}));persistKey=keyFor(data);
     if(mode==='compartido'){const saved=readChecks();data.forEach((x,i)=>{if(saved[i]!==undefined)x.c=!!saved[i]})}
     document.body.classList.add('mayor-solo-alistar');$('mayorPickerExit').style.display=mode==='compartido'?'none':'';paint();
   }
@@ -3610,6 +3643,8 @@ document.addEventListener('DOMContentLoaded', function() {
   };
   document.addEventListener('DOMContentLoaded',()=>{
     if(isShare)shareParse();
+    $('mayorPickerSearch').addEventListener('input',e=>{searchText=e.target.value;paint()});
+    $('mayorPickerSearchClear').addEventListener('click',()=>{searchText='';$('mayorPickerSearch').value='';paint();$('mayorPickerSearch').focus()});
     $('mayorPickerExit').addEventListener('click',()=>document.body.classList.remove('mayor-solo-alistar'));
     $('mayorPickerAll').addEventListener('click',()=>{data.forEach((x,i)=>{x.c=true;if(source==='local'&&window.__teusChecklistSync)window.__teusChecklistSync(i,true)});saveChecks();paint()});
     $('mayorPickerNone').addEventListener('click',()=>{data.forEach((x,i)=>{x.c=false;if(source==='local'&&window.__teusChecklistSync)window.__teusChecklistSync(i,false)});saveChecks();paint()});
