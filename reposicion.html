@@ -1,0 +1,1007 @@
+<!DOCTYPE html>
+<html lang="es">
+ <head>
+  <meta charset="utf-8"/>
+  <meta content="width=device-width,initial-scale=1" name="viewport"/>
+  <meta content="#152b43" name="theme-color"/>
+  <title>
+   Todoenuno Store · Visualizador de reposición V2
+  </title>
+  <style>
+   :root {
+    font-family:system-ui,-apple-system,"Segoe UI",sans-serif;
+    color:#1e3448;
+    background:#f3f6fa
+}
+* {
+    box-sizing:border-box
+}
+body {
+    margin:0
+}
+button,input,select {
+    font:inherit
+}
+button {
+    cursor:pointer
+}
+header {
+    background:#152b43;
+    color:white;
+    padding:21px max(18px,calc((100vw - 1320px)/2));
+    display:flex;
+    gap:16px;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap
+}
+header h1 {
+    margin:0;
+    font-size:23px
+}
+header p {
+    margin:5px 0 0;
+    color:#c2d4e4;
+    font-size:13px
+}
+.headstatus {
+    font-size:12px;
+    background:#294864;
+    padding:9px 12px;
+    border-radius:20px
+}
+main {
+    max-width:1320px;
+    margin:22px auto;
+    padding:0 16px 32px
+}
+.toolbar {
+    display:flex;
+    gap:10px;
+    flex-wrap:wrap;
+    align-items:end;
+    margin-bottom:18px
+}
+.control {
+    display:flex;
+    flex-direction:column;
+    gap:5px;
+    font-size:12px;
+    font-weight:700;
+    color:#42576a
+}
+.control input,.control select {
+    border:1px solid #ced8e1;
+    background:white;
+    border-radius:10px;
+    padding:11px;
+    min-height:43px;
+    color:#203648
+}
+.search {
+    flex:2;
+    min-width:235px
+}
+.small {
+    width:155px
+}
+.btn {
+    border:0;
+    border-radius:10px;
+    padding:12px 14px;
+    font-weight:750;
+    min-height:43px;
+    background:#e8edf4;
+    color:#25415b
+}
+.btn:hover {
+    filter:brightness(.97)
+}
+.btn.primary {
+    background:#176ba7;
+    color:white
+}
+.btn.dark {
+    background:#193b57;
+    color:white
+}
+.btn.yellow {
+    background:#f3c83f;
+    color:#24313e
+}
+.btn:disabled {
+    opacity:.5;
+    cursor:not-allowed
+}
+.stats {
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:12px;
+    margin-bottom:18px
+}
+.stat {
+    border:1px solid #e3e9ee;
+    background:white;
+    border-radius:14px;
+    padding:17px;
+    cursor:pointer;
+    text-align:left;
+    box-shadow:0 3px 12px #13283a08
+}
+.stat strong {
+    display:block;
+    font-size:29px;
+    margin-bottom:3px
+}
+.stat span {
+    font-size:12px;
+    color:#4c6275
+}
+.stat.active {
+    outline:2px solid #2776bb
+}
+.stat.red strong {
+    color:#c63146
+}
+.stat.orange strong {
+    color:#bc6d12
+}
+.stat.green strong {
+    color:#168651
+}
+.stat.blue strong {
+    color:#2776bb
+}
+.panel {
+    background:white;
+    border:1px solid #e1e7ed;
+    border-radius:15px;
+    padding:17px;
+    margin-bottom:18px
+}
+.panel h2 {
+    font-size:17px;
+    margin:0 0 13px
+}
+.panel p {
+    font-size:13px;
+    color:#506579;
+    line-height:1.5
+}
+.hint {
+    background:#f0f6fc;
+    border-left:4px solid #377fc0;
+    padding:11px 13px;
+    border-radius:8px;
+    margin-bottom:14px;
+    font-size:12px;
+    color:#365572
+}
+.rowhead {
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:12px;
+    flex-wrap:wrap
+}
+.sub {
+    font-size:12px;
+    color:#718195
+}
+.grid {
+    display:grid;
+    grid-template-columns:repeat(auto-fill,minmax(285px,1fr));
+    gap:12px
+}
+.product {
+    border:1px solid #e2e8f0;
+    background:#fff;
+    border-radius:12px;
+    padding:13px;
+    display:flex;
+    flex-direction:column;
+    gap:11px;
+    min-width:0
+}
+.product.agotado {
+    border-left:5px solid #e34a60;
+    background:#fff8f9
+}
+.product.bajo {
+    border-left:5px solid #eaa840;
+    background:#fffcf7
+}
+.product.noreg {
+    border-left:5px solid #8194a9
+}
+.product.ok {
+    border-left:5px solid #31a26a
+}
+.prodtop {
+    display:flex;
+    gap:10px;
+    align-items:start
+}
+.thumb {
+    width:57px;
+    height:64px;
+    object-fit:contain;
+    border-radius:7px;
+    background:#f1f5f8;
+    flex-shrink:0
+}
+.emptythumb {
+    width:57px;
+    height:64px;
+    flex-shrink:0;
+    border-radius:7px;
+    background:#edf1f5;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    font-size:23px
+}
+.name {
+    font-size:14px;
+    font-weight:750;
+    line-height:1.35;
+    overflow-wrap:anywhere
+}
+.category {
+    font-size:11px;
+    color:#667c90;
+    margin-top:4px
+}
+.chips {
+    display:flex;
+    flex-wrap:wrap;
+    gap:5px
+}
+.chip {
+    display:inline-block;
+    border-radius:20px;
+    padding:4px 8px;
+    font-weight:750;
+    font-size:10px;
+    background:#eaf1f9;
+    color:#385c79
+}
+.chip.red {
+    background:#ffe3e7;
+    color:#b8223a
+}
+.chip.orange {
+    background:#fff0d9;
+    color:#88520b
+}
+.chip.green {
+    background:#dff7e8;
+    color:#167146
+}
+.metric {
+    background:#f4f7fa;
+    border-radius:9px;
+    padding:9px;
+    font-size:12px
+}
+.metric b {
+    display:block;
+    font-size:13px;
+    margin-bottom:3px
+}
+.locations {
+    font-size:11px;
+    color:#62778c;
+    line-height:1.5
+}
+.buyrow {
+    display:flex;
+    gap:7px;
+    align-items:center;
+    flex-wrap:wrap;
+    margin-top:auto;
+    padding-top:6px;
+    border-top:1px solid #ecf0f3
+}
+.buyrow input[type=checkbox] {
+    width:20px;
+    height:20px;
+    accent-color:#1977ac
+}
+.buyrow label {
+    font-size:12px;
+    font-weight:700;
+    flex:1;
+    min-width:80px
+}
+.buyrow input[type=number] {
+    width:67px;
+    border:1px solid #cad6df;
+    border-radius:8px;
+    padding:8px
+}
+.buyrow select {
+    width:94px;
+    max-width:100%;
+    border:1px solid #cad6df;
+    border-radius:8px;
+    padding:8px;
+    background:white;
+    font-size:12px
+}
+.orderlist {
+    display:flex;
+    flex-direction:column;
+    gap:7px
+}
+.orderline {
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:9px;
+    background:#f5f8fa;
+    padding:10px;
+    border-radius:9px;
+    font-size:12px
+}
+.orderline b {
+    overflow-wrap:anywhere
+}
+.feedback {
+    font-size:12px;
+    color:#576d7f
+}
+.err {
+    color:#b71f32!important
+}
+.good {
+    color:#0d8051!important
+}
+.muted {
+    color:#677d8c
+}
+.invisible {
+    display:none!important
+}
+.footer {
+    font-size:11px;
+    color:#73879a;
+    text-align:center;
+    padding-bottom:14px
+}
+.print-only {
+    display:none
+}
+@media(max-width:900px) {
+    .stats {
+    grid-template-columns:repeat(3,1fr)
+}
+}
+@media(max-width:580px) {
+    .stats {
+    grid-template-columns:repeat(2,1fr)
+}
+.stat {
+    padding:12px
+}
+.stat strong {
+    font-size:25px
+}
+.small {
+    width:calc(50% - 5px)
+}
+header {
+    padding:17px
+}
+.panel {
+    padding:12px
+}
+.grid {
+    grid-template-columns:1fr
+}
+}
+@media print {
+    body {
+    background:white;
+    color:#111
+}
+header,.toolbar,.stats,.products-panel,.footer,.no-print,#orderButtons,#loadStatus {
+    display:none!important
+}
+main {
+    margin:0;
+    max-width:100%;
+    padding:0
+}
+.panel {
+    box-shadow:none;
+    border:0;
+    padding:0
+}
+#orderPanel {
+    display:block!important
+}
+.print-only {
+    display:block!important
+}
+#orderPanel h2 {
+    font-size:24px
+}
+#orderPanel .hint,#orderPanel .feedback {
+    display:none
+}
+.orderline {
+    break-inside:avoid;
+    border-bottom:1px solid #aaa;
+    border-radius:0;
+    background:white;
+    padding:10px 0
+}
+.print-meta {
+    margin:8px 0 18px;
+    font-size:12px
+}
+}
+/* Pantalla de acceso;
+     solo administradores */
+body:not(.reposicion-autorizado) > header,
+body:not(.reposicion-autorizado) > main,
+body:not(.reposicion-autorizado) > .footer  {
+    display: none !important;
+}
+.login-screen  {
+    min-height: 100dvh;
+    display: grid;
+    place-items: center;
+    padding: 20px;
+    background: linear-gradient(135deg, #17324d, #244b6b);
+}
+body.reposicion-autorizado .login-screen  {
+     display: none;
+}
+.login-card  {
+    width: min(430px, 100%);
+    background: white;
+    padding: 28px;
+    border-radius: 20px;
+    box-shadow: 0 18px 55px rgba(0,0,0,.22);
+}
+.login-card h2  {
+     margin: 0 0 8px;
+     color: #17324d;
+}
+.login-card p  {
+     color: #64748b;
+     font-size: 13px;
+     line-height: 1.5;
+}
+.login-card label  {
+     display: block;
+     margin-top: 15px;
+     font-weight: 700;
+     font-size: 13px;
+}
+.login-card input  {
+    width: 100%;
+     margin-top: 6px;
+     border: 1px solid #cbd5e1;
+    border-radius: 10px;
+     padding: 12px;
+}
+.login-card button  {
+     width: 100%;
+     margin-top: 18px;
+}
+.login-error  {
+    color: #ae1b32;
+     background: #fff1f2;
+     padding: 10px;
+    border-radius: 8px;
+     margin-top: 12px;
+     font-size: 13px;
+}
+.login-error[hidden]  {
+     display: none;
+}
+.header-actions  {
+     display: flex;
+     align-items: center;
+     gap: 8px;
+     flex-wrap: wrap;
+}
+  </style>
+ </head>
+ <body>
+  <div class="login-screen" id="loginScreen">
+   <form autocomplete="on" class="login-card" id="loginForm">
+    <h2>
+     🔐 Acceso administrativo
+    </h2>
+    <p>
+     Todoenuno Store · Visualizador de Reposición.
+     <br/>
+     Solo para administradores.
+    </p>
+    <label for="loginUser">
+     Usuario
+    </label>
+    <input autocomplete="username" id="loginUser" required="" type="text"/>
+    <label for="loginPassword">
+     Contraseña
+    </label>
+    <input autocomplete="current-password" id="loginPassword" required="" type="password"/>
+    <button class="btn primary" id="loginSubmit" type="submit">
+     Ingresar
+    </button>
+    <div class="login-error" hidden="" id="loginError" role="alert">
+    </div>
+   </form>
+  </div>
+  <header>
+   <div>
+    <h1>
+     📦 Todoenuno Store · Reposición
+    </h1>
+    <p>
+     Primero: productos NO disponibles en catálogo · Luego: Stock físico y lista para pedir
+    </p>
+   </div>
+   <div class="header-actions">
+    <div class="headstatus" id="loadStatus">
+     Sin cargar
+    </div>
+    <span class="headstatus" id="adminName">
+    </span>
+    <button class="btn" id="logout" type="button">
+     Cerrar sesión
+    </button>
+   </div>
+  </header>
+  <main>
+   <div class="toolbar no-print">
+    <label class="control search">
+     Buscar por producto o sección
+     <input autocomplete="off" id="search" placeholder="Ej.: pila, decants, maquillaje…"/>
+    </label>
+    <label class="control small">
+     Ver productos
+     <select id="statusFilter">
+      <option value="catalogo">
+       No disponibles en catálogo
+      </option>
+      <option value="all">
+       Todos
+      </option>
+      <option value="agotado">
+       Agotados en paquete y unidad
+      </option>
+      <option value="bajo">
+       Stock físico bajo
+      </option>
+      <option value="noreg">
+       Sin registro físico
+      </option>
+      <option value="ok">
+       Con Stock
+      </option>
+     </select>
+    </label>
+    <label class="control small">
+     Umbral stock bajo
+     <input id="lowLimit" min="0" step="1" title="En paquetes equivalentes; artículos sin equivalencia usan unidades" type="number" value="2"/>
+    </label>
+    <label class="control small">
+     Sección
+     <select id="sectionFilter">
+      <option value="">
+       Todas las secciones
+      </option>
+     </select>
+    </label>
+    <button class="btn primary" id="refresh">
+     ↻ Actualizar datos
+    </button>
+   </div>
+   <div class="stats no-print">
+    <button class="stat blue" data-filter="all">
+     <strong id="cAll">
+      —
+     </strong>
+     <span>
+      Productos en ITEMS
+     </span>
+    </button>
+    <button class="stat red active" data-filter="catalogo">
+     <strong id="cCatalogo">
+      —
+     </strong>
+     <span>
+      NO disponibles en catálogo
+     </span>
+    </button>
+    <button class="stat red" data-filter="agotado">
+     <strong id="cAgotado">
+      —
+     </strong>
+     <span>
+      Sin paquete ni unidad
+     </span>
+    </button>
+    <button class="stat orange" data-filter="bajo">
+     <strong id="cBajo">
+      —
+     </strong>
+     <span>
+      Stock físico bajo
+     </span>
+    </button>
+    <button class="stat" data-filter="noreg">
+     <strong id="cNoreg">
+      —
+     </strong>
+     <span>
+      Sin registro en Stock
+     </span>
+    </button>
+    <button class="stat green" data-filter="ok">
+     <strong id="cOk">
+      —
+     </strong>
+     <span>
+      Con existencias físicas
+     </span>
+    </button>
+   </div>
+   <section class="panel products-panel">
+    <div class="rowhead">
+     <h2>
+      Inventario y disponibilidad
+     </h2>
+     <span class="sub" id="shown">
+     </span>
+    </div>
+    <div class="hint">
+     🔴
+     <b>
+      Primero: no disponibles en el catálogo público.
+     </b>
+     Se aplica la misma regla que utiliza la vista de categorías: un producto sin disponibilidad por paquete, sin precio de paquete o sin publicación se identifica por separado. La disponibilidad por unidad también se indica.
+     <b>
+      ITEMS
+     </b>
+     indica si se ofrece el producto en tu catálogo.
+     <b>
+      Stock
+     </b>
+     indica cuántas existencias físicas has registrado. Un artículo agotado en ITEMS puede tener Stock físico y uno disponible en ITEMS puede no estar inventariado. El umbral de stock bajo es configurable.
+    </div>
+    <p class="feedback" id="feedback">
+     Pulsa “Actualizar datos” para consultar tus hojas.
+    </p>
+    <div class="rowhead" style="margin-bottom:12px">
+     <strong id="catalogoHeading" style="color:#a71c37">
+      🔴 Productos que no están disponibles en el catálogo
+     </strong>
+     <button class="btn" id="catalogoQuick" style="width:auto;font-size:12px;padding:8px 12px" type="button">
+      Ver no disponibles
+     </button>
+    </div>
+    <div class="grid" id="products">
+    </div>
+   </section>
+   <section class="panel" id="orderPanel">
+    <h2>
+     📝 Lista para pedir mercadería
+     <small class="sub no-print" id="orderCounter">
+     </small>
+    </h2>
+    <div class="print-only">
+     <strong>
+      TODOENUNO STORE · LISTA DE REPOSICIÓN
+     </strong>
+     <p class="print-meta" id="printDate">
+     </p>
+    </div>
+    <p class="no-print">
+     Marca los productos que deseas reponer, indica cantidad y presentación. La lista es independiente de tus ventas y no cambia ninguna hoja.
+    </p>
+    <div class="orderlist" id="orderList">
+    </div>
+    <div class="rowhead" id="orderButtons" style="margin-top:13px">
+     <div style="display:flex;gap:8px;flex-wrap:wrap">
+      <button class="btn yellow" id="printPdf">
+       ⬇ Descargar / guardar PDF
+      </button>
+      <button class="btn" id="exportCsv">
+       Exportar CSV
+      </button>
+      <button class="btn dark" id="copyList">
+       Copiar lista
+      </button>
+     </div>
+     <button class="btn" id="clearOrder">
+      Limpiar lista
+     </button>
+    </div>
+    <p class="feedback no-print">
+     Al pulsar PDF se abre la impresión del navegador: selecciona
+     <b>
+      Guardar como PDF
+     </b>
+     . No necesitas instalar librerías.
+    </p>
+   </section>
+  </main>
+  <div class="footer">
+   Panel independiente de solo lectura · ITEMS + stock todoenuno · Ninguna actualización de inventario ni de ventas
+  </div>
+  <script>
+   'use strict';
+const ITEMS_ID = '1m9A2-dW71FWU8tgmjx7haibO052AUDM6tqiMQuaGhOw';
+const STOCK_ID = '1Rx8QdmK61tsrP4xdNTjTxT9F2QbI4lCpzNJZhNcq-7g';
+const $ = id => document.getElementById(id);
+let inventory = [], cart = new Map(), ready = false;
+const norm = s => String(s ?? '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim();
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+const n = v => { let t = String(v ?? '').trim().replace(/\s/g, ''); if (!t)
+    return 0; if (t.includes(',') && t.includes('.')) {
+    if (t.lastIndexOf(',') > t.lastIndexOf('.'))
+        t = t.replace(/\./g, '').replace(',', '.');
+    else
+        t = t.replace(/,/g, '');
+}
+else if (t.includes(','))
+    t = t.replace(',', '.'); return Number(t) || 0; };
+function csvParse(s) { s = String(s).replace(/^\uFEFF/, ''); let rows = [], row = [], field = '', quoted = false; for (let i = 0; i < s.length; i++) {
+    let c = s[i];
+    if (quoted) {
+        if (c === '"' && s[i + 1] === '"') {
+            field += '"';
+            i++;
+        }
+        else if (c === '"')
+            quoted = false;
+        else
+            field += c;
+    }
+    else if (c === '"')
+        quoted = true;
+    else if (c === ',') {
+        row.push(field);
+        field = '';
+    }
+    else if (c === '\n' || c === '\r') {
+        if (c === '\r' && s[i + 1] === '\n')
+            i++;
+        row.push(field);
+        if (row.some(x => x.trim()))
+            rows.push(row);
+        row = [];
+        field = '';
+    }
+    else
+        field += c;
+} row.push(field); if (row.some(x => x.trim()))
+    rows.push(row); return rows; }
+async function readSheet(id, sheet) { const q = encodeURIComponent(sheet); let urls = [`https://docs.google.com/spreadsheets/d/${id}/gviz/tq?tqx=out:csv&sheet=${q}&_=${Date.now()}`, `https://docs.google.com/spreadsheets/d/${id}/export?format=csv&sheet=${q}&_=${Date.now()}`]; let last = ''; for (const url of urls) {
+    try {
+        let r = await fetch(url, { cache: 'no-store', credentials: 'omit' });
+        if (!r.ok)
+            throw Error('HTTP ' + r.status);
+        let t = await r.text();
+        if (/^\s*<!doctype|^\s*<html/i.test(t) || !t.includes(','))
+            throw Error('No es CSV');
+        let rows = csvParse(t);
+        if (!rows.length)
+            throw Error('Hoja vacía');
+        return rows;
+    }
+    catch (e) {
+        last = e.message;
+    }
+} throw Error(sheet + ': ' + last + ' (comprueba que la hoja permita lectura por enlace)'); }
+function getCol(headers, ...names) { for (const name of names) {
+    const at = headers.findIndex(h => h === norm(name));
+    if (at >= 0)
+        return at;
+} return -1; }
+function c(row, i) { return i < 0 ? '' : String(row[i] ?? '').trim(); }
+function imageUrl(x) { let v = String(x || '').trim(), m = v.match(/\/d\/([^/?]+)/) || v.match(/[?&]id=([^&]+)/); return m ? 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(m[1]) + '&sz=w180' : v; }
+function itemRows(rows) { const h = rows[0].map(norm), get = (r, ...names) => c(r, getCol(h, ...names)); const arr = []; for (const r of rows.slice(1)) {
+    let name = get(r, 'nombre');
+    if (!name)
+        continue;
+    let section = get(r, 'seccion', 'sección') || c(r, 0) || 'GENERAL';
+    let paquete = get(r, 'hay disponibilidad por paquete');
+    let unidad = get(r, 'hay disponibilidad por unidad');
+    let pub = get(r, 'publicar_catalogo');
+    let amount = get(r, 'cantidad paquete');
+    let factor = parseInt(amount, 10) || 1;
+    let disabled = v => ['no', 'agotado', 'sin stock', 'false', '0', ''].includes(norm(v));
+    let pd = disabled(paquete), ud = disabled(unidad), precioPaquete = n(get(r, 'precio de paquete'));
+    let publicado = norm(pub) === 'si';
+    let noDisponibleCatalogo = !publicado || pd || precioPaquete <= 0;
+    arr.push({ key: section + '|' + name, name, section, packFactor: factor, packText: amount || '', agotado: pd && ud, paqueteAgotado: pd, unidadAgotada: ud, noDisponibleCatalogo, precioPaquete, publicado, photo: imageUrl(get(r, 'imagen_editada') || get(r, 'imagen_original')), stock: [], sum: 0, stocks: 0 });
+} return arr; }
+function stockRows(rows) { const h = rows[0].map(norm), col = (...x) => getCol(h, ...x); let out = []; for (const r of rows.slice(1)) {
+    const name = c(r, col('nombre'));
+    if (!name)
+        continue;
+    let ca = n(c(r, col('cajas'))), pa = n(c(r, col('paquetes'))), un = n(c(r, col('unidades')));
+    let upp = n(c(r, col('unidades_por_paquete'))) || 1, ppc = n(c(r, col('paquetes_por_caja'))) || 1;
+    out.push({ name, section: c(r, col('seccion', 'sección')), where: c(r, col('ubicacion', 'ubicación')) || 'Ubicación sin nombre', ca, pa, un, upp, ppc, total: ca * ppc * upp + pa * upp + un, id: c(r, col('id_stock')) });
+} return out; }
+function buildInventory(items, stocks) { const grouped = new Map(); for (const s of stocks) {
+    const k = norm(s.name);
+    if (!grouped.has(k))
+        grouped.set(k, []);
+    grouped.get(k).push(s);
+} for (const item of items) {
+    const matches = (grouped.get(norm(item.name)) || []).filter(s => !item.section || !s.section || norm(item.section) === norm(s.section));
+    item.stock = matches;
+    item.sum = matches.reduce((a, s) => a + s.total, 0);
+    item.stocks = matches.length;
+    item.variation = matches.some(s => s.upp !== matches[0]?.upp || s.ppc !== matches[0]?.ppc);
+    item.threshold = 0;
+} return items; }
+function low(item) { if (!item.stocks || item.sum <= 0)
+    return false; let lim = Math.max(0, Math.floor(n($('lowLimit').value))); return item.sum <= lim * Math.max(1, item.packFactor); }
+function status(item) { return item.noDisponibleCatalogo ? 'agotado' : !item.stocks ? 'noreg' : low(item) ? 'bajo' : 'ok'; }
+function match(item, filter) { return filter === 'all' || (filter === 'ok' && item.sum > 0) || (filter === 'agotado' && item.agotado) || (filter === 'catalogo' && item.noDisponibleCatalogo) || (filter === 'noreg' && !item.stocks) || (filter === 'bajo' && low(item)); }
+function refreshStats() { let f = $('statusFilter').value; document.querySelectorAll('.stat').forEach(el => el.classList.toggle('active', el.dataset.filter === f)); $('cAll').textContent = inventory.length; $('cCatalogo').textContent = inventory.filter(x => x.noDisponibleCatalogo).length; $('cAgotado').textContent = inventory.filter(x => x.agotado).length; $('cBajo').textContent = inventory.filter(low).length; $('cNoreg').textContent = inventory.filter(x => !x.stocks).length; $('cOk').textContent = inventory.filter(x => x.sum > 0).length; }
+function labelStock(it) { if (!it.stocks)
+    return 'Sin registro físico en Stock'; if (it.sum <= 0)
+    return '0 unidades equivalentes registradas'; const parts = it.stock.filter(x => x.total > 0).map(x => x.ca + ' cajas, ' + x.pa + ' paquetes, ' + x.un + ' unidades'); let one = it.stock.length === 1 ? parts[0] : null; return (one || it.sum + ' unidades equivalentes en ' + it.stock.length + ' registro(s)'); }
+function render() { refreshStats(); let q = norm($('search').value), f = $('statusFilter').value, section = $('sectionFilter').value; let list = inventory.filter(x => match(x, f) && (!section || x.section === section) && (!q || norm(x.name + ' ' + x.section).includes(q))); list.sort((a, b) => { let rank = x => (x.noDisponibleCatalogo ? 0 : low(x) ? 1 : !x.stocks ? 2 : 3); return rank(a) - rank(b) || a.name.localeCompare(b.name, 'es'); }); $('shown').textContent = list.length + ' productos'; $('catalogoHeading').textContent = f === 'catalogo' ? '🔴 NO DISPONIBLES EN CATÁLOGO (ITEMS)' : f === 'agotado' ? '🔴 Sin disponibilidad por paquete y por unidad' : 'Inventario y disponibilidad'; let root = $('products'); root.replaceChildren(); for (const it of list) {
+    let key = it.key, selected = cart.get(key);
+    let s = status(it);
+    let div = document.createElement('article');
+    div.className = 'product ' + s;
+    let badges = `<span class="chip ${it.noDisponibleCatalogo ? 'red' : 'green'}">${it.noDisponibleCatalogo ? '🔴 NO DISPONIBLE EN CATÁLOGO' : 'Disponible en catálogo'}</span>${!it.publicado ? '<span class="chip red">No publicado</span>' : ''}<span class="chip ${it.paqueteAgotado ? 'red' : 'green'}">Paquete: ${it.paqueteAgotado ? 'Agotado' : 'Disponible'}</span><span class="chip ${it.unidadAgotada ? 'red' : 'green'}">Unidad: ${it.unidadAgotada ? 'Agotada' : 'Disponible'}</span><span class="chip ${!it.stocks ? 'orange' : it.sum > 0 ? 'green' : 'red'}">${!it.stocks ? 'Stock: no registrado' : it.sum > 0 ? 'Stock: con existencias' : 'Stock: cero'}</span>${low(it) ? '<span class="chip orange">⚠ Stock bajo</span>' : ''}`;
+    let loc = it.stock.length ? it.stock.map(x => esc(x.where) + ': ' + x.ca + ' caj. · ' + x.pa + ' paq. · ' + x.un + ' un.').join('<br>') : 'Sin ubicaciones físicas registradas';
+    div.innerHTML = `<div class="prodtop">${it.photo ? `<img class="thumb" alt="" loading="lazy" src="${esc(it.photo)}" onerror="this.style.display='none'">` : '<div class="emptythumb">📦</div>'}<div><div class="name">${esc(it.name)}</div><div class="category">${esc(it.section)}</div></div></div><div class="chips">${badges}</div><div class="metric"><b>${esc(labelStock(it))}</b><span class="sub">${it.variation ? '⚠ Equivalencias distintas entre registros: revisar antes de pedir.' : 'Paquete de catálogo: ' + esc(it.packText || it.packFactor + ' unidades')}</span></div><div class="locations">${loc}</div><div class="buyrow"><input type="checkbox" aria-label="Incluir en lista" ${selected ? 'checked' : ''}><label>Agregar a lista</label><input type="number" aria-label="Cantidad a pedir" min="1" step="1" value="${selected ? selected.qty : 1}"><select aria-label="Presentación a pedir"><option value="paquetes">Paquetes</option><option value="cajas">Cajas</option><option value="unidades">Unidades</option></select></div>`;
+    let check = div.querySelector('input[type=checkbox]'), qty = div.querySelector('input[type=number]'), type = div.querySelector('select');
+    if (selected)
+        type.value = selected.type;
+    function update() { if (check.checked)
+        cart.set(key, { name: it.name, section: it.section, qty: Math.max(1, Math.floor(n(qty.value) || 1)), type: type.value, why: it.noDisponibleCatalogo ? 'No disponible en catálogo' : low(it) ? 'Stock bajo' : it.sum === 0 ? 'Sin existencias físicas' : 'Reposición' });
+    else
+        cart.delete(key); renderOrder(); }
+    check.onchange = update;
+    qty.onchange = update;
+    type.onchange = update;
+    root.appendChild(div);
+} if (!list.length) {
+    let t = document.createElement('p');
+    t.className = 'muted';
+    t.textContent = ready ? 'No hay artículos que coincidan con los filtros.' : 'Todavía no se cargaron datos.';
+    root.appendChild(t);
+} }
+function orderText() { return 'TODOENUNO STORE — LISTA PARA PEDIR\nGenerado: ' + new Date().toLocaleString('es-BO') + '\n\n' + [...cart.values()].map((x, i) => `${i + 1}. ${x.name}\n   ${x.qty} ${x.type} | ${x.why} | ${x.section}`).join('\n\n'); }
+function renderOrder() { const list = $('orderList'); list.replaceChildren(); let all = [...cart.values()]; $('orderCounter').textContent = '(' + all.length + ' productos)'; $('printDate').textContent = 'Fecha de generación: ' + new Date().toLocaleString('es-BO') + ' · ' + all.length + ' productos'; if (!all.length) {
+    let d = document.createElement('p');
+    d.className = 'muted';
+    d.textContent = 'Aún no agregaste productos. Marca los que necesitas comprar en el panel superior.';
+    list.appendChild(d);
+} all.forEach((it, i) => { const row = document.createElement('div'); row.className = 'orderline'; row.innerHTML = `<div><b>${i + 1}. ${esc(it.name)}</b><div class="sub">${esc(it.section)} · ${esc(it.why)}</div></div><strong style="white-space:nowrap">${it.qty} ${esc(it.type)}</strong>`; list.appendChild(row); }); $('printPdf').disabled = $('exportCsv').disabled = $('copyList').disabled = !all.length; }
+async function reload() { const bt = $('refresh'); bt.disabled = true; $('loadStatus').textContent = 'Consultando ITEMS y Stock…'; $('feedback').textContent = 'Leyendo hojas de Google Sheets (sin modificar ningún registro)…'; try {
+    const [i, s] = await Promise.allSettled([readSheet(ITEMS_ID, 'item'), readSheet(STOCK_ID, 'stock')]);
+    if (i.status !== 'fulfilled')
+        throw new Error('No fue posible leer ITEMS: ' + i.reason.message);
+    if (s.status !== 'fulfilled')
+        throw new Error('No fue posible leer Stock: ' + s.reason.message);
+    const items = itemRows(i.value), stocks = stockRows(s.value);
+    if (!items.length)
+        throw Error('ITEMS no contiene productos reconocibles. Revisa encabezados.');
+    inventory = buildInventory(items, stocks);
+    ready = true;
+    const sections = [...new Set(items.map(x => x.section))].sort((a, b) => a.localeCompare(b, 'es'));
+    const old = $('sectionFilter').value;
+    $('sectionFilter').innerHTML = '<option value="">Todas las secciones</option>' + sections.map(x => `<option value="${esc(x)}">${esc(x)}</option>`).join('');
+    $('sectionFilter').value = sections.includes(old) ? old : '';
+    const now = new Date().toLocaleTimeString('es-BO');
+    $('loadStatus').textContent = 'Actualizado ' + now;
+    $('feedback').className = 'feedback good';
+    $('feedback').textContent = `Datos cargados: ${items.length} artículos de ITEMS y ${stocks.length} registros de Stock. Consulta de solo lectura.`;
+    render();
+}
+catch (e) {
+    $('loadStatus').textContent = 'Error de lectura';
+    $('feedback').className = 'feedback err';
+    $('feedback').textContent = 'No se pudieron cargar las hojas: ' + e.message + '. Si siguen privadas, necesitas habilitar acceso de lectura o un endpoint seguro. Se conserva la última vista válida.';
+    if (ready)
+        render();
+}
+finally {
+    bt.disabled = false;
+} }
+$('refresh').onclick = reload;
+$('catalogoQuick').onclick = () => { $('statusFilter').value = 'catalogo'; render(); document.querySelector('.products-panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
+['search', 'statusFilter', 'sectionFilter', 'lowLimit'].forEach(id => $(id).addEventListener(id === 'search' ? 'input' : 'change', render));
+document.querySelectorAll('.stat').forEach(b => b.onclick = () => { $('statusFilter').value = b.dataset.filter; render(); });
+$('printPdf').onclick = () => { if (!cart.size)
+    return; window.print(); };
+$('copyList').onclick = () => { if (navigator.clipboard)
+    navigator.clipboard.writeText(orderText()).then(() => alert('Lista copiada')).catch(() => alert('No se pudo copiar; abre el sitio mediante HTTPS'));
+else
+    alert('Copiar requiere HTTPS'); };
+$('exportCsv').onclick = () => { let rows = [['Producto', 'Sección', 'Cantidad a pedir', 'Presentación', 'Motivo'], ...[...cart.values()].map(x => [x.name, x.section, x.qty, x.type, x.why])]; let csv = '\uFEFF' + rows.map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n'); let url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); let a = document.createElement('a'); a.href = url; a.download = 'Lista_reposicion_Todoenuno.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); };
+$('clearOrder').onclick = () => { if (!cart.size)
+    return; if (confirm('¿Vaciar la lista para pedir?')) {
+    cart.clear();
+    render();
+    renderOrder();
+} };
+renderOrder();
+// ================================================================
+// ACCESO ADMINISTRATIVO — MISMA HOJA DE USUARIOS DE VENTAS POR MAYOR
+// ================================================================
+// Nota: la validación en un HTML estático es una barrera de interfaz,
+// NO sustituye una API con autenticación del lado servidor.
+const LOGIN_SHEET_ID = '1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok';
+const ADMIN_ROLES = new Set(['admin', 'administrador']);
+async function authenticateAdmin(username, password) {
+    const url = `https://docs.google.com/spreadsheets/d/${LOGIN_SHEET_ID}/export?format=csv&_=${Date.now()}`;
+    const response = await fetch(url, { cache: 'no-store', credentials: 'omit' });
+    if (!response.ok)
+        throw new Error('No se pudo consultar la hoja de usuarios');
+    const rows = csvParse(await response.text());
+    if (rows.length < 2)
+        throw new Error('No hay usuarios disponibles');
+    const headers = rows[0].map(norm);
+    const userCol = getCol(headers, 'usuario', 'user', 'username', 'nombre de usuario', 'nombre_usuario');
+    const passCol = getCol(headers, 'contrasena', 'contraseña', 'clave', 'password', 'pass');
+    const roleCol = getCol(headers, 'rol', 'tipo', 'cargo', 'perfil');
+    const nameCol = getCol(headers, 'nombre', 'nombre completo', 'nombre_completo', 'vendedor');
+    if ([userCol, passCol, roleCol].some(index => index < 0)) {
+        throw new Error('Faltan columnas de usuario, contraseña o rol en la hoja');
+    }
+    const user = rows.slice(1).find(row => norm(c(row, userCol)) === norm(username) &&
+        c(row, passCol) === password);
+    if (!user)
+        throw new Error('Usuario o contraseña incorrectos');
+    if (!ADMIN_ROLES.has(norm(c(user, roleCol)))) {
+        throw new Error('Acceso exclusivo para administradores');
+    }
+    return nameCol >= 0 ? c(user, nameCol) || c(user, userCol) : c(user, userCol);
+}
+const loginForm = $('loginForm');
+loginForm.addEventListener('submit', async (event) => {
+    event.preventDefault();
+    const loginButton = $('loginSubmit');
+    const errorBox = $('loginError');
+    errorBox.hidden = true;
+    loginButton.disabled = true;
+    loginButton.textContent = 'Verificando…';
+    try {
+        const adminName = await authenticateAdmin($('loginUser').value.trim(), $('loginPassword').value);
+        $('loginPassword').value = '';
+        $('adminName').textContent = 'Administrador: ' + adminName;
+        document.body.classList.add('reposicion-autorizado');
+        await reload();
+    }
+    catch (error) {
+        errorBox.textContent = error.message || 'No se pudo iniciar sesión';
+        errorBox.hidden = false;
+    }
+    finally {
+        loginButton.disabled = false;
+        loginButton.textContent = 'Ingresar';
+    }
+});
+$('logout').addEventListener('click', () => {
+    document.body.classList.remove('reposicion-autorizado');
+    $('loginPassword').value = '';
+    $('adminName').textContent = '';
+    $('loadStatus').textContent = 'Sin cargar';
+    // No conservar existencias ni lista en pantalla después de salir.
+    inventory = [];
+    ready = false;
+    cart.clear();
+    $('products').replaceChildren();
+    renderOrder();
+    $('loginUser').focus();
+});
+  </script>
+ </body>
+</html>
