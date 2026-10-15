@@ -641,8 +641,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 @media(max-width:768px){#tablaVentasDia td:nth-child(11){min-width:112px}.estado-venta-nube{font-size:11px}}
 </style>
 <style>
-.autocomplete-item.v2648-agotado-items{background:#fff1f2!important;border-left:4px solid #dc2626!important;color:#991b1b!important;cursor:not-allowed!important}
+.autocomplete-item.v2648-agotado-items{background:#fff1f2!important;border-left:4px solid #dc2626!important;color:#991b1b!important;cursor:pointer!important}
 .autocomplete-item.v2648-agotado-items .autocomplete-item-nombre,.autocomplete-item.v2648-agotado-items .autocomplete-item-seccion{color:#b91c1c!important}
+#productosLista .producto-item.teus-venta-excepcional{background:#fff1f2!important;border-left:4px solid #e11d48!important;border-top:1px solid #fecdd3!important;border-bottom:1px solid #fecdd3!important}
+#productosLista .teus-excepcion-aviso{display:block;color:#be123c;font-size:11px;font-weight:750;margin-top:5px;line-height:1.35}
+.autocomplete-item.v2648-agotado-items .autocomplete-item-seccion:after{content:" · Venta excepcional permitida";font-weight:700}
 .venta-stock-card.v2648-sin-stock{background:#fff1f2!important;border:2px solid #dc2626!important;color:#991b1b!important;opacity:.85;cursor:not-allowed!important}
 .venta-stock-card.v2648-sin-stock .pick,.venta-stock-card.v2648-sin-stock .eq{color:#b91c1c!important;font-weight:700}
 </style>
@@ -1706,8 +1709,8 @@ function descripcionCantidadV26(c,e){
  return p.join(' + ')||'0 unidades';
 }
 
-function actualizarVentaSmart(){document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=ventaSmartUE()?descripcionCantidadV26(ventaSmartCant,e):'Selecciona al menos 1 caja, paquete o unidad para habilitar Agregar';const hb=document.getElementById('ventaHalfBtn');if(hb)hb.style.display='none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartOrigen==='__EXTERNO__'){warn.style.display='block';warn.innerHTML='<i class="fas fa-globe"></i> <b>Venta externa.</b> Esta venta se registrará normalmente y NO descontará tu Stock.'}else if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> <b>Stock pendiente de definir.</b> Si sabes de dónde salió físicamente, selecciona la ubicación. Si no lo sabes, puedes continuar: la venta se guardará pero NO se descontará de ninguna ubicación.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. No se puede vender esa cantidad desde esta ubicación. Reduce la cantidad o elige otro origen.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual){const ps=ventaSmartPrecioSugerido()||Number(ventaSmartProducto?.precioPaquete||0)||0;price.value=ps?String(Math.round(ps)):''};document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0 || (!!fila && ventaSmartUE()>unidadesTotalesFilaVenta(fila))}
-async function abrirVentaSmart(producto){ventaSmartProducto=producto;ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen='';document.getElementById('ventaSmartPrecio').dataset.manual='';document.getElementById('ventaSmartNombre').textContent=producto.nombre||'Producto';const img=document.getElementById('ventaSmartImg');if(producto.imagen){img.src=producto.imagen;img.style.display='inline-block'}else img.style.display='none';document.getElementById('ventaSmartModal').style.display='flex';ventaSmartTipoActivo='unidades';setTimeout(()=>{const b=document.querySelector('[data-vtipo="unidades"][data-delta="1"]');if(b)b.focus()},50);document.getElementById('ventaSmartStock').innerHTML='<span><i class="fas fa-spinner fa-spin"></i> Consultando stock...</span>';await cargarStockInventario();ventaSmartFilas=filasStockProductoVenta(producto);const e=empaqueVentaSmart();const eq=[];if(e.upp>1)eq.push(`1 paquete = ${e.upp} unidades`);if(e.ppc>0)eq.push(`1 caja = ${e.ppc} paquetes = ${e.ppc*e.upp} unidades`);document.getElementById('ventaSmartEquiv').innerHTML='<b>Presentación registrada:</b> '+(eq.length?eq.join(' · '):'venta por unidad / sin equivalencia registrada');renderVentaSmartStock();actualizarVentaSmart()}
+function actualizarVentaSmart(){document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=ventaSmartUE()?descripcionCantidadV26(ventaSmartCant,e):'Selecciona al menos 1 caja, paquete o unidad para habilitar Agregar';const hb=document.getElementById('ventaHalfBtn');if(hb)hb.style.display='none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartOrigen==='__EXTERNO__'){warn.style.display='block';warn.innerHTML=(ventaSmartProducto?.disponiblePaquete===false&&ventaSmartProducto?.disponibleUnidad===false)?'<i class="fas fa-exclamation-circle"></i> <b>Venta excepcional · agotado en ITEMS.</b> Puedes registrarla si tienes físicamente el producto. No se descontará Stock registrado mientras mantengas esta opción.':'<i class="fas fa-globe"></i> <b>Venta externa.</b> Esta venta se registrará normalmente y NO descontará tu Stock.'}else if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> <b>Stock pendiente de definir.</b> Si sabes de dónde salió físicamente, selecciona la ubicación. Si no lo sabes, puedes continuar: la venta se guardará pero NO se descontará de ninguna ubicación.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. No se puede vender esa cantidad desde esta ubicación. Reduce la cantidad o elige otro origen.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual){const ps=ventaSmartPrecioSugerido()||Number(ventaSmartProducto?.precioPaquete||0)||0;price.value=ps?String(Math.round(ps)):''};document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0 || (!!fila && ventaSmartUE()>unidadesTotalesFilaVenta(fila))}
+async function abrirVentaSmart(producto){ventaSmartProducto=producto;ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen=(producto.disponiblePaquete===false&&producto.disponibleUnidad===false)?'__EXTERNO__':'';document.getElementById('ventaSmartPrecio').dataset.manual='';document.getElementById('ventaSmartNombre').textContent=producto.nombre||'Producto';const img=document.getElementById('ventaSmartImg');if(producto.imagen){img.src=producto.imagen;img.style.display='inline-block'}else img.style.display='none';document.getElementById('ventaSmartModal').style.display='flex';ventaSmartTipoActivo='unidades';setTimeout(()=>{const b=document.querySelector('[data-vtipo="unidades"][data-delta="1"]');if(b)b.focus()},50);document.getElementById('ventaSmartStock').innerHTML='<span><i class="fas fa-spinner fa-spin"></i> Consultando stock...</span>';await cargarStockInventario();ventaSmartFilas=filasStockProductoVenta(producto);const e=empaqueVentaSmart();const eq=[];if(e.upp>1)eq.push(`1 paquete = ${e.upp} unidades`);if(e.ppc>0)eq.push(`1 caja = ${e.ppc} paquetes = ${e.ppc*e.upp} unidades`);document.getElementById('ventaSmartEquiv').innerHTML='<b>Presentación registrada:</b> '+(eq.length?eq.join(' · '):'venta por unidad / sin equivalencia registrada');renderVentaSmartStock();actualizarVentaSmart()}
 function limpiarCapturaProductoVenta(){
     descripcionProducto.value='';
     montoProducto.value='';
@@ -1734,7 +1737,6 @@ function cerrarVentaSmart(limpiarFormulario=false){
 function seleccionarSugerencia(idx) {
     const p = sugerenciasActuales[idx];
     if (!p) return;
-    if(p.disponiblePaquete===false && p.disponibleUnidad===false){Notificaciones.mostrar('Producto agotado en ITEMS: no disponible para agregar','warning');return;}
     descripcionProducto.value = p.nombre;
     productoCatalogoSeleccionado = p;
     if (p.precioPaquete > 0) montoProducto.value = formatearPrecio(p.precioPaquete);
@@ -1814,7 +1816,7 @@ document.getElementById('ventaSmartModal').addEventListener('keydown',function(e
 });
 document.getElementById('ventaSmartPrecio').addEventListener('input',function(){this.value=this.value.replace(/\D+/g,'');this.dataset.manual='1'});
 document.getElementById('ventaSmartClose').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartCancel').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartModal').addEventListener('click',e=>{if(e.target.id==='ventaSmartModal')cerrarVentaSmart(true)});
-document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const origenFisico=ventaSmartFilaOrigen();if(origenFisico && ventaSmartUE()>unidadesTotalesFilaVenta(origenFisico)){Notificaciones.mostrar('Cantidad superior al Stock disponible','warning');return;}const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!ventaSmartOrigen)estadoPrev='PENDIENTE_ORIGEN';else if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),id_item:ventaSmartProducto.id_item||'',descripcion:`${descripcionCantidadV26(ventaSmartCant,empaqueVentaSmart())} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:presentacionRealVentaV2650(ventaSmartCant),cantidadFisica:1,detalleFisico:{...ventaSmartCant},origenTipo:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':(ventaSmartOrigen?'STOCK':'PENDIENTE_ORIGEN'),ubicacionSalida:ventaSmartOrigen==='__EXTERNO__'?'':(ventaSmartOrigen||''),id_stock:fila?.id_stock||'',id_ubicacion:fila?.id_ubicacion||'',codigo_caja:fila?.codigo_caja||'',unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
+document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const origenFisico=ventaSmartFilaOrigen();if(origenFisico && ventaSmartUE()>unidadesTotalesFilaVenta(origenFisico)){Notificaciones.mostrar('Cantidad superior al Stock disponible','warning');return;}const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!ventaSmartOrigen)estadoPrev='PENDIENTE_ORIGEN';else if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),ventaExcepcional:(ventaSmartProducto.disponiblePaquete===false&&ventaSmartProducto.disponibleUnidad===false&&ventaSmartOrigen==='__EXTERNO__'),id_item:ventaSmartProducto.id_item||'',descripcion:`${descripcionCantidadV26(ventaSmartCant,empaqueVentaSmart())} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:presentacionRealVentaV2650(ventaSmartCant),cantidadFisica:1,detalleFisico:{...ventaSmartCant},origenTipo:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':(ventaSmartOrigen?'STOCK':'PENDIENTE_ORIGEN'),ubicacionSalida:ventaSmartOrigen==='__EXTERNO__'?'':(ventaSmartOrigen||''),id_stock:fila?.id_stock||'',id_ubicacion:fila?.id_ubicacion||'',codigo_caja:fila?.codigo_caja||'',unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
         productosContent.classList.add('expanded');
         const iconoProductosSmart = productosHeader.querySelector('.collapsible-icon');
         if (iconoProductosSmart) iconoProductosSmart.classList.add('rotated');if(!productosContent.classList.contains('expanded')){productosContent.classList.add('expanded');productosHeader.querySelector('.collapsible-icon').classList.add('rotated')}cerrarVentaSmart(true);Notificaciones.mostrar('Producto agregado a la venta','success',2000)});
@@ -3467,7 +3469,7 @@ function intentarEliminar(index) {
     // Registros solo locales pueden descartarse sin usar la autorización de Sheets.
     if (ventasDelDia[index]?.sincronizada === false) { eliminarVenta(index); return; }
     ventaAEliminarIndex = index;
-    adminUsuarioInput.value = '';
+    adminUsuarioInput.value = normalizarRolSistema(currentUser?.rol)==='admin' ? String(currentUser?.username||'').toLowerCase() : '';
     adminPasswordInput.value = '';
     autorizacionAdminModal.style.display = 'flex';
     setTimeout(() => adminUsuarioInput.focus(), 100);
@@ -3569,17 +3571,27 @@ async function eliminarVenta(index, autorizacionAdmin = null) {
         <p><b>Fecha:</b> ${escape(venta.fecha||'')} ${escape(venta.hora||'')}</p>
         <p><b>Total:</b> ${escape(venta.total_venta||0)} Bs</p>
         <p style="color:#b03a2e"><b>Se borrará la fila de ${escape(obtenerSheetDeVenta(venta))}.</b> No quedará marcada como ANULADA. Sí quedará una evidencia en Historial de Ventas.</p>
-        <p>Si la venta tiene una salida física de Stock, el sistema bloqueará el borrado para proteger el inventario.</p></div>`,
+        <p>Si tiene salidas físicas, el sistema verificará y devolverá las unidades al Stock de origen, dejando una ENTRADA_ANULACION. No borra movimientos antiguos.</p></div>`,
         input:'text',inputLabel:'Motivo de eliminación (obligatorio)',inputPlaceholder:'Ej.: registro duplicado por error',
         showCancelButton:true,confirmButtonColor:'#d33',confirmButtonText:'Eliminar definitivamente',cancelButtonText:'Cancelar',
         inputValidator:v=>String(v||'').trim().length<3?'Indica el motivo de eliminación':undefined
     });
     if(!confirm.isConfirmed)return;
+    const tipo=await Swal.fire({title:'¿Por qué eliminas la venta?',input:'select',
+        inputOptions:{PRUEBA:'Venta de prueba',ERROR_REGISTRO:'Error de registro',DEVOLUCION:'Venta anulada / devolución'},
+        inputPlaceholder:'Seleccionar motivo',showCancelButton:true,confirmButtonText:'Continuar',cancelButtonText:'Cancelar',
+        inputValidator:v=>!v?'Selecciona una categoría':undefined});
+    if(!tipo.isConfirmed)return;
+    const reposicion=await Swal.fire({title:'¿Reponer el Stock de esta venta?',icon:'warning',
+        html:'<p>Si existen salidas físicas, se devolverán al inventario de origen y se registrará una <b>ENTRADA_ANULACION</b>. El proceso requiere autorización de administrador y deja auditoría.</p><p><b>No devuelve dinero al cliente automáticamente.</b></p>',
+        showCancelButton:true,confirmButtonText:'Autorizar revisión y reposición',cancelButtonText:'Cancelar',confirmButtonColor:'#b45309'});
+    if(!reposicion.isConfirmed)return;
     try{
-        const res=await backendV26('eliminar_venta_definitiva',{
+        const res=await backendV26('eliminar_venta_definitiva',{ 
             id_venta:id,huella_legacy:huella,sucursal:venta.sucursal||sucursalSeleccionada,
             usuario:currentUser?.username||currentUser?.nombre||'',rol:currentUser?.rol||'',
             autorizacion_admin: autorizacionAdmin ? {usuario:autorizacionAdmin.usuario, password:autorizacionAdmin.password} : null,
+            tipo_eliminacion:tipo.value, confirmar_reposicion:true,
             motivo:String(confirm.value||'').trim()
         });
         if(!res.ok||!res.eliminada)throw Error(res.error||'No se confirmó la eliminación');
@@ -3589,7 +3601,7 @@ async function eliminarVenta(index, autorizacionAdmin = null) {
         guardarVentasLocalSeguro();
         await cargarVentasDiaDesdeSheet({notificar:false,forzar:true});
         actualizarVentasDelDia();
-        Notificaciones.mostrar('Venta eliminada de Sheets. Evento registrado: '+res.id_evento,'success',7000);
+        Notificaciones.mostrar('Venta eliminada. Unidades devueltas a Stock: '+(res.stock_repuesto||0)+'. Evento: '+res.id_evento,'success',7000);
     }catch(e){console.error(e);Notificaciones.mostrar('No se eliminó: '+(e.message||e),'error',9000);}
 }
 
@@ -3879,13 +3891,14 @@ function actualizarListaItems() {
     if (items.length === 0) { productosLista.innerHTML = `<div class="empty-cart"><i class="fas fa-shopping-cart"></i><p>No hay productos</p></div>`; totalCompra.textContent = '0.00'; return; }
     items.forEach((item, index) => {
         const productoItem = document.createElement('div');
-        productoItem.className = 'producto-item';productoItem.dataset.index=index;
+        productoItem.className = 'producto-item'+(item.ventaExcepcional?' teus-venta-excepcional':'');productoItem.dataset.index=index;
         productoItem.innerHTML = `
             <div class="producto-info" style="display:flex;align-items:center;gap:12px;min-width:0;">
                 ${item.imagen ? `<img src="${item.imagen}" alt="${item.nombreProducto || item.descripcion}" title="Clic para ampliar" class="producto-agregado-img-ampliable" data-index="${index}" style="width:58px;height:72px;object-fit:contain;border-radius:8px;border:1px solid #e1e5ea;background:#fff;flex:0 0 auto;cursor:pointer;" onerror="this.style.display='none'">` : ''}
                 <div style="min-width:0;">
                     <span class="producto-descripcion" title="${item.descripcion}">${item.descripcion}</span>
                     <span class="producto-precio-unitario">Precio editable</span>
+                    ${item.ventaExcepcional ? '<span class="teus-excepcion-aviso">AGOTADO EN ITEMS · VENTA EXCEPCIONAL · SIN DESCUENTO DE STOCK</span>' : ''}
                     <div class="teus-item-controls">
                         ${paqueteEditableV2641(item) ? `<button type="button" class="teus-paquetes" data-index="${index}" data-delta="-1" title="Quitar un paquete" aria-label="Quitar un paquete"><i class="fas fa-minus"></i></button><span class="teus-qty">${paqueteEditableV2641(item)} paq.</span><button type="button" class="teus-paquetes" data-index="${index}" data-delta="1" title="Agregar un paquete" aria-label="Agregar un paquete"><i class="fas fa-plus"></i></button>` : ''}
                         <span style="font-size:11px;color:#64748b">Mantén y arrastra con el asa</span>
