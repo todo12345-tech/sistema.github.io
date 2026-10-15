@@ -651,6 +651,18 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .teus-stock-aviso-rojo{background:#fff1f2;border:1px solid #fda4af;border-left:5px solid #e11d48;border-radius:10px;padding:10px 12px;color:#9f1239;font-size:12px;line-height:1.45;margin:7px 0 9px}
 .teus-stock-aviso-rojo strong{color:#9f1239}
 .teus-stock-aviso-rojo .teus-stock-aviso-sub{display:block;font-size:11px;margin-top:3px;color:#9f1239}
+
+/* V26.61 · Revisión masiva y diálogos sin desbordamiento */
+.teus-revision-bulk{display:flex;align-items:center;flex-wrap:wrap;gap:8px;margin:0 0 12px;background:#fff;border:1px solid #cbd5e1;border-radius:11px;padding:11px}
+.teus-revision-bulk button{width:auto!important;padding:10px 12px!important;font-size:12px!important;border-radius:8px!important;box-shadow:none!important}
+#teusRevisionAuto{background:#2563eb!important;color:#fff!important}
+#teusRevisionPendientes{background:#fff5e8!important;color:#92400e!important;border:1px solid #e6bd73!important}
+#teusRevisionBuscar{flex:1 1 190px;min-width:120px;max-width:100%;padding:10px!important;font-size:13px!important}
+#teusRevisionResumenBulk{font-size:12px;color:#51657a;flex:1 1 100%;line-height:1.4}
+.teus-revision-item.teus-bulk-oculto{display:none}
+.swal2-popup .swal2-select,.swal2-popup .swal2-input,.swal2-popup textarea{box-sizing:border-box!important;width:100%!important;max-width:100%!important;margin:4px 0!important}
+.swal2-popup .swal2-html-container{overflow-x:hidden!important;text-align:left}
+@media(max-width:650px){.teus-revision-bulk button{flex:1 1 140px}.teus-revision-foot{flex-wrap:wrap}.teus-revision-foot button{width:100%!important}}
 </style>
 <!-- V26: Apps Script propio, id_venta único, Stock seguro, origen EXTERNO/PENDIENTE, borrador y caja inteligente. -->
 <style id="estado-nube-v2638">
@@ -1124,7 +1136,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 <div id="teusRevisionOverlay" role="dialog" aria-modal="true" aria-labelledby="teusRevisionTitulo">
  <section class="teus-revision-panel">
   <header class="teus-revision-head"><h3 id="teusRevisionTitulo"><i class="fas fa-boxes"></i> Revisar origen · Pedido mayorista pagado</h3><button id="teusRevisionCerrar" type="button" class="teus-revision-close" aria-label="Cerrar">×</button></header>
-  <div class="teus-revision-body"><div class="teus-revision-info"><b>Este pedido ya está pagado.</b> Aquí solo identificas de qué lugar salieron físicamente sus productos. La preparación no descuenta Stock; el descuento se hará al confirmar la venta en Sistema de Ventas. Un producto sin origen verificable puede marcarse externo o pendiente.</div><div id="teusRevisionLista"></div></div>
+  <div class="teus-revision-body"><div class="teus-revision-info"><b>Este pedido ya está pagado.</b> Aquí solo identificas de qué lugar salieron físicamente sus productos. La preparación no descuenta Stock; el descuento se hará al confirmar la venta en Sistema de Ventas. Un producto sin origen verificable puede marcarse externo o pendiente.</div><div class="teus-revision-bulk"><input id="teusRevisionBuscar" type="search" placeholder="Buscar entre los productos importados…" aria-label="Buscar producto del pedido"><button type="button" id="teusRevisionAuto"><i class="fas fa-magic"></i> Asignar Stock automáticamente</button><button type="button" id="teusRevisionPendientes"><i class="fas fa-exclamation-circle"></i> Dejar faltantes como pendientes</button><div id="teusRevisionResumenBulk">Elige primero la asignación automática. Se respetan los orígenes que ya revisaste manualmente.</div></div><div id="teusRevisionLista"></div></div>
   <footer class="teus-revision-foot"><span id="teusRevisionEstado" class="teus-revision-status"></span><button type="button" id="teusRevisionAceptar"><i class="fas fa-check"></i> Confirmar orígenes</button></footer>
  </section>
 </div>
@@ -1771,6 +1783,25 @@ function teusOrigenSucursalPreferido(filas){
   return (esFeria?ub.includes('feria'):ub.includes('comercial')) && unidadesTotalesFilaVenta(r)>teusReservadas(r.id_stock);
  })||null;
 }
+// V26.62: mostrar las presentaciones vendidas, no solamente su equivalencia en unidades.
+function teusPresentacionesEnCarrito(idStock){
+ const tot={cajas:0,paquetes:0,unidades:0};
+ (Array.isArray(items)?items:[]).forEach(item=>{
+  const asignaciones=(Array.isArray(item.asignacionesStock)&&item.asignacionesStock.length)
+    ?item.asignacionesStock
+    :(item.origenTipo==='STOCK'&&item.id_stock?[{id_stock:item.id_stock,detalleFisico:item.detalleFisico||{}}]:[]);
+  asignaciones.forEach(as=>{
+   if(String(as.id_stock)!==String(idStock) || (as.origen_tipo && as.origen_tipo!=='STOCK'))return;
+   const d=as.detalleFisico||{};
+   ['cajas','paquetes','unidades'].forEach(k=>{tot[k]+=Math.max(0,Number(d[k])||0)});
+  });
+ });
+ const partes=[];
+ if(tot.cajas)partes.push(`${tot.cajas} ${tot.cajas===1?'caja':'cajas'}`);
+ if(tot.paquetes)partes.push(`${tot.paquetes} ${tot.paquetes===1?'paquete':'paquetes'}`);
+ if(tot.unidades)partes.push(`${tot.unidades} ${tot.unidades===1?'unidad':'unidades'}`);
+ return partes.join(' + ');
+}
 function teusTextoSaldoStock(r){
  const total=unidadesTotalesFilaVenta(r),reservado=teusReservadas(r.id_stock),libre=Math.max(0,total-reservado);
  const upp=Math.max(1,nStock(r.unidades_por_paquete)||1),ppc=Math.max(1,nStock(r.paquetes_por_caja)||1);
@@ -1786,7 +1817,7 @@ function renderVentaSmartStock(){
 
  let html='';
  if(ventaSmartFilas.length){
-   html='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen),saldo=teusTextoSaldoStock(r);return `<div class="venta-stock-card ${saldo.libre<=0?'v2648-sin-stock':''} ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${teusEsc(u)}</div><div class="qty">Stock en Sheets: ${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${saldo.reservado?`<span style="color:#b45309">Ya agregado al pedido: ${saldo.reservado} unidad(es) equiv.</span><br>`:''}<strong>Disponible para esta venta: ${saldo.descripcion}</strong><br>${saldo.libre} de ${saldo.total} unidades equivalentes</div><div class="pick">${saldo.libre<=0?'SIN SALDO PARA ESTA VENTA':(sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación')}</div></div>`}).join('')+'</div>';
+   html='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen),saldo=teusTextoSaldoStock(r);return `<div class="venta-stock-card ${saldo.libre<=0?'v2648-sin-stock':''} ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${teusEsc(u)}</div><div class="qty">Stock en Sheets: ${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${saldo.reservado?`<span style="color:#b45309">Ya agregado al pedido: ${teusPresentacionesEnCarrito(r.id_stock) || `${saldo.reservado} unidades equivalentes`}</span><br>`:''}<strong>Disponible para esta venta: ${saldo.descripcion}</strong><br>${saldo.libre} de ${saldo.total} unidades equivalentes</div><div class="pick">${saldo.libre<=0?'SIN SALDO PARA ESTA VENTA':(sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación')}</div></div>`}).join('')+'</div>';
  }else html='<div class="teus-stock-aviso-rojo"><strong>⚠ SIN STOCK REGISTRADO</strong><span class="teus-stock-aviso-sub">Este producto no tiene existencias físicas registradas en Stock. Puedes agregarlo igualmente como venta externa o con origen pendiente, sin descontar inventario.</span></div>';
  if(ventaSmartFilas.length && ventaSmartFilas.every(r => unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock)<=0)){
    html += '<div class="teus-stock-aviso-rojo"><strong>⚠ SIN EXISTENCIAS DISPONIBLES</strong><span class="teus-stock-aviso-sub">No quedan unidades libres registradas en estas ubicaciones. Puedes registrar la venta como externa o con origen pendiente, pero no descontar Stock sin existencias.</span></div>';
@@ -2294,7 +2325,7 @@ function teusVerificarAsignaciones(i,as){
   if(origen==='STOCK'){
    const r=stockCache.find(x=>String(x.id_stock)===String(a.id_stock));if(!r)return false;
    const e=teusEquivFila(r);if(e.upp!==empaque.upp||e.ppc!==empaque.ppc)return false;
-   const n=teusUEDetalle(fis,e);if(n>unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock,i))return false;total+=n;
+   const n=teusUEDetalle(fis,e);if(n>unidadesTotalesFilaVenta(r)-(i.pedidoImportado?teusReservadasNoImportadas(r.id_stock):teusReservadas(r.id_stock,i)))return false;total+=n;
   }else{if(a.id_stock)return false;total+=teusUEDetalle(fis,empaque);}
  }
  return pedido>0&&total===pedido;
@@ -2350,7 +2381,7 @@ function teusRevisionEstado(){
   else if(v.startsWith('stock:')){
    const r=teusRevisionStockActual.find(x=>String(x.id_stock)===v.slice(6));
    const solicitado=teusUEImportado(i,r);
-   if(!r||solicitado<=0||unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock,i)<solicitado){ok=false;msg='La cantidad solicitada supera el stock físico disponible.';}
+   if(!r||solicitado<=0||unidadesTotalesFilaVenta(r)-teusReservadasNoImportadas(r.id_stock)<solicitado){ok=false;msg='La cantidad solicitada supera el stock físico disponible.';}
    else msg=`Se descontarán ${solicitado} unidades equivalentes desde ${r.ubicacion} al confirmar la venta.`;
   } else if(v==='pendiente') msg='Se guardará como origen pendiente, sin descuento físico.';
   else if(v==='externo') msg='Venta externa: no se descontará tu inventario.';
@@ -2367,14 +2398,88 @@ function teusRevisionEstado(){
    al.filter(a=>(a.origen_tipo||'STOCK')==='STOCK').forEach(a=>{const r=teusRevisionStockActual.find(x=>String(x.id_stock)===String(a.id_stock));if(!r)return;const k=String(r.id_stock);usados.set(k,(usados.get(k)||0)+teusUEDetalle(a.detalleFisico,teusEquivFila(r)));});
  });
  let colision=false;
- for(const [id,cantidad] of usados){const r=teusRevisionStockActual.find(x=>String(x.id_stock)===id);if(r&&cantidad>unidadesTotalesFilaVenta(r)-teusReservadas(id, null)-items.reduce((n,i)=>n+(i.pedidoImportado?(i.asignacionesStock||[]).filter(a=>(a.origen_tipo||'STOCK')==='STOCK'&&String(a.id_stock)===id).reduce((z,a)=>z+teusUEDetalle(a.detalleFisico,teusEquivFila(r)),0):0),0)){colision=true;}}
+ for(const [id,cantidad] of usados){const r=teusRevisionStockActual.find(x=>String(x.id_stock)===id);if(r&&cantidad>unidadesTotalesFilaVenta(r)-teusReservadasNoImportadas(id)){colision=true;}}
  if(colision){validos=0;document.getElementById('teusRevisionEstado').textContent='Los artículos superan juntos las existencias de una ubicación. Redistribuye antes de confirmar.';}
  const btn=document.getElementById('teusRevisionAceptar');btn.disabled=!(sels.length&&validos===sels.length);
  if(!colision)document.getElementById('teusRevisionEstado').textContent=`${validos} de ${sels.length} productos con origen revisado`;
 }
+// V26.61: sugerencias masivas, respetando disponibilidad conjunta e IDs físicos.
+// Nunca descuenta inventario: solamente prepara asignaciones para revisar y confirmar.
+let teusSugerenciaMasiva=0;
+function teusRevFiltrar(){
+ const q=normalizarTextoCatalogo(document.getElementById('teusRevisionBuscar')?.value||'');
+ document.querySelectorAll('#teusRevisionLista .teus-revision-item').forEach(el=>el.classList.toggle('teus-bulk-oculto',!!q&&!normalizarTextoCatalogo(el.textContent).includes(q)));
+}
+function teusRevDetalleUnidades(n,r){
+ const e=teusEquivFila(r);let total=Math.max(0,Math.floor(n));const porCaja=e.ppc*e.upp;
+ const cajas=Math.floor(total/porCaja);total-=cajas*porCaja;
+ const paquetes=Math.floor(total/e.upp);const unidades=total-paquetes*e.upp;
+ return {cajas,paquetes,unidades};
+}
+function teusReservadasNoImportadas(id){return items.reduce((n,i)=>{if(i.pedidoImportado)return n;const al=(Array.isArray(i.asignacionesStock)&&i.asignacionesStock.length)?i.asignacionesStock:(i.origenTipo==='STOCK'&&i.id_stock?[{id_stock:i.id_stock,detalleFisico:i.detalleFisico||{}}]:[]);return n+al.filter(a=>(a.origen_tipo||'STOCK')==='STOCK'&&String(a.id_stock)===String(id)).reduce((z,a)=>{const r=stockCache.find(x=>String(x.id_stock)===String(id));return z+teusUEDetalle(a.detalleFisico,teusEquivFila(r||{}));},0);},0);}
+function teusRevBaseDisponible(r){return Math.max(0,unidadesTotalesFilaVenta(r)-teusReservadasNoImportadas(r.id_stock));}
+function teusRevAutoAsignar(){
+ const sels=[...document.querySelectorAll('#teusRevisionLista .teus-revision-sel')];
+ const usados=new Map();let asignados=0, incompletos=0, combinados=0;
+ // Reservar antes los artículos que el usuario revisó manualmente.
+ for(const sel of sels){if(!sel.value)continue;
+  const i=items[Number(sel.dataset.revisionIndex)];const v=sel.value;
+  const a=v==='repartir'?(i.asignacionesStock||[]):v.startsWith('stock:')?[{id_stock:v.slice(6),detalleFisico:i.detalleFisico||{}}]:[];
+  for(const d of a){if((d.origen_tipo||'STOCK')!=='STOCK')continue;const r=teusRevisionStockActual.find(x=>String(x.id_stock)===String(d.id_stock));if(r){const k=String(r.id_stock);usados.set(k,(usados.get(k)||0)+teusUEDetalle(d.detalleFisico,teusEquivFila(r)));}}
+ }
+ const suc=normalizarTextoCatalogo(sucursales[sucursalSeleccionada]?.nombre||sucursalSeleccionada||'');
+ for(const sel of sels){if(sel.value)continue;
+  const i=items[Number(sel.dataset.revisionIndex)];
+  const filas=teusStockCoincidente(i).slice().sort((a,b)=>{
+   const aa=normalizarTextoCatalogo(a.ubicacion||''),bb=normalizarTextoCatalogo(b.ubicacion||'');
+   const pri=x=>suc.includes('feria')?Number(!x.includes('feria')):Number(!x.includes('comercial'));
+   return pri(aa)-pri(bb);
+  });
+  const ref=filas[0];const requerido=teusUEImportado(i,ref);let falta=requerido;const al=[];
+  if(!ref||!Number.isInteger(requerido)||requerido<=0){incompletos++;continue;}
+  for(const r of filas){
+   if(teusEquivFila(r).upp!==teusEquivFila(ref).upp||teusEquivFila(r).ppc!==teusEquivFila(ref).ppc)continue;
+   const k=String(r.id_stock);const libre=Math.max(0,teusRevBaseDisponible(r)-(usados.get(k)||0));const tomar=Math.min(falta,libre);
+   if(tomar<=0)continue;
+   const d=teusRevDetalleUnidades(tomar,r);
+   al.push({origen_tipo:'STOCK',id_stock:r.id_stock,id_item:r.id_item||'',id_ubicacion:r.id_ubicacion||'',codigo_caja:r.codigo_caja||'',ubicacion:r.ubicacion||'',detalleFisico:d,unidadesEquivalentes:tomar});
+   usados.set(k,(usados.get(k)||0)+tomar);falta-=tomar;if(!falta)break;
+  }
+  if(!al.length){incompletos++;continue;}
+  if(al.length===1&&!falta){sel.value='stock:'+String(al[0].id_stock);i.asignacionesStock=[];}
+  else{sel.value='repartir';i.asignacionesStock=al;combinados++;}
+  if(falta)incompletos++;else asignados++;
+ }
+ teusSugerenciaMasiva=1;teusRevisionEstado();teusRevFiltrar();
+ document.getElementById('teusRevisionResumenBulk').textContent=`${asignados} productos asignados completamente · ${incompletos} sin origen completo · ${combinados} con reparto entre ubicaciones. Revisa los pendientes antes de confirmar.`;
+}
+function teusRevMarcarPendientes(){
+ const sels=[...document.querySelectorAll('#teusRevisionLista .teus-revision-sel')];let pendientes=0;
+ for(const sel of sels){
+  const i=items[Number(sel.dataset.revisionIndex)];
+  if(sel.value==='externo'||sel.value==='pendiente'||sel.value.startsWith('stock:'))continue;
+  if(sel.value==='repartir'){
+   const al=i.asignacionesStock||[];if(teusVerificarAsignaciones(i,al))continue;
+   const ref=teusRevisionStockActual.find(x=>al.some(a=>String(a.id_stock)===String(x.id_stock)))||teusStockCoincidente(i)[0];
+   const e={upp:Math.max(1,Number(ref?.unidades_por_paquete)||Number(i.unidadesPorPaquete)||Number(i.numUnidades)||1),ppc:Math.max(1,Number(ref?.paquetes_por_caja)||Number(i.paquetesPorCaja)||1)};
+   const requerido=teusUEDetalle(i.detalleFisico||{},e);
+   const ya=al.reduce((n,a)=>n+teusUEDetalle(a.detalleFisico||{},e),0);
+   if(ya>0&&ya<requerido){const falta=requerido-ya;al.push({origen_tipo:'PENDIENTE_ORIGEN',id_stock:'',detalleFisico:teusRevDetalleUnidades(falta,ref||{unidades_por_paquete:e.upp,paquetes_por_caja:e.ppc}),unidadesEquivalentes:falta});i.asignacionesStock=al;pendientes++;continue;}
+  }
+  sel.value='pendiente';i.asignacionesStock=[];pendientes++;
+ }
+ teusRevisionEstado();teusRevFiltrar();
+ document.getElementById('teusRevisionResumenBulk').textContent=`${pendientes} artículo(s) o fracciones marcadas como ORIGEN PENDIENTE: no se descontarán de Stock. Puedes cambiar cualquier origen individualmente antes de confirmar.`;
+}
+document.getElementById('teusRevisionAuto').addEventListener('click',teusRevAutoAsignar);
+document.getElementById('teusRevisionPendientes').addEventListener('click',teusRevMarcarPendientes);
+document.getElementById('teusRevisionBuscar').addEventListener('input',teusRevFiltrar);
+
 async function abrirRevisionMayorV2653(){
  if(!items.some(i=>i.pedidoImportado))return;
  document.getElementById('teusRevisionOverlay').classList.add('activo');
+ document.getElementById('teusRevisionBuscar').value='';
+ document.getElementById('teusRevisionResumenBulk').textContent='Asigna automáticamente donde exista Stock comprobable. El resto requiere revisión o marcarlo pendiente.';
  document.getElementById('teusRevisionLista').innerHTML='<p>Consultando Stock actualizado...</p>';
  document.getElementById('teusRevisionAceptar').disabled=true;
  try{
@@ -3887,28 +3992,22 @@ async function eliminarVenta(index, autorizacionAdmin = null) {
         total_venta:String(venta.total_venta||'')
     };
     const escape=v=>String(v??'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
-    const confirm=await Swal.fire({
-        title:'¿Eliminar esta venta definitivamente?',icon:'warning',
-        html:`<div style="text-align:left;line-height:1.6">
-        <p><b>Cliente:</b> ${escape(venta.id||venta.nombre_cliente||'Cliente General')}</p>
-        <p><b>Fecha:</b> ${escape(venta.fecha||'')} ${escape(venta.hora||'')}</p>
-        <p><b>Total:</b> ${escape(venta.total_venta||0)} Bs</p>
-        <p style="color:#b03a2e"><b>Se borrará la fila de ${escape(obtenerSheetDeVenta(venta))}.</b> No quedará marcada como ANULADA. Sí quedará una evidencia en Historial de Ventas.</p>
-        <p>Si tiene salidas físicas, el sistema verificará y devolverá las unidades al Stock de origen, dejando una ENTRADA_ANULACION. No borra movimientos antiguos.</p></div>`,
-        input:'text',inputLabel:'Motivo de eliminación (obligatorio)',inputPlaceholder:'Ej.: registro duplicado por error',
-        showCancelButton:true,confirmButtonColor:'#d33',confirmButtonText:'Eliminar definitivamente',cancelButtonText:'Cancelar',
-        inputValidator:v=>String(v||'').trim().length<3?'Indica el motivo de eliminación':undefined
+    const resModal=await Swal.fire({
+       title:'Eliminar venta',icon:'warning',width:530,
+       html:`<div style="text-align:left;font-size:14px;line-height:1.55">
+       <p><b>${escape(venta.id||venta.nombre_cliente||'Cliente General')}</b> · ${escape(venta.total_venta||0)} Bs</p>
+       <p>Al eliminar se verificará y repondrá el Stock descontado en su ubicación original, con auditoría. <b>No devuelve dinero automáticamente.</b></p>
+       <label style="display:block;font-weight:700;margin-top:12px" for="teusMotivoTipo">Motivo</label>
+       <select id="teusMotivoTipo" class="swal2-select" style="width:100%;margin:5px 0">
+       <option value="PRUEBA">Venta de prueba</option><option value="ERROR_REGISTRO">Error de registro</option><option value="DEVOLUCION">Venta anulada / devolución</option></select>
+       <label style="display:block;font-weight:700;margin-top:9px" for="teusMotivoDetalle">Detalle opcional</label>
+       <input id="teusMotivoDetalle" class="swal2-input" placeholder="Ej.: registro duplicado" style="width:100%;margin:5px 0" />
+       </div>`,showCancelButton:true,confirmButtonText:'Eliminar y reponer Stock',cancelButtonText:'Cancelar',confirmButtonColor:'#dc3545',
+       focusConfirm:false,preConfirm:()=>({tipo:document.getElementById('teusMotivoTipo').value,detalle:document.getElementById('teusMotivoDetalle').value.trim()})
     });
-    if(!confirm.isConfirmed)return;
-    const tipo=await Swal.fire({title:'¿Por qué eliminas la venta?',input:'select',
-        inputOptions:{PRUEBA:'Venta de prueba',ERROR_REGISTRO:'Error de registro',DEVOLUCION:'Venta anulada / devolución'},
-        inputPlaceholder:'Seleccionar motivo',showCancelButton:true,confirmButtonText:'Continuar',cancelButtonText:'Cancelar',
-        inputValidator:v=>!v?'Selecciona una categoría':undefined});
-    if(!tipo.isConfirmed)return;
-    const reposicion=await Swal.fire({title:'¿Reponer el Stock de esta venta?',icon:'warning',
-        html:'<p>Si existen salidas físicas, se devolverán al inventario de origen y se registrará una <b>ENTRADA_ANULACION</b>. El proceso requiere autorización de administrador y deja auditoría.</p><p><b>No devuelve dinero al cliente automáticamente.</b></p>',
-        showCancelButton:true,confirmButtonText:'Autorizar revisión y reposición',cancelButtonText:'Cancelar',confirmButtonColor:'#b45309'});
-    if(!reposicion.isConfirmed)return;
+    if(!resModal.isConfirmed)return;
+    const tipo={value:resModal.value.tipo};
+    const confirm={value:resModal.value.detalle||({PRUEBA:'Venta de prueba',ERROR_REGISTRO:'Error de registro',DEVOLUCION:'Venta anulada / devolución'}[tipo.value])};
     try{
         const res=await backendV26('eliminar_venta_definitiva',{ 
             id_venta:id,huella_legacy:huella,sucursal:venta.sucursal||sucursalSeleccionada,
