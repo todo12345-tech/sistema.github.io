@@ -1052,6 +1052,15 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
 .mayor-picker-product.done .mayor-picker-label{text-decoration:line-through;text-decoration-color:#6ba982;color:#526f60}
 .mayor-picker-empty{padding:25px 18px;text-align:center;color:#687b8f;border:2px dashed #d6e1eb;border-radius:12px;background:#fff}
 @media(max-width:480px){.mayor-picker-searchbar input{padding:11px!important}.mayor-picker-top{padding-bottom:10px}}
+
+/* V4.13 · Número y costo por línea en modo Alistar */
+.mayor-picker-info{flex:1;min-width:0;display:flex;flex-direction:column;gap:7px}
+.mayor-picker-heading{display:flex;align-items:flex-start;gap:9px;min-width:0}
+.mayor-picker-heading .mayor-picker-label{flex:1;min-width:0}
+.mayor-picker-number{background:#e8eef7;color:#25496e;border:1px solid #ccdcef;border-radius:8px;padding:5px 7px;min-width:36px;text-align:center;font-size:12px;font-weight:850;flex-shrink:0}
+.mayor-picker-price{font-size:13px;font-weight:750;color:#bc5631}
+.mayor-picker-product.done .mayor-picker-price{color:#24764b}
+@media(max-width:480px){.mayor-picker-heading{gap:6px}.mayor-picker-number{min-width:31px;padding:4px 5px;font-size:11px}.mayor-picker-price{font-size:12px}}
 </style>
 
 <style id="loginMayorStyles">
@@ -2761,7 +2770,7 @@ document.addEventListener('DOMContentLoaded', function() {
     function productosSoloAlistar() {
         return items.map(item=>{
             const producto=item.productoRef || encontrarProductoEnDescripcion(item.descripcion);
-            return {n:item.descripcion, i:producto?.imagen||'', c:!!item.alistado};
+            return {n:item.descripcion, i:producto?.imagen||'', c:!!item.alistado, precio:Number(item.monto)||0};
         });
     }
     window.__teusChecklistSync = (index,checked)=>{
@@ -3611,8 +3620,18 @@ document.addEventListener('DOMContentLoaded', function() {
       const img=safeImage(x.i);let picture;
       if(img){picture=document.createElement('img');picture.className='mayor-picker-photo';picture.src=img;picture.alt='Producto';picture.loading='lazy';picture.referrerPolicy='no-referrer';picture.onerror=()=>{picture.replaceWith(document.createTextNode('📦'))}}
       else {picture=document.createElement('div');picture.className='mayor-picker-ph';picture.textContent='📦'}
+      const info=document.createElement('div');info.className='mayor-picker-info';
+      const head=document.createElement('div');head.className='mayor-picker-heading';
+      const number=document.createElement('span');number.className='mayor-picker-number';number.textContent='#'+String(x.num||i+1).padStart(2,'0');
       const title=document.createElement('div');title.className='mayor-picker-label';title.textContent=x.n;
-      card.append(check,picture,title);
+      head.append(number,title);info.append(head);
+      if(x.precio!==null && x.precio!==undefined && x.precio!==''){
+        const cost=document.createElement('div');cost.className='mayor-picker-price';
+        const val=Number(x.precio);
+        cost.textContent='Costo del producto: '+(Number.isFinite(val)?val.toLocaleString('es-BO',{minimumFractionDigits:0,maximumFractionDigits:2}):String(x.precio))+' Bs';
+        info.append(cost);
+      }
+      card.append(check,picture,info);
       check.addEventListener('change',()=>toggleCheck(i,check.checked));
       card.addEventListener('click',ev=>{if(ev.target===check)return;toggleCheck(i,!x.c)});
       list.append(card);
@@ -3624,7 +3643,7 @@ document.addEventListener('DOMContentLoaded', function() {
     $('mayorPickerResults').textContent=query?`Mostrando ${visible} de ${data.length} productos · ${done} preparados`:`${data.length} productos · toca cualquier artículo para tildarlo`;
   }
   function show(arr,mode){
-    searchText='';$('mayorPickerSearch').value='';source=mode;data=arr.map(x=>({n:String(x.n||'Producto'),i:safeImage(x.i),c:!!x.c}));persistKey=keyFor(data);
+    searchText='';$('mayorPickerSearch').value='';source=mode;data=arr.map((x,i)=>({n:String(x.n||'Producto'),i:safeImage(x.i),c:!!x.c,num:i+1,precio:x.precio===undefined?null:x.precio}));persistKey=keyFor(data);
     if(mode==='compartido'){const saved=readChecks();data.forEach((x,i)=>{if(saved[i]!==undefined)x.c=!!saved[i]})}
     document.body.classList.add('mayor-solo-alistar');$('mayorPickerExit').style.display=mode==='compartido'?'none':'';paint();
   }
