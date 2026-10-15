@@ -588,6 +588,50 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 #tablaVentasDia td:nth-child(8) { min-width:82px; }
 #tablaVentasDia .v2644-item { margin-bottom:2px; }
 
+
+/* V26.49 · Selector compacto con acciones siempre visibles */
+.venta-smart-card{display:flex;flex-direction:column;max-height:min(94dvh,900px);overflow-y:auto;overscroll-behavior:contain;padding:16px 18px 0;scrollbar-gutter:stable}
+.venta-smart-product img{width:82px;height:82px}
+.venta-smart-product h3{margin:5px 38px 5px;font-size:18px}
+.venta-equivalencia{margin:5px 0 7px;padding:7px 10px}
+.venta-stock-box{margin:6px 0;padding:9px}
+.venta-stock-title{margin-bottom:5px}
+.venta-stock-card{padding:7px 9px}
+.venta-counters-title{margin:9px 0 7px}
+.venta-counter{padding:7px}
+.venta-counter b{margin-bottom:5px}
+.venta-counter-row{gap:8px}
+.venta-counter button{height:34px;width:38px}
+.venta-half-btn{margin-top:6px;padding:7px 12px}
+.venta-smart-summary{margin:6px 0;font-size:13px}
+.venta-smart-price{margin:7px 0;padding:7px 10px}
+.venta-smart-warning{margin:6px 0;padding:7px 9px}
+.venta-smart-actions{position:sticky;bottom:0;z-index:3;flex-shrink:0;background:#fff;padding:12px 0 max(12px,env(safe-area-inset-bottom,0px));margin-top:6px;border-top:1px solid #e4e9ed;box-shadow:0 -8px 16px #fffdfc}
+.venta-smart-actions button{min-height:45px}
+.venta-confirm:disabled{opacity:1!important;background:#b5dacc!important;color:#355948!important;cursor:not-allowed}
+@media(max-width:620px){.venta-smart-modal{padding:8px}.venta-smart-card{width:100%;max-height:calc(100dvh - 16px);padding:12px 12px 0}.venta-counters{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.venta-counter{padding:5px 2px}.venta-counter b{font-size:11px}.venta-counter-row{gap:3px}.venta-counter button{width:30px;height:34px;padding:0}.venta-counter span{font-size:18px;min-width:16px}.venta-stock-card{min-width:150px}.venta-smart-product img{width:68px;height:68px}.venta-smart-actions button{padding:10px 7px;font-size:12px}.venta-smart-price{grid-template-columns:1fr 105px;gap:6px}.venta-smart-price label{font-size:12px}.venta-smart-price small{font-size:10px}}
+/* V26.50: selector en dos columnas. Sin scroll para alcanzar confirmar en escritorio. */
+@media(min-width:760px){
+ .venta-smart-card{width:min(1040px,96vw);max-height:min(90dvh,850px);padding:18px 20px;overflow:hidden;display:block}
+ .venta-smart-layout{display:grid;grid-template-columns:minmax(0,1.17fr) minmax(310px,.83fr);gap:18px;align-items:stretch;max-height:calc(min(90dvh,850px) - 36px)}
+ .venta-smart-left{min-width:0;overflow-y:auto;overscroll-behavior:contain;padding-right:5px}
+ .venta-smart-right{min-width:0;display:flex;flex-direction:column;overflow-y:auto;overscroll-behavior:contain;padding:7px 5px 0 0}
+ .venta-smart-right .venta-counters{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}
+ .venta-smart-right .venta-counter{padding:7px 3px}
+ .venta-smart-right .venta-counter-row{gap:4px}
+ .venta-smart-right .venta-counter button{width:32px;height:35px;padding:0}
+ .venta-smart-right .venta-counter span{font-size:19px;min-width:17px}
+ .venta-smart-right .venta-smart-price{grid-template-columns:1fr 104px;gap:7px}
+ .venta-smart-right .venta-smart-actions{margin-top:auto;position:sticky;bottom:0;padding:12px 0 4px;box-shadow:none}
+ .venta-smart-right .venta-smart-actions button{padding:11px 8px;font-size:13px}
+ .venta-smart-close{z-index:4}
+}
+@media(max-width:759px){
+ .venta-smart-layout{display:flex;flex-direction:column;min-height:0;overflow-y:auto}
+ .venta-smart-left,.venta-smart-right{min-width:0}
+ .venta-smart-card{overflow-y:auto}
+ .venta-smart-actions{position:sticky;bottom:0}
+}
 </style>
 <!-- V26: Apps Script propio, id_venta único, Stock seguro, origen EXTERNO/PENDIENTE, borrador y caja inteligente. -->
 <style id="estado-nube-v2638">
@@ -595,6 +639,12 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .estado-cloud{background:#e1f5e7;color:#176535}.estado-local{background:#fff0d3;color:#824600}
 #tablaVentasDia td:nth-child(11){min-width:105px}
 @media(max-width:768px){#tablaVentasDia td:nth-child(11){min-width:112px}.estado-venta-nube{font-size:11px}}
+</style>
+<style>
+.autocomplete-item.v2648-agotado-items{background:#fff1f2!important;border-left:4px solid #dc2626!important;color:#991b1b!important;cursor:not-allowed!important}
+.autocomplete-item.v2648-agotado-items .autocomplete-item-nombre,.autocomplete-item.v2648-agotado-items .autocomplete-item-seccion{color:#b91c1c!important}
+.venta-stock-card.v2648-sin-stock{background:#fff1f2!important;border:2px solid #dc2626!important;color:#991b1b!important;opacity:.85;cursor:not-allowed!important}
+.venta-stock-card.v2648-sin-stock .pick,.venta-stock-card.v2648-sin-stock .eq{color:#b91c1c!important;font-weight:700}
 </style>
 </head>
 <body>
@@ -970,9 +1020,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 <div class="venta-smart-modal" id="ventaSmartModal">
   <div class="venta-smart-card">
     <button class="venta-smart-close" id="ventaSmartClose">&times;</button>
+    <div class="venta-smart-layout"><section class="venta-smart-left">
     <div class="venta-smart-product"><img id="ventaSmartImg" alt="Producto"><h3 id="ventaSmartNombre">Producto</h3></div>
     <div class="venta-equivalencia" id="ventaSmartEquiv">Presentación registrada</div>
     <div class="venta-stock-box"><div class="venta-stock-title"><i class="fas fa-warehouse"></i> Stock registrado (elige origen solo si realmente salió de ahí)</div><div id="ventaSmartStock"></div></div>
+    </section><section class="venta-smart-right">
     <div class="venta-counters-title">Indica cómo salió la mercadería</div>
     <div class="venta-counters">
       <div class="venta-counter"><b>CAJAS</b><div class="venta-counter-row"><button type="button" data-vtipo="cajas" data-delta="-1">−</button><span id="ventaCntCajas">0</span><button type="button" data-vtipo="cajas" data-delta="1">+</button></div></div>
@@ -980,10 +1032,11 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
       <div class="venta-counter"><b>UNIDADES</b><div class="venta-counter-row"><button type="button" data-vtipo="unidades" data-delta="-1">−</button><span id="ventaCntUnidades">0</span><button type="button" data-vtipo="unidades" data-delta="1">+</button></div></div>
     </div>
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-top:10px"><button type="button" class="venta-half-btn" id="ventaResetBtn" style="background:#e74c3c"><i class="fas fa-rotate-left"></i> Resetear</button></div>
-    <div class="venta-smart-summary" id="ventaSmartResumen">Selecciona una cantidad</div>
+    <div class="venta-smart-summary" id="ventaSmartResumen">Selecciona al menos 1 caja, paquete o unidad para habilitar Agregar</div>
     <div class="venta-smart-warning" id="ventaSmartWarning"></div>
     <div class="venta-smart-price"><label><b>Precio total de este producto (Bs)</b><br><small>Puedes corregirlo manualmente.</small></label><input type="text" id="ventaSmartPrecio" inputmode="numeric" pattern="[0-9]*" autocomplete="off"></div>
     <div class="venta-smart-actions"><button type="button" class="venta-cancel" id="ventaSmartCancel">Cancelar</button><button type="button" class="venta-confirm" id="ventaSmartConfirm"><i class="fas fa-plus"></i> Agregar a la venta</button></div>
+    </section></div>
   </div>
 </div>
 
@@ -1085,14 +1138,14 @@ async function cargarStockInventario() {
                 if(!csv.trim()||ini.includes('<html')||ini.includes('<!doctype html'))throw new Error('Google Stock devolvió HTML');
                 const filas=objCsvInicio(csv);
                 if(!filas.length)throw new Error('La hoja stock no devolvió filas');
-                stockCache=filas;
+                if(JSON.stringify(stockCache)!==JSON.stringify(filas))stockCache=filas;
                 return stockCache;
             }catch(e){ultimoError=e;}
         }
         throw ultimoError||new Error('No se pudo leer stock');
     }catch(e){
         console.warn('Stock Google no disponible',e);
-        stockCache=[];
+        // Mantener última lectura válida, sin fingir que no existe stock.
         throw e;
     }
 }
@@ -1509,6 +1562,8 @@ async function leerCatalogoOficialV2647() {
             numUnidades:parseInt(cantidad,10)||1,
             textoUnidad:cantidad.replace(/^\s*\d+\s*/,'').trim(),
             origenDatos:'CATÁLOGO',
+            disponiblePaquete:normalizarTextoCatalogo(r[4]||'')==='si',
+            disponibleUnidad:normalizarTextoCatalogo(r[7]||'')==='si',
             _busqueda:normalizarTextoCatalogo(`${nombre} ${seccion}`)});
     }
     if(!productos.length)throw new Error('ITEMS no tiene artículos con precio de venta');
@@ -1517,8 +1572,9 @@ async function leerCatalogoOficialV2647() {
 function cargarCatalogo() {
     if(catalogoCargaV2647)return catalogoCargaV2647;
     catalogoCargaV2647=leerCatalogoOficialV2647().then(productos=>{
-        catalogoProductos=productos;
-        if(descripcionProducto && descripcionProducto.value.trim().length>=2)
+        const huboCambio=JSON.stringify(catalogoProductos)!==JSON.stringify(productos);
+        if(huboCambio) catalogoProductos=productos;
+        if(huboCambio && descripcionProducto && descripcionProducto.value.trim().length>=2)
             mostrarSugerencias(descripcionProducto.value.trim());
         return productos;
     }).catch(error=>{
@@ -1532,6 +1588,32 @@ function cargarCatalogo() {
     return catalogoCargaV2647;
 }
 
+// V26.48: comprobación cada 5 segundos; no redibujar si la fuente sigue igual.
+let firmasFuentesV2648={stock:'',catalogo:''};
+let refrescandoV2648=false;
+async function actualizarFuentesV2648(){
+ if(document.hidden||refrescandoV2648)return;
+ refrescandoV2648=true;
+ try{
+   const copiaStock=JSON.stringify(stockCache);
+   const copiaCatalogo=JSON.stringify(catalogoProductos);
+   await Promise.allSettled([cargarStockInventario(),cargarCatalogo()]);
+   const cambioStock=JSON.stringify(stockCache)!==copiaStock;
+   const cambioCatalogo=JSON.stringify(catalogoProductos)!==copiaCatalogo;
+   if(cambioStock && ventaSmartProducto && document.getElementById('ventaSmartModal').style.display==='flex'){
+     ventaSmartFilas=filasStockProductoVenta(ventaSmartProducto);
+     renderVentaSmartStock();actualizarVentaSmart();
+   }
+   if((cambioStock||cambioCatalogo) && descripcionProducto?.value.trim().length>=2)
+     mostrarSugerencias(descripcionProducto.value.trim());
+ }finally{refrescandoV2648=false;}
+}
+setInterval(actualizarFuentesV2648,5000);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)actualizarFuentesV2648();});
+function estadoStockV2648(p){
+ const r=filasStockProductoVenta(p);
+ return r.length? r.reduce((a,x)=>a+unidadesTotalesFilaVenta(x),0):null;
+}
 function formatearPrecio(valor) {
     let entero = Math.round(valor);
     return entero.toString();
@@ -1572,11 +1654,11 @@ function mostrarSugerencias(query) {
         const imgHtml = imgUrl
             ? `<img src="${imgUrl}" class="autocomplete-item-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="autocomplete-item-img" style="display:none;">S/F</div>`
             : `<div class="autocomplete-item-img">S/F</div>`;
-        html += `<div class="autocomplete-item" data-index="${i}">
+        html += `<div class="autocomplete-item ${p.disponiblePaquete===false && p.disponibleUnidad===false ? 'v2648-agotado-items' : ''}" data-index="${i}">
             ${imgHtml}
             <div class="autocomplete-item-info">
                 <div class="autocomplete-item-nombre">${p.nombre || ''}</div>
-                <div class="autocomplete-item-seccion">${p.seccion || ''} · ${p.origenDatos || 'CATÁLOGO'}</div>
+                <div class="autocomplete-item-seccion">${p.seccion || ''} · ${p.origenDatos || 'CATÁLOGO'} ${p.disponiblePaquete===false?'· PAQUETE AGOTADO EN CATÁLOGO':''}</div>
             </div>
             <div class="autocomplete-item-precio">${precio > 0 ? formatearPrecio(precio) + ' Bs' : '—'}</div>
         </div>`;
@@ -1607,14 +1689,15 @@ function renderVentaSmartStock(){
  const box=document.getElementById('ventaSmartStock'); if(!box)return;
  let html='';
  if(ventaSmartFilas.length){
-   html='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen);return `<div class="venta-stock-card ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${u}</div><div class="qty">${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${unidadesTotalesFilaVenta(r)} unidades equivalentes</div><div class="pick">${sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación'}</div></div>`}).join('')+'</div>';
+   html='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen);return `<div class="venta-stock-card ${unidadesTotalesFilaVenta(r)<=0?'v2648-sin-stock':''} ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${u}</div><div class="qty">${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${unidadesTotalesFilaVenta(r)} unidades equivalentes</div><div class="pick">${unidadesTotalesFilaVenta(r)<=0?'AGOTADO · No se puede descontar':(sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación')}</div></div>`}).join('')+'</div>';
  }else html='<div style="padding:8px 0;color:#777"><b>Sin stock registrado actualmente.</b></div>';
  html+=`<div class="venta-stock-cards" style="margin-top:10px"><div class="venta-stock-card ${ventaSmartOrigen==='__EXTERNO__'?'selected':''}" data-vorigen="__EXTERNO__"><div class="loc">🌐 Venta externa / no es de mi inventario</div><div class="eq">Registra la venta, pero nunca descuenta Stock.</div></div><div class="venta-stock-card ${ventaSmartOrigen===''?'selected':''}" data-vorigen=""><div class="loc">❓ Es de mi inventario, pero no sé de qué ubicación salió</div><div class="eq">Queda PENDIENTE_ORIGEN hasta definir la ubicación correcta.</div></div></div>`;
  box.innerHTML=html;
- box.querySelectorAll('[data-vstock]').forEach(el=>el.onclick=()=>{ventaSmartOrigen=ventaSmartFilas[Number(el.dataset.vstock)].ubicacion||'';renderVentaSmartStock();actualizarVentaSmart()});
+ box.querySelectorAll('[data-vstock]').forEach(el=>el.onclick=()=>{const r=ventaSmartFilas[Number(el.dataset.vstock)];if(unidadesTotalesFilaVenta(r)<=0){Notificaciones.mostrar('No hay unidades disponibles en esta ubicación','warning');return;}ventaSmartOrigen=r.ubicacion||'';renderVentaSmartStock();actualizarVentaSmart()});
  box.querySelectorAll('[data-vorigen]').forEach(el=>el.onclick=()=>{ventaSmartOrigen=el.dataset.vorigen;renderVentaSmartStock();actualizarVentaSmart()});
 }
 
+function presentacionRealVentaV2650(d){const c=Number(d?.cajas||0)>0,p=Number(d?.paquetes||0)>0,u=Number(d?.unidades||0)>0;const n=Number(c)+Number(p)+Number(u);return n>1?[c?'CAJA':null,p?'PAQUETE':null,u?'UNIDAD':null].filter(Boolean).join(' + '):c?'CAJA':p?'PAQUETE':u?'UNIDAD':'SIN CANTIDAD';}
 function descripcionCantidadV26(c,e){
  const p=[]; const upp=Math.max(1,Number(e?.upp)||1), ppc=Math.max(0,Number(e?.ppc)||0);
  if(c.cajas){ const packs=c.cajas*ppc, units=packs*upp; p.push(`${c.cajas} ${c.cajas===1?'caja':'cajas'}${ppc?` de ${ppc} paquetes c/u (${packs} paquetes / ${units} unidades)`:''}`); }
@@ -1623,7 +1706,7 @@ function descripcionCantidadV26(c,e){
  return p.join(' + ')||'0 unidades';
 }
 
-function actualizarVentaSmart(){document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=ventaSmartUE()?descripcionCantidadV26(ventaSmartCant,e):'Selecciona una cantidad';const hb=document.getElementById('ventaHalfBtn');if(hb)hb.style.display='none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartOrigen==='__EXTERNO__'){warn.style.display='block';warn.innerHTML='<i class="fas fa-globe"></i> <b>Venta externa.</b> Esta venta se registrará normalmente y NO descontará tu Stock.'}else if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> <b>Stock pendiente de definir.</b> Si sabes de dónde salió físicamente, selecciona la ubicación. Si no lo sabes, puedes continuar: la venta se guardará pero NO se descontará de ninguna ubicación.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. Puedes continuar, pero el movimiento quedará pendiente y no se descontará stock.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual){const ps=ventaSmartPrecioSugerido()||Number(ventaSmartProducto?.precioPaquete||0)||0;price.value=ps?String(Math.round(ps)):''};document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0}
+function actualizarVentaSmart(){document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=ventaSmartUE()?descripcionCantidadV26(ventaSmartCant,e):'Selecciona al menos 1 caja, paquete o unidad para habilitar Agregar';const hb=document.getElementById('ventaHalfBtn');if(hb)hb.style.display='none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartOrigen==='__EXTERNO__'){warn.style.display='block';warn.innerHTML='<i class="fas fa-globe"></i> <b>Venta externa.</b> Esta venta se registrará normalmente y NO descontará tu Stock.'}else if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> <b>Stock pendiente de definir.</b> Si sabes de dónde salió físicamente, selecciona la ubicación. Si no lo sabes, puedes continuar: la venta se guardará pero NO se descontará de ninguna ubicación.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. No se puede vender esa cantidad desde esta ubicación. Reduce la cantidad o elige otro origen.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual){const ps=ventaSmartPrecioSugerido()||Number(ventaSmartProducto?.precioPaquete||0)||0;price.value=ps?String(Math.round(ps)):''};document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0 || (!!fila && ventaSmartUE()>unidadesTotalesFilaVenta(fila))}
 async function abrirVentaSmart(producto){ventaSmartProducto=producto;ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen='';document.getElementById('ventaSmartPrecio').dataset.manual='';document.getElementById('ventaSmartNombre').textContent=producto.nombre||'Producto';const img=document.getElementById('ventaSmartImg');if(producto.imagen){img.src=producto.imagen;img.style.display='inline-block'}else img.style.display='none';document.getElementById('ventaSmartModal').style.display='flex';ventaSmartTipoActivo='unidades';setTimeout(()=>{const b=document.querySelector('[data-vtipo="unidades"][data-delta="1"]');if(b)b.focus()},50);document.getElementById('ventaSmartStock').innerHTML='<span><i class="fas fa-spinner fa-spin"></i> Consultando stock...</span>';await cargarStockInventario();ventaSmartFilas=filasStockProductoVenta(producto);const e=empaqueVentaSmart();const eq=[];if(e.upp>1)eq.push(`1 paquete = ${e.upp} unidades`);if(e.ppc>0)eq.push(`1 caja = ${e.ppc} paquetes = ${e.ppc*e.upp} unidades`);document.getElementById('ventaSmartEquiv').innerHTML='<b>Presentación registrada:</b> '+(eq.length?eq.join(' · '):'venta por unidad / sin equivalencia registrada');renderVentaSmartStock();actualizarVentaSmart()}
 function limpiarCapturaProductoVenta(){
     descripcionProducto.value='';
@@ -1651,6 +1734,7 @@ function cerrarVentaSmart(limpiarFormulario=false){
 function seleccionarSugerencia(idx) {
     const p = sugerenciasActuales[idx];
     if (!p) return;
+    if(p.disponiblePaquete===false && p.disponibleUnidad===false){Notificaciones.mostrar('Producto agotado en ITEMS: no disponible para agregar','warning');return;}
     descripcionProducto.value = p.nombre;
     productoCatalogoSeleccionado = p;
     if (p.precioPaquete > 0) montoProducto.value = formatearPrecio(p.precioPaquete);
@@ -1730,7 +1814,7 @@ document.getElementById('ventaSmartModal').addEventListener('keydown',function(e
 });
 document.getElementById('ventaSmartPrecio').addEventListener('input',function(){this.value=this.value.replace(/\D+/g,'');this.dataset.manual='1'});
 document.getElementById('ventaSmartClose').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartCancel').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartModal').addEventListener('click',e=>{if(e.target.id==='ventaSmartModal')cerrarVentaSmart(true)});
-document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!ventaSmartOrigen)estadoPrev='PENDIENTE_ORIGEN';else if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),id_item:ventaSmartProducto.id_item||'',descripcion:`${descripcionCantidadV26(ventaSmartCant,empaqueVentaSmart())} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:'mixto',cantidadFisica:1,detalleFisico:{...ventaSmartCant},origenTipo:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':(ventaSmartOrigen?'STOCK':'PENDIENTE_ORIGEN'),ubicacionSalida:ventaSmartOrigen==='__EXTERNO__'?'':(ventaSmartOrigen||''),id_stock:fila?.id_stock||'',id_ubicacion:fila?.id_ubicacion||'',codigo_caja:fila?.codigo_caja||'',unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
+document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const origenFisico=ventaSmartFilaOrigen();if(origenFisico && ventaSmartUE()>unidadesTotalesFilaVenta(origenFisico)){Notificaciones.mostrar('Cantidad superior al Stock disponible','warning');return;}const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!ventaSmartOrigen)estadoPrev='PENDIENTE_ORIGEN';else if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),id_item:ventaSmartProducto.id_item||'',descripcion:`${descripcionCantidadV26(ventaSmartCant,empaqueVentaSmart())} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:presentacionRealVentaV2650(ventaSmartCant),cantidadFisica:1,detalleFisico:{...ventaSmartCant},origenTipo:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':(ventaSmartOrigen?'STOCK':'PENDIENTE_ORIGEN'),ubicacionSalida:ventaSmartOrigen==='__EXTERNO__'?'':(ventaSmartOrigen||''),id_stock:fila?.id_stock||'',id_ubicacion:fila?.id_ubicacion||'',codigo_caja:fila?.codigo_caja||'',unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
         productosContent.classList.add('expanded');
         const iconoProductosSmart = productosHeader.querySelector('.collapsible-icon');
         if (iconoProductosSmart) iconoProductosSmart.classList.add('rotated');if(!productosContent.classList.contains('expanded')){productosContent.classList.add('expanded');productosHeader.querySelector('.collapsible-icon').classList.add('rotated')}cerrarVentaSmart(true);Notificaciones.mostrar('Producto agregado a la venta','success',2000)});
@@ -2047,7 +2131,7 @@ async function extraerDatosDelPedido() {
                 productoCatalogo: false,
                 nombreProducto: prod.nombreProducto || prod.descripcion,
                 seccion: '',
-                presentacion: 'mixto',
+                presentacion: presentacionRealVentaV2650(d),
                 cantidadFisica: 1,
                 detalleFisico: {...d},
                 ubicacionSalida: '',
