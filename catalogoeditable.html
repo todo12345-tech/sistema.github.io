@@ -12,6 +12,7 @@
     <meta property="og:title" content="Todoenuno Store | Catálogo Mayorista">
     <meta property="og:description" content="Catálogo mayorista con envíos a toda Bolivia. Hacé tu pedido fácil por WhatsApp.">
     <meta property="og:image" content="https://todoenunostore.github.io/CATALOGO/logo.png">
+
     <meta property="og:image:width" content="320">
     <meta property="og:image:height" content="320">
     <meta property="og:url" content="https://todoenunostore.github.io/CATALOGO/">
@@ -26,7 +27,7 @@
     <link rel="icon" type="image/png" href="logo.png">
     <link rel="apple-touch-icon" href="logo.png">
 
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <!-- Google Analytics -->
     <script async src="https://www.googletagmanager.com/gtag/js?id=G-96B97G6RPW"></script>
@@ -1593,6 +1594,82 @@ body.admin-mode .admin-original-reference::before{
 }
 </style>
 
+
+<!-- Corrección visual: nombres completos en las tarjetas de categorías -->
+<style id="teus-nombres-productos-completos">
+/* Desactiva el recorte de dos líneas sin modificar los datos ni el buscador. */
+#resultsList .category-product-card .category-product-name {
+  display: block !important;
+  height: auto !important;
+  min-height: 0 !important;
+  max-height: none !important;
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  -webkit-line-clamp: unset !important;
+  -webkit-box-orient: initial !important;
+  overflow-wrap: anywhere !important;
+  word-break: normal !important;
+  line-height: 1.35 !important;
+  margin-bottom: 8px !important;
+}
+/* Deja que cada tarjeta crezca si su nombre ocupa tres o más líneas. */
+#resultsList .category-product-card,
+#resultsList .category-product-body {
+  height: auto !important;
+  min-height: 0;
+}
+</style>
+
+<!-- Unificación visual de las tarjetas de secciones con la vista del buscador.
+     No modifica la cuadrícula, datos, botones, precios calculados ni eventos. -->
+<style id="teus-categorias-estilo-buscador">
+#resultsList .category-product-card .category-product-name {
+  color: #007185 !important;
+  font-size: 16px !important;
+  font-weight: 500 !important;
+  line-height: 1.35 !important;
+}
+#resultsList .category-product-card .category-price-before {
+  color: #888 !important;
+  font-size: 12px !important;
+}
+#resultsList .category-product-card .category-price-now {
+  color: #b12704 !important;
+  font-size: 21px !important;
+  font-weight: 700 !important;
+  line-height: 1.2 !important;
+}
+#resultsList .category-product-card .category-save {
+  background: #f59e0b;
+  color: #fff;
+  border-radius: 15px;
+  font-size: 11px;
+  padding: 4px 8px;
+}
+#resultsList .category-product-card .category-pack {
+  color: #565959;
+  font-size: 12px;
+  line-height: 1.55;
+  min-height: 0;
+  margin-top: 8px;
+}
+#resultsList .category-product-card .category-add {
+  background: #ffd814;
+  border: 1px solid #fcd200;
+  border-radius: 20px;
+}
+#resultsList .category-product-card .category-desc {
+  background: #f0f0f0;
+  border: 1px solid #ccc;
+  color: #333;
+  border-radius: 20px;
+}
+@media (max-width: 767px) {
+  #resultsList .category-product-card .category-product-name { font-size: 16px !important; }
+  #resultsList .category-product-card .category-price-now { font-size: 20px !important; }
+}
+</style>
 </head>
 <body>
 
@@ -2223,7 +2300,7 @@ async function loadProducts() {
         }
         masterProducts=productos;
         // Público: solo publicado + disponible por paquete. ADMIN: absolutamente todos.
-        allProducts=adminActual ? masterProducts : masterProducts.filter(p=>p.publicado && p.dispPaquete && !!p.imagenEditada);
+        allProducts=adminActual ? masterProducts : masterProducts.filter(p=>p.publicado && !!p.imagenEditada);
         const uniqueCategories=[...new Set(allProducts.map(p=>p.seccion))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
         homeCategoryOrder=uniqueCategories; homeCache={};
         const catList=document.getElementById('categoryList'); catList.innerHTML='';
@@ -2623,10 +2700,10 @@ function renderCategoryProducts(products) {
                       <span class="category-save" style="background:#ff9900;color:#fff;">⚡ OFERTA POR TIEMPO LIMITADO</span>`;
           } else {
             cards += `<div class="category-price-before">Antes: Bs ${visual.before.toFixed(2)}</div>
-                      <div class="category-price-now">Bs ${visual.now.toFixed(2)}</div>
-                      <span class="category-save">Ahorras Bs ${visual.save.toFixed(2)}</span>`;
+                      <div class="category-price-now">Ahora: Bs ${visual.now.toFixed(2)}</div>
+                      <span class="category-save">💰 Ahorras Bs ${visual.save.toFixed(2)}</span>`;
           }
-          cards += `<div class="category-pack">📦 ${escapeHtml(prod.unidadesTexto)} por paquete</div>
+          cards += `<div class="category-pack">📦 Cantidad: ${escapeHtml(prod.unidadesTexto)} por paquete<br>🚚 Entrega rápida a toda Bolivia</div>
                     <div class="category-inline-cart" data-idx="${i}">
                       <button class="category-add" data-idx="${i}" type="button">Agregar al carrito</button>
                       <button class="category-desc" data-idx="${i}" type="button">Ver descripción</button>
