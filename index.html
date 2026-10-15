@@ -773,6 +773,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
             <li class="menu-external"><a href="#" id="menuVisualizacion"><i class="fas fa-chart-pie"></i><span class="menu-text">Visualización</span></a></li>
             <li class="menu-external"><a href="#" id="menuVentasMayor"><i class="fas fa-truck"></i><span class="menu-text">Sistema de Ventas por Mayor</span></a></li>
             <li class="menu-external"><a href="#" id="menuCatalogoEditable"><i class="fas fa-tags"></i><span class="menu-text">Catálogo Editable</span></a></li>
+            <li class="menu-external"><a href="https://todo12345-tech.github.io/sistema.github.io/reposicion" id="menuReposicion" title="Reposición de Mercadería"><i class="fas fa-clipboard-list"></i><span class="menu-text">Reposición de Mercadería</span></a></li>
             <li class="permiso-admin"><a href="#" id="menuAdministrarSucursales"><i class="fas fa-store-alt"></i><span class="menu-text">Administrar Sucursales</span></a></li>
         </ul>
     </div>
@@ -1336,6 +1337,7 @@ const LINK_STOCK         = "https://todo12345-tech.github.io/sistema.github.io/s
 const LINK_VISUALIZACION = "https://todo12345-tech.github.io/sistema.github.io/visualizacion";
 const LINK_VENTAS_MAYOR  = "https://todo12345-tech.github.io/sistema.github.io/pormayor";
 const LINK_CATALOGO_EDITABLE = "https://todo12345-tech.github.io/sistema.github.io/catalogoeditable";
+const LINK_REPOSICION = "https://todo12345-tech.github.io/sistema.github.io/reposicion";
 
 const HORA_INICIO_LABORAL = 8;
 const HORA_FIN_LABORAL = 20;
@@ -3404,6 +3406,7 @@ function configurarEventListeners() {
     menuStock.addEventListener('click', function(e) { e.preventDefault(); if (LINK_STOCK.indexOf('CAMBIAR') !== -1) Notificaciones.mostrar('⚠️ Configura el link de Stock en el código', 'warning', 6000); else abrirEnIframe(LINK_STOCK, 'Stock'); });
     menuVisualizacion.addEventListener('click', function(e) { e.preventDefault(); if (LINK_VISUALIZACION.indexOf('CAMBIAR') !== -1) Notificaciones.mostrar('⚠️ Configura el link', 'warning', 6000); else abrirEnIframe(LINK_VISUALIZACION, 'Visualización'); });
     menuCatalogoEditable.addEventListener('click', function(e){e.preventDefault();abrirEnIframe(LINK_CATALOGO_EDITABLE,'Catálogo Editable');});
+    document.getElementById('menuReposicion').addEventListener('click', function(e) { e.preventDefault(); abrirEnIframe(LINK_REPOSICION, 'Reposición de Mercadería'); });
     const menuAdministrarSucursales=document.getElementById('menuAdministrarSucursales');
     if(menuAdministrarSucursales) menuAdministrarSucursales.addEventListener('click',function(e){e.preventDefault();administrarSucursalesV26();});
     menuVentasMayor.addEventListener('click', function(e) { e.preventDefault(); if (LINK_VENTAS_MAYOR.indexOf('CAMBIAR') !== -1) Notificaciones.mostrar('⚠️ Configura el link', 'warning', 6000); else abrirEnIframe(LINK_VENTAS_MAYOR, 'Sistema de Ventas por Mayor'); });
