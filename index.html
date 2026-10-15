@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Gestión de Ventas V26.46 · Stock físico controlado</title>
+<title>Todoenuno_store - Gestión de Ventas V26.54 · Revisión pedidos estable</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11">
 // V26.24: ningún importe cambia con la rueda del mouse.
@@ -632,6 +632,25 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
  .venta-smart-card{overflow-y:auto}
  .venta-smart-actions{position:sticky;bottom:0}
 }
+
+/* V26.59: ventana visible y cantidades reservadas sin duplicar */
+.teus-ya-carrito{display:none;background:#eff6ff;color:#174371;border:1px solid #93c5fd;border-radius:9px;padding:9px 11px;margin:4px 0 10px;font-size:12px;line-height:1.4}
+.teus-origen-linea{display:block;font-size:11px;font-weight:700;color:#176c59;margin-top:5px;white-space:normal}
+@media(min-width:760px){
+ .venta-smart-modal{padding:8px!important}
+ .venta-smart-card{max-height:calc(100dvh - 16px)!important;height:min(690px,calc(100dvh - 16px));padding:12px 18px!important}
+ .venta-smart-layout{height:100%;max-height:100%!important;grid-template-columns:minmax(0,1.12fr) minmax(310px,.88fr)}
+ .venta-smart-left{max-height:100%;overflow-y:auto}
+ .venta-smart-right{max-height:100%;overflow-y:auto;padding-bottom:0}
+ .venta-smart-right .venta-smart-actions{position:sticky!important;bottom:0!important;flex-shrink:0;margin-top:auto!important;background:#fff!important;padding:10px 0 8px!important;z-index:15;box-shadow:0 -5px 8px #fff}
+ .venta-smart-product img{width:76px!important;height:76px!important}
+ .venta-smart-product h3{margin:5px 25px!important;font-size:17px}
+}
+@media(max-width:759px){.venta-smart-card{max-height:calc(100dvh - 10px)!important}.venta-smart-actions{position:sticky!important;bottom:0!important;background:#fff!important;padding-bottom:max(10px,env(safe-area-inset-bottom))!important;z-index:15}}
+/* V26.56 - Aviso de inventario no registrado: informativo, no bloquea venta externa o pendiente */
+.teus-stock-aviso-rojo{background:#fff1f2;border:1px solid #fda4af;border-left:5px solid #e11d48;border-radius:10px;padding:10px 12px;color:#9f1239;font-size:12px;line-height:1.45;margin:7px 0 9px}
+.teus-stock-aviso-rojo strong{color:#9f1239}
+.teus-stock-aviso-rojo .teus-stock-aviso-sub{display:block;font-size:11px;margin-top:3px;color:#9f1239}
 </style>
 <!-- V26: Apps Script propio, id_venta único, Stock seguro, origen EXTERNO/PENDIENTE, borrador y caja inteligente. -->
 <style id="estado-nube-v2638">
@@ -648,6 +667,50 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .autocomplete-item.v2648-agotado-items .autocomplete-item-seccion:after{content:" · Venta excepcional permitida";font-weight:700}
 .venta-stock-card.v2648-sin-stock{background:#fff1f2!important;border:2px solid #dc2626!important;color:#991b1b!important;opacity:.85;cursor:not-allowed!important}
 .venta-stock-card.v2648-sin-stock .pick,.venta-stock-card.v2648-sin-stock .eq{color:#b91c1c!important;font-weight:700}
+</style>
+<style>
+/* V26.53 · revisión del origen físico de pedidos mayoristas ya pagados */
+#teusRevisionOverlay{display:none;position:fixed;inset:0;z-index:1000600;background:rgba(18,32,49,.72);align-items:center;justify-content:center;padding:12px}
+#teusRevisionOverlay.activo{display:flex}
+.teus-revision-panel{width:min(940px,100%);max-height:92dvh;display:flex;flex-direction:column;background:#fff;border-radius:16px;box-shadow:0 18px 55px #0004;overflow:hidden;color:#24384d}
+.teus-revision-head,.teus-revision-foot{padding:14px 18px;background:#fff;flex:none;box-shadow:0 2px 8px #172c4012}
+.teus-revision-head{display:flex;justify-content:space-between;gap:12px;align-items:center}
+.teus-revision-head h3{margin:0;font-size:18px;color:#233b54}
+.teus-revision-close{width:38px!important;height:38px!important;border-radius:9px!important;background:#e9eef2!important;color:#334155!important;padding:0!important}
+.teus-revision-body{overflow-y:auto;padding:14px 18px;min-height:0;background:#f6f8fb}
+.teus-revision-info{background:#eaf4ff;border:1px solid #c7e3fc;padding:11px;border-radius:9px;font-size:13px;margin-bottom:12px}
+.teus-revision-item{padding:13px;border:1px solid #d6dee8;border-radius:12px;background:white;margin-bottom:10px}
+.teus-revision-item h4{margin:0 0 5px;color:#243649;font-size:14px}
+.teus-revision-meta{font-size:12px;color:#64748b;margin-bottom:8px}
+.teus-revision-sel{padding:10px!important;background:#fff;border:1px solid #b9c6d6;font-size:13px!important;width:100%}
+.teus-revision-help{font-size:12px;margin-top:7px;color:#66778a}
+.teus-revision-help.error{color:#be123c;font-weight:700}
+.teus-revision-foot{display:flex;align-items:center;justify-content:space-between;gap:12px;border-top:1px solid #e3e8ee}
+.teus-revision-foot button{width:auto!important;padding:12px 18px!important;background:#15803d!important;color:white!important;font-size:14px!important}
+.teus-revision-foot button:disabled{opacity:.45;cursor:not-allowed}
+.teus-revision-status{font-size:12px;color:#475569}
+@media(max-width:620px){.teus-revision-panel{max-height:96dvh}.teus-revision-head h3{font-size:15px}.teus-revision-foot{flex-direction:column;align-items:stretch}.teus-revision-foot button{width:100%!important}}
+</style>
+<style>
+/* V26.55 · Distribución física multiubicación */
+#teusSplitOverlay{display:none;position:fixed;inset:0;z-index:1000800;background:#102338bb;align-items:center;justify-content:center;padding:12px}
+#teusSplitOverlay.activo{display:flex}
+.teus-split-card{background:#fff;width:min(850px,98vw);max-height:94dvh;display:flex;flex-direction:column;border-radius:16px;overflow:hidden;box-shadow:0 18px 55px #0004}
+.teus-split-card header,.teus-split-card footer{padding:14px 18px;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;flex-shrink:0}
+.teus-split-card header{border-bottom:1px solid #e2e8f0}.teus-split-card footer{border-top:1px solid #e2e8f0}
+#teusSplitContenido{padding:14px 18px;overflow-y:auto;min-height:0}.teus-split-row{display:grid;grid-template-columns:minmax(130px,1fr) repeat(3,minmax(76px,100px));gap:9px;align-items:center;border:1px solid #dbe5ee;border-radius:10px;margin:9px 0;padding:10px}
+.teus-split-row input{padding:9px!important;width:100%;font-size:16px!important}.teus-split-meta{font-size:11px;color:#64748b}
+.teus-split-status{font-weight:800;margin-top:10px;padding:10px;border-radius:9px;background:#fff1f2;color:#be123c}
+.teus-split-status.ok{background:#e9f8ef;color:#166534}.teus-split-actions{display:flex;gap:9px}.teus-split-actions button{width:auto!important;padding:10px 16px!important}
+.teus-split-open{background:#2563eb!important;color:white!important;border-radius:9px!important;padding:10px 13px!important;margin-top:8px!important;font-size:12px!important;width:100%!important}
+@media(max-width:580px){.teus-split-row{grid-template-columns:repeat(3,minmax(0,1fr))}.teus-split-row .teus-split-loc{grid-column:1/-1}.teus-split-card header,.teus-split-card footer{padding:11px}.teus-split-actions button{padding:9px!important}}
+</style><style id="teusV2660SmartStyles">
+.teus-sugerencia-origen{font-size:12px;line-height:1.4;padding:8px 10px;margin:6px 0 10px;background:#eff6ff;border:1px solid #bfdbfe;border-radius:9px;color:#1e40af}
+.teus-sugerencia-origen.alerta{background:#fff0f0;border-color:#fca5a5;color:#991b1b}
+.teus-sugerencia-origen button{display:inline-block;width:auto;margin:5px 0 0 8px;padding:7px 10px;background:#2563eb;border:none;color:white;font-size:11px;border-radius:7px}
+.venta-stock-card.v2648-sin-stock{background:#fff1f2!important;border:2px solid #e11d48!important;opacity:.85;cursor:not-allowed!important}
+.venta-stock-card.v2648-sin-stock.selected{border-color:#e11d48!important;background:#fff1f2!important}
+@media(max-width:760px){.teus-sugerencia-origen button{display:block;margin:6px 0 0}}
 </style>
 </head>
 <body>
@@ -1026,9 +1089,10 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     <div class="venta-smart-layout"><section class="venta-smart-left">
     <div class="venta-smart-product"><img id="ventaSmartImg" alt="Producto"><h3 id="ventaSmartNombre">Producto</h3></div>
     <div class="venta-equivalencia" id="ventaSmartEquiv">Presentación registrada</div>
-    <div class="venta-stock-box"><div class="venta-stock-title"><i class="fas fa-warehouse"></i> Stock registrado (elige origen solo si realmente salió de ahí)</div><div id="ventaSmartStock"></div></div>
+    <div class="venta-stock-box"><div class="venta-stock-title"><i class="fas fa-warehouse"></i> Stock registrado (elige origen solo si realmente salió de ahí)</div><button type="button" class="teus-split-open" id="teusSmartRepartir">↔ Distribuir desde varias ubicaciones</button>
+<div id="ventaSmartStock"></div></div>
     </section><section class="venta-smart-right">
-    <div class="venta-counters-title">Indica cómo salió la mercadería</div>
+    <div id="teusYaCarrito" class="teus-ya-carrito" aria-live="polite"></div><div id="teusSugerenciaOrigen" class="teus-sugerencia-origen" style="display:none"></div><div class="venta-counters-title">Indica cómo salió la mercadería</div>
     <div class="venta-counters">
       <div class="venta-counter"><b>CAJAS</b><div class="venta-counter-row"><button type="button" data-vtipo="cajas" data-delta="-1">−</button><span id="ventaCntCajas">0</span><button type="button" data-vtipo="cajas" data-delta="1">+</button></div></div>
       <div class="venta-counter"><b>PAQUETES</b><div class="venta-counter-row"><button type="button" data-vtipo="paquetes" data-delta="-1">−</button><span id="ventaCntPaquetes">0</span><button type="button" data-vtipo="paquetes" data-delta="1">+</button></div></div>
@@ -1055,6 +1119,15 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
     </div>
 </div>
 
+<div id="teusSplitOverlay" role="dialog" aria-modal="true" aria-label="Distribuir mercadería entre ubicaciones"><section class="teus-split-card"><header><b>Distribuir cajas, paquetes y unidades</b><button type="button" id="teusSplitX" style="width:auto;padding:5px 12px;background:#64748b">✕</button></header><div id="teusSplitContenido"></div><footer><b id="teusSplitTotal" style="font-size:12px"></b><div class="teus-split-actions"><button type="button" id="teusSplitCancelar" style="background:#64748b">Cancelar</button><button type="button" id="teusSplitConfirmar" style="background:#15803d">Aplicar distribución</button></div></footer></section></div>
+<!-- V26.54: el modal debe existir antes de vincular sus controles -->
+<div id="teusRevisionOverlay" role="dialog" aria-modal="true" aria-labelledby="teusRevisionTitulo">
+ <section class="teus-revision-panel">
+  <header class="teus-revision-head"><h3 id="teusRevisionTitulo"><i class="fas fa-boxes"></i> Revisar origen · Pedido mayorista pagado</h3><button id="teusRevisionCerrar" type="button" class="teus-revision-close" aria-label="Cerrar">×</button></header>
+  <div class="teus-revision-body"><div class="teus-revision-info"><b>Este pedido ya está pagado.</b> Aquí solo identificas de qué lugar salieron físicamente sus productos. La preparación no descuenta Stock; el descuento se hará al confirmar la venta en Sistema de Ventas. Un producto sin origen verificable puede marcarse externo o pendiente.</div><div id="teusRevisionLista"></div></div>
+  <footer class="teus-revision-foot"><span id="teusRevisionEstado" class="teus-revision-status"></span><button type="button" id="teusRevisionAceptar"><i class="fas fa-check"></i> Confirmar orígenes</button></footer>
+ </section>
+</div>
 <script>
 // V26.17: funciones en el mismo alcance, con DOM ya construido.
 // V26: la rueda del mouse nunca altera inputs numéricos accidentalmente.
@@ -1688,16 +1761,40 @@ function empaqueVentaSmart(){const f=ventaSmartFilas[0]||{};return {upp:Math.max
 function ventaSmartUE(){const e=empaqueVentaSmart();return ventaSmartCant.unidades+ventaSmartCant.paquetes*e.upp+ventaSmartCant.cajas*e.ppc*e.upp}
 function ventaSmartFilaOrigen(){return ventaSmartFilas.find(r=>normalizarTextoCatalogo(r.ubicacion||'')===normalizarTextoCatalogo(ventaSmartOrigen||''))||null}
 function ventaSmartPrecioSugerido(){const e=empaqueVentaSmart(), pp=Number(ventaSmartProducto?.precioPaquete||0);if(!pp)return 0;return ventaSmartCant.paquetes*pp+(e.upp?ventaSmartCant.unidades*(pp/e.upp):0)+(e.ppc?ventaSmartCant.cajas*e.ppc*pp:0)}
+// V26.58: preferencia de origen físico por sucursal, solo cuando existe saldo real.
+function teusOrigenSucursalPreferido(filas){
+ const ss=normalizarTextoCatalogo(String(sucursalSeleccionada||'')+' '+String(sucursales?.[sucursalSeleccionada]?.nombre||''));
+ const esFeria=ss.includes('feria');const esComercial=ss.includes('comercial')||ss.includes('brasil');
+ if(!esFeria&&!esComercial)return null;
+ return (filas||[]).find(r=>{
+  const ub=normalizarTextoCatalogo(r.ubicacion||'');
+  return (esFeria?ub.includes('feria'):ub.includes('comercial')) && unidadesTotalesFilaVenta(r)>teusReservadas(r.id_stock);
+ })||null;
+}
+function teusTextoSaldoStock(r){
+ const total=unidadesTotalesFilaVenta(r),reservado=teusReservadas(r.id_stock),libre=Math.max(0,total-reservado);
+ const upp=Math.max(1,nStock(r.unidades_por_paquete)||1),ppc=Math.max(1,nStock(r.paquetes_por_caja)||1);
+ const perCaja=upp*ppc;let resto=libre;
+ const cajas=Math.floor(resto/perCaja);resto%=perCaja;
+ const paquetes=Math.floor(resto/upp);const unidades=resto%upp;
+ return {total,reservado,libre,descripcion:`${cajas} caja(s) · ${paquetes} paquete(s) · ${unidades} unidad(es)`};
+}
 function renderVentaSmartStock(){
  const box=document.getElementById('ventaSmartStock'); if(!box)return;
+ const active=ventaSmartFilaOrigen();
+ if(active && unidadesTotalesFilaVenta(active)-teusReservadas(active.id_stock)<=0){ventaSmartOrigen='';teusSmartAsignaciones=null;}
+
  let html='';
  if(ventaSmartFilas.length){
-   html='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen);return `<div class="venta-stock-card ${unidadesTotalesFilaVenta(r)<=0?'v2648-sin-stock':''} ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${u}</div><div class="qty">${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${unidadesTotalesFilaVenta(r)} unidades equivalentes</div><div class="pick">${unidadesTotalesFilaVenta(r)<=0?'AGOTADO · No se puede descontar':(sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación')}</div></div>`}).join('')+'</div>';
- }else html='<div style="padding:8px 0;color:#777"><b>Sin stock registrado actualmente.</b></div>';
- html+=`<div class="venta-stock-cards" style="margin-top:10px"><div class="venta-stock-card ${ventaSmartOrigen==='__EXTERNO__'?'selected':''}" data-vorigen="__EXTERNO__"><div class="loc">🌐 Venta externa / no es de mi inventario</div><div class="eq">Registra la venta, pero nunca descuenta Stock.</div></div><div class="venta-stock-card ${ventaSmartOrigen===''?'selected':''}" data-vorigen=""><div class="loc">❓ Es de mi inventario, pero no sé de qué ubicación salió</div><div class="eq">Queda PENDIENTE_ORIGEN hasta definir la ubicación correcta.</div></div></div>`;
+   html='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen),saldo=teusTextoSaldoStock(r);return `<div class="venta-stock-card ${saldo.libre<=0?'v2648-sin-stock':''} ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${teusEsc(u)}</div><div class="qty">Stock en Sheets: ${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${saldo.reservado?`<span style="color:#b45309">Ya agregado al pedido: ${saldo.reservado} unidad(es) equiv.</span><br>`:''}<strong>Disponible para esta venta: ${saldo.descripcion}</strong><br>${saldo.libre} de ${saldo.total} unidades equivalentes</div><div class="pick">${saldo.libre<=0?'SIN SALDO PARA ESTA VENTA':(sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación')}</div></div>`}).join('')+'</div>';
+ }else html='<div class="teus-stock-aviso-rojo"><strong>⚠ SIN STOCK REGISTRADO</strong><span class="teus-stock-aviso-sub">Este producto no tiene existencias físicas registradas en Stock. Puedes agregarlo igualmente como venta externa o con origen pendiente, sin descontar inventario.</span></div>';
+ if(ventaSmartFilas.length && ventaSmartFilas.every(r => unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock)<=0)){
+   html += '<div class="teus-stock-aviso-rojo"><strong>⚠ SIN EXISTENCIAS DISPONIBLES</strong><span class="teus-stock-aviso-sub">No quedan unidades libres registradas en estas ubicaciones. Puedes registrar la venta como externa o con origen pendiente, pero no descontar Stock sin existencias.</span></div>';
+ }
+ html+=`<div class="venta-stock-cards" style="margin-top:10px">${ventaSmartOrigen==='__DISTRIBUIDO__'?'<div class="venta-stock-card selected" style="border-color:#15803d"><div class="loc">✅ Distribución entre varias ubicaciones</div><div class="eq">'+(teusSmartAsignaciones||[]).map(a=>a.ubicacion).join(' + ')+'</div></div>':''}<div class="venta-stock-card ${ventaSmartOrigen==='__EXTERNO__'?'selected':''}" data-vorigen="__EXTERNO__"><div class="loc">🌐 Venta externa / no es de mi inventario</div><div class="eq">Registra la venta, pero nunca descuenta Stock.</div></div><div class="venta-stock-card ${ventaSmartOrigen===''?'selected':''}" data-vorigen=""><div class="loc">❓ Es de mi inventario, pero no sé de qué ubicación salió</div><div class="eq">Queda PENDIENTE_ORIGEN hasta definir la ubicación correcta.</div></div></div>`;
  box.innerHTML=html;
- box.querySelectorAll('[data-vstock]').forEach(el=>el.onclick=()=>{const r=ventaSmartFilas[Number(el.dataset.vstock)];if(unidadesTotalesFilaVenta(r)<=0){Notificaciones.mostrar('No hay unidades disponibles en esta ubicación','warning');return;}ventaSmartOrigen=r.ubicacion||'';renderVentaSmartStock();actualizarVentaSmart()});
- box.querySelectorAll('[data-vorigen]').forEach(el=>el.onclick=()=>{ventaSmartOrigen=el.dataset.vorigen;renderVentaSmartStock();actualizarVentaSmart()});
+ box.querySelectorAll('[data-vstock]').forEach(el=>el.onclick=()=>{const r=ventaSmartFilas[Number(el.dataset.vstock)];if(unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock)<=0){Notificaciones.mostrar('Ubicación agotada para esta venta. Usa otra ubicación o reparto.','warning');return;}teusSmartAsignaciones=null;ventaSmartOrigen=r.ubicacion||'';renderVentaSmartStock();actualizarVentaSmart()});
+ box.querySelectorAll('[data-vorigen]').forEach(el=>el.onclick=()=>{teusSmartAsignaciones=null;ventaSmartOrigen=el.dataset.vorigen;renderVentaSmartStock();actualizarVentaSmart()});
 }
 
 function presentacionRealVentaV2650(d){const c=Number(d?.cajas||0)>0,p=Number(d?.paquetes||0)>0,u=Number(d?.unidades||0)>0;const n=Number(c)+Number(p)+Number(u);return n>1?[c?'CAJA':null,p?'PAQUETE':null,u?'UNIDAD':null].filter(Boolean).join(' + '):c?'CAJA':p?'PAQUETE':u?'UNIDAD':'SIN CANTIDAD';}
@@ -1709,8 +1806,55 @@ function descripcionCantidadV26(c,e){
  return p.join(' + ')||'0 unidades';
 }
 
-function actualizarVentaSmart(){document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=ventaSmartUE()?descripcionCantidadV26(ventaSmartCant,e):'Selecciona al menos 1 caja, paquete o unidad para habilitar Agregar';const hb=document.getElementById('ventaHalfBtn');if(hb)hb.style.display='none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartOrigen==='__EXTERNO__'){warn.style.display='block';warn.innerHTML=(ventaSmartProducto?.disponiblePaquete===false&&ventaSmartProducto?.disponibleUnidad===false)?'<i class="fas fa-exclamation-circle"></i> <b>Venta excepcional · agotado en ITEMS.</b> Puedes registrarla si tienes físicamente el producto. No se descontará Stock registrado mientras mantengas esta opción.':'<i class="fas fa-globe"></i> <b>Venta externa.</b> Esta venta se registrará normalmente y NO descontará tu Stock.'}else if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> <b>Stock pendiente de definir.</b> Si sabes de dónde salió físicamente, selecciona la ubicación. Si no lo sabes, puedes continuar: la venta se guardará pero NO se descontará de ninguna ubicación.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. No se puede vender esa cantidad desde esta ubicación. Reduce la cantidad o elige otro origen.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual){const ps=ventaSmartPrecioSugerido()||Number(ventaSmartProducto?.precioPaquete||0)||0;price.value=ps?String(Math.round(ps)):''};document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0 || (!!fila && ventaSmartUE()>unidadesTotalesFilaVenta(fila))}
-async function abrirVentaSmart(producto){ventaSmartProducto=producto;ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen=(producto.disponiblePaquete===false&&producto.disponibleUnidad===false)?'__EXTERNO__':'';document.getElementById('ventaSmartPrecio').dataset.manual='';document.getElementById('ventaSmartNombre').textContent=producto.nombre||'Producto';const img=document.getElementById('ventaSmartImg');if(producto.imagen){img.src=producto.imagen;img.style.display='inline-block'}else img.style.display='none';document.getElementById('ventaSmartModal').style.display='flex';ventaSmartTipoActivo='unidades';setTimeout(()=>{const b=document.querySelector('[data-vtipo="unidades"][data-delta="1"]');if(b)b.focus()},50);document.getElementById('ventaSmartStock').innerHTML='<span><i class="fas fa-spinner fa-spin"></i> Consultando stock...</span>';await cargarStockInventario();ventaSmartFilas=filasStockProductoVenta(producto);const e=empaqueVentaSmart();const eq=[];if(e.upp>1)eq.push(`1 paquete = ${e.upp} unidades`);if(e.ppc>0)eq.push(`1 caja = ${e.ppc} paquetes = ${e.ppc*e.upp} unidades`);document.getElementById('ventaSmartEquiv').innerHTML='<b>Presentación registrada:</b> '+(eq.length?eq.join(' · '):'venta por unidad / sin equivalencia registrada');renderVentaSmartStock();actualizarVentaSmart()}
+function teusDetalleEnCarrito(nombre){
+ const norm=v=>String(v||'').trim().toLowerCase();
+ const coinciden=items.filter(i=>norm(i.nombreProducto)===norm(nombre)&&i.detalleFisico);
+ if(!coinciden.length)return '';
+ const total={cajas:0,paquetes:0,unidades:0};const ubicaciones=[];
+ for(const i of coinciden){for(const k of Object.keys(total))total[k]+=Math.max(0,Number(i.detalleFisico?.[k])||0);
+  const as=i.asignacionesStock?.length?i.asignacionesStock:[{ubicacion:i.ubicacionSalida,detalleFisico:i.detalleFisico,origen_tipo:i.origenTipo}];
+  for(const a of as){const d=a.detalleFisico||{};const lugar=a.ubicacion||a.ubicacionSalida||(a.origen_tipo==='EXTERNO'?'Venta externa':a.origen_tipo==='PENDIENTE_ORIGEN'?'Origen pendiente':'Sin ubicación');
+   const cant=[d.cajas?d.cajas+' caja(s)':'',d.paquetes?d.paquetes+' paquete(s)':'',d.unidades?d.unidades+' unidad(es)':''].filter(Boolean).join(' + ');
+   if(cant)ubicaciones.push(cant+' · '+lugar);
+  }
+ }
+ const cant=[total.cajas?total.cajas+' caja(s)':'',total.paquetes?total.paquetes+' paquete(s)':'',total.unidades?total.unidades+' unidad(es)':''].filter(Boolean).join(' + ');
+ return '<strong>Ya en este carrito: '+teusEsc(cant)+'</strong><div style="margin-top:3px">'+ubicaciones.map(teusEsc).join('<br>')+'</div><div style="margin-top:4px">Los contadores de abajo empiezan en cero porque son para agregar cantidades <b>adicionales</b>.</div>';
+}
+function teusOrigenProductoCart(i){
+ if(!i.detalleFisico)return '';
+ const as=i.asignacionesStock?.length?i.asignacionesStock:[{ubicacion:i.ubicacionSalida,detalleFisico:i.detalleFisico,origen_tipo:i.origenTipo}];
+ const r=as.map(a=>{const d=a.detalleFisico||{};const c=[d.cajas?d.cajas+' caja(s)':'',d.paquetes?d.paquetes+' paquete(s)':'',d.unidades?d.unidades+' unidad(es)':''].filter(Boolean).join(' + ');const loc=a.ubicacion||a.ubicacionSalida||(a.origen_tipo==='EXTERNO'?'Externo':a.origen_tipo==='PENDIENTE_ORIGEN'?'Pendiente':'Sin ubicación');return c?`${c} desde ${loc}`:''}).filter(Boolean);
+ return r.length?'<span class="teus-origen-linea">📍 '+r.map(teusEsc).join(' · ')+'</span>':'';
+}
+function actualizarVentaSmart(){
+ const resumenEl=document.getElementById('ventaSmartResumen');
+ let ayuda=document.getElementById('teusSugerenciaOrigen');
+ if(!ayuda && resumenEl){ayuda=document.createElement('div');ayuda.id='teusSugerenciaOrigen';ayuda.className='teus-sugerencia-origen';resumenEl.insertAdjacentElement('afterend',ayuda);}
+ if(ayuda){
+  const pedido=ventaSmartUE();const filaActiva=ventaSmartFilaOrigen();
+  const disponible=filaActiva?Math.max(0,unidadesTotalesFilaVenta(filaActiva)-teusReservadas(filaActiva.id_stock)):0;
+  const otras=ventaSmartFilas.filter(r=>r.id_stock!==filaActiva?.id_stock&&unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock)>0);
+  const suma=otras.reduce((n,r)=>n+Math.max(0,unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock)),0);
+  ayuda.style.display='block';
+  if(!pedido){ayuda.textContent='Selecciona cajas, paquetes o unidades: te mostraré de dónde pueden salir según lo que queda libre en tu carrito.';ayuda.classList.remove('alerta');}
+  else if(ventaSmartOrigen==='__DISTRIBUIDO__'){ayuda.textContent='Distribución asignada. Puedes revisarla antes de confirmar.';ayuda.classList.remove('alerta');}
+  else if(filaActiva && pedido>disponible){
+   const falta=pedido-disponible;
+   ayuda.innerHTML=`<strong>⚠ Faltan ${falta} unidades equivalentes en ${teusEsc(filaActiva.ubicacion)}.</strong> ${suma?'Hay '+suma+' unidades libres en otras ubicaciones.':'No hay suficientes unidades registradas en otras ubicaciones.'} <button type="button" id="teusSugerirReparto">Repartir orígenes</button>`;
+   ayuda.classList.add('alerta');
+   ayuda.querySelector('button').onclick=()=>document.getElementById('teusSmartRepartir')?.click();
+  }else if(filaActiva){ayuda.textContent=`✓ ${pedido} unidades equivalentes desde ${filaActiva.ubicacion}. Quedan ${disponible-pedido} para agregar de esta ubicación.`;ayuda.classList.remove('alerta');}
+  else {ayuda.textContent='Esta cantidad no tiene ubicación física seleccionada. Elige un depósito, reparto o un origen sin registro.';ayuda.classList.remove('alerta');}
+ }
+ document.getElementById('ventaCntCajas').textContent=ventaSmartCant.cajas;document.getElementById('ventaCntPaquetes').textContent=ventaSmartCant.paquetes;document.getElementById('ventaCntUnidades').textContent=ventaSmartCant.unidades;const e=empaqueVentaSmart(),part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);document.getElementById('ventaSmartResumen').textContent=ventaSmartUE()?descripcionCantidadV26(ventaSmartCant,e):'Selecciona al menos 1 caja, paquete o unidad para habilitar Agregar';const hb=document.getElementById('ventaHalfBtn');if(hb)hb.style.display='none';const fila=ventaSmartFilaOrigen(),warn=document.getElementById('ventaSmartWarning');if(ventaSmartOrigen==='__EXTERNO__'){warn.style.display='block';warn.innerHTML=(ventaSmartProducto?.disponiblePaquete===false&&ventaSmartProducto?.disponibleUnidad===false)?'<i class="fas fa-exclamation-circle"></i> <b>Venta excepcional · agotado en ITEMS.</b> Puedes registrarla si tienes físicamente el producto. No se descontará Stock registrado mientras mantengas esta opción.':'<i class="fas fa-globe"></i> <b>Venta externa.</b> Esta venta se registrará normalmente y NO descontará tu Stock.'}else if(ventaSmartFilas.length&&!ventaSmartOrigen){warn.style.display='block';warn.innerHTML='<i class="fas fa-map-marker-alt"></i> <b>Stock pendiente de definir.</b> Si sabes de dónde salió físicamente, selecciona la ubicación. Si no lo sabes, puedes continuar: la venta se guardará pero NO se descontará de ninguna ubicación.'}else if(fila&&ventaSmartUE()>unidadesTotalesFilaVenta(fila)-teusReservadas(fila.id_stock)){warn.style.display='block';warn.innerHTML=`<i class="fas fa-exclamation-triangle"></i> La cantidad elegida supera el stock registrado en <b>${ventaSmartOrigen}</b>. No se puede vender esa cantidad desde esta ubicación. Reduce la cantidad o elige otro origen.`}else{warn.style.display='none';warn.innerHTML=''}const price=document.getElementById('ventaSmartPrecio');if(price&&!price.dataset.manual){const ps=ventaSmartUE()>0?ventaSmartPrecioSugerido():0;price.value=ps?String(Math.round(ps)):''};document.getElementById('ventaSmartConfirm').disabled=ventaSmartUE()<=0 ||(ventaSmartOrigen==='__DISTRIBUIDO__'&&!teusSmartAsignaciones?.length)|| (!!fila && ventaSmartUE()>unidadesTotalesFilaVenta(fila)-teusReservadas(fila.id_stock))}
+async function abrirVentaSmart(producto){ventaSmartProducto=producto;ventaSmartCant={cajas:0,paquetes:0,unidades:0};teusSmartAsignaciones=null;ventaSmartOrigen=(producto.disponiblePaquete===false&&producto.disponibleUnidad===false)?'__EXTERNO__':'';document.getElementById('ventaSmartPrecio').dataset.manual='';document.getElementById('ventaSmartNombre').textContent=producto.nombre||'Producto';const infoCarrito=document.getElementById('teusYaCarrito');const detalles=teusDetalleEnCarrito(producto.nombre);infoCarrito.innerHTML=detalles;infoCarrito.style.display=detalles?'block':'none';const img=document.getElementById('ventaSmartImg');if(producto.imagen){img.src=producto.imagen;img.style.display='inline-block'}else img.style.display='none';document.getElementById('ventaSmartModal').style.display='flex';ventaSmartTipoActivo='unidades';setTimeout(()=>{const b=document.querySelector('[data-vtipo="unidades"][data-delta="1"]');if(b)b.focus()},50);document.getElementById('ventaSmartStock').innerHTML='<span><i class="fas fa-spinner fa-spin"></i> Consultando stock...</span>';await cargarStockInventario();ventaSmartFilas=filasStockProductoVenta(producto);
+ // Seleccionar Comercial/Feria por defecto solo si hay existencia física y no es una excepción agotada.
+ if(ventaSmartOrigen!=='__EXTERNO__'){
+  const preferido=teusOrigenSucursalPreferido(ventaSmartFilas);
+  ventaSmartOrigen=preferido?(preferido.ubicacion||''):'';
+ }
+ const e=empaqueVentaSmart();const eq=[];if(e.upp>1)eq.push(`1 paquete = ${e.upp} unidades`);if(e.ppc>0)eq.push(`1 caja = ${e.ppc} paquetes = ${e.ppc*e.upp} unidades`);document.getElementById('ventaSmartEquiv').innerHTML='<b>Presentación registrada:</b> '+(eq.length?eq.join(' · '):'venta por unidad / sin equivalencia registrada');renderVentaSmartStock();actualizarVentaSmart()}
 function limpiarCapturaProductoVenta(){
     descripcionProducto.value='';
     montoProducto.value='';
@@ -1725,7 +1869,7 @@ function cerrarVentaSmart(limpiarFormulario=false){
     document.getElementById('ventaSmartModal').style.display='none';
     ventaSmartProducto=null;
     ventaSmartFilas=[];
-    ventaSmartOrigen='';
+    ventaSmartOrigen='';teusSmartAsignaciones=null;
     ventaSmartCant={cajas:0,paquetes:0,unidades:0};
     ventaSmartTipoActivo='unidades';
     const precio=document.getElementById('ventaSmartPrecio');
@@ -1783,9 +1927,10 @@ document.addEventListener('click', function(e) {
 });
 montoProducto.addEventListener('input', function() { precioEditado = true; });
 
-document.querySelectorAll('[data-vtipo]').forEach(btn=>btn.addEventListener('click',()=>{const t=btn.dataset.vtipo,d=Number(btn.dataset.delta);ventaSmartCant[t]=Math.max(0,(ventaSmartCant[t]||0)+d);document.getElementById('ventaSmartPrecio').dataset.manual='';actualizarVentaSmart()}));
+document.querySelectorAll('[data-vtipo]').forEach(btn=>btn.addEventListener('click',()=>{const t=btn.dataset.vtipo,d=Number(btn.dataset.delta);ventaSmartCant[t]=Math.max(0,(ventaSmartCant[t]||0)+d);if(teusSmartAsignaciones){teusSmartAsignaciones=null;ventaSmartOrigen='';renderVentaSmartStock();}document.getElementById('ventaSmartPrecio').dataset.manual='';actualizarVentaSmart()}));
 document.getElementById('ventaHalfBtn')?.addEventListener('click',()=>{const e=empaqueVentaSmart();ventaSmartCant.unidades+=Math.floor(e.upp/2);document.getElementById('ventaSmartPrecio').dataset.manual='';actualizarVentaSmart()});
-document.getElementById('ventaResetBtn').addEventListener('click',()=>{ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen='';const p=document.getElementById('ventaSmartPrecio');p.dataset.manual='';p.value='';renderVentaSmartStock();actualizarVentaSmart()});
+document.getElementById('teusSmartRepartir').addEventListener('click',()=>{if(ventaSmartUE()<=0){Notificaciones.mostrar('Primero indica cajas, paquetes o unidades','warning');return;}teusAbrirDistribucion(ventaSmartProducto?.nombre||'',ventaSmartCant,ventaSmartFilas,a=>{teusSmartAsignaciones=a;ventaSmartOrigen='__DISTRIBUIDO__';renderVentaSmartStock();actualizarVentaSmart();},null,teusSmartAsignaciones||[]);});
+document.getElementById('ventaResetBtn').addEventListener('click',()=>{ventaSmartCant={cajas:0,paquetes:0,unidades:0};ventaSmartOrigen='';teusSmartAsignaciones=null;const p=document.getElementById('ventaSmartPrecio');p.dataset.manual='';p.value='';renderVentaSmartStock();actualizarVentaSmart()});
 let ventaSmartTipoActivo='unidades';
 document.querySelectorAll('[data-vtipo]').forEach(btn=>btn.addEventListener('focus',()=>{ventaSmartTipoActivo=btn.dataset.vtipo}));
 document.getElementById('ventaSmartModal').addEventListener('keydown',function(e){
@@ -1801,10 +1946,10 @@ document.getElementById('ventaSmartModal').addEventListener('keydown',function(e
         e.preventDefault(); ventaSmartTipoActivo=a[(i-1+a.length)%a.length];
         document.querySelector(`[data-vtipo="${ventaSmartTipoActivo}"][data-delta="1"]`)?.focus();
     }else if(e.key==='ArrowUp'){
-        e.preventDefault(); ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)+1);
+        e.preventDefault(); ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)+1);if(teusSmartAsignaciones){teusSmartAsignaciones=null;ventaSmartOrigen='';renderVentaSmartStock();}
         document.getElementById('ventaSmartPrecio').dataset.manual=''; actualizarVentaSmart();
     }else if(e.key==='ArrowDown'){
-        e.preventDefault(); ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)-1);
+        e.preventDefault(); ventaSmartCant[ventaSmartTipoActivo]=Math.max(0,(ventaSmartCant[ventaSmartTipoActivo]||0)-1);if(teusSmartAsignaciones){teusSmartAsignaciones=null;ventaSmartOrigen='';renderVentaSmartStock();}
         document.getElementById('ventaSmartPrecio').dataset.manual=''; actualizarVentaSmart();
     }else if(e.key==='Enter'){
         e.preventDefault(); document.getElementById('ventaSmartConfirm').click();
@@ -1816,7 +1961,7 @@ document.getElementById('ventaSmartModal').addEventListener('keydown',function(e
 });
 document.getElementById('ventaSmartPrecio').addEventListener('input',function(){this.value=this.value.replace(/\D+/g,'');this.dataset.manual='1'});
 document.getElementById('ventaSmartClose').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartCancel').addEventListener('click',()=>cerrarVentaSmart(true));document.getElementById('ventaSmartModal').addEventListener('click',e=>{if(e.target.id==='ventaSmartModal')cerrarVentaSmart(true)});
-document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const origenFisico=ventaSmartFilaOrigen();if(origenFisico && ventaSmartUE()>unidadesTotalesFilaVenta(origenFisico)){Notificaciones.mostrar('Cantidad superior al Stock disponible','warning');return;}const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!ventaSmartOrigen)estadoPrev='PENDIENTE_ORIGEN';else if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),ventaExcepcional:(ventaSmartProducto.disponiblePaquete===false&&ventaSmartProducto.disponibleUnidad===false&&ventaSmartOrigen==='__EXTERNO__'),id_item:ventaSmartProducto.id_item||'',descripcion:`${descripcionCantidadV26(ventaSmartCant,empaqueVentaSmart())} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:presentacionRealVentaV2650(ventaSmartCant),cantidadFisica:1,detalleFisico:{...ventaSmartCant},origenTipo:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':(ventaSmartOrigen?'STOCK':'PENDIENTE_ORIGEN'),ubicacionSalida:ventaSmartOrigen==='__EXTERNO__'?'':(ventaSmartOrigen||''),id_stock:fila?.id_stock||'',id_ubicacion:fila?.id_ubicacion||'',codigo_caja:fila?.codigo_caja||'',unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
+document.getElementById('ventaSmartConfirm').addEventListener('click',()=>{if(!ventaSmartProducto||ventaSmartUE()<=0)return;const origenFisico=ventaSmartFilaOrigen();if(origenFisico && ventaSmartUE()>unidadesTotalesFilaVenta(origenFisico)-teusReservadas(origenFisico.id_stock)){Notificaciones.mostrar('Cantidad superior al Stock disponible','warning');return;}if(ventaSmartOrigen==='__DISTRIBUIDO__'&&(!teusSmartAsignaciones?.length||teusSmartAsignaciones.reduce((n,a)=>n+(a.unidadesEquivalentes||0),0)!==ventaSmartUE())){Notificaciones.mostrar('Completa la distribución física antes de agregar','warning');return;}const monto=Number(document.getElementById('ventaSmartPrecio').value);if(!monto||monto<=0){Notificaciones.mostrar('Ingresa el precio total del producto','warning');return}const part=[];if(ventaSmartCant.cajas)part.push(`${ventaSmartCant.cajas} caja(s)`);if(ventaSmartCant.paquetes)part.push(`${ventaSmartCant.paquetes} paquete(s)`);if(ventaSmartCant.unidades)part.push(`${ventaSmartCant.unidades} unidad(es)`);const fila=ventaSmartFilaOrigen();let estadoPrev='APLICADO';if(!ventaSmartOrigen)estadoPrev='PENDIENTE_ORIGEN';else if(!fila||ventaSmartUE()>unidadesTotalesFilaVenta(fila)-teusReservadas(fila.id_stock))estadoPrev='PENDIENTE_STOCK';items.push({id:Date.now(),ventaExcepcional:(ventaSmartProducto.disponiblePaquete===false&&ventaSmartProducto.disponibleUnidad===false&&ventaSmartOrigen==='__EXTERNO__'),id_item:ventaSmartProducto.id_item||'',descripcion:`${descripcionCantidadV26(ventaSmartCant,empaqueVentaSmart())} - ${ventaSmartProducto.nombre}`,monto,productoCatalogo:true,nombreProducto:ventaSmartProducto.nombre,seccion:ventaSmartProducto.seccion||'',presentacion:presentacionRealVentaV2650(ventaSmartCant),cantidadFisica:1,detalleFisico:{...ventaSmartCant},asignacionesStock:ventaSmartOrigen==='__DISTRIBUIDO__'?[...(teusSmartAsignaciones||[])]:[],origenTipo:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':(ventaSmartOrigen?'STOCK':'PENDIENTE_ORIGEN'),ubicacionSalida:ventaSmartOrigen==='__EXTERNO__'?'':(ventaSmartOrigen||''),id_stock:fila?.id_stock||'',id_ubicacion:fila?.id_ubicacion||'',codigo_caja:fila?.codigo_caja||'',unidadesEquivalentes:ventaSmartUE(),estadoStockPrevisto:ventaSmartOrigen==='__EXTERNO__'?'EXTERNO':estadoPrev,imagen:(ventaSmartProducto.imagen||'')});actualizarListaItems();actualizarPrevisualizacion();
         productosContent.classList.add('expanded');
         const iconoProductosSmart = productosHeader.querySelector('.collapsible-icon');
         if (iconoProductosSmart) iconoProductosSmart.classList.add('rotated');if(!productosContent.classList.contains('expanded')){productosContent.classList.add('expanded');productosHeader.querySelector('.collapsible-icon').classList.add('rotated')}cerrarVentaSmart(true);Notificaciones.mostrar('Producto agregado a la venta','success',2000)});
@@ -2092,6 +2237,177 @@ function buscarProductoPedidoV2640(nombre) {
     return proximos.length === 1 ? proximos[0] : null;
 }
 
+
+
+// V26.55: Las asignaciones representan cantidades FÍSICAS por id_stock.
+// El precio y la línea comercial se conservan una sola vez.
+let teusSplitContext=null,teusSplitRows=[],teusSmartAsignaciones=null;
+const teusInt=v=>Math.max(0,Math.floor(Number(v)||0));
+function teusEquivFila(r){return {upp:Math.max(1,teusInt(r.unidades_por_paquete)||1),ppc:Math.max(1,teusInt(r.paquetes_por_caja)||1)};}
+function teusUEDetalle(d,e){return teusInt(d.cajas)*e.ppc*e.upp+teusInt(d.paquetes)*e.upp+teusInt(d.unidades);}
+function teusReservadas(id,omitir){return items.reduce((sum,i)=>{if(i===omitir)return sum;const as=(Array.isArray(i.asignacionesStock)&&i.asignacionesStock.length)?i.asignacionesStock:(i.origenTipo==='STOCK'&&i.id_stock?[{id_stock:i.id_stock,detalleFisico:i.detalleFisico||{}}]:[]);return sum+as.filter(a=>String(a.id_stock)===String(id)).reduce((z,a)=>z+teusUEDetalle(a.detalleFisico,teusEquivFila(stockCache.find(r=>String(r.id_stock)===String(id))||{})),0)},0);}
+function teusFilasCompatibles(filas){if(!filas.length)return [];const e=teusEquivFila(filas[0]);return filas.filter(r=>{const x=teusEquivFila(r);return x.upp===e.upp&&x.ppc===e.ppc&&String(r.id_stock||'').trim()});}
+function teusSplitDibuja(){
+ const c=document.getElementById('teusSplitContenido');const t=teusSplitContext;const total=teusUEDetalle(t.detalle,t.eq);
+ c.innerHTML=`<div style="font-weight:800">${teusEsc(t.nombre)}</div><div class="teus-split-meta">Requerido: ${teusInt(t.detalle.cajas)} caja(s), ${teusInt(t.detalle.paquetes)} paquete(s), ${teusInt(t.detalle.unidades)} unidad(es) = ${total} unidades equivalentes. Puedes distribuir cualquier combinación compatible.</div>`+teusSplitRows.map((r,i)=>{
+  const e=teusEquivFila(r.stock);const disp=r.virtual?Infinity:Math.max(0,unidadesTotalesFilaVenta(r.stock)-teusReservadas(r.stock.id_stock,t.omitir));
+  return `<div class="teus-split-row ${r.virtual?'teus-split-virtual':''}" data-split-row="${i}"><div class="teus-split-loc"><b>${r.virtual?'⚠️ Mercadería no registrada':teusEsc(r.stock.ubicacion)}</b><div class="teus-split-meta">${r.virtual?'No descuenta Stock. Indica lo que realmente salió sin registro físico.':disp+' unidades libres · 1 paquete = '+e.upp+', 1 caja = '+(e.upp*e.ppc)}</div>${r.virtual?'<select id="teusSplitOrigenFaltante" style="width:100%;padding:5px;font-size:12px;margin-top:6px"><option value="PENDIENTE_ORIGEN">Inventario propio · ubicación desconocida</option><option value="EXTERNO">Mercadería externa · no es mi inventario</option></select>':''}</div>${['cajas','paquetes','unidades'].map(k=>`<label style="font-size:11px">${k}<input type="number" min="0" step="1" inputmode="numeric" data-split-i="${i}" data-split-k="${k}" value="${r.d[k]||0}"></label>`).join('')}</div>`;
+ }).join('')+`<div id="teusSplitEstado" class="teus-split-status"></div>`;
+ c.querySelectorAll('input').forEach(el=>el.addEventListener('input',()=>{const v=el.value;if(!/^\d*$/.test(v)){el.value=v.replace(/\D/g,'');}teusSplitRows[Number(el.dataset.splitI)].d[el.dataset.splitK]=teusInt(el.value);teusSplitEstado();}));
+ teusSplitEstado();
+}
+function teusSplitEstado(){
+ const t=teusSplitContext;if(!t)return false;const requerido=teusUEDetalle(t.detalle,t.eq);let asignado=0,exceso=[];
+ teusSplitRows.forEach(r=>{const v=teusUEDetalle(r.d,teusEquivFila(r.stock));asignado+=v;const disp=r.virtual?Infinity:Math.max(0,unidadesTotalesFilaVenta(r.stock)-teusReservadas(r.stock.id_stock,t.omitir));if(v>disp)exceso.push(r.stock.ubicacion)});
+ const ok=requerido>0&&asignado===requerido&&!exceso.length;
+ const el=document.getElementById('teusSplitEstado');if(el){el.textContent=`Asignado ${asignado} de ${requerido} unidades. ${exceso.length?'Sin saldo suficiente en: '+exceso.join(', '):ok?'Distribución completa.':'Faltan o sobran unidades.'}`;el.classList.toggle('ok',ok)}
+ document.getElementById('teusSplitConfirmar').disabled=!ok;
+ document.getElementById('teusSplitTotal').textContent=`${asignado} / ${requerido} unidades`;
+ return ok;
+}
+function teusAbrirDistribucion(nombre,detalle,filas,callback,omitir=null,previas=[]){
+ if(!filas.length){Notificaciones.mostrar('No hay registros físicos compatibles. Usa origen pendiente o externo.','warning');return;}
+ const compatibles=teusFilasCompatibles(filas);const eq=teusEquivFila(compatibles[0]||filas[0]);
+ if(!compatibles.length){Notificaciones.mostrar('No se pudieron verificar las equivalencias del producto.','warning');return;}
+ teusSplitContext={nombre,detalle:{...detalle},eq,callback,omitir};
+ teusSplitRows=compatibles.map(stock=>({stock,d:{...(previas.find(a=>String(a.id_stock)===String(stock.id_stock))?.detalleFisico||{cajas:0,paquetes:0,unidades:0})}}));
+ const virtualStock={id_stock:'__SIN_REGISTRO__',ubicacion:'Sin Stock registrado',unidades_por_paquete:eq.upp,paquetes_por_caja:eq.ppc};
+ teusSplitRows.push({stock:virtualStock,virtual:true,d:{...(previas.find(a=>a.origen_tipo==='PENDIENTE_ORIGEN'||a.origen_tipo==='EXTERNO')?.detalleFisico||{cajas:0,paquetes:0,unidades:0})}});
+ document.getElementById('teusSplitOverlay').classList.add('activo');teusSplitDibuja();
+}
+function teusCerrarDistribucion(){document.getElementById('teusSplitOverlay').classList.remove('activo');teusSplitContext=null;}
+document.getElementById('teusSplitX').onclick=teusCerrarDistribucion;
+document.getElementById('teusSplitCancelar').onclick=teusCerrarDistribucion;
+document.getElementById('teusSplitConfirmar').onclick=()=>{
+ if(!teusSplitEstado())return;
+ const a=teusSplitRows.filter(r=>teusUEDetalle(r.d,teusEquivFila(r.stock))>0).map(r=>({origen_tipo:r.virtual?(document.getElementById('teusSplitOrigenFaltante')?.value||'PENDIENTE_ORIGEN'):'STOCK',id_stock:r.virtual?'':r.stock.id_stock,id_item:r.virtual?'':(r.stock.id_item||''),id_ubicacion:r.virtual?'':(r.stock.id_ubicacion||''),codigo_caja:r.virtual?'':(r.stock.codigo_caja||''),ubicacion:r.virtual?'':(r.stock.ubicacion||''),detalleFisico:{...r.d},unidadesEquivalentes:teusUEDetalle(r.d,teusEquivFila(r.stock))}));
+ const cb=teusSplitContext.callback;teusCerrarDistribucion();cb(a);
+};
+function teusVerificarAsignaciones(i,as){
+ if(!as?.length)return false;
+ const real=as.filter(a=>(a.origen_tipo||'STOCK')==='STOCK');
+ const primera=real.length?stockCache.find(r=>String(r.id_stock)===String(real[0].id_stock)):null;
+ const empaque={upp:Math.max(1,Number(primera?.unidades_por_paquete)||Number(i.unidadesPorPaquete)||Number(i.numUnidades)||1),ppc:Math.max(1,Number(primera?.paquetes_por_caja)||Number(i.paquetesPorCaja)||1)};
+ const pedido=teusUEDetalle(i.detalleFisico||{},empaque);let total=0;
+ for(const a of as){const fis=a.detalleFisico||{};const origen=a.origen_tipo||'STOCK';
+  if(!['STOCK','PENDIENTE_ORIGEN','EXTERNO'].includes(origen))return false;
+  if(origen==='STOCK'){
+   const r=stockCache.find(x=>String(x.id_stock)===String(a.id_stock));if(!r)return false;
+   const e=teusEquivFila(r);if(e.upp!==empaque.upp||e.ppc!==empaque.ppc)return false;
+   const n=teusUEDetalle(fis,e);if(n>unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock,i))return false;total+=n;
+  }else{if(a.id_stock)return false;total+=teusUEDetalle(fis,empaque);}
+ }
+ return pedido>0&&total===pedido;
+}
+
+// V26.53: Revisión por producto del origen físico de pedidos mayoristas.
+// No registra cobros ni descuenta Stock desde esta pantalla.
+let teusRevisionStockActual=[];
+const teusEsc=(v)=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function teusStockCoincidente(i){
+ const id=String(i.id_item||'').trim();
+ const nom=normalizarTextoCatalogo(i.nombreProducto||'');
+ return teusRevisionStockActual.filter(r=>{
+  const idr=String(r.id_item||'').trim();
+  return id&&idr ? idr===id : !!nom&&normalizarTextoCatalogo(r.nombre||'')===nom;
+ });
+}
+function teusUEImportado(i,stock){
+ const d=i.detalleFisico||{};
+ const upp=Math.max(1,Number(stock?.unidades_por_paquete)||Number(i.unidadesPorPaquete)||Number(i.numUnidades)||1);
+ const ppc=Math.max(1,Number(stock?.paquetes_por_caja)||Number(i.paquetesPorCaja)||1);
+ return (Number(d.cajas)||0)*ppc*upp+(Number(d.paquetes)||0)*upp+(Number(d.unidades)||0);
+}
+function teusRevisionPintar(){
+ const lista=document.getElementById('teusRevisionLista');
+ const indices=items.map((x,i)=>x.pedidoImportado?i:-1).filter(x=>x>=0);
+ lista.innerHTML=indices.map(idx=>{
+  const i=items[idx],filas=teusStockCoincidente(i);
+  const opciones=filas.map(r=>{
+   const unidades=unidadesTotalesFilaVenta(r),requeridas=teusUEImportado(i,r);
+   const ok=unidades>=requeridas&&requeridas>0;
+   return `<option value="stock:${teusEsc(r.id_stock||'')}" ${ok?'':'disabled'}>${teusEsc(r.ubicacion||'Sin ubicación')} · ${unidades} disponibles / ${requeridas} solicitadas ${ok?'':'(INSUFICIENTE)'}</option>`;
+  }).join('');
+  const seleccion=i.origenRevisado ? i.origenTipo==='STOCK'?(i.asignacionesStock?.length?'repartir':'stock:'+(i.id_stock||'')):i.origenTipo==='EXTERNO'?'externo':'pendiente':'';
+  return `<article class="teus-revision-item" data-ri="${idx}"><h4>${teusEsc(i.nombreProducto||i.descripcion)}</h4><div class="teus-revision-meta">${teusEsc(i.descripcion)} · ${Math.round(Number(i.monto)||0)} Bs · ${filas.length} origen(es) registrado(s)</div><select class="teus-revision-sel" data-revision-index="${idx}"><option value="">Selecciona el origen real...</option><option value="repartir">📦 Distribuir entre ubicaciones (cajas / paquetes / unidades)</option>${opciones}<option value="externo">Venta externa · No descontar Stock</option><option value="pendiente">Inventario propio · Ubicación pendiente (sin descuento)</option></select><div class="teus-revision-help" id="teusAyuda-${idx}"></div></article>`;
+ }).join('');
+ lista.querySelectorAll('select').forEach(sel=>{
+  const idx=Number(sel.dataset.revisionIndex),i=items[idx];
+  const seleccionado=i.origenRevisado?(i.origenTipo==='STOCK'?(i.asignacionesStock?.length?'repartir':'stock:'+(i.id_stock||'')):i.origenTipo==='EXTERNO'?'externo':'pendiente'):'';
+  if(seleccionado&&[...sel.options].some(o=>o.value===seleccionado&&!o.disabled))sel.value=seleccionado;
+  sel.addEventListener('change',()=>{if(sel.value==='repartir'){const i=items[Number(sel.dataset.revisionIndex)],filas=teusStockCoincidente(i);teusAbrirDistribucion(i.nombreProducto||i.descripcion,i.detalleFisico||{},filas,a=>{i.asignacionesStock=a;i.origenTipo='STOCK';i.origenRevisado=true;sel.value='repartir';teusRevisionEstado();},i,i.asignacionesStock||[]);}else {i.asignacionesStock=[];teusRevisionEstado();}});
+ });
+ teusRevisionEstado();
+}
+function teusRevisionEstado(){
+ const sels=[...document.querySelectorAll('#teusRevisionLista .teus-revision-sel')];
+ let validos=0;
+ sels.forEach(sel=>{
+  const idx=Number(sel.dataset.revisionIndex),i=items[idx],help=document.getElementById('teusAyuda-'+idx);
+  const v=sel.value;
+  let ok=!!v, msg='';
+  if(v==='repartir'){ok=teusVerificarAsignaciones(i,i.asignacionesStock);msg=ok?'Distribución verificada en '+i.asignacionesStock.length+' ubicaciones.':'Debes asignar exactamente el total solicitado entre ubicaciones.';}
+  else if(v.startsWith('stock:')){
+   const r=teusRevisionStockActual.find(x=>String(x.id_stock)===v.slice(6));
+   const solicitado=teusUEImportado(i,r);
+   if(!r||solicitado<=0||unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock,i)<solicitado){ok=false;msg='La cantidad solicitada supera el stock físico disponible.';}
+   else msg=`Se descontarán ${solicitado} unidades equivalentes desde ${r.ubicacion} al confirmar la venta.`;
+  } else if(v==='pendiente') msg='Se guardará como origen pendiente, sin descuento físico.';
+  else if(v==='externo') msg='Venta externa: no se descontará tu inventario.';
+  else msg='Debes revisar este producto antes de confirmar.';
+  help.textContent=msg;help.classList.toggle('error',!ok);
+  if(ok) validos++;
+ });
+ // Validar la demanda CONJUNTA de los artículos importados: dos líneas pueden
+ // utilizar el mismo id_stock y superar su saldo aunque cada una parezca válida.
+ const usados=new Map();
+ sels.forEach(sel=>{
+   const i=items[Number(sel.dataset.revisionIndex)],v=sel.value;
+   const al=v==='repartir'?(i.asignacionesStock||[]):v.startsWith('stock:')?[{id_stock:v.slice(6),detalleFisico:i.detalleFisico||{}}]:[];
+   al.filter(a=>(a.origen_tipo||'STOCK')==='STOCK').forEach(a=>{const r=teusRevisionStockActual.find(x=>String(x.id_stock)===String(a.id_stock));if(!r)return;const k=String(r.id_stock);usados.set(k,(usados.get(k)||0)+teusUEDetalle(a.detalleFisico,teusEquivFila(r)));});
+ });
+ let colision=false;
+ for(const [id,cantidad] of usados){const r=teusRevisionStockActual.find(x=>String(x.id_stock)===id);if(r&&cantidad>unidadesTotalesFilaVenta(r)-teusReservadas(id, null)-items.reduce((n,i)=>n+(i.pedidoImportado?(i.asignacionesStock||[]).filter(a=>(a.origen_tipo||'STOCK')==='STOCK'&&String(a.id_stock)===id).reduce((z,a)=>z+teusUEDetalle(a.detalleFisico,teusEquivFila(r)),0):0),0)){colision=true;}}
+ if(colision){validos=0;document.getElementById('teusRevisionEstado').textContent='Los artículos superan juntos las existencias de una ubicación. Redistribuye antes de confirmar.';}
+ const btn=document.getElementById('teusRevisionAceptar');btn.disabled=!(sels.length&&validos===sels.length);
+ if(!colision)document.getElementById('teusRevisionEstado').textContent=`${validos} de ${sels.length} productos con origen revisado`;
+}
+async function abrirRevisionMayorV2653(){
+ if(!items.some(i=>i.pedidoImportado))return;
+ document.getElementById('teusRevisionOverlay').classList.add('activo');
+ document.getElementById('teusRevisionLista').innerHTML='<p>Consultando Stock actualizado...</p>';
+ document.getElementById('teusRevisionAceptar').disabled=true;
+ try{
+  teusRevisionStockActual=(await cargarStockInventario()).slice();
+  teusRevisionPintar();
+ }catch(e){
+  document.getElementById('teusRevisionLista').innerHTML='<p style="color:#be123c;font-weight:700">No se pudo comprobar Stock. Intenta nuevamente cuando tengas conexión. No confirmaremos orígenes con datos incompletos.</p>';
+  document.getElementById('teusRevisionEstado').textContent='Sin conexión con Stock';
+ }
+}
+document.getElementById('teusRevisionCerrar').onclick=()=>document.getElementById('teusRevisionOverlay').classList.remove('activo');
+document.getElementById('teusRevisionAceptar').onclick=()=>{
+ teusRevisionEstado();
+ if(document.getElementById('teusRevisionAceptar').disabled)return;
+ document.querySelectorAll('#teusRevisionLista select').forEach(sel=>{
+  const i=items[Number(sel.dataset.revisionIndex)],v=sel.value;
+  i.origenRevisado=true;
+  if(v==='repartir'){i.origenTipo='STOCK';i.id_stock='';i.ubicacionSalida='';i.estadoStockPrevisto='APLICADO';}
+  else if(v.startsWith('stock:')){
+   i.asignacionesStock=[];const r=teusRevisionStockActual.find(x=>String(x.id_stock)===v.slice(6));
+   i.origenTipo='STOCK';i.ubicacionSalida=r.ubicacion||'';i.id_stock=r.id_stock||'';i.id_ubicacion=r.id_ubicacion||'';i.codigo_caja=r.codigo_caja||'';
+   i.unidadesEquivalentes=teusUEImportado(i,r);i.estadoStockPrevisto='APLICADO';
+  }else{
+   i.asignacionesStock=[];i.origenTipo=v==='externo'?'EXTERNO':'PENDIENTE_ORIGEN';
+   i.ubicacionSalida='';i.id_stock='';i.id_ubicacion='';i.codigo_caja='';
+   i.estadoStockPrevisto=i.origenTipo;
+  }
+ });
+ document.getElementById('teusRevisionOverlay').classList.remove('activo');
+ actualizarListaItems();actualizarPrevisualizacion();guardarBorradorVentaV26();
+ Notificaciones.mostrar('Orígenes revisados. El pedido ya pagado está listo para registrar la venta.', 'success',4500);
+};
+
 async function extraerDatosDelPedido() {
     const texto = cargarPedidoTextarea.value.trim();
     if (!texto) { Notificaciones.mostrar('Pega el texto del pedido primero', 'warning'); return; }
@@ -2137,7 +2453,8 @@ async function extraerDatosDelPedido() {
                 cantidadFisica: 1,
                 detalleFisico: {...d},
                 ubicacionSalida: '',
-                origenTipo: 'SIN_REGISTRO',
+                origenTipo: 'PENDIENTE_ORIGEN',
+                pedidoImportado: true, origenRevisado: false,
                 unidadesEquivalentes: (d.unidades||0)
             };
 
@@ -2164,8 +2481,9 @@ async function extraerDatosDelPedido() {
         if (productosEncontrados > 0) {
             actualizarListaItems(); actualizarPrevisualizacion();
             if (!productosContent.classList.contains('expanded')) { productosContent.classList.add('expanded'); productosHeader.querySelector('.collapsible-icon').classList.add('rotated'); }
-            Notificaciones.mostrar(`${productosEncontrados} productos extraídos`, 'success');
+            Notificaciones.mostrar(`${productosEncontrados} productos importados · Revisar origen antes de guardar`, 'info');
             cargarPedidoTextarea.value = '';
+            await abrirRevisionMayorV2653();
         } else Notificaciones.mostrar('No se pudieron extraer productos', 'warning');
     } catch (error) { Notificaciones.mostrar('Error al procesar el texto', 'error'); }
 }
@@ -2695,6 +3013,11 @@ function limpiarBorradorVentaV26(){localStorage.removeItem(BORRADOR_VENTA_KEY);}
 
 async function guardarVentaCompleta() {
     if (guardandoVenta) return;
+    if (items.some(i=>i.pedidoImportado && !i.origenRevisado)) {
+        Notificaciones.mostrar('Revisa de qué ubicación sale cada producto del pedido importado antes de registrar la venta.', 'warning', 5500);
+        await abrirRevisionMayorV2653(); return;
+    }
+    if (items.some(i=>i.asignacionesStock?.length&&!teusVerificarAsignaciones(i,i.asignacionesStock))) {Notificaciones.mostrar('La distribución de Stock del pedido cambió. Revisa nuevamente antes de guardar.','warning',5500);return;}
     if (!validarFormulario()) { Notificaciones.mostrar('Agrega al menos un producto', 'warning'); return; }
     if (!cajaAbierta) { Notificaciones.mostrar('Debe abrir la caja antes de guardar', 'warning'); mostrarModalAperturaCaja(); return; }
     metodoPagoModal.style.display = 'flex';
@@ -2833,7 +3156,7 @@ function guardarVentaLocal() {
     const diaSemana = dias[new Date().getDay()];
     const idVentaInterno = `VTA-${new Date().toISOString().slice(0,10).replace(/-/g,'')}-${Date.now().toString().slice(-8)}-${Math.random().toString(36).slice(2,5).toUpperCase()}`;
     const clienteVenta = String(nombreClienteActual || '').trim() || 'Cliente General';
-    const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, id_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.map(i => ({productoCatalogo:!!i.productoCatalogo,id_item:i.id_item||'',nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'mixto',cantidad:i.cantidadFisica||1,origen_tipo:i.origenTipo||((i.ubicacionSalida||'')?'STOCK':'SIN_REGISTRO'),ubicacion:i.ubicacionSalida||'',id_stock:i.id_stock||'',id_ubicacion:i.id_ubicacion||'',codigo_caja:i.codigo_caja||'',unidadesEquivalentes:i.unidadesEquivalentes||'',detalleFisico:i.detalleFisico||null})), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: generarTimestampVentaUnico(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, efectivo_recibido:metodoPagoData.efectivo_recibido||metodoPagoData.monto_efectivo||'',devuelto_qr:metodoPagoData.cambio_qr||0, INGRESO_EFECTIVO:'', ...metodoPagoData };
+    const datosVenta = { id: clienteVenta, referencia_venta: idVentaInterno, id_venta: idVentaInterno, nombre_cliente: clienteVenta, telefono: telefonoClienteActual || '', direccion: direccionClienteActual || '', departamento: departamentoClienteActual || '', cumpleaños: cumpleanosClienteActual || '', fecha: new Date().toLocaleDateString('es-ES'), hora: new Date().toLocaleTimeString('es-ES'), sucursal: datosSucursal.nombre, ubicacion: datosSucursal.ubicacion, productos: items.map(i => i.descripcion).join(' | '), montos: items.map(i => (Number.isFinite(Number(i.monto)) ? Number(i.monto) : 0).toFixed(2)).join(' | '), detalles_stock: items.flatMap(i => i.asignacionesStock?.length ? i.asignacionesStock.map(a=>({productoCatalogo:!!i.productoCatalogo,id_item:i.id_item||a.id_item||'',nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:presentacionRealVentaV2650(a.detalleFisico),cantidad:1,origen_tipo:a.origen_tipo||'STOCK',ubicacion:a.ubicacion,id_stock:a.id_stock,id_ubicacion:a.id_ubicacion,codigo_caja:a.codigo_caja,unidadesEquivalentes:a.unidadesEquivalentes,detalleFisico:a.detalleFisico})) : [{productoCatalogo:!!i.productoCatalogo,id_item:i.id_item||'',nombre:i.nombreProducto||i.descripcion,seccion:i.seccion||'',presentacion:i.presentacion||'mixto',cantidad:i.cantidadFisica||1,origen_tipo:i.origenTipo||((i.ubicacionSalida||'')?'STOCK':'SIN_REGISTRO'),ubicacion:i.ubicacionSalida||'',id_stock:i.id_stock||'',id_ubicacion:i.id_ubicacion||'',codigo_caja:i.codigo_caja||'',unidadesEquivalentes:i.unidadesEquivalentes||'',detalleFisico:i.detalleFisico||null}]), total_venta: (Number.isFinite(Number(total)) ? Number(total) : 0).toFixed(2), numero_productos: items.length, timestamp: generarTimestampVentaUnico(), tipo_sucursal: datosSucursal.tipo, usuario: currentUser.nombre, observaciones: '', apertura_caja: '', cierre_caja: '', sincronizada: false, dia: diaSemana, efectivo_recibido:metodoPagoData.efectivo_recibido||metodoPagoData.monto_efectivo||'',devuelto_qr:metodoPagoData.cambio_qr||0, INGRESO_EFECTIVO:'', ...metodoPagoData };
     ventasDelDia.push(datosVenta);
     guardarVentasLocalSeguro();
     ventasCajaActual.push(datosVenta);
@@ -3653,6 +3976,8 @@ function imprimirNotaVenta() {
   </div>
 </div>
 
+
+
 </body></html>`);
     iframeDoc.close();
     setTimeout(() => { try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) {} setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 1000); }, 500);
@@ -3898,7 +4223,9 @@ function actualizarListaItems() {
                 <div style="min-width:0;">
                     <span class="producto-descripcion" title="${item.descripcion}">${item.descripcion}</span>
                     <span class="producto-precio-unitario">Precio editable</span>
+                    ${teusOrigenProductoCart(item)}
                     ${item.ventaExcepcional ? '<span class="teus-excepcion-aviso">AGOTADO EN ITEMS · VENTA EXCEPCIONAL · SIN DESCUENTO DE STOCK</span>' : ''}
+                    ${item.pedidoImportado ? `<span style="display:block;font-size:11px;color:${item.origenRevisado?'#15803d':'#b45309'};font-weight:750">PEDIDO PAGADO · ${item.origenRevisado?'Origen revisado':'REVISAR ORIGEN'}</span>` : ''}
                     <div class="teus-item-controls">
                         ${paqueteEditableV2641(item) ? `<button type="button" class="teus-paquetes" data-index="${index}" data-delta="-1" title="Quitar un paquete" aria-label="Quitar un paquete"><i class="fas fa-minus"></i></button><span class="teus-qty">${paqueteEditableV2641(item)} paq.</span><button type="button" class="teus-paquetes" data-index="${index}" data-delta="1" title="Agregar un paquete" aria-label="Agregar un paquete"><i class="fas fa-plus"></i></button>` : ''}
                         <span style="font-size:11px;color:#64748b">Mantén y arrastra con el asa</span>
@@ -4670,5 +4997,6 @@ document.addEventListener('DOMContentLoaded',()=>{
 });
 
 </script>
+
 </body>
 </html>
