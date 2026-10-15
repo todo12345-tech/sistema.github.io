@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Ventas al Por Mayor · V4.7 ITEMS · búsqueda confiable</title>
+<title>Todoenuno_store - Ventas al Por Mayor · V4.10 ITEMS · precios enteros</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -1016,6 +1016,29 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
 #productosLista .producto-item.mayor-drop-here{border-top:4px solid #4a90e2}
 @media(max-width:700px){#productosLista .producto-item{flex-direction:row;flex-wrap:wrap;align-items:center}#productosLista .mayor-item-photo{width:54px;height:54px;flex-basis:54px}#productosLista .producto-info{flex:1 1 calc(100% - 80px)}#productosLista .producto-cantidad{width:auto;min-width:55px}#productosLista .producto-actions{margin-left:auto}#productosLista{padding:10px!important}}
 .mayor-estado-disponibilidad{font-size:11px;font-weight:650;color:#486677;margin-top:3px;white-space:normal}
+
+/* V4.9 - Excepciones + selector de cantidades/precio compacto */
+.autocomplete-item.mayor-agotado{cursor:pointer!important;opacity:1!important;background:#fff1f2!important}
+.autocomplete-item.mayor-agotado:hover,.autocomplete-item.mayor-agotado.highlighted{background:#ffe1e5!important}
+#productosLista .producto-item.mayor-item-excepcion{background:#fff1f2!important;border:1px solid #fecdd3!important;border-left:5px solid #e11d48!important}
+.mayor-excepcion-label{display:block;color:#b91c1c;font-size:11px;font-weight:800;margin-top:5px}
+.mayor-modal-premium{width:min(1040px,97vw);max-height:min(88vh,880px);overflow:auto}
+.mayor-modal-grid{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:20px;padding:10px 0;align-items:start}
+.mayor-modal-izq,.mayor-modal-der{min-width:0}
+.mayor-modal-der{display:flex;flex-direction:column;gap:8px}
+.mayor-modal-der [data-ptipo]{padding:6px 10px!important;width:34px!important;height:34px!important;min-width:34px;font-size:16px!important}
+.mayor-modal-der #resetCantidadPedidoBtn{padding:10px!important;font-size:14px!important}
+.mayor-modal-der #resumenPresentacionPedido{margin-bottom:3px!important}
+.mayor-precio-modal{display:flex;align-items:center;justify-content:space-between;gap:12px;background:#f5f7fb;border-radius:11px;padding:11px;margin-top:3px}
+.mayor-precio-modal b{display:block;font-size:13px;color:#263d50}
+.mayor-precio-modal small{display:block;color:#64748b;font-size:11px;margin-top:4px}
+#mayorPrecioModal{width:135px;max-width:44%;padding:11px!important;font-size:17px;font-weight:800;background:white}
+.mayor-aviso-excepcion{background:#fff1f2;border:1px solid #fda4af;color:#a61b32;font-size:12px;font-weight:700;padding:10px;border-radius:9px}
+.mayor-aviso-excepcion[hidden]{display:none}
+.mayor-modal-acciones{display:flex;gap:10px;justify-content:stretch;margin:6px 0 0;position:sticky;bottom:-1px;background:#fff;padding:10px 0;z-index:2}
+.mayor-modal-acciones button{flex:1!important;width:auto!important;min-width:0;padding:12px 10px!important;font-size:14px!important}
+@media(max-width:730px){.mayor-modal-grid{grid-template-columns:1fr;gap:8px}.mayor-modal-premium{width:96vw;max-height:90dvh;padding:14px!important}.mayor-modal-izq #modalProductoImagen{max-width:80px!important;max-height:80px!important}.mayor-modal-izq #stockConsultaBox{padding:8px!important;margin-bottom:5px!important}.mayor-modal-acciones{bottom:-14px}.mayor-modal-der{gap:3px}}
+
 </style>
 
 <style id="loginMayorStyles">
@@ -1383,12 +1406,13 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
     </div>
 </div>
 <div class="modal-overlay" id="modalCantidad" style="display: none;">
-    <div class="modal-content" style="max-width: 620px;">
+    <div class="modal-content mayor-modal-premium" style="max-width: 1040px;">
         <div class="modal-header">
             <h3 id="modalCantidadTitulo"><i class="fas fa-boxes"></i> Preparar producto del pedido</h3>
             <button class="modal-close" id="closeModalCantidad">&times;</button>
         </div>
-        <div style="padding: 10px 0;">
+        <div class="mayor-modal-grid">
+          <div class="mayor-modal-izq">
             <div style="text-align:center;margin-bottom:12px;"><img id="modalProductoImagen" src="" alt="Producto" style="max-width:120px;max-height:120px;border-radius:8px;border:1px solid #ddd;display:none;margin:auto;"></div>
             <p id="modalProductoNombre" style="font-weight:bold;font-size:18px;color:#2c3e50;margin-bottom:5px;text-align:center;"></p>
             <p id="modalProductoDuplicado" style="font-size:14px;color:#e67e22;margin-bottom:12px;display:none;text-align:center;"><i class="fas fa-info-circle"></i> <span id="mensajeDuplicado"></span></p>
@@ -1398,6 +1422,8 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                 <div id="stockConsultaContenido" style="font-size:14px;color:#555;">Consultando stock...</div>
                 <div style="font-size:12px;color:#777;margin-top:7px;">Solo informativo: este pedido no descuenta ni mueve mercadería.</div>
             </div>
+          </div>
+          <div class="mayor-modal-der">
             <p id="modalCantidadDesc" style="margin-bottom:12px;color:#555;font-size:15px;text-align:center;">Indica cómo lo pidió el cliente</p>
             <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:10px;margin-bottom:10px;">
                 <div style="border:1px solid #ddd;border-radius:10px;padding:10px;text-align:center;"><b>CAJAS</b><div style="display:flex;justify-content:center;align-items:center;gap:8px;margin-top:8px;"><button type="button" class="btn-secondary" data-ptipo="cajas" data-pdelta="-1" onclick="cambiarPresentacionPedido('cajas',-1)" style="padding:5px 10px;">−</button><span id="pedidoCajas" style="font-size:24px;font-weight:bold;min-width:28px;">0</span><button type="button" class="btn-secondary" data-ptipo="cajas" data-pdelta="1" onclick="cambiarPresentacionPedido('cajas',1)" style="padding:5px 10px;">+</button></div></div>
@@ -1409,10 +1435,16 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                 <button type="button" id="resetCantidadPedidoBtn" class="btn-danger" style="width:auto;padding:7px 14px;"><i class="fas fa-rotate-left"></i> Resetear</button>
             </div>
             <div id="resumenPresentacionPedido" style="text-align:center;font-weight:bold;color:#2c3e50;min-height:22px;margin-bottom:12px;">Selecciona una cantidad</div>
-            <div style="margin-top:15px;display:flex;gap:15px;justify-content:center;">
+            <div class="mayor-precio-modal">
+                <div><b>Precio total de este producto (Bs)</b><small>Puedes cambiarlo para este pedido.</small></div>
+                <input type="number" id="mayorPrecioModal" min="1" step="1" inputmode="numeric" pattern="[0-9]*" aria-label="Precio total del producto en bolivianos">
+            </div>
+            <div id="mayorAvisoExcepcion" class="mayor-aviso-excepcion" hidden>Agotado en ITEMS · Se añadirá como excepción. Este pedido no descuenta Stock.</div>
+            <div class="mayor-modal-acciones">
                 <button type="button" id="confirmarCantidad" class="btn-success" style="width:auto;padding:12px 35px;font-size:16px;"><i class="fas fa-check"></i> Usar en pedido</button>
                 <button type="button" id="cancelarCantidad" class="btn-danger" style="width:auto;padding:12px 35px;font-size:16px;"><i class="fas fa-times"></i> Cancelar</button>
             </div>
+          </div>
         </div>
     </div>
 </div>
@@ -1940,13 +1972,13 @@ document.addEventListener('DOMContentLoaded', function() {
                 ? `<img src="${p.imagen}" class="autocomplete-item-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="autocomplete-item-img" style="display:none;">S/F</div>`
                 : `<div class="autocomplete-item-img">S/F</div>`;
             const agotado=mayorEstaAgotado(p);
-            html += `<div class="autocomplete-item${agotado ? ' mayor-agotado' : ''}" data-index="${i}" aria-disabled="${agotado}" title="${agotado ? 'Producto agotado: no se puede agregar' : 'Seleccionar producto'}">
+            html += `<div class="autocomplete-item${agotado ? ' mayor-agotado' : ''}" data-index="${i}" aria-disabled="false" title="${agotado ? 'Agotado en ITEMS: agregar como excepción' : 'Seleccionar producto'}">
                 ${imgHtml}
                 <div class="autocomplete-item-info">
                     <div class="autocomplete-item-nombre">${mayorEscapar(p.nombre || '')}</div>
                     <div class="autocomplete-item-seccion">${mayorEscapar(p.seccion || '')}</div>
                     <div class="mayor-estado-disponibilidad">${mayorEscapar(mayorTextoDisponibilidad(p))}</div>
-                    ${agotado ? '<span class="mayor-agotado-aviso">AGOTADO · NO DISPONIBLE</span>' : ''}
+                    ${agotado ? '<span class="mayor-agotado-aviso">AGOTADO · EXCEPCIÓN PERMITIDA</span>' : ''}
                 </div>
                 <div class="autocomplete-item-precio">${formatearPrecio(p.precioPaquete)} Bs</div>
             </div>`;
@@ -1958,14 +1990,12 @@ document.addEventListener('DOMContentLoaded', function() {
         autocompleteList.querySelectorAll('.autocomplete-item').forEach(el => {
             el.addEventListener('click', function() {
                 const p=sugerenciasActuales[parseInt(this.getAttribute('data-index'))];
-                if(mayorEstaAgotado(p)) { mayorAvisarAgotado(p); return; }
                 seleccionarSugerencia(parseInt(this.getAttribute('data-index')));
             });
             el.addEventListener('mouseenter', function() {
                 autocompleteList.querySelectorAll('.autocomplete-item').forEach(e => e.classList.remove('highlighted'));
                 this.classList.add('highlighted');
-                indiceHighlight = mayorEstaAgotado(sugerenciasActuales[parseInt(this.getAttribute('data-index'))])
-                    ? -1 : parseInt(this.getAttribute('data-index'));
+                indiceHighlight = parseInt(this.getAttribute('data-index'));
             });
         });
     }
@@ -1973,7 +2003,6 @@ document.addEventListener('DOMContentLoaded', function() {
     function seleccionarSugerencia(idx) {
         const p = sugerenciasActuales[idx];
         if (!p) return;
-        if (mayorEstaAgotado(p)) { mayorAvisarAgotado(p); return; }
         descripcionProducto.value = p.nombre;
         if (!precioEditado) {
             montoProducto.value = formatearPrecio(p.precioPaquete);
@@ -2120,6 +2149,20 @@ document.addEventListener('DOMContentLoaded', function() {
         return { unidadesPorPaquete: up, paquetesPorCaja: pc };
     }
 
+    let mayorPrecioEditadoEnModal = false;
+    function mayorPrecioSugeridoEnModal() {
+        if (!productoSeleccionado) return 0;
+        const e=obtenerEmpaqueProducto(productoSeleccionado);
+        const paq=Number(productoSeleccionado.precioPaquete)||0;
+        const uni=Number(productoSeleccionado.precioUnidad)|| (e.unidadesPorPaquete>0?paq/e.unidadesPorPaquete:0);
+        return cantidadesPedido.paquetes*paq+cantidadesPedido.unidades*uni+
+            cantidadesPedido.cajas*(e.paquetesPorCaja>0?e.paquetesPorCaja*paq:0);
+    }
+    function actualizarPrecioModalMayor() {
+        const campo=document.getElementById('mayorPrecioModal');
+        if(campo && !mayorPrecioEditadoEnModal) campo.value=String(Math.round(mayorPrecioSugeridoEnModal()));
+    }
+    document.getElementById('mayorPrecioModal').addEventListener('input',()=>{mayorPrecioEditadoEnModal=true;});
     function actualizarModalPedido() {
         document.getElementById('pedidoCajas').textContent = cantidadesPedido.cajas;
         document.getElementById('pedidoPaquetes').textContent = cantidadesPedido.paquetes;
@@ -2167,6 +2210,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         document.getElementById('resumenPresentacionPedido').textContent =
             partes.length ? `${partes.join(' + ')}${eq ? ` = ${eq} unidades equivalentes` : ''}` : 'Selecciona una cantidad';
+        actualizarPrecioModalMayor();
     }
 
     window.cambiarPresentacionPedido = function(tipo, delta) {
@@ -2175,12 +2219,13 @@ document.addEventListener('DOMContentLoaded', function() {
     };
 
     function mostrarModalCantidad(producto) {
-        if (mayorEstaAgotado(producto)) { mayorAvisarAgotado(producto); return; }
         productoSeleccionado = producto;
         unidadesPorPaquete = producto.numUnidades || 0;
         textoUnidad = producto.textoUnidad || 'UNIDADES';
         cantidadesPedido = { cajas:0, paquetes:0, unidades:0 };
         seleccionPedidoPendiente = null;
+        mayorPrecioEditadoEnModal=false;
+        document.getElementById('mayorAvisoExcepcion').hidden=!mayorEstaAgotado(producto);
         tipoPedidoActivo = 'unidades';
         if (producto.imagen) { modalProductoImagen.src = producto.imagen; modalProductoImagen.style.display='block'; } else modalProductoImagen.style.display='none';
         modalProductoNombre.textContent = producto.nombre;
@@ -2247,6 +2292,14 @@ document.addEventListener('DOMContentLoaded', function() {
 
     modalCantidad.addEventListener('keydown', function(e){
         if (modalCantidad.style.display !== 'flex') return;
+        // V4.11: Enter en el precio confirma el producto, igual que «Usar en pedido».
+        // Evita el submit del formulario y la repetición si mantienen presionada la tecla.
+        if (e.key === 'Enter' && e.target?.id === 'mayorPrecioModal') {
+            e.preventDefault();
+            e.stopPropagation();
+            if (!e.repeat && !e.isComposing) confirmarCantidad.click();
+            return;
+        }
         if (['INPUT','TEXTAREA','SELECT'].includes(document.activeElement?.tagName)) return;
 
         const tipos = ['cajas','paquetes','unidades'];
@@ -2285,7 +2338,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if(!productoSeleccionado) return cerrarModalCantidad();
         // La hoja puede cambiar mientras el usuario tiene abierto el modal.
         const vigente=productosData.find(p=>p.nombre===productoSeleccionado.nombre && p.seccion===productoSeleccionado.seccion);
-        if(vigente && mayorEstaAgotado(vigente)) { mayorAvisarAgotado(vigente); cerrarModalCantidad(true); return; }
+        const esExcepcionMayor=mayorEstaAgotado(vigente||productoSeleccionado);
         const c=cantidadesPedido.cajas, p=cantidadesPedido.paquetes, u=cantidadesPedido.unidades;
         if(c+p+u <= 0) { Notificaciones.mostrar('Selecciona al menos una caja, paquete o unidad', 'error'); return; }
         const e=obtenerEmpaqueProducto(productoSeleccionado);
@@ -2304,19 +2357,17 @@ document.addEventListener('DOMContentLoaded', function() {
             } else partes.push(`${p} paquete${p===1?'':'s'}`);
         }
         if(u) partes.push(`${u} unidad${u===1?'':'es'}`);
-        const precioPaquete=productoSeleccionado.precioPaquete || 0;
-        let precioTotal=0;
-        if(precioPaquete) {
-            precioTotal += p*precioPaquete;
-            if(e.unidadesPorPaquete) precioTotal += u*(precioPaquete/e.unidadesPorPaquete);
-            if(e.paquetesPorCaja) precioTotal += c*e.paquetesPorCaja*precioPaquete;
-        }
-        montoProducto.value = precioTotal ? formatearPrecio(precioTotal) : '';
+        const campoPrecio=document.getElementById('mayorPrecioModal');
+        const textoPrecio=campoPrecio.value.trim();
+        const precioTotal=Number(textoPrecio);
+        if(!/^\d+$/.test(textoPrecio)||!Number.isSafeInteger(precioTotal)||precioTotal<=0){Notificaciones.mostrar('El precio debe ser un número entero mayor que cero (Bs)','error');campoPrecio.focus();return;}
+        montoProducto.value = String(precioTotal);
         descripcionProducto.value = `${partes.join(' + ')} - ${productoSeleccionado.nombre}`;
         seleccionPedidoPendiente = { cajas:c, paquetes:p, unidades:u, unidades_por_paquete:e.unidadesPorPaquete||0, paquetes_por_caja:e.paquetesPorCaja||0, unidades_equivalentes:e.unidadesPorPaquete ? (u + p*e.unidadesPorPaquete + (e.paquetesPorCaja ? c*e.paquetesPorCaja*e.unidadesPorPaquete : 0)) : 0 };
-        precioEditado=false;
+        precioEditado=true;
         cerrarModalCantidad(false);
-        montoProducto.focus();
+        agregarProducto(); // Confirmar desde el modal, sin segundo paso ni scroll.
+
     });
     modalCantidad.addEventListener('click', function(e){ if(e.target===modalCantidad) cerrarModalCantidad(true); });
 
@@ -2601,6 +2652,7 @@ document.addEventListener('DOMContentLoaded', function() {
             items.forEach((item, index) => {
                 const productoItem = document.createElement('div');
                 productoItem.className = 'producto-item';
+                if(item.excepcionMayor || (item.productoRef && mayorEstaAgotado(item.productoRef))) productoItem.classList.add('mayor-item-excepcion');
                 productoItem.dataset.index=String(index);
                 // Imagen desde el artículo importado o el catálogo; no generar imágenes ficticias.
                 const encontrado=item.productoRef || encontrarProductoEnDescripcion(item.descripcion);
@@ -2608,7 +2660,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 const simple=presentacionSimpleMayor(item.descripcion);
                 productoItem.innerHTML = `
                     ${imagen?'<img class="mayor-item-photo" alt="Foto del producto">':'<div class="mayor-item-photo" style="display:flex;align-items:center;justify-content:center;color:#aaa"><i class="fas fa-box"></i></div>'}
-                    <div class="producto-info"><strong></strong><div class="mayor-item-sub">Precio editable</div>
+                    <div class="producto-info"><strong></strong><div class="mayor-item-sub">Precio editable</div>${(item.excepcionMayor || (item.productoRef && mayorEstaAgotado(item.productoRef))) ? '<span class="mayor-excepcion-label">AGOTADO EN ITEMS · PEDIDO EXCEPCIONAL · SIN DESCUENTO DE STOCK</span>' : ''}
                        ${simple?`<div class="mayor-item-controls"><button type="button" class="mayor-qty-btn mayor-qty-minus" data-index="${index}" aria-label="Quitar paquete">−</button><span class="mayor-qty-val">${simple.cantidad} paq.</span><button type="button" class="mayor-qty-btn mayor-qty-plus" data-index="${index}" aria-label="Agregar paquete">+</button></div>`:''}
                     </div>
                     <div class="producto-cantidad">${formatearPrecio(item.monto)} Bs</div>
@@ -2752,8 +2804,6 @@ document.addEventListener('DOMContentLoaded', function() {
         if (editingIndex === null || editingIndex >= items.length) { cancelarEdicion(); return; }
         const descripcion = descripcionProducto.value.trim();
         const monto = parseFloat(montoProducto.value);
-        const agotado=mayorProductoAgotadoEnTexto(descripcion);
-        if(agotado){ mayorAvisarAgotado(agotado); return; }
         if (!descripcion) { Notificaciones.mostrar('La descripción no puede estar vacía', 'error'); return; }
         if (isNaN(monto) || monto <= 0) { Notificaciones.mostrar('El monto debe ser un número mayor a cero', 'error'); return; }
         const encontrado = encontrarProductoEnDescripcion(descripcion);
@@ -2762,6 +2812,7 @@ document.addEventListener('DOMContentLoaded', function() {
         items[editingIndex].monto = monto;
         if (encontrado) items[editingIndex].productoRef = encontrado;
         else delete items[editingIndex].productoRef;
+        items[editingIndex].excepcionMayor = !!(encontrado && mayorEstaAgotado(encontrado));
         actualizarListaItems();
         registrarAjustePedido('EDITADO',`${anterior.descripcion} (${formatearPrecio(anterior.monto)} Bs) → ${descripcion} (${formatearPrecio(monto)} Bs)`);logAjustePagadoV3('EDITADO',`${anterior.descripcion} (${formatearPrecio(anterior.monto)} Bs) → ${descripcion} (${formatearPrecio(monto)} Bs)`);
         cancelarEdicion();
@@ -2771,13 +2822,12 @@ document.addEventListener('DOMContentLoaded', function() {
     function agregarProducto() {
         const descripcion = descripcionProducto.value.trim();
         const monto = parseFloat(montoProducto.value);
-        const agotado=mayorProductoAgotadoEnTexto(descripcion);
-        if(agotado){ mayorAvisarAgotado(agotado); return; }
         if (!descripcion) { Notificaciones.mostrar('La descripción no puede estar vacía', 'error'); return; }
         if (isNaN(monto) || monto <= 0) { Notificaciones.mostrar('El monto debe ser un número mayor a cero', 'error'); return; }
         const nuevoItem = { descripcion, monto, alistado: false };
         const encontrado = encontrarProductoEnDescripcion(descripcion);
         if (encontrado) nuevoItem.productoRef = encontrado;
+        nuevoItem.excepcionMayor=!!(encontrado && mayorEstaAgotado(encontrado));
         if (seleccionPedidoPendiente) nuevoItem.salidaPedido = { ...seleccionPedidoPendiente };
         items.push(nuevoItem);
         seleccionPedidoPendiente = null;
