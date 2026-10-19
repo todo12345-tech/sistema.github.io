@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V29 · STOCK V18 · Stock V14 - Todoenuno_store</title>
+    <title>V31 · STOCK · Fotos originales visibles y ampliables - Todoenuno_store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -335,6 +335,17 @@
         @media(max-width:430px){.item-secciones-sugerencias{max-height:155px}.item-seccion-sugerencia{font-size:14px;min-height:44px;padding:10px}}
 
 
+        /* V31: imagen casera ampliable y vista previa de carga local */
+        .foto-candidata-card img { cursor: zoom-in; }
+        .foto-item-nueva-preview { display:none; align-items:center; gap:14px; padding:12px; margin-top:10px; background:#f0f8ff; border:1px solid #b9dcf5; border-radius:10px; }
+        .foto-item-nueva-preview.visible { display:flex; }
+        .foto-item-nueva-preview img { width:112px; height:112px; object-fit:contain; border-radius:8px; background:white; border:1px solid #dbe7f3; cursor:zoom-in; }
+        .foto-item-preview-acciones { display:flex; flex-direction:column; gap:7px; align-items:flex-start; font-size:12px; color:#40546b; }
+        .foto-item-preview-acciones button { grid-column:auto; width:auto; padding:9px 13px; min-height:36px; margin:0; background:#2576b8; font-size:12px; }
+        #lightbox { z-index:120000; }
+        #lightboxImg { max-width:min(96vw,1400px); max-height:92vh; object-fit:contain; }
+        @media(max-width:430px){.foto-item-nueva-preview img {width:96px;height:96px;}}
+
         /* V29: galería de fotos candidatas de Drive */
         .fotos-candidatas-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(130px,1fr));gap:9px}
         .foto-candidata-card{border:2px solid #d9e2ea;border-radius:10px;background:#fff;padding:7px;text-align:center}
@@ -598,7 +609,7 @@
             </div>
 
             <div class="preview" id="previewContainer" style="display: none;">
-                <img id="previewImg" src="" alt="Vista previa">
+                <img id="previewImg" src="" alt="Vista previa" title="Toca para ver en grande" style="cursor:zoom-in">
                 <span><i class="fas fa-eye"></i> Vista previa de la imagen</span>
             </div>
 
@@ -1063,7 +1074,16 @@
           <button type="button" id="ningunaFotoCandidataBtn" class="modal-btn" style="margin-top:8px;background:#6c757d">Ninguna corresponde / subir foto nueva</button>
           <div id="fotoPreviaItemEstado" class="item-file-note" style="margin-top:7px"></div>
         </div>
-        <input type="file" id="itemImagenOriginal" accept="image/*"><span class="item-file-note">Puedes subir una foto nueva. Si quedó una foto previa en Drive de un intento anterior, podrás reutilizarla sin que eso signifique que el item ya existe.</span></div>
+        <input type="file" id="itemImagenOriginal" accept="image/*">
+        <div id="fotoItemNuevaPreview" class="foto-item-nueva-preview">
+          <img id="fotoItemNuevaImg" alt="Vista previa de la foto original" title="Toca para ampliar">
+          <div class="foto-item-preview-acciones">
+            <strong>📷 Foto casera seleccionada</strong>
+            <span id="fotoItemNuevaNombre"></span>
+            <button type="button" id="ampliarFotoItemNuevaBtn"><i class="fas fa-expand"></i> Ver foto en grande</button>
+          </div>
+        </div>
+        <span class="item-file-note">Puedes subir una foto nueva. Si quedó una foto previa en Drive de un intento anterior, podrás reutilizarla sin que eso signifique que el item ya existe.</span></div>
         
       </form>
 
@@ -1255,7 +1275,21 @@
         const s = getStockPrincipal(item);
         return !estaAgotado(item) && s.valor <= UMBRAL_STOCK_BAJO;
     }
-    function getImagen(item) { return item.imagen || item.foto || ''; }
+    // V31: priorizar foto del stock, y si falta, recurrir al maestro ITEMS.
+    // imagen_original es la foto casera; imagen_editada es opcional.
+    function getImagen(item) {
+        const propia = item.imagen || item.foto || item.imagen_editada || item.imagen_original || '';
+        if (propia) return propia;
+        const id = String(item.id_item || '').trim();
+        const nombre = String(item.nombre || '').trim().toLocaleUpperCase('es');
+        const seccion = String(item.seccion || '').trim().toLocaleUpperCase('es');
+        const maestro = (itemsMaestroReales || []).find(p =>
+            (id && String(p.id_item || '').trim() === id) ||
+            (String(p.nombre || '').trim().toLocaleUpperCase('es') === nombre &&
+             String(p.seccion || '').trim().toLocaleUpperCase('es') === seccion)
+        );
+        return maestro ? (maestro.imagen_editada || maestro.imagen_original || maestro.imagen || '') : '';
+    }
     function getPrecioChina(item) { return item.precio_de_compra_china || item['precio de compra china'] || ''; }
     function getUsuario(item) { return item.usuario_quien_agrego_o_edito || ''; }
     function getFechaEdicion(item) { return item.fecha_de_edicion || item['fecha de edicion'] || ''; }
@@ -1958,6 +1992,10 @@
         if (total === totalGeneral) cont.textContent = `${total} producto${total !== 1 ? 's' : ''}`;
         else cont.textContent = `${total} de ${totalGeneral} productos`;
     }
+
+    document.getElementById('previewImg').addEventListener('click', function() {
+        if (this.src) abrirLightbox(this.src);
+    });
 
     document.getElementById('imagen').addEventListener('input', function() {
         const url = this.value.trim();
@@ -2896,6 +2934,7 @@
         document.getElementById('itemSeccionAcciones').style.display='none';
         itemParecidoDetectado=null; itemDiferenteConfirmado=false; seccionNuevaConfirmada='';
         fotosCandidatasItem=[]; fotoPreviaItem=null; usarFotoPreviaItem=false; document.getElementById('fotoPreviaItemBox').style.display='none'; document.getElementById('fotosCandidatasItemGrid').innerHTML=''; document.getElementById('fotoPreviaItemEstado').textContent='';
+        limpiarVistaPreviaItemNueva();
         document.getElementById('modalCrearItem').classList.add('active');
         setTimeout(()=>document.getElementById('itemSeccion').focus(),120);
     }
@@ -3009,7 +3048,7 @@
         const box=document.getElementById('fotoPreviaItemBox'), grid=document.getElementById('fotosCandidatasItemGrid');
         if(!fotosCandidatasItem.length){box.style.display='none';grid.innerHTML='';return;}
         grid.innerHTML=fotosCandidatasItem.map((f,i)=>`<div class="foto-candidata-card ${fotoPreviaItem&&fotoPreviaItem.fileId===f.fileId?'seleccionada':''}">
-          <img src="${escaparHtmlItem(f.urlImagen)}" alt="${escaparHtmlItem(f.archivo)}">
+          <img src="${escaparHtmlItem(convertirDriveAImagen(f.urlImagen||f.url||''))}" alt="${escaparHtmlItem(f.archivo)}" title="Toca para ver en grande" data-ampliar-candidata="${i}">
           <div class="foto-candidata-nombre">${escaparHtmlItem(f.archivo)}</div>
           <button type="button" data-foto-candidata="${i}">${fotoPreviaItem&&fotoPreviaItem.fileId===f.fileId?'✓ Foto seleccionada':'Usar esta foto'}</button>
         </div>`).join('');
@@ -3159,7 +3198,47 @@
         renderFotosCandidatasItem();
         document.getElementById('itemImagenOriginal').focus();
     });
-    document.getElementById('itemImagenOriginal').addEventListener('change',()=>{if(document.getElementById('itemImagenOriginal').files.length){usarFotoPreviaItem=false;fotoPreviaItem=null;document.getElementById('fotoPreviaItemEstado').textContent='Elegiste una foto nueva; se usará la nueva.';renderFotosCandidatasItem();}});
+    // V31: vista previa de la foto sin subirla todavía a Drive.
+    let urlLocalFotoItem = '';
+    function limpiarVistaPreviaItemNueva() {
+        if (urlLocalFotoItem) URL.revokeObjectURL(urlLocalFotoItem);
+        urlLocalFotoItem = '';
+        const box = document.getElementById('fotoItemNuevaPreview');
+        box.classList.remove('visible');
+        document.getElementById('fotoItemNuevaImg').removeAttribute('src');
+        document.getElementById('fotoItemNuevaNombre').textContent = '';
+    }
+    document.getElementById('itemImagenOriginal').addEventListener('change', function() {
+        limpiarVistaPreviaItemNueva();
+        const archivo = this.files && this.files[0];
+        if (!archivo) return;
+        if (!archivo.type.startsWith('image/')) {
+            Notificaciones.mostrar('Selecciona una imagen válida.', 'warning');
+            this.value = '';
+            return;
+        }
+        urlLocalFotoItem = URL.createObjectURL(archivo);
+        document.getElementById('fotoItemNuevaImg').src = urlLocalFotoItem;
+        document.getElementById('fotoItemNuevaNombre').textContent = archivo.name;
+        document.getElementById('fotoItemNuevaPreview').classList.add('visible');
+        usarFotoPreviaItem = false;
+        fotoPreviaItem = null;
+        document.getElementById('fotoPreviaItemEstado').textContent = 'Elegiste una foto nueva; se usará la nueva.';
+        renderFotosCandidatasItem();
+    });
+    document.getElementById('ampliarFotoItemNuevaBtn').addEventListener('click', () => {
+        if (urlLocalFotoItem) abrirLightbox(urlLocalFotoItem);
+    });
+    document.getElementById('fotoItemNuevaImg').addEventListener('click', () => {
+        if (urlLocalFotoItem) abrirLightbox(urlLocalFotoItem);
+    });
+    document.getElementById('fotosCandidatasItemGrid').addEventListener('click', event => {
+        const imagen = event.target.closest('[data-ampliar-candidata]');
+        if (!imagen) return;
+        const foto = fotosCandidatasItem[Number(imagen.dataset.ampliarCandidata)];
+        const url = foto && (foto.urlImagen || foto.url);
+        if (url) abrirLightbox(convertirDriveAImagen(url));
+    });
 
     document.getElementById('itemSeccion').addEventListener('input',e=>{mayusculasItemInput(e);seccionNuevaConfirmada='';document.getElementById('itemSeccionAviso').style.display='none';document.getElementById('itemSeccionAcciones').style.display='none';renderSugerenciasSeccionItem();});
     document.getElementById('itemSeccion').addEventListener('focus',renderSugerenciasSeccionItem);
