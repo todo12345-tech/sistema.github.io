@@ -4,12 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
-    <title>Todoenuno Store | Catálogo Mayorista</title>
+    <title>ADMIN · Todoenuno Store | Catálogo Editable ADMIN</title>
     <meta name="description" content="Catálogo mayorista con envíos a toda Bolivia. Accesorios, decants, maquillaje y más al mejor precio. Hacé tu pedido por WhatsApp.">
 
     <!-- Open Graph (WhatsApp, Facebook, Instagram) -->
     <meta property="og:type" content="website">
-    <meta property="og:title" content="Todoenuno Store | Catálogo Mayorista">
+    <meta property="og:title" content="Todoenuno Store | Catálogo Editable ADMIN">
     <meta property="og:description" content="Catálogo mayorista con envíos a toda Bolivia. Hacé tu pedido fácil por WhatsApp.">
     <meta property="og:image" content="https://todoenunostore.github.io/CATALOGO/logo.png">
 
@@ -19,7 +19,7 @@
 
     <!-- Twitter / X -->
     <meta name="twitter:card" content="summary">
-    <meta name="twitter:title" content="Todoenuno Store | Catálogo Mayorista">
+    <meta name="twitter:title" content="Todoenuno Store | Catálogo Editable ADMIN">
     <meta name="twitter:description" content="Catálogo mayorista con envíos a toda Bolivia.">
     <meta name="twitter:image" content="https://todoenunostore.github.io/CATALOGO/logo.png">
 
@@ -1670,7 +1670,133 @@ body.admin-mode .admin-original-reference::before{
   #resultsList .category-product-card .category-price-now { font-size: 20px !important; }
 }
 </style>
-</head>
+<style id="teus-v7-restaurar-estilo-legible">
+/* Recupera el diseño visual anterior: textos completos, rojo en precios,
+   naranja en ahorro y buena legibilidad en todas las pantallas. */
+#results-view .category-product-card { min-width:0; }
+#results-view .category-product-name {
+  display:block !important; -webkit-line-clamp:unset !important;
+  -webkit-box-orient:unset !important; overflow:visible !important;
+  white-space:normal !important; overflow-wrap:anywhere !important;
+  text-overflow:clip !important; min-height:0 !important;
+  color:#007185 !important; font-weight:500 !important;
+  font-size:clamp(14px,1.25vw,17px) !important;
+  line-height:1.35 !important; margin:11px 0 7px !important;
+}
+#results-view .category-price-before {color:#888 !important;font-size:12px !important;}
+#results-view .category-price-now {
+  color:#b12704 !important;font-size:clamp(19px,1.8vw,25px) !important;
+  font-weight:800 !important;line-height:1.2 !important;
+  white-space:normal !important; overflow-wrap:anywhere !important;
+  margin:3px 0 5px !important;
+}
+#results-view .category-save {
+  background:#f59e0b !important;color:#fff !important;
+  border-radius:16px !important;font-weight:700 !important;
+  font-size:11px !important;line-height:1.25 !important;
+  padding:5px 9px !important; max-width:100% !important;
+  white-space:normal !important;overflow-wrap:anywhere !important;
+}
+#results-view .category-pack,#results-view .category-delivery {
+  color:#444 !important;font-size:12px !important;line-height:1.5 !important;
+  margin-top:8px !important;min-height:0 !important;overflow-wrap:anywhere !important;
+}
+#results-view .category-delivery{margin-top:4px !important;}
+#results-view .category-card-actions,#results-view .category-inline-cart{align-items:flex-start !important;gap:7px !important;}
+#results-view .category-add { background:#ffd814 !important;border-color:#fcd200 !important;
+  border-radius:24px !important;color:#111 !important;font-weight:700 !important; }
+#results-view .category-desc { border-radius:24px !important;color:#222 !important; }
+@media(min-width:768px) and (max-width:1100px){
+  #results-view .category-horizontal-track {grid-template-columns:repeat(4,minmax(0,1fr)) !important;}
+}
+@media(max-width:767px){
+  #results-view .category-product-name{font-size:15px !important;}
+  #results-view .category-price-now{font-size:21px !important;}
+  #results-view .category-product-body{min-width:0;}
+  #results-view .category-inline-cart{flex-wrap:wrap;}
+}
+@media(max-width:359px){
+  #results-view .category-product-name{font-size:13px !important;}
+  #results-view .category-price-now{font-size:19px !important;}
+  #results-view .category-pack,#results-view .category-delivery{font-size:11px !important;}
+}
+</style>
+<style id="teus-v8-definitivo-tarjetas-legibles">
+/* El contenedor real es #results-view; se corrige el selector que faltaba en V7. */
+#results-view .category-horizontal-track{align-items:start!important}
+#results-view .category-product-card{min-width:0!important;max-width:100%!important;overflow:visible!important}
+#results-view .category-product-image{
+ position:relative!important;width:100%!important;height:220px!important;min-height:220px!important;
+ background:#f7f7f7!important;padding:8px!important;border-radius:9px!important;
+ overflow:hidden!important;display:flex!important;align-items:center!important;justify-content:center!important;isolation:isolate;
+}
+#results-view .category-product-image img{
+ position:static!important;display:block!important;width:100%!important;height:100%!important;
+ max-width:100%!important;max-height:100%!important;object-fit:contain!important;
+ object-position:center!important;transform:none!important;opacity:1!important;
+}
+#results-view .category-product-image:hover img{transform:scale(1.02)!important}
+#results-view .category-product-name{
+ display:block!important;white-space:normal!important;overflow:visible!important;
+ text-overflow:clip!important;-webkit-line-clamp:unset!important;
+ height:auto!important;max-height:none!important;min-height:0!important;
+ overflow-wrap:anywhere!important;color:#007185!important;font-size:16px!important;
+ font-weight:500!important;line-height:1.35!important;margin:11px 0 7px!important;
+}
+#results-view .category-price-now{color:#b12704!important;font-size:22px!important;font-weight:800!important;line-height:1.2!important}
+#results-view .category-save{background:#f59e0b!important;color:#fff!important;border-radius:999px!important;padding:5px 9px!important}
+#results-view .category-pack{margin-top:9px!important;min-height:0!important;line-height:1.5!important}
+#results-view .category-delivery{margin-top:3px!important;font-size:12px!important;line-height:1.5!important}
+#results-view .category-add{background:#ffd814!important;color:#111!important;border-radius:23px!important}
+#results-view .category-desc{background:#f2f2f2!important;color:#222!important;border-radius:23px!important}
+@media(min-width:1451px){
+ #results-view .category-horizontal-track{grid-template-columns:repeat(6,minmax(0,1fr))!important;gap:28px 18px!important}
+ #results-view .category-product-image{height:240px!important;min-height:240px!important}
+}
+@media(min-width:1101px) and (max-width:1450px){
+ #results-view .category-horizontal-track{grid-template-columns:repeat(5,minmax(0,1fr))!important}
+}
+@media(min-width:768px) and (max-width:1100px){
+ #results-view .category-horizontal-track{grid-template-columns:repeat(4,minmax(0,1fr))!important}
+ #results-view .category-product-image{height:190px!important;min-height:190px!important}
+}
+@media(max-width:767px){
+ #results-view .category-horizontal-track{grid-template-columns:1fr!important;gap:0!important}
+ #results-view .category-product-card{display:flex!important;flex-direction:row!important;gap:12px!important;align-items:flex-start!important}
+ #results-view .category-product-image{width:135px!important;flex:0 0 135px!important;height:150px!important;min-height:150px!important;padding:4px!important}
+ #results-view .category-product-body{min-width:0!important;flex:1!important}
+ #results-view .category-product-name{font-size:15px!important}
+ #results-view .category-price-now{font-size:20px!important}
+}
+@media(max-width:359px){
+ #results-view .category-product-image{width:105px!important;flex-basis:105px!important;height:120px!important;min-height:120px!important}
+ #results-view .category-product-name{font-size:13px!important}
+ #results-view .category-price-now{font-size:19px!important}
+}
+</style>
+<style id="teus-editable-responsive">
+@media(max-width:767px){
+ .search-bar{position:relative!important;min-width:0!important;flex:1 1 100%!important;order:5;}
+ .search-suggestions{position:absolute!important;top:calc(100% + 3px)!important;left:0!important;right:0!important;width:100%!important;max-height:min(35dvh,220px)!important;overflow-y:auto!important;z-index:8000!important;}
+ .nav-top{flex-wrap:wrap!important}.search-bar input{font-size:16px!important;min-width:0!important}
+ .admin-editor{width:100%!important;max-width:100%!important;box-sizing:border-box!important}
+ .admin-grid{grid-template-columns:1fr!important}
+ .admin-actions{display:grid!important;grid-template-columns:1fr!important}
+ .admin-actions button{width:100%!important}
+}
+@media(max-width:359px){.admin-editor{padding:8px!important}.admin-checks{gap:8px!important}.admin-field input{font-size:16px!important}}
+</style><style id="teus-admin-panel-size">
+/* Los formularios de administración deben ser legibles incluso dentro de tarjeta angosta. */
+#results-view .category-product-card:has(.admin-editor){overflow:visible!important;}
+#results-view .admin-editor{background:#f1fbf3!important;border:1px solid #16a34a!important;border-radius:12px!important;padding:12px!important;margin:12px 0!important;min-width:0!important;max-width:100%!important;}
+#results-view .admin-grid{grid-template-columns:1fr!important;}
+#results-view .admin-field input{min-width:0!important;max-width:100%!important;width:100%!important;box-sizing:border-box!important;font-size:13px!important;}
+#results-view .admin-checks{display:flex!important;flex-direction:column!important;gap:9px!important;align-items:flex-start!important;}
+#results-view .admin-actions{display:flex!important;flex-direction:column!important;align-items:stretch!important;}
+#results-view .admin-actions button{width:100%!important;white-space:normal!important;}
+@media(min-width:768px){#results-view .category-horizontal-track:has(.admin-editor){grid-template-columns:repeat(auto-fit,minmax(260px,1fr))!important;gap:22px!important;}}
+@media(max-width:767px){#results-view .category-product-card:has(.admin-editor){display:block!important;}#results-view .category-product-image{margin:0 auto 10px!important;max-width:230px!important;width:100%!important;height:200px!important;}}
+</style></head>
 <body>
 
 <header id="mainHeader">
@@ -1859,12 +1985,12 @@ body.admin-mode .admin-original-reference::before{
 
 <script>
 // ========== CONFIGURACIÓN ==========
-const PRODUCTOS_SHEET_ID = '1m9A2-dW71FWU8tgmjx7haibO052AUDM6tqiMQuaGhOw';
+
 const PRODUCTOS_SHEET_NAME = 'item';
-const BANNER_SHEET_ID = '1dg0OM8-KvkgFUAyNiaxRiotTxrN-ST87gb1Gff6MzGg';
+
 const WHATSAPP_NUMBER = '59163439475';
 const VISUAL_DISCOUNT = 25;
-const USERS_SHEET_ID = '1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok';
+
 const ITEMS_WEBAPP_URL = 'https://script.google.com/macros/s/AKfycbw_BiqTbqL0eaMRKZTmJqbgsIchHBKQEocRprOGpPbHbIh2HCcTEW4cXYdgmGCPZqn3/exec';
 
 // ⚠️ Si algún día volvés a Google Sites, descomentá la línea de abajo y poné tu URL.
@@ -1905,17 +2031,21 @@ function parseOfferDate(value) {
     else { const t=new Date(s); if(!isNaN(t)) d=new Date(t.getFullYear(),t.getMonth(),t.getDate(),23,59,59,999); }
     return d && !isNaN(d) ? d : null;
 }
+function offerHasSpecialPrice(p){
+    const regular=Number(p.precioPaquete), especial=Number(p.precioOferta);
+    return Number.isFinite(regular) && regular>0 && Number.isFinite(especial) && especial>0 && especial<regular;
+}
 function offerIsActive(p){
-    if(!(p.ofertaDia||p.ofertaSemana) || !(p.precioOferta>0) || p.precioOferta>=p.precioPaquete) return false;
+    if(!(p.ofertaDia||p.ofertaSemana)) return false;
     const limite=parseOfferDate(p.hastaFecha);
     return !limite || new Date()<=limite;
 }
 let browsingOfferMode = null;
-function effectivePrice(p){ return (browsingOfferMode && offerIsActive(p))?p.precioOferta:p.precioPaquete; }
+function effectivePrice(p){ return (browsingOfferMode && offerIsActive(p) && offerHasSpecialPrice(p))?Number(p.precioOferta):p.precioPaquete; }
 function offerLabel(p){ return p.ofertaDia?'🔥 OFERTA DEL DÍA':(p.ofertaSemana?'⚡ OFERTA DE LA SEMANA':'🔥 OFERTA'); }
 function offerExpiryText(p){ const d=parseOfferDate(p.hastaFecha); return d?'Hasta '+d.toLocaleDateString('es-BO'):''; }
 function offerDiscountPercent(p){
-    if(!offerIsActive(p)) return 0;
+    if(!offerIsActive(p) || !offerHasSpecialPrice(p)) return 0;
     const visual=getVisualPrice(p.precioPaquete);
     const referencia=Number(visual.before)||0;
     const oferta=Number(p.precioOferta)||0;
@@ -1924,13 +2054,20 @@ function offerDiscountPercent(p){
 }
 function publicOfferPriceHtml(p, compact=false){
     if(!offerIsActive(p)) return '';
+    const etiqueta=offerLabel(p);
+    if(!offerHasSpecialPrice(p)) {
+        // Destacada sin rebaja: precio habitual, sin porcentaje ni ahorro inventados.
+        if(compact) return `<div class="savings-badge">${etiqueta}</div>`;
+        return `<div class="price-now">Ahora: Bs ${Number(p.precioPaquete).toFixed(2)}</div>
+                <div><span class="offer-premium-tag">${etiqueta}</span></div>`;
+    }
     const pct=offerDiscountPercent(p);
     if(compact){
-        return `<div class="savings-badge">⚡ -${pct}% · Bs ${p.precioOferta.toFixed(2)}</div>`;
+        return `<div class="savings-badge">⚡ -${pct}% · Bs ${Number(p.precioOferta).toFixed(2)}</div>`;
     }
     return `<div class="offer-premium-box">
               <span class="offer-premium-percent">-${pct}%</span>
-              <span class="offer-premium-price">Bs ${p.precioOferta.toFixed(2)}</span>
+              <span class="offer-premium-price">Bs ${Number(p.precioOferta).toFixed(2)}</span>
             </div>
             <div><span class="offer-premium-tag">⚡ OFERTA POR TIEMPO LIMITADO</span></div>`;
 }
@@ -1974,14 +2111,6 @@ function parseCSV(text) {
     }
     if (field !== '' || row.length) { row.push(field); rows.push(row); }
     return rows;
-}
-async function fetchSheetCSV(sheetId, sheetName = '') {
-    const sheetParam = sheetName ? `&sheet=${encodeURIComponent(sheetName)}` : '';
-    const url = `https://docs.google.com/spreadsheets/d/${sheetId}/gviz/tq?tqx=out:csv${sheetParam}&_=${Date.now()}`;
-    const resp = await fetch(url, { cache: 'no-store' });
-    if (!resp.ok) throw new Error(`Google Sheets respondió ${resp.status}`);
-    const text = await resp.text();
-    return parseCSV(text);
 }
 function normalizeHeader(value) {
     return String(value == null ? '' : value)
@@ -2252,94 +2381,91 @@ function navigateToOfertas() { showOfertasView(true); }
 function navigateToSearch(term) { showResultsBySearch(term, true); }
 
 // ========== CARGA DE DATOS ==========
-async function loadBanners() {
-    try {
-        const rows = await fetchSheetCSV(BANNER_SHEET_ID);
-        if (rows.length < 2) return;
-        const headers = rows[0];
-        const idxBanner = headers.findIndex(h => (h || '').toLowerCase().includes('banner'));
-        if (idxBanner === -1) {
-            console.warn('No se encontró columna "banner" en la hoja de banners');
-            if (!heroImages.length) { heroImages = ['https://picsum.photos/id/250/1600/400']; renderHero(); }
-            return;
-        }
-        const newHeroImages = [];
-        for (let i = 1; i < rows.length; i++) {
-            const url = (rows[i][idxBanner] || '').trim();
-            if (url && !newHeroImages.includes(url)) newHeroImages.push(url);
-        }
-        if (newHeroImages.length) heroImages = newHeroImages;
-        else if (!heroImages.length) heroImages = ['https://picsum.photos/id/250/1600/400'];
-        renderHero();
-    } catch (e) {
-        console.warn('Error banners:', e);
-        if (!heroImages.length) { heroImages = ['https://picsum.photos/id/250/1600/400']; renderHero(); }
-    }
+// La página editable NO consulta CSV de ITEMS ni de usuarios.
+// El servidor entrega todos los productos solo después de validar un ADMIN.
+let teusEditableLoadBusy=false;
+let teusPublicCallbackCounter=0;
+function teusBannersPublicos(){
+ return new Promise((resolve,reject)=>{
+  const cb='teusPublico_edit_'+(++teusPublicCallbackCounter)+'_'+Date.now();
+  // El servidor permite exclusivamente callbacks que comiencen con teusPublico_.
+  const sc=document.createElement('script');let done=false;
+  const timer=setTimeout(()=>finish(new Error('No se pudieron cargar los banners')),20000);
+  function finish(err,result){if(done)return;done=true;clearTimeout(timer);try{delete window[cb];sc.remove()}catch(e){}err?reject(err):resolve(result)}
+  window[cb]=data=>finish(null,data);
+  sc.onerror=()=>finish(new Error('Sin conexión con banners'));
+  sc.src=ITEMS_WEBAPP_URL+'?accion=bannersPublicos&callback='+encodeURIComponent(cb)+'&v='+Date.now();
+  document.head.appendChild(sc);
+ });
 }
-
-async function loadProducts() {
-    const grid = document.getElementById('categoriesGrid');
-    try {
-        const rows = await fetchSheetCSV(PRODUCTOS_SHEET_ID, PRODUCTOS_SHEET_NAME);
-        if (!rows || rows.length < 2) throw new Error('La pestaña item no devolvió productos.');
-        const idx = findColIndicesCSV(rows[0]);
-        const get = (row, i) => (i >= 0 && row[i] !== undefined && row[i] !== null) ? String(row[i]).trim() : '';
-        const num = (row, i) => { const raw=get(row,i).replace(/\s/g,'').replace(',','.'); const n=parseFloat(raw); return Number.isFinite(n)?n:0; };
-        const esSi = value => { const v=normalizeHeader(value); return v==='si'||v==='sí'||v==='yes'||v==='true'||v==='1'; };
-        const productos=[];
-        for(let i=1;i<rows.length;i++){
-            const row=rows[i]||[]; const seccion=get(row,idx.sec); const nombre=get(row,idx.nom);
-            if(!nombre) continue;
-            const precioPaquete=num(row,idx.prePaq); const unidadesTexto=get(row,idx.cantPaq); const unidadesNumero=parseInt(unidadesTexto,10)||1;
-            const dispPaquete=esSi(get(row,idx.dispPaq)); const publicado=esSi(get(row,idx.publicar));
-            const imagenEditadaRaw=get(row,idx.imgEditada); const imagenOriginalRaw=get(row,idx.imgOriginal); const imagen=getImageUrl(imagenEditadaRaw);
-            if(!seccion) continue;
-            const ofertaDia=esSi(get(row,idx.ofertaDia)), ofertaSemana=esSi(get(row,idx.ofertaSemana));
-            const hastaFecha=get(row,idx.hastaFecha), precioOferta=num(row,idx.precioOferta);
-            productos.push({seccion,nombre,precioPaquete,unidadesTexto,unidadesNumero,precioMayor:0,cantidadMayorTexto:'',dispPaquete,dispMayor:false,publicado,imagen,imagenEditada:getImageUrl(imagenEditadaRaw),imagenOriginal:getImageUrl(imagenOriginalRaw),imagenEditadaRaw,imagenOriginalRaw,descripcion:'Sin descripción',oferta:ofertaDia||ofertaSemana,ofertaDia,ofertaSemana,hastaFecha,precioOferta,esBolsas:seccion.toLowerCase().includes('bolsas')});
-        }
-        masterProducts=productos;
-        // Público: solo publicado + disponible por paquete. ADMIN: absolutamente todos.
-        allProducts=adminActual ? masterProducts : masterProducts.filter(p=>p.publicado && !!p.imagenEditada);
-        const uniqueCategories=[...new Set(allProducts.map(p=>p.seccion))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
-        homeCategoryOrder=uniqueCategories; homeCache={};
-        const catList=document.getElementById('categoryList'); catList.innerHTML='';
-        uniqueCategories.forEach(cat=>{const li=document.createElement('li');li.textContent=cat;li.onclick=()=>{closeCategorySidebar();navigateToCategory(cat)};catList.appendChild(li)});
-        if(teusCurrentMainView!=='cart'){
-            renderHomeCards();
-            if(!allProducts.length) grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:40px;">No hay items publicados y disponibles para mostrar.</div>';
-        }else{
-            renderFullCartView();
-            document.getElementById('home-view').style.display='none';
-            document.getElementById('results-view').style.display='none';
-            document.getElementById('fullCartView').style.display='block';
-        }
-    } catch(e){ console.error('Error cargando ITEMS:',e); grid.innerHTML='<div style="grid-column:1/-1;color:#b12704;background:#fff;padding:24px;border-radius:12px;text-align:center;"><strong>No pude cargar los productos.</strong><br><span style="font-size:13px;">'+escapeHtml(e.message||String(e))+'</span><br><br><button onclick="loadProducts()" style="background:#ffd814;border:0;border-radius:20px;padding:9px 18px;font-weight:bold;cursor:pointer;">Reintentar</button></div>'; }
+async function loadBanners(){
+ try{const data=await teusBannersPublicos();if(data&&data.ok&&Array.isArray(data.banners)){const urls=data.banners.filter(u=>typeof u==='string'&&/^https:\/\//i.test(u));if(urls.length)heroImages=urls}}catch(e){console.warn('Banners públicos:',e)}
+ renderHero();
+}
+async function loadProducts(){
+ const grid=document.getElementById('categoriesGrid');
+ if(!adminActual){masterProducts=[];allProducts=[];homeCategoryOrder=[];if(grid)grid.innerHTML='<div style="grid-column:1/-1;padding:32px;background:white;text-align:center;border-radius:12px"><h2>Área privada · Catálogo Editable</h2><p>Inicia sesión como administrador para ver, editar o publicar productos.</p><button style="display:inline-flex;width:auto;margin:16px auto" onclick="toggleLogin()">🔐 Iniciar sesión ADMIN</button></div>';return}
+ if(teusEditableLoadBusy)return;
+ teusEditableLoadBusy=true;
+ try{
+  const data=await adminPost({accion:'listarItemsAdmin'});
+  const rows=Array.isArray(data.filas)?data.filas:[];
+  const si=x=>['si','sí','true','yes','1'].includes(normalizeHeader(x));
+  const num=x=>{const n=Number(String(x??'').trim().replace(',','.'));return Number.isFinite(n)?n:0};
+  const productos=[];
+  for(const r of rows){
+   if(!Array.isArray(r))continue;
+   const seccion=String(r[0]||'').trim(),nombre=String(r[1]||'').trim();
+   if(!seccion||!nombre)continue;
+   const imagenEditadaRaw=String(r[9]||'').trim(),imagenOriginalRaw=String(r[10]||'').trim();
+   const ofertaDia=si(r[11]),ofertaSemana=si(r[12]);
+   const unidadesTexto=String(r[3]||'').trim();
+   productos.push({seccion,nombre,precioPaquete:num(r[2]),unidadesTexto,unidadesNumero:parseInt(unidadesTexto,10)||1,
+    precioMayor:0,cantidadMayorTexto:'',dispPaquete:si(r[4]),dispMayor:false,
+    publicado:si(r[8]),imagen:getImageUrl(imagenEditadaRaw||imagenOriginalRaw),
+    imagenEditada:getImageUrl(imagenEditadaRaw),imagenOriginal:getImageUrl(imagenOriginalRaw),
+    imagenEditadaRaw,imagenOriginalRaw,descripcion:'Sin descripción',
+    oferta:ofertaDia||ofertaSemana,ofertaDia,ofertaSemana,hastaFecha:String(r[13]||''),precioOferta:num(r[14]),
+    id_item:String(r[15]||''),esBolsas:seccion.toLowerCase().includes('bolsas')});
+  }
+  masterProducts=productos;allProducts=productos;
+  const uniqueCategories=[...new Set(allProducts.map(p=>p.seccion))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+  homeCategoryOrder=uniqueCategories;homeCache={};
+  const catList=document.getElementById('categoryList');catList.innerHTML='';
+  uniqueCategories.forEach(cat=>{const li=document.createElement('li');li.textContent=cat;li.onclick=()=>{closeCategorySidebar();navigateToCategory(cat)};catList.appendChild(li)});
+  if(teusCurrentMainView!=='cart'){
+   renderHomeCards();
+   if(!allProducts.length)grid.innerHTML='<div style="grid-column:1/-1;text-align:center;padding:30px">No se encontraron ITEMS.</div>';
+  }else{renderFullCartView();document.getElementById('home-view').style.display='none';document.getElementById('results-view').style.display='none';document.getElementById('fullCartView').style.display='block'}
+ }catch(e){console.error('ITEMS privados:',e);if(grid)grid.innerHTML='<div style="grid-column:1/-1;color:#b12704;background:white;padding:24px"><b>No pude leer ITEMS privados:</b> '+escapeHtml(e.message||String(e))+'</div>'}
+ finally{teusEditableLoadBusy=false}
 }
 
 async function loginAdmin(){
-    const user=document.getElementById('loginUser').value.trim(); const pass=document.getElementById('loginPass').value; const err=document.getElementById('loginError'); err.textContent='Verificando...';
-    try{
-        const rows=await fetchSheetCSV(USERS_SHEET_ID); if(!rows.length) throw new Error('No se pudo leer usuarios');
-        const headers=rows[0].map(normalizeHeader);
-        const find=(names)=>headers.findIndex(h=>names.some(n=>h===n||h.includes(n)));
-        const iu=find(['usuario','user','username']), ip=find(['contrasena','contraseña','password','clave']), ir=find(['rol','role']), inn=find(['nombre','name']);
-        if(iu<0||ip<0||ir<0) throw new Error('No encuentro usuario, contraseña y rol en la hoja de usuarios.');
-        const found=rows.slice(1).find(r=>String(r[iu]||'').trim().toLowerCase()===user.toLowerCase() && String(r[ip]||'').trim()===pass);
-        if(!found){err.textContent='Usuario o contraseña incorrectos.';return;}
-        if(!normalizeHeader(found[ir]).includes('admin')){err.textContent='Esta cuenta no tiene permisos de administrador.';return;}
-        adminActual={usuario:String(found[iu]||'').trim(),nombre:String(found[inn]||found[iu]||'').trim(),contrasena:pass}; sessionStorage.setItem('todoenunoCatalogAdmin',JSON.stringify(adminActual));
-        document.getElementById('loginModal').style.display='none'; applyAdminUI(); await loadProducts(); showHomeView(false);
-    }catch(e){err.textContent=e.message||String(e)}
+ const user=document.getElementById('loginUser').value.trim();
+ const pass=document.getElementById('loginPass').value;
+ const err=document.getElementById('loginError');err.textContent='Verificando con Apps Script...';
+ if(!user||!pass){err.textContent='Ingresa usuario y contraseña.';return}
+ try{
+  // Validación real del ADMIN en Apps Script, sin descargar hoja de usuarios.
+  const result=await itemsPrivateRequest({accion:'listarItemsAdmin',usuario:user,contrasena:pass});
+  if(!result.ok)throw new Error(result.error||'No tienes autorización ADMIN.');
+  adminActual={usuario:user,nombre:user,contrasena:pass};
+  // Contraseña únicamente en memoria: jamás sessionStorage/localStorage.
+  document.getElementById('loginPass').value='';
+  document.getElementById('loginModal').style.display='none';
+  applyAdminUI();await loadProducts();showHomeView(false);
+ }catch(e){err.textContent=e.message||String(e);adminActual=null}
 }
 function applyAdminUI(){
-    const btn=document.getElementById('signInBtn'), badge=document.getElementById('adminBadge');
-    if(adminActual){btn.innerHTML='<i class="fas fa-sign-out-alt"></i> Salir'; badge.style.display='inline-block'; badge.textContent='ADMIN · '+(adminActual.nombre||adminActual.usuario);}
-    else{btn.innerHTML='<i class="fas fa-user-shield"></i> Sign in'; badge.style.display='none';}
+ const btn=document.getElementById('signInBtn'),badge=document.getElementById('adminBadge');
+ if(adminActual){btn.innerHTML='<i class="fas fa-sign-out-alt"></i> Salir';badge.style.display='inline-block';badge.textContent='ADMIN · '+(adminActual.nombre||adminActual.usuario)}
+ else{btn.innerHTML='<i class="fas fa-user-shield"></i> Acceso ADMIN';badge.style.display='none'}
 }
 async function toggleLogin(){
-    if(adminActual){adminActual=null;sessionStorage.removeItem('todoenunoCatalogAdmin');applyAdminUI();await loadProducts();showHomeView(false);return;}
-    document.getElementById('loginError').textContent='';document.getElementById('loginModal').style.display='flex';setTimeout(()=>document.getElementById('loginUser').focus(),50);
+ if(adminActual){adminActual=null;masterProducts=[];allProducts=[];applyAdminUI();await loadProducts();showHomeView(false);return}
+ document.getElementById('loginError').textContent='';document.getElementById('loginModal').style.display='flex';
+ document.getElementById('loginPass').value='';setTimeout(()=>document.getElementById('loginUser').focus(),50);
 }
 // ========== HERO ==========
 function renderHero() {
@@ -2521,14 +2647,17 @@ function showDescription(product) {
 }
 
 // ========== ADMIN: EDICIÓN REAL DE ITEMS ==========
+async function itemsPrivateRequest(payload){
+ const r=await fetch(ITEMS_WEBAPP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload),redirect:'follow'});
+ if(!r.ok)throw new Error('Apps Script no respondió correctamente (HTTP '+r.status+').');
+ const txt=await r.text();let data;
+ try{data=JSON.parse(txt)}catch(e){throw new Error('La respuesta de Apps Script no fue JSON. Revisa la implementación activa y posibles restricciones del navegador.')}
+ if(!data||!data.ok)throw new Error((data&&data.error)||'La operación fue rechazada.');
+ return data;
+}
 async function adminPost(payload){
-    if(!adminActual || !adminActual.usuario || !adminActual.contrasena) throw new Error('Por seguridad, vuelve a iniciar sesión como ADMIN para guardar cambios.');
-    payload.usuario=adminActual.usuario; payload.contrasena=adminActual.contrasena;
-    const r=await fetch(ITEMS_WEBAPP_URL,{method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},body:JSON.stringify(payload)});
-    const txt=await r.text(); let data;
-    try{data=JSON.parse(txt)}catch(e){throw new Error('El Apps Script devolvió una respuesta inválida. Verifica que hayas desplegado el Code.gs V16 corregido.');}
-    if(!data.ok) throw new Error(data.error||'No se pudo realizar la operación.');
-    return data;
+ if(!adminActual||!adminActual.usuario||!adminActual.contrasena)throw new Error('Inicia sesión ADMIN para continuar.');
+ return itemsPrivateRequest({...payload,usuario:adminActual.usuario,contrasena:adminActual.contrasena});
 }
 function adminEditorHtml(prod,i){
     if(!adminActual) return '';
@@ -2691,17 +2820,15 @@ function renderCategoryProducts(products) {
             <div class="category-product-name" title="${escapeHtml(prod.nombre)}">${escapeHtml(prod.nombre)}</div>`;
         if (disponible) {
           const enOferta = !!(browsingOfferMode && offerIsActive(prod));
-          if (enOferta) {
-            // La oferta siempre se compara contra el MISMO precio referencial
-            // que usa la vista normal (ej.: normal 120 -> referencial 150 -> oferta 110 = -27%).
+          if (enOferta && offerHasSpecialPrice(prod)) {
             const pct = offerDiscountPercent(prod);
             cards += `<div class="category-price-before">Antes: Bs ${visual.before.toFixed(2)}</div>
-                      <div class="category-price-now"><span style="color:#cc0c39;font-weight:500;margin-right:7px;">-${pct}%</span> Bs ${prod.precioOferta.toFixed(2)}</div>
-                      <span class="category-save" style="background:#ff9900;color:#fff;">⚡ OFERTA POR TIEMPO LIMITADO</span>`;
+                      <div class="category-price-now"><span style="color:#cc0c39;font-weight:500;margin-right:7px;">-${pct}%</span> Bs ${Number(prod.precioOferta).toFixed(2)}</div>
+                      <span class="category-save">⚡ OFERTA POR TIEMPO LIMITADO</span>`;
           } else {
             cards += `<div class="category-price-before">Antes: Bs ${visual.before.toFixed(2)}</div>
                       <div class="category-price-now">Ahora: Bs ${visual.now.toFixed(2)}</div>
-                      <span class="category-save">💰 Ahorras Bs ${visual.save.toFixed(2)}</span>`;
+                      <span class="category-save">${enOferta?offerLabel(prod):'💰 Ahorras Bs '+visual.save.toFixed(2)}</span>`;
           }
           cards += `<div class="category-pack">📦 Cantidad: ${escapeHtml(prod.unidadesTexto)} por paquete<br>🚚 Entrega rápida a toda Bolivia</div>
                     <div class="category-inline-cart" data-idx="${i}">
@@ -3575,7 +3702,7 @@ document.getElementById('signInBtn').addEventListener('click', toggleLogin);
 document.getElementById('loginSubmit').addEventListener('click', loginAdmin);
 document.getElementById('closeLoginModal').addEventListener('click',()=>document.getElementById('loginModal').style.display='none');
 document.getElementById('loginPass').addEventListener('keydown',e=>{if(e.key==='Enter')loginAdmin()});
-try{const saved=JSON.parse(sessionStorage.getItem('todoenunoCatalogAdmin')||'null');if(saved&&saved.usuario&&saved.contrasena)adminActual=saved;}catch(e){}
+// No se guardan contraseñas en sessionStorage.
 applyAdminUI();
 
 // ========== INIT ==========
