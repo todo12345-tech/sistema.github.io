@@ -1997,7 +1997,7 @@ function fetchCatalogAPI(action) {
         const script=document.createElement('script');
         let done=false;
         const cleanup=()=>{delete window[cb];script.remove();clearTimeout(timeout)};
-        const timeout=setTimeout(()=>{if(!done){done=true;cleanup();reject(new Error('Tiempo de espera agotado al consultar el catálogo.'));}},18000);
+        const timeout=setTimeout(()=>{if(!done){done=true;cleanup();reject(new Error('Tiempo de espera agotado al consultar el catálogo.'));}},23000);
         window[cb]=(data)=>{if(done)return;done=true;cleanup();if(!data || data.ok!==true)reject(new Error((data&&data.error)||'No se pudo cargar el catálogo.'));else resolve(data);};
         script.onerror=()=>{if(done)return;done=true;cleanup();reject(new Error('No se pudo conectar con el servidor de catálogo.'));};
         script.src=ITEMS_PUBLIC_API+'?accion='+encodeURIComponent(action)+'&callback='+encodeURIComponent(cb)+'&_='+Date.now();
@@ -2283,10 +2283,46 @@ async function loadBanners() {
     }catch(e){console.warn('No se pudieron actualizar los banners:',e);renderHero();}
 }
 
-async function loadProducts() {
+// V40: cache de última respuesta válida y reintento sin exponer errores técnicos al cliente.
+const TEUS_CATALOGO_CACHE_V40 = 'teus_catalogo_publico_cache_v40';
+let teusCatalogoPeticionV40 = null;
+function teusLeerCatalogoCacheV40() {
+    try {
+        const item=JSON.parse(localStorage.getItem(TEUS_CATALOGO_CACHE_V40)||'null');
+        if(item && item.fecha && Date.now()-item.fecha<24*60*60*1000 && item.datos && item.datos.ok===true && Array.isArray(item.datos.productos) && item.datos.productos.length) return item.datos;
+    }catch(e){}
+    return null;
+}
+function teusGuardarCatalogoCacheV40(datos) {
+    try { if(datos && datos.ok===true && Array.isArray(datos.productos) && datos.productos.length) localStorage.setItem(TEUS_CATALOGO_CACHE_V40,JSON.stringify({fecha:Date.now(),datos})); }catch(e){}
+}
+async function teusObtenerCatalogoV40() {
+    if(teusCatalogoPeticionV40) return teusCatalogoPeticionV40;
+    teusCatalogoPeticionV40=(async()=>{
+        try {
+            const datos=await fetchCatalogAPI('catalogoPublico');
+            teusGuardarCatalogoCacheV40(datos);
+            return datos;
+        }catch(primerError){
+            console.warn('Catálogo: reintentando consulta pública después de una falla temporal.',primerError);
+            await new Promise(resolve=>setTimeout(resolve,1500));
+            try {
+                const datos=await fetchCatalogAPI('catalogoPublico');
+                teusGuardarCatalogoCacheV40(datos);
+                return datos;
+            }catch(segundoError){
+                const guardado=teusLeerCatalogoCacheV40();
+                if(guardado){console.warn('Catálogo: mostrando última versión disponible mientras se recupera la conexión.',segundoError);return guardado;}
+                throw segundoError;
+            }
+        }
+    })();
+    try{return await teusCatalogoPeticionV40;} finally{teusCatalogoPeticionV40=null;}
+}
+async function loadProducts(datosEnCache=null) {
     const grid=document.getElementById('categoriesGrid');
     try {
-        const data=await fetchCatalogAPI('catalogoPublico');
+        const data=datosEnCache || await teusObtenerCatalogoV40();
         const records=Array.isArray(data.productos)?data.productos:[];
         const num=x=>{const n=Number(String(x??'').trim().replace(',','.'));return Number.isFinite(n)?n:0;};
         const si=x=>['si','sí','yes','true','1'].includes(normalizeHeader(x));
@@ -2319,7 +2355,11 @@ async function loadProducts() {
         }
     }catch(e){
         console.error('Error cargando catálogo público:',e);
-        grid.innerHTML='<div style="grid-column:1/-1;color:#b12704;background:#fff;padding:24px;border-radius:12px;text-align:center;"><strong>No pude cargar los productos.</strong><br><span style="font-size:13px;">'+escapeHtml(e.message||String(e))+'</span><br><br><button onclick="loadProducts()" style="background:#ffd814;border:0;border-radius:20px;padding:9px 18px;font-weight:bold;cursor:pointer;">Reintentar</button></div>';
+        // Si la red no responde y aún no hay copia guardada, mantener una interfaz discreta.
+        // El error técnico solo queda en consola; nunca mostrarlo como un aviso rojo al cliente.
+        if(!allProducts.length && grid){
+            grid.innerHTML='<div class="teus-catalogo-espera-v40" style="grid-column:1/-1;text-align:center;padding:24px 14px;color:#516273;font-size:13px;">Los productos están tardando un poco en aparecer.<div style="margin-top:12px;"><button type="button" onclick="loadProducts()" style="background:#ffd814;border:0;border-radius:22px;padding:10px 20px;font-weight:700;cursor:pointer;">Volver a cargar</button></div></div>';
+        }
     }
 }
 
@@ -3358,7 +3398,17 @@ document.getElementById('floatingCheckoutBtn').onclick = () => {
 
 // ========== INIT ==========
 async function init() {
-    await Promise.all([loadBanners(), loadProducts()]);
+    // Restaurar el último catálogo válido de inmediato cuando exista (útil con señal lenta).
+    const cacheInicial=teusLeerCatalogoCacheV40();
+    if(cacheInicial){
+        // Renderizado desde los mismos datos del servidor, sin alterar precios ni inventario.
+        await loadProducts(cacheInicial);
+        // Actualización real sin bloquear el inicio de la página.
+        loadProducts().catch(e=>console.warn(e));
+        loadBanners().catch(e=>console.warn(e));
+    } else {
+        await Promise.all([loadBanners(), loadProducts()]);
+    }
     loadCart();
     pushToHistory('home', null, 0);
     showHomeView(false);
