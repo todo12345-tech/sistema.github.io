@@ -2099,25 +2099,14 @@ function restoreView(state) {
 }
 
 // ========== URL (query params + hash) ==========
+// V41: la navegación interna NO debe dejar filtros persistentes en la URL.
+// Los enlaces para compartir siguen construyéndose en buildShareableUrl().
 function updateHash() {
-    const current = internalHistory[historyIndex];
-    let param = '';
-    let hash = '#/';
-    if (current) {
-        if (current.type === 'category') {
-            param = `cat=${encodeURIComponent(current.data)}`;
-            hash = `#/categoria/${encodeURIComponent(current.data)}`;
-        } else if (current.type === 'search') {
-            param = `q=${encodeURIComponent(current.data)}`;
-            hash = `#/buscar/${encodeURIComponent(current.data)}`;
-        } else if (current.type === 'offers') {
-            param = `view=ofertas`;
-            hash = '#/ofertas';
-        }
-    }
     try {
-        const newUrl = param ? `?${param}${hash}` : hash;
-        history.replaceState(null, '', newUrl);
+        const cleanUrl = window.location.pathname;
+        if (window.location.search || window.location.hash) {
+            window.history.replaceState(null, '', cleanUrl);
+        }
     } catch (e) {}
 }
 
@@ -2140,15 +2129,8 @@ function navigateFromInitialHash() {
         else if (h === '#/ofertas') view = { type: 'offers' };
     }
 
-    if (!view && document.referrer) {
-        try {
-            const refUrl = new URL(document.referrer);
-            const params = refUrl.searchParams;
-            if (params.get('cat')) view = { type: 'category', value: params.get('cat') };
-            else if (params.get('q')) view = { type: 'search', value: params.get('q') };
-            else if (params.get('view') === 'ofertas') view = { type: 'offers' };
-        } catch (e) {}
-    }
+    // No usar document.referrer: puede contener una categoría anterior
+    // y abrirla aun cuando el visitante ingresó directamente a Inicio.
 
     if (!view) return false;
 
@@ -3051,10 +3033,18 @@ document.getElementById('navRefreshBtn').addEventListener('click', async () => {
     const notif = document.getElementById('notification');
     notif.innerText = '🔄 Actualizando...';
     notif.classList.add('show');
-    await Promise.all([loadProducts(), loadBanners()]);
-    const current = internalHistory[historyIndex];
-    if (current) restoreView(current);
-    notif.innerText = '✅ Datos actualizados';
+    try {
+        await Promise.all([loadProducts(), loadBanners()]);
+        // Recargar datos sin saltar inesperadamente a una categoría anterior.
+        // La acción explícita de actualizar vuelve a Inicio.
+        const cartOpen = typeof teusCurrentMainView !== 'undefined' && teusCurrentMainView === 'cart';
+        if (!cartOpen) showHomeView(true);
+        updateHash();
+        notif.innerText = '✅ Datos actualizados';
+    } catch (err) {
+        console.warn('No se pudo actualizar el catálogo:', err);
+        notif.innerText = 'Sin conexión. Puedes seguir navegando.';
+    }
     setTimeout(() => notif.classList.remove('show'), 2000);
 });
 
@@ -3413,7 +3403,7 @@ async function init() {
     pushToHistory('home', null, 0);
     showHomeView(false);
     const wentToHash = navigateFromInitialHash();
-    if (!wentToHash) updateHash();
+    updateHash(); // limpiar filtros aun después de abrir un enlace compartido
     updateNavButtonsState();
     positionFloatingElements();
     window.addEventListener('scroll', () => {
