@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Gestión de Ventas V26.65 · Historial admin y acciones seguras</title>
+<title>Todoenuno_store - Gestión de Ventas V26.66 · Historial admin y acciones seguras</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11">
 // V26.24: ningún importe cambia con la rueda del mouse.
@@ -756,6 +756,47 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 .venta-stock-card.v2648-sin-stock.selected{border-color:#e11d48!important;background:#fff1f2!important}
 @media(max-width:760px){.teus-sugerencia-origen button{display:block;margin:6px 0 0}}
 </style>
+<style id="iphone5-ventas-v2666">
+@media(max-width:360px){
+ html,body{width:100%!important;max-width:100%!important;overflow-x:hidden!important;-webkit-text-size-adjust:100%;}
+ .main-content,.content-area{width:100%!important;min-width:0!important;margin-left:0!important;margin-right:0!important;}
+ .content-area{padding:5px!important}.container{padding:9px!important;border-radius:9px!important}
+ .top-bar{padding:8px!important}.top-bar-title{font-size:13px!important}
+ .actions-grid,#accionesPrincipalesV265{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px!important}
+ #accionesPrincipalesV265>.action-card{padding:9px 4px!important;min-height:94px!important}
+ #accionesPrincipalesV265 .action-title{font-size:11px!important}
+ .modal-overlay,.venta-smart-modal{padding:3px!important}
+ .modal-content,.venta-smart-card{padding:10px!important;max-height:calc(100vh - 8px)!important;max-height:calc(100dvh - 8px)!important}
+ .venta-counters{grid-template-columns:repeat(3,minmax(0,1fr))!important;gap:3px!important}
+ .venta-counter{padding:7px 2px!important}
+ .venta-counter button{width:26px!important;min-width:26px!important;height:34px!important;padding:0!important}
+ .venta-counter-row{gap:1px!important}
+ .modal-actions button{font-size:12px!important;min-height:42px!important}
+ input,select,textarea{font-size:16px!important}
+ .ventas-table-container{overflow-x:auto!important;-webkit-overflow-scrolling:touch}
+ .notification{font-size:11px!important;max-width:calc(100vw - 12px)!important}
+}
+</style>
+
+<style id="teus-v2669-mejoras-visuales">
+.teus-fecha-turno{display:flex!important;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;text-align:left!important;padding:12px 16px!important;background:#f7f9fc;border-left:4px solid #ff866a;border-radius:12px;color:#1d3349;font-size:14px!important;line-height:1.45}
+.teus-fecha-turno>span:first-child{display:inline-flex;align-items:center;gap:6px;min-width:0;font-weight:800}
+.teus-apertura-estado{display:inline-flex;align-items:center;max-width:100%;padding:7px 11px;border:1px solid #bae6cf;background:#e9f8ef;border-radius:9px;color:#17603d;font-size:12px;font-weight:750;line-height:1.5;overflow-wrap:anywhere;white-space:normal}
+.teus-apertura-estado::before{content:'●';font-size:9px;margin-right:8px;color:#22a067;flex-shrink:0}
+.teus-apertura-estado.pendiente{background:#fff6df;border-color:#f1d18a;color:#815600}.teus-apertura-estado.pendiente::before{color:#c28510}
+.teus-apertura-estado.sin-caja{background:#edf4ff;border-color:#c7d9f7;color:#234b86}.teus-apertura-estado.sin-caja::before{color:#3877c4}
+#cierreCajaModal .modal-content{max-width:610px!important}
+#cierreCajaModal .modal-header h3{font-size:19px;margin:0;color:#21384d}
+.teus-cierre-origen{background:#eff7ff;border:1px solid #d4e7fb;border-left:4px solid #438bc8;border-radius:10px;padding:12px 14px;margin:12px 0;font-size:13px;line-height:1.55;color:#264962;overflow-wrap:anywhere}
+.teus-cierre-ayuda-v2669{color:#526579;font-size:13px;line-height:1.6;margin:10px 0 15px}
+#cierreCajaModal label{font-size:13px}#cierreCajaModal input{font-size:16px!important}
+#cierreCajaModal .modal-actions{display:flex;gap:10px}#cierreCajaModal .modal-actions button{min-width:0!important;width:auto!important;flex:1 1 0!important;white-space:normal;min-height:44px}
+.teus-solo-salir-v2669{display:flex;gap:8px;width:100%;background:#edf2f7!important;color:#243b52!important;border:1px solid #cdd9e3!important;box-shadow:none!important;border-radius:9px;padding:12px;margin-top:12px;font-weight:800;font-size:13px;min-height:44px}
+.teus-solo-salir-v2669:hover{background:#e0eaf3!important}
+.teus-no-cierra-v2669{font-size:11px;color:#718294;text-align:center;margin-top:7px;line-height:1.45}
+@media(max-width:520px){.teus-fecha-turno{padding:10px!important;gap:7px;font-size:12px!important;align-items:stretch;flex-direction:column}.teus-fecha-turno>span:first-child{font-size:12px}.teus-apertura-estado{display:flex;width:100%;font-size:11px;padding:8px 9px}#cierreCajaModal .modal-content{padding:14px!important}#cierreCajaModal .modal-header h3{font-size:17px}.teus-cierre-origen{font-size:12px;padding:10px}#cierreCajaModal .modal-actions button{font-size:12px!important;padding:10px 5px!important}.teus-solo-salir-v2669{font-size:12px}}
+@media(max-width:340px){.teus-fecha-turno>span:first-child{font-size:11px}#cierreCajaModal .modal-actions{gap:6px}}
+</style>
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -829,7 +870,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
         <div class="content-area">
             <div id="seccionInicio" class="seccion-contenido activa">
                 <div class="container">
-                    <div class="fecha-hora-display"><i class="fas fa-clock"></i> <span id="fechaHoraActual"></span></div>
+                    <div class="fecha-hora-display teus-fecha-turno"><span><i class="fas fa-clock"></i> <span id="fechaHoraActual"></span></span><span id="teusFechaAperturaV2668" class="teus-apertura-estado">Caja: comprobando apertura...</span></div>
                     <div class="info-box" id="cajaInfo" hidden style="display:none!important" aria-hidden="true"><i class="fas fa-cash-register"></i> <span id="cajaStatus">Caja cerrada</span></div>
                     <div class="collapsible-section permiso-admin">
                         <div class="collapsible-header" id="estadisticasHeader">
@@ -1105,9 +1146,9 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 <div class="modal-overlay" id="aperturaCajaModal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h3><i class="fas fa-cash-register"></i> Apertura de Caja</h3></div>
-        <div class="info-box" style="border-left-color: #f39c12; background-color: #fff9e6;"><p style="font-size: 13px;"><i class="fas fa-info-circle" style="color: #f39c12;"></i> Si <strong>ya abriste caja antes</strong> y solo se recargó la página, usa <strong>"Continuar sin abrir caja"</strong>.</p></div>
+        <div class="info-box" style="border-left-color: #f39c12; background-color: #fff9e6;"><p style="font-size: 13px;"><i class="fas fa-info-circle" style="color: #f39c12;"></i> Si necesitas registrar ventas <strong>sin controlar efectivo de caja</strong>, elige <strong>"Trabajar sin caja"</strong>. Esta opción no genera apertura ni cierre de caja. Si la caja ya está abierta, el sistema debe recuperar su estado desde Google Sheets.</p></div>
         <div class="form-group"><label>Monto de Apertura (Bs):</label><input type="number" id="montoAperturaCaja" placeholder="Monto con el que abres la caja" min="0" step="0.01"></div>
-        <div class="apertura-actions"><button type="button" class="btn-continuar-sin-abrir" id="continuarSinAbrirCaja"><i class="fas fa-forward"></i> Continuar sin abrir caja</button><button type="button" class="form-btn btn-save" id="confirmAperturaCaja"><i class="fas fa-check"></i> Confirmar Apertura</button></div>
+        <div class="apertura-actions"><button type="button" class="btn-continuar-sin-abrir" id="continuarSinAbrirCaja"><i class="fas fa-forward"></i> Trabajar sin caja</button><button type="button" class="form-btn btn-save" id="confirmAperturaCaja"><i class="fas fa-check"></i> Confirmar Apertura</button></div>
     </div>
 </div>
 
@@ -1134,8 +1175,8 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 <div class="modal-overlay" id="cierreCajaModal" style="display: none;">
     <div class="modal-content">
         <div class="modal-header"><h3>Cierre de Caja</h3><button class="modal-close" id="closeCierreCajaModal">&times;</button></div>
-        <div class="form-group"><label>Monto de Cierre (Bs):</label><input type="number" id="montoCierreCaja" placeholder="Monto con el que cierras" min="0" step="0.01" required></div>
-        <div class="modal-actions"><button class="form-btn btn-cancel" id="cancelCierreCaja"><i class="fas fa-times"></i> Cancelar</button><button class="form-btn btn-save" id="confirmCierreCaja"><i class="fas fa-check"></i> Confirmar Cierre</button></div>
+        <div id="teusCierreAperturaV2668" class="teus-cierre-origen" role="status">Comprobando fecha de apertura...</div><p class="teus-cierre-ayuda-v2669">Este cierre corresponde a la caja de la sucursal, no solo a tu usuario. Si otra persona sigue atendiendo, usa <strong>Salir sin cerrar caja</strong>.</p><div class="form-group"><label>Monto contado para cerrar la caja (Bs):</label><input type="number" id="montoCierreCaja" placeholder="Monto con el que cierras" min="0" step="0.01" required></div>
+        <div class="modal-actions"><button class="form-btn btn-cancel" id="cancelCierreCaja"><i class="fas fa-times"></i> Volver</button><button class="form-btn btn-save" id="confirmCierreCaja"><i class="fas fa-check"></i> Confirmar cierre de caja</button></div><button type="button" class="teus-solo-salir-v2669" id="teusSoloSalirV2669"><i class="fas fa-sign-out-alt"></i> Salir de mi cuenta sin cerrar caja</button><p class="teus-no-cierra-v2669">La caja y las ventas de la sucursal permanecerán sin cambios.</p>
     </div>
 </div>
 
@@ -1204,7 +1245,13 @@ const MOVIMIENTOS_SHEET_NAME = 'movimientos';
 let ventaSmartProducto = null, ventaSmartFilas = [], ventaSmartOrigen = '', ventaSmartCant = {cajas:0,paquetes:0,unidades:0};
 function normalizarRolSistema(rol) {
     const r = normalizarTextoCatalogo(rol || '');
-    return r.includes('admin') ? 'admin' : 'vendedor';
+    return r.includes('admin') ? 'admin' : (r.includes('encargado') ? 'encargado' : 'vendedor');
+}
+function puedeTrabajarSinCajaV2670(user = currentUser) {
+    return !!user && ['admin','encargado'].includes(normalizarRolSistema(user.rol));
+}
+function esVendedorV2670(user = currentUser) {
+    return !!user && normalizarRolSistema(user.rol) === 'vendedor';
 }
 function esAdministrador(user = currentUser) {
     return !!user && normalizarRolSistema(user.rol) === 'admin';
@@ -1245,7 +1292,7 @@ async function cargarUsuariosLogin() {
             const pass=String(claveFlexible(o,['contraseña','contrasena','clave','password']));
             const nombre=String(claveFlexible(o,['nombre','nombre completo','vendedor'])||user);
             let rol=String(claveFlexible(o,['rol','tipo','perfil','cargo'])||'vendedor').toLowerCase();
-            rol = rol.includes('admin') ? 'admin' : 'vendedor';
+            rol = normalizarRolSistema(rol);
             if(user&&pass) usuarios[user]={password:pass,nombre,rol};
         }
         usuariosCargados=Object.keys(usuarios).length>0;
@@ -2113,13 +2160,22 @@ function resetSessionTimer() { lastActivityTime = Date.now(); clearTimeout(timeo
 function verificarHorarioSesion() {
     if (!currentUser) return;
     const h = obtenerHoraDecimal();
-    if (h >= HORA_INICIO_LABORAL && h < HORA_FIN_LABORAL) {
-        if (sessionTimeoutWarning.style.display === 'block') { sessionTimeoutOverlay.style.display = 'none'; sessionTimeoutWarning.style.display = 'none'; clearInterval(countdown); }
+    // Fuera de 08:00–20:00 se termina únicamente la sesión, NO el registro de caja.
+    if (h < HORA_INICIO_LABORAL || h >= HORA_FIN_LABORAL) {
+        cerrarSesionAutomatica();
         return;
     }
-    if (h >= HORA_FIN_LABORAL && h < HORA_AVISO_CIERRE) return;
-    if (h >= HORA_AVISO_CIERRE && h < HORA_CIERRE_FORZADO) { if (sessionTimeoutWarning.style.display !== 'block') mostrarAvisoCierreNocturno(); return; }
-    if (h >= HORA_CIERRE_FORZADO || h < HORA_INICIO_LABORAL) { Notificaciones.mostrar('Sesión cerrada por fin de horario', 'warning'); cerrarSesionAutomatica(); }
+    recordarCierrePendienteV2667();
+}
+function recordarCierrePendienteV2667() {
+    if (!currentUser || sinCajaV2666() || !cajaAbierta || estadoCajaHoyV2620!=='OPERANDO') return;
+    const h = obtenerHoraDecimal();
+    // Recordatorio no intrusivo una vez por jornada, desde las 19:30.
+    if (h < 19.5 || h >= HORA_FIN_LABORAL) return;
+    const key = 'teus_recordatorio_cierre_v2667_'+String(sucursalSeleccionada)+'_'+diaLocalV2617();
+    if (sessionStorage.getItem(key)==='SI') return;
+    sessionStorage.setItem(key,'SI');
+    Notificaciones.mostrar('La caja sigue abierta. Recuerda contar el efectivo y cerrar caja antes de las 20:00.', 'warning', 12000);
 }
 function mostrarAvisoCierreNocturno() {
     sessionTimeoutOverlay.style.display = 'block';
@@ -2208,8 +2264,8 @@ function guardarVentasLocalSeguro() {
 
 function cerrarSesionAutomatica() {
     clearInterval(countdown); clearTimeout(timeoutTimer); clearInterval(intervalChequeoHorario);
-    Notificaciones.mostrar('Sesión cerrada por fin de horario laboral', 'warning');
-    if (cajaAbierta) {
+    Notificaciones.mostrar('Sesión finalizada por horario laboral (sin registrar cierre de caja).', 'warning');
+    if (false) { // V26.66: fin de sesión NO registra cierre contable ficticio.
         try {
             const datosSucursal = obtenerDatosSucursal();
             const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -3169,6 +3225,7 @@ async function guardarVentaCompleta() {
     }
     if (items.some(i=>i.asignacionesStock?.length&&!teusVerificarAsignaciones(i,i.asignacionesStock))) {Notificaciones.mostrar('La distribución de Stock del pedido cambió. Revisa nuevamente antes de guardar.','warning',5500);return;}
     if (!validarFormulario()) { Notificaciones.mostrar('Agrega al menos un producto', 'warning'); return; }
+    if(esVendedorV2670() && sinCajaV2666() && estadoCajaHoyV2620!=='OPERANDO') {Notificaciones.mostrar('Vendedor: es obligatoria una apertura real para registrar ventas.','warning',6000);return;}
     if (!cajaAbierta) { Notificaciones.mostrar('Debe abrir la caja antes de guardar', 'warning'); mostrarModalAperturaCaja(); return; }
     metodoPagoModal.style.display = 'flex';
     metodoPagoSeleccionado = 'Efectivo';
@@ -3355,6 +3412,7 @@ function inicializar() {
         actualizarEstadisticas();
     }
     setupActivityListeners();
+    document.addEventListener('visibilitychange',()=>{if(!document.hidden)verificarHorarioSesion();});
     resetSessionTimer();
     setTimeout(()=>{restaurarBorradorVentaV26();},700); // V26
     // Backend Apps Script: Apps Script se valida al confirmar la primera operación.
@@ -3442,6 +3500,7 @@ function configurarEventListeners() {
         }
     });
     window.addEventListener('focus', function() {
+        verificarHorarioSesion();
         if (ventasDiaEstaVisible()) {
             cargarVentasDiaDesdeSheet({notificar:false, silencioso:true});
         }
@@ -3458,9 +3517,17 @@ function configurarEventListeners() {
     abrirExternoIframeBtn.addEventListener('click', function() { if (urlIframeActual) window.open(urlIframeActual, '_blank'); });
 
     logoutBtn.addEventListener('click', function() {
-        Swal.fire({ title: '¿Cerrar Sesión?', text: 'Se perderán los datos no guardados', icon: 'warning', showCancelButton: true, confirmButtonText: 'Sí, cerrar sesión', cancelButtonText: 'Cancelar' }).then((result) => {
+        if(esVendedorV2670() && estadoCajaHoyV2620==='OPERANDO'){
+            Swal.fire({title:'Cierre obligatorio para vendedor',text:'Hay una caja operando. Para terminar tu jornada debes realizar el cierre de caja. Si la caja está compartida con otra persona, coordina con el responsable antes de cerrarla.',icon:'warning',showCancelButton:true,confirmButtonText:'Ir al cierre de caja',cancelButtonText:'Continuar trabajando'}).then(r=>{if(r.isConfirmed)mostrarModalCierreCaja();});
+            return;
+        }
+        if(esVendedorV2670() && (sinCajaV2666() || estadoCajaHoyV2620==='SIN_ABRIR')){
+            Notificaciones.mostrar('Vendedor: debes registrar la apertura antes de operar. Si solo ingresaste a la cuenta, puedes salir sin crear una apertura ficticia.','warning',6500);
+        }
+        // No cerrar una caja compartida por cerrar la sesión: el cierre contable se realiza por separado.
+        Swal.fire({ title: 'Salir de mi cuenta', text: esVendedorV2670() && estadoCajaHoyV2620==='OPERANDO' ? 'Norma para vendedores: la caja debe cerrarse al terminar la jornada por su responsable. Si Brenda u otra persona continúa atendiendo, salir de esta laptop NO cerrará la caja compartida.' : 'La caja de la sucursal seguirá sin cambios. No se registrará un cierre ni se modificarán importes.', icon: 'question', showCancelButton: true, confirmButtonText: 'Salir de mi sesión', cancelButtonText: 'Seguir trabajando' }).then((result) => {
             if (result.isConfirmed) {
-                if (cajaAbierta) cerrarCaja();
+                // Salir del usuario NUNCA debe generar automáticamente un cierre contable.
                 localStorage.removeItem('currentUser'); localStorage.removeItem('sucursalSeleccionada');
                 localStorage.removeItem('montoApertura'); localStorage.removeItem('montoCierre');
                 localStorage.removeItem('cajaAbierta'); localStorage.removeItem('horaAperturaCaja');
@@ -3495,7 +3562,7 @@ function configurarEventListeners() {
         setTimeout(function() { imprimirNotaVenta(); }, 100);
     });
     actionWhatsApp.addEventListener('click', function() { enviarResumenVentasDiaWhatsApp(); });
-    actionCerrarCaja.addEventListener('click', function() { if (!cajaAbierta) mostrarModalAperturaCaja(); else mostrarModalCierreCaja(); });
+    actionCerrarCaja.addEventListener('click', function() { if(sinCajaV2666()) {terminarSinCajaV2666();return;} if (!cajaAbierta) mostrarModalAperturaCaja(); else mostrarModalCierreCaja(); });
 
     syncToCloudBtn.addEventListener('click', sincronizarVentasANube);
     syncFromCloudBtn.addEventListener('click', sincronizarDesdeNube);
@@ -3568,9 +3635,10 @@ function configurarEventListeners() {
         aperturaCajaModal.style.display = 'none';
         abrirCaja(true);
     });
-    continuarSinAbrirCaja.addEventListener('click', function() { aperturaCajaModal.style.display = 'none'; abrirCaja(false); });
+    continuarSinAbrirCaja.addEventListener('click', function() { iniciarSinCajaV2666(); });
     closeCierreCajaModal.addEventListener('click', function() { cierreCajaModal.style.display = 'none'; });
     cancelCierreCaja.addEventListener('click', function() { cierreCajaModal.style.display = 'none'; });
+    document.getElementById('teusSoloSalirV2669').addEventListener('click', function(){ cierreCajaModal.style.display='none'; logoutBtn.click(); });
     confirmCierreCaja.addEventListener('click', function() {
         const monto = parseFloat(montoCierreCaja.value);
         if (isNaN(monto) || monto < 0) { Notificaciones.mostrar('Monto inválido', 'error'); return; }
@@ -3595,12 +3663,42 @@ function configurarEventListeners() {
     extendSessionBtn.addEventListener('click', hideSessionWarning);
     logoutTimeoutBtn.addEventListener('click', cerrarSesionAutomatica);
     imprimirResumenDiaBtn.addEventListener('click', function() { imprimirResumenVentasDia(); });
-    imprimirTodasVentasDiaBtn.addEventListener('click', function() { imprimirTodasVentasDia(); });
+    imprimirTodasVentasDiaBtn.addEventListener('click', function() { consultarCierreAntesDeImprimirV2667(); });
 }
 
+// V26.66: modo SIN CAJA solo local al dispositivo y por fecha/sucursal.
+// No registra APERTURA ni CIERRE ficticios en Google Sheets.
+function claveSinCajaV2666(){return 'teus_sin_caja_v2666_'+String(sucursalSeleccionada)+'_'+diaLocalV2617();}
+function sinCajaV2666(){return puedeTrabajarSinCajaV2670() && localStorage.getItem(claveSinCajaV2666())==='ACTIVO';}
+function salirSinCajaV2666(){localStorage.setItem(claveSinCajaV2666(),'FINALIZADO');cajaAbierta=false;horaAperturaCaja=null;ventasCajaActual=[];localStorage.removeItem('cajaAbierta');localStorage.removeItem('horaAperturaCaja');localStorage.removeItem('ventasCajaActual');actualizarEstadoCaja();pintarCajaDesdeVentasV2617();}
+function iniciarSinCajaV2666(){
+ if(!puedeTrabajarSinCajaV2670()){Notificaciones.mostrar('Solo ENCARGADO o ADMINISTRADOR pueden trabajar sin apertura. Como vendedor debes registrar la apertura.','warning',6500);return;}
+ if(!cajaVentasLeidasV2617){Notificaciones.mostrar('Primero comprueba el estado de caja en Sheets.','warning');return;}
+ if(estadoCajaHoyV2620==='OPERANDO'||estadoCajaHoyV2620==='CERRADA'){
+   Notificaciones.mostrar('Ya hay apertura o cierre registrado hoy. No se activó SIN CAJA.','warning',6000);return;
+ }
+ localStorage.setItem(claveSinCajaV2666(),'ACTIVO');cajaAbierta=true;horaAperturaCaja=new Date().toISOString();ventasCajaActual=[];
+ aperturaCajaModal.style.display='none';actualizarEstadoCaja();pintarCajaDesdeVentasV2617();
+ Notificaciones.mostrar('Modo SIN CAJA activo: las ventas se guardan, pero no se abre caja.','info',5500);
+}
+async function terminarSinCajaV2666(){
+ const r=await Swal.fire({title:'¿Terminar jornada sin caja?',text:'No se registrará un cierre de caja. Las ventas existentes se conservan.',icon:'question',showCancelButton:true,confirmButtonText:'Sí, terminar jornada',cancelButtonText:'Volver'});
+ if(r.isConfirmed){salirSinCajaV2666();Notificaciones.mostrar('Jornada sin caja finalizada. Sin movimiento de cierre.','success');}
+}
+function actualizarPermisoSinCajaV2670(){
+ const btn=document.getElementById('continuarSinAbrirCaja');
+ if(!btn)return;
+ const permitido=puedeTrabajarSinCajaV2670();
+ btn.style.display=permitido?'':'none';
+ btn.disabled=!permitido;
+ btn.title=permitido?'Ingresar sin apertura contable':'Solo para encargado y administrador';
+}
 function mostrarModalAperturaCaja() {
+ actualizarPermisoSinCajaV2670();
   if(!cajaVentasLeidasV2617){Notificaciones.mostrar('Primero verifica las operaciones de HOY en Google Sheets antes de abrir la caja.','warning',6000);cargarVentasDiaDesdeSheet({notificar:false,forzar:true}).catch(()=>{});return;}
   if(estadoCajaHoyV2620==='OPERANDO'){Notificaciones.mostrar('Esta sucursal YA está operando hoy.','warning',4000);return;}
+  if(sinCajaV2666()){Notificaciones.mostrar('Ya estás trabajando SIN CAJA.','info');return;}
+  if(estadoCajaHoyV2620==='CERRADA'){Notificaciones.mostrar('La caja ya está cerrada hoy. Requiere revisión administrativa antes de otra apertura.','warning',6500);return;}
   montoAperturaCaja.value='';aperturaCajaModal.style.display='flex';
 }
 function mostrarModalCierreCaja() {
@@ -3618,6 +3716,9 @@ function mostrarModalCierreCaja() {
 }
 
 function abrirCaja(registrarApertura = true) {
+    if(sinCajaV2666()){Notificaciones.mostrar('Termina primero la jornada SIN CAJA para abrir caja real.','warning');return;}
+    if(estadoCajaHoyV2620!=='SIN_ABRIR'){Notificaciones.mostrar('Ya existe una apertura o cierre en esta sucursal hoy; no se duplicará.','warning',5500);return;}
+    if(ventasDelDia.some(v=>v&&fechaVentaV2617(v)&&perteneceVentaASucursal(v)&&esAperturaV2617(v)&&!esAnuladaV2620(v))){Notificaciones.mostrar('Ya hay una apertura registrada o pendiente hoy.','warning');return;}
     cajaAbierta = true;
     if (registrarApertura) {
         horaAperturaCaja = new Date().toISOString();
@@ -3647,6 +3748,8 @@ function abrirCaja(registrarApertura = true) {
 }
 
 function cerrarCaja() {
+    if(sinCajaV2666()){terminarSinCajaV2666();return;}
+    if(ventasDelDia.some(v=>v&&fechaVentaV2617(v)&&perteneceVentaASucursal(v)&&esCierreV2617(v)&&!esAnuladaV2620(v)&&(!horaAperturaCaja||horaVentaV2617(v)>=(inicioSesionSegundosV2617()??0)))){Notificaciones.mostrar('Ya existe un cierre registrado o pendiente para este turno.','warning',6000);return;}
     if (!cajaAbierta || estadoCajaHoyV2620!=='OPERANDO') { Notificaciones.mostrar('La caja no está operando actualmente', 'warning'); return; }
     const datosSucursal = obtenerDatosSucursal();
     const dias = ['Domingo', 'Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado'];
@@ -3844,7 +3947,7 @@ async function editarVentaSeguraV2631(index){
 
 // V26.35: corrección de modalidad de cambio SIN agregar ni eliminar movimientos de dinero.
 async function ajustarCambioVentaV2635(index){
-  if(!currentUser || !['admin','vendedor'].includes(normalizarRolSistema(currentUser.rol))){Notificaciones.mostrar('Debes iniciar sesión para ajustar el cambio','warning');return;}
+  if(!currentUser || !['admin','encargado','vendedor'].includes(normalizarRolSistema(currentUser.rol))){Notificaciones.mostrar('Debes iniciar sesión para ajustar el cambio','warning');return;}
   const v=ventasDelDia[index];if(!v)return;
   // No permitir ajustar el cambio de una venta de una fecha anterior.
   if(fechaComparableVentas(v.fecha)!==fechaComparableVentas(diaLocalV2617())){
@@ -4341,6 +4444,32 @@ function imprimirNotaVentaGuardada(venta) {
     setTimeout(() => { try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) {} setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 1000); }, 500);
 }
 
+async function consultarCierreAntesDeImprimirV2667(){
+    if(!currentUser) return;
+    const h=obtenerHoraDecimal();
+    // No interrumpir la impresión fuera del horario de recordatorio.
+    if(h<17.5 || h>=20 || sinCajaV2666() || !cajaAbierta || estadoCajaHoyV2620!=='OPERANDO'){
+        imprimirTodasVentasDia();
+        return;
+    }
+    const r=await Swal.fire({
+        title:'¿Quieres cerrar caja?',
+        html:'<p>Son horas habituales de cierre (17:30 a 20:00) y la caja aún está abierta.</p><p style="margin-top:8px">Puedes imprimir las ventas y continuar trabajando, o preparar el cierre.</p>',
+        icon:'question', showCancelButton:true,showDenyButton:true,
+        confirmButtonText:'Cerrar caja',denyButtonText:'Solo imprimir',cancelButtonText:'Cancelar',
+        confirmButtonColor:'#16835f',denyButtonColor:'#2476b5',
+        reverseButtons:true
+    });
+    if(r.isConfirmed){
+        // Se imprime el listado antes de abrir la ventana de cierre.
+        // Nunca registra cierre automáticamente: requiere monto y confirmación.
+        imprimirTodasVentasDia();
+        mostrarModalCierreCaja();
+    } else if(r.isDenied){
+        imprimirTodasVentasDia();
+    }
+}
+
 function imprimirTodasVentasDia() {
     const hoy = new Date().toLocaleDateString('es-ES');
     const hoyCmp = fechaComparableVentas(hoy);
@@ -4715,6 +4844,7 @@ function aplicarPermisosPorRolV21() {
         el.style.display = admin ? '' : 'none';
     });
 
+    actualizarPermisoSinCajaV2670();
     // Accesos directos a fuentes editables/administrativas.
     const excelProductos = document.getElementById('abrirProductosAgregados');
     if (excelProductos) {
@@ -4733,6 +4863,7 @@ function mostrarPantallaPrincipal() {
     sidebarSucursal.textContent = `Sucursal: ${sucursalSeleccionada}`;
     cajaVentasLeidasV2617=false;cajaAbierta=false;horaAperturaCaja=null;estadoCajaHoyV2620='SIN_ABRIR';
     aplicarPermisosPorRolV21();
+    actualizarPermisoSinCajaV2670();
     actualizarSeleccionSucursal();
     setTimeout(()=>refrescarCajaAlEntrarV2617({google:true}),50);
 }
@@ -4831,6 +4962,12 @@ function mostrarResumenCierre(resumen) {
 }
 
 function actualizarEstadoCaja() {
+    if(sinCajaV2666()&&estadoCajaHoyV2620==='SIN_CAJA'){
+      cajaStatus.textContent='Jornada SIN CAJA · ventas permitidas · sin cierre de caja';
+      cajaInfo.style.borderLeftColor='#e69b25';
+      const t=actionCerrarCaja.querySelector('.action-title');if(t)t.textContent='Terminar Jornada';
+      agregarProductoBtn.disabled=false;actionGuardarVenta.disabled=false;actionImprimir.disabled=false;return;
+    }
     if (cajaAbierta) {
         cajaStatus.textContent = `Caja abierta en ${sucursalSeleccionada} desde ${new Date(horaAperturaCaja).toLocaleTimeString()}`;
         cajaInfo.style.borderLeftColor = '#28a745';
@@ -5228,7 +5365,8 @@ function pintarCajaDesdeVentasV2617(){
   const ordenados=[...filas].sort((a,b)=>hora(a)-hora(b));
   const eventos=ordenados.filter(v=>esAperturaV2617(v)||esCierreV2617(v));
   const ultimo=eventos.length?eventos[eventos.length-1]:null;
-  const estado=!ultimo?'SIN_ABRIR':esCierreV2617(ultimo)?'CERRADA':'OPERANDO';
+  const estadoBase=!ultimo?'SIN_ABRIR':esCierreV2617(ultimo)?'CERRADA':'OPERANDO';
+  const estado=estadoBase==='SIN_ABRIR'&&sinCajaV2666()?'SIN_CAJA':estadoBase;
   const apertura=estado==='SIN_ABRIR'?null:ultimo && esAperturaV2617(ultimo)?ultimo:(()=>{
     const prev=ordenados.filter(v=>esAperturaV2617(v)&&hora(v)<=hora(ultimo));
     return prev.length?prev[prev.length-1]:null;
@@ -5241,6 +5379,23 @@ function pintarCajaDesdeVentasV2617(){
   const operaciones=apertura?ordenados.filter(enTurno):[];
   const normales=operaciones.filter(v=>!esAperturaV2617(v)&&!esCierreV2617(v)&&!esMonedasV2620(v)&&!esAnuladaV2620(v));
   const monedas=operaciones.filter(esMonedasV2620);
+  // V26.68 — Indicar origen comprobado: este conjunto contiene SOLO operaciones del día.
+  // Nunca adjudicar a hoy una apertura antigua no disponible en estos datos.
+  const marcadorApertura=document.getElementById('teusFechaAperturaV2668');
+  const cierreOrigen=document.getElementById('teusCierreAperturaV2668');
+  const fechaReal=apertura?String(apertura.fecha||diaLocalV2617()).trim():'';
+  const horaReal=apertura?String(apertura.hora||'hora no disponible').trim():'';
+  const usuarioReal=apertura?String(apertura.usuario||apertura.vendedor||apertura.usuario_operando||'no identificado').trim():'';
+  const sucursalReal=String(sucursalSeleccionada||'');
+  let origenTexto='';let claseOrigen='pendiente';
+  if(estado==='SIN_CAJA'){origenTexto='Jornada SIN CAJA · sin apertura contable';claseOrigen='sin-caja';}
+  else if(apertura && (estado==='OPERANDO'||estado==='CERRADA')){origenTexto='Abierta desde '+fechaReal+' a las '+horaReal+' · por '+usuarioReal;claseOrigen='';}
+  else if(!cajaVentasLeidasV2617){origenTexto='Apertura sin verificar · falta confirmar datos de Sheets';}
+  else{origenTexto='Sin apertura registrada hoy · una apertura anterior no se puede confirmar aquí';}
+  if(marcadorApertura){marcadorApertura.textContent=origenTexto;marcadorApertura.className='teus-apertura-estado '+claseOrigen;marcadorApertura.title='Sucursal: '+sucursalReal;}
+  if(cierreOrigen){
+    cierreOrigen.textContent=apertura?'Apertura verificada: '+fechaReal+' · '+horaReal+' · '+usuarioReal+' | Sucursal: '+sucursalReal+'.':'Atención: no hay una apertura verificada del día en esta sucursal. No asumas que el efectivo esperado corresponde a una caja nueva.';
+  }
   const aperturaMonto=apertura?numeroCajaV2617(apertura.monto_efectivo||apertura.apertura_caja):0;
   const contado=estado==='CERRADA'?numeroCajaV2617(ultimo?.monto_efectivo):null;
   const ingresos=monedas.reduce((s,x)=>s+numeroCajaV2617(x.INGRESO_EFECTIVO),0);
@@ -5263,15 +5418,15 @@ function pintarCajaDesdeVentasV2617(){
   const verificado=confirmado&&!!apertura&&manualOk;
   estadoCajaHoyV2620=estado;
   // Nunca permitir que la caja abierta de otra sucursal o de ayer sobreviva en memoria.
-  cajaAbierta=estado==='OPERANDO';
-  horaAperturaCaja=estado==='OPERANDO'&&apertura?fechaHoraRegistroHoyV2620(apertura):null;
-  montoApertura=cajaAbierta?aperturaMonto:0;
+  cajaAbierta=estado==='OPERANDO'||estado==='SIN_CAJA';
+  horaAperturaCaja=estado==='OPERANDO'&&apertura?fechaHoraRegistroHoyV2620(apertura):estado==='SIN_CAJA'?new Date().toISOString():null;
+  montoApertura=estado==='OPERANDO'?aperturaMonto:0;
   localStorage.setItem('cajaAbierta',String(cajaAbierta));
   if(horaAperturaCaja)localStorage.setItem('horaAperturaCaja',horaAperturaCaja);
   else localStorage.removeItem('horaAperturaCaja');
   actualizarEstadoCaja();
   cajaRevisionV2617={esperado:cajaAbierta&&verificado?esperado:null,aperturaSesion:aperturaMonto,aperturaDia:aperturaMonto,ventas:efectivo,cambio:cambioEfectivo,manualVerificado:manualOk};
-  const texto=estado==='SIN_ABRIR'?'Sin abrir hoy':estado==='OPERANDO'?'Operando':'Cerrada';
+  const texto=estado==='SIN_CAJA'?'Operando sin apertura de caja':estado==='SIN_ABRIR'?'Sin abrir hoy':estado==='OPERANDO'?'Operando':'Cerrada';
   actualizaTextoCajaV2617('rcEstado',texto+' · '+normales.length+' venta(s) del turno · '+(confirmado?'Sheets leído':'lectura sin confirmar'));
   actualizaTextoCajaV2617('rcApertura',apertura?dineroV2617(aperturaMonto):'Sin apertura hoy');
   actualizaTextoCajaV2617('rcAperturaSesion',apertura?dineroV2617(aperturaMonto):'Sin apertura hoy');
@@ -5279,15 +5434,15 @@ function pintarCajaDesdeVentasV2617(){
   actualizaTextoCajaV2617('rcCambio',dineroV2617(cambioEfectivo));
   actualizaTextoCajaV2617('rcSencillo','+'+dineroV2617(ingresos));
   actualizaTextoCajaV2617('rcRetiros',manualOk?dineroV2617(retiros):'Sin verificar');
-  const titulo=estado==='SIN_ABRIR'?'SIN APERTURA HOY':estado==='OPERANDO'?'EFECTIVO ESPERADO EN CAJA':'EFECTIVO CONTADO AL CERRAR';
-  const principal=estado==='SIN_ABRIR'?'Sin abrir':estado==='CERRADA'?dineroV2617(contado):confirmado&&apertura?(dineroV2617(esperado)+(manualOk?'':' (provisional)')):'Pendiente de Sheets';
+  const titulo=estado==='SIN_CAJA'?'JORNADA SIN CAJA':estado==='SIN_ABRIR'?'SIN APERTURA HOY':estado==='OPERANDO'?'EFECTIVO ESPERADO EN CAJA':'EFECTIVO CONTADO AL CERRAR';
+  const principal=estado==='SIN_CAJA'?'Sin control de caja':estado==='SIN_ABRIR'?'Sin abrir':estado==='CERRADA'?dineroV2617(contado):confirmado&&apertura?(dineroV2617(esperado)+(manualOk?'':' (provisional)')):'Pendiente de Sheets';
   actualizaTextoCajaV2617('rcEfectivoTitulo',titulo);
   actualizaTextoCajaV2617('rcEfectivoCaja',principal);
   actualizaTextoCajaV2617('rcEsperadoTitulo',estado==='CERRADA'?'ESPERADO AL CIERRE':'CIERRE ESPERADO');
-  actualizaTextoCajaV2617('rcEsperado',estado==='SIN_ABRIR'?'Sin abrir':confirmado&&apertura?(dineroV2617(esperado)+(manualOk?'':' (provisional)')):'Pendiente de Sheets');
+  actualizaTextoCajaV2617('rcEsperado',estado==='SIN_CAJA'?'No aplica':estado==='SIN_ABRIR'?'Sin abrir':confirmado&&apertura?(dineroV2617(esperado)+(manualOk?'':' (provisional)')):'Pendiente de Sheets');
   actualizaTextoCajaV2617('rcCierreRegistrado',estado==='CERRADA'?dineroV2617(contado):'Sin cierre hoy');
   const etiqueta=document.getElementById('rcAperturaSesionEtiqueta');if(etiqueta&&etiqueta.firstChild)etiqueta.firstChild.textContent='Apertura de este turno: ';
-  actualizaTextoCajaV2617('rcUltimoMovimiento',estado==='SIN_ABRIR'?'No existe APERTURA de la fecha actual en esta sucursal.':estado==='OPERANDO'?'Sucursal operando desde '+(apertura?.hora||'')+'.': 'Cierre registrado hoy a las '+(ultimo?.hora||'')+'.');
+  actualizaTextoCajaV2617('rcUltimoMovimiento',estado==='SIN_CAJA'?'Modo SIN CAJA: ventas sin apertura ni cierre contable.':estado==='SIN_ABRIR'?'No existe APERTURA de la fecha actual en esta sucursal.':estado==='OPERANDO'?'Sucursal operando desde '+(apertura?.hora||'')+'.': 'Cierre registrado hoy a las '+(ultimo?.hora||'')+'.');
   if(!manualOk && estado!=='SIN_ABRIR')actualizaTextoCajaV2617('rcUltimoMovimiento',(document.getElementById('rcUltimoMovimiento')?.textContent||'')+' Retiros manuales sin verificar; el saldo esperado es provisional.');
   const vis=document.getElementById('cierrePrevisualizacionV2617');if(vis){
     const n=numeroCajaV2617(document.getElementById('montoCierreCaja')?.value);
