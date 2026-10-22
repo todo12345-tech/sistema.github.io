@@ -1,51 +1,288 @@
-<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Todoenuno_store · Pantalla Inalámbrica</title><style>
-*{box-sizing:border-box}body{margin:0;background:#0e1c2c;color:white;font-family:Arial,'Segoe UI',sans-serif}button,input{font:inherit}button{cursor:pointer}header{padding:18px 3vw;background:#112a43;display:flex;align-items:center;justify-content:space-between;gap:16px;border-bottom:4px solid #ffd814}header strong{font-size:clamp(20px,3vw,35px)}.tag{color:#ffd814;font-weight:700;font-size:clamp(11px,1.3vw,15px)}#login{position:fixed;inset:0;z-index:10;background:#0c1b2c;display:grid;place-items:center;padding:16px}#login form{background:white;color:#112438;border-radius:22px;padding:32px;width:min(410px,96vw);box-shadow:0 16px 44px #0006}#login h1{margin:0 0 6px;font-size:24px}#login p{color:#61758b;line-height:1.4}#login label{display:block;margin:14px 0 6px;font-weight:700}#login input{width:100%;border:1px solid #bdc9d4;padding:13px;border-radius:9px}#login button,.action{background:#ffd814;color:#152238;border:0;border-radius:10px;padding:13px;font-weight:800}#login button{width:100%;margin-top:19px}#loginMsg{color:#b91c1c;font-size:13px}main{min-height:calc(100vh - 90px);display:flex;flex-direction:column}#idle,#sale{flex:1;display:none}#idle.active,#sale.active{display:flex}#idle{position:relative;overflow:hidden;align-items:stretch;min-height:60vh;background:linear-gradient(115deg,#192b4a,#0e1c2c)}.slide{min-width:100%;width:100%;padding:5vh 6vw;display:grid;grid-template-columns:1fr 1fr;align-items:center;gap:5vw;flex:none}.track{display:flex;width:100%;transition:transform .65s ease-in-out}.slide .label{display:inline-block;background:#ffd814;color:#171e2c;padding:10px 18px;border-radius:99px;font-weight:900;font-size:clamp(14px,1.7vw,27px)}.slide h2{font-size:clamp(30px,5vw,75px);line-height:1.04;margin:20px 0}.slide img{max-width:100%;width:100%;max-height:65vh;object-fit:contain;background:white;border-radius:24px;padding:20px;box-shadow:0 25px 45px #0004}.current{font-size:clamp(27px,4.3vw,65px);font-weight:900;color:#ffd814}.old{font-size:clamp(18px,2vw,31px);text-decoration:line-through;color:#d5d9de}.save{display:inline-block;background:#db3545;padding:10px 17px;border-radius:12px;font-size:clamp(15px,2vw,27px);font-weight:900;margin-top:12px}.emptyoffer{padding:15vh 5vw;text-align:center;font-size:clamp(24px,4vw,50px);color:#ffd814}.smallnote{font-size:14px;color:#9fb4c7}.status{background:#0c2034;color:#bcd1e5;padding:7px 20px;font-size:12px;text-align:center}#sale{flex-direction:column;background:#f5f7fb;color:#162d44;padding:2vh 3vw}.saleheader{display:flex;align-items:center;justify-content:space-between;gap:10px}.saleheader h1{font-size:clamp(24px,3vw,44px);margin:9px 0}.saleheader p{font-size:clamp(16px,2vw,26px);margin:0 0 12px}.list{background:white;border-radius:16px;overflow-y:auto;flex:1;max-height:65vh;box-shadow:0 8px 24px #122e4510}.item{display:grid;grid-template-columns:minmax(70px,120px) 1fr 130px 170px;align-items:center;gap:20px;padding:14px 18px;border-bottom:1px solid #dfe5ed}.item img{width:95px;height:95px;object-fit:contain;border-radius:10px;border:1px solid #e6e7ee}.nofoto{width:95px;height:95px;border-radius:10px;background:#eef0f5;color:#63778b;display:grid;place-items:center;font-size:13px}.name{font-size:clamp(17px,2vw,28px);font-weight:700}.qty,.sum{font-size:clamp(17px,2vw,28px);font-weight:800}.sum{text-align:right}.total{margin-top:16px;border-radius:14px;background:#ffd814;padding:16px 22px;display:flex;align-items:center;justify-content:space-between;font-size:clamp(30px,4vw,60px);font-weight:900}#paybox{display:none;position:fixed;inset:0;background:#0c182cee;z-index:9;align-items:center;justify-content:center;flex-direction:column;gap:16px;padding:20px}#paybox img{max-width:min(72vw,410px);max-height:55vh;border:10px solid white;border-radius:20px;object-fit:contain}#paybox .paytitle{font-size:clamp(25px,4vw,56px);font-weight:900;color:#ffd814}.controls{position:fixed;bottom:15px;right:15px;z-index:4;display:flex;gap:8px;opacity:.15;transition:opacity .2s}.controls:hover,.controls:focus-within{opacity:1}.controls button{background:#29455f;color:white;border:1px solid #789;min-width:70px;padding:10px;border-radius:10px}#notice{color:#ffd814;font-size:15px}@media(max-width:700px){.slide{grid-template-columns:1fr;padding:18px 5vw}.slide img{max-height:30vh;order:-1}.slide h2{font-size:27px;margin:9px 0}.item{grid-template-columns:58px 1fr auto;gap:9px;padding:10px}.item img,.nofoto{width:54px;height:54px}.item .qty{grid-column:2;font-size:14px}.item .sum{grid-row:1;grid-column:3;font-size:16px}.name{font-size:16px}.saleheader h1{font-size:21px}.list{max-height:64vh}}
-</style></head><body><header><strong>TODOENUNO_STORE</strong><span class="tag">CALIDAD Y SOLUCIONES PRÁCTICAS PARA TODOS</span></header>
-<div id="login"><form id="loginForm"><h1>Conectar pantalla inalámbrica</h1><p>Identifica esta pantalla (por ejemplo, CELULAR12) e ingresa con tu usuario vendedor. Cuando el servidor confirme el acceso, quedará ACTIVA en Sheets.</p><label>Nombre o código de este dispositivo</label><input id="pantalla" value="CELULAR12" maxlength="25" required><label>Usuario vendedor</label><input id="usuarioVendedor" autocomplete="username" required placeholder="Usuario"><label>Contraseña</label><input id="secret" type="password" required autocomplete="current-password" placeholder="Contraseña"><button type="submit">Iniciar pantalla</button><p id="loginMsg" role="alert"></p></form></div>
-<main><section id="idle" class="active"><div class="track" id="track"><div class="emptyoffer">TODOENUNO_STORE <p style="font-size:22px;color:white">Ofertas del día y de la semana</p></div></div></section><section id="sale"><div class="saleheader"><div><h1>Detalle de tu pedido</h1><p id="buyer">Cliente</p></div><button class="action" id="pay" type="button">Ver QR para pagar</button></div><div class="list" id="list"></div><div class="total"><span>TOTAL</span><span id="total">Bs 0</span></div></section></main>
-<div id="paybox"><div class="paytitle">Escanea para pagar</div><img id="qr" alt="QR de pago"><div id="paymentTotal" class="paytitle"></div><button class="action" id="payClose">Volver al pedido</button></div>
-<div class="controls"><button type="button" id="finish">Finalizar atención</button><button type="button" id="logout">Cerrar pantalla</button></div><div id="status" class="status">Ofertas de Todoenuno_store</div>
-<script>
-(function(){'use strict';
-const API='https://script.google.com/macros/s/AKfycbzMqTItarxje6E7kLC5LPVmva-G9JGaHZEANBJxciVMMXXtWKrwX4yv3R7Lroz5kK3C6w/exec';
-const CATALOG='https://script.google.com/macros/s/AKfycbw_BiqTbqL0eaMRKZTmJqbgsIchHBKQEocRprOGpPbHbIh2HCcTEW4cXYdgmGCPZqn3/exec';
-const $=id=>document.getElementById(id),fmt=n=>'Bs '+Number(n||0).toLocaleString('es-BO',{maximumFractionDigits:2});
-let pantalla='CAJA01',secret='',keyRead='',session='',connected=false,version=-1,ofertas=[],slide=0,pedido=null,busy=false;
-try{const q=new URLSearchParams(location.search);$('pantalla').value=q.get('pantalla')||'CELULAR12';}catch(e){}
-function jsonp(url,params,timeout=14000){return new Promise((resolve,reject)=>{const cb='pi_cb_'+Math.random().toString(36).slice(2);const script=document.createElement('script');let finished=false;const timer=setTimeout(()=>done(new Error('Tiempo de espera agotado')),timeout);function done(err,val){if(finished)return;finished=true;clearTimeout(timer);delete window[cb];script.remove();err?reject(err):resolve(val)}window[cb]=res=>done(null,res);script.onerror=()=>done(new Error('Error de red'));script.src=url+(url.includes('?')?'&':'?')+new URLSearchParams({...params,callback:cb,t:Date.now()}).toString();document.head.append(script);});}
-function post(params){return new Promise((resolve,reject)=>{
-  const bytes=new Uint8Array(24);crypto.getRandomValues(bytes);
-  const rid=Array.from(bytes,b=>b.toString(16).padStart(2,'0')).join('');
-  const iframe=document.createElement('iframe');iframe.name='pi_post_'+rid;iframe.style.display='none';
-  const form=document.createElement('form');form.method='POST';form.action=API;form.target=iframe.name;form.style.display='none';
-  for(const [k,v] of Object.entries({...params,rid,origen:location.origin})){
-    const input=document.createElement('input');input.name=k;input.value=String(v);form.append(input);
+/**
+ * TODOENUNO_STORE | PANTALLA INALÁMBRICA v1.0
+ * Apps Script V7. Usa SpreadsheetApp para consultar el mismo Sheet de usuarios que Ventas.
+ * Compatible con Ventas por Mayor V4.21:
+ *  GET  accion=estadoPantalla&pantalla=CAJA01&callback=...
+ *  POST accion=enviarPedido, pantalla, clave, pedido_json, origen
+ * Incluye acciones para el futuro HTML receptor:
+ *  POST iniciarPantalla / latidoPantalla / cerrarPantalla / finalizarPedido
+ *  GET  leerPantalla (requiere claveLectura)
+ *
+ * IMPORTANTE: publicar como aplicación web, ejecutar como propietario,
+ * acceso: cualquiera (las ACCIONES sensibles validan sus claves específicas).
+ * No pongas contraseñas del negocio, teléfonos ni datos privados en el JSON del pedido.
+ */
+const PI = Object.freeze({
+  LOGIN_CSV: 'https://docs.google.com/spreadsheets/d/1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok/export?format=csv',
+  SHEET: 'pantallas_cliente',
+  HEADERS: ['id_pantalla','nombre_pantalla','estado','pedido_json','fecha_actualizacion','version'],
+  ID_INICIAL: 'CAJA01',
+  VIGENCIA_MS: 90000,
+  MAX_BYTES: 60000,
+  MAX_ITEMS: 100
+});
+
+function instalarPantallaInalambrica(){
+  const ss = SpreadsheetApp.getActiveSpreadsheet();
+  if(!ss)throw new Error('Abre Extensiones > Apps Script desde tu hoja de pantalla inalámbrica.');
+  const hoja = obtenerHoja_();
+  const props=PropertiesService.getScriptProperties();
+  if(!props.getProperty('CLAVE_ENVIO'))props.setProperty('CLAVE_ENVIO', Utilities.getUuid().replace(/-/g,'') + Utilities.getUuid().slice(0,8));
+  if(!props.getProperty('CLAVE_PANTALLA'))props.setProperty('CLAVE_PANTALLA', Utilities.getUuid().replace(/-/g,'') + Utilities.getUuid().slice(0,8));
+  if(!props.getProperty('CLAVE_LECTURA'))props.setProperty('CLAVE_LECTURA', Utilities.getUuid().replace(/-/g,'') + Utilities.getUuid().slice(0,8));
+  if(!filaPorPantalla_(hoja, PI.ID_INICIAL)){
+    hoja.appendRow([PI.ID_INICIAL, 'Pantalla principal', 'INACTIVA', '', '', 0]);
   }
-  document.body.append(iframe,form);
-  let done=false,tries=0,waitId;
-  async function poll(){if(done)return;
-    try{const r=await jsonp(API,{accion:'respuestaOperacion',pantalla:params.pantalla||'CAJA01',rid},9000);
-      if(!r.pendiente){finish(null,r);return;}
-    }catch(e){} // una consulta fallida no cancela la operación original
-    if(!done)waitId=setTimeout(poll,850);
+  hoja.setFrozenRows(1);
+  hoja.autoResizeColumns(1, 3);
+  hoja.setColumnWidth(4, 300);
+  Logger.log('INSTALADO: ' + ss.getUrl());
+  Logger.log('CLAVE_ENVIO (poner en Ventas V4.21): ' + props.getProperty('CLAVE_ENVIO'));
+  Logger.log('CLAVE_PANTALLA (solo pantalla receptora): ' + props.getProperty('CLAVE_PANTALLA'));
+  Logger.log('CLAVE_LECTURA (solo pantalla receptora): ' + props.getProperty('CLAVE_LECTURA'));
+  Logger.log('Guarda las claves en lugar privado. No publiques estos registros.');
+}
+
+function doGet(e){
+  const p=(e&&e.parameter)||{};
+  try{
+    let result;
+    const id=idValido_(p.pantalla || PI.ID_INICIAL);
+    switch(String(p.accion||'')){
+      case 'estadoPantalla': {
+        const h=obtenerHoja_(), n=filaPorPantalla_(h,id);
+        const row=n?h.getRange(n,1,1,6).getValues()[0]:null;
+        result={ok:true,pantalla:id,disponible:!!(row&&pantallaDisponible_(id,row)),estado:row?String(row[2]):'NO_REGISTRADA'};
+        break;
+      }
+      case 'leerPantalla': {
+        if(!validarSesionVendedor_(p.sesion,id))validarClave_(p.claveLectura,'CLAVE_LECTURA');
+        const h=obtenerHoja_(), n=filaPorPantalla_(h,id);
+        if(!n){result={ok:false,error:'Pantalla no registrada'};break;}
+        const r=h.getRange(n,1,1,6).getValues()[0];
+        const data=r[3]?JSON.parse(String(r[3])):null;
+        result={ok:true,pantalla:id,disponible:pantallaDisponible_(id,r),estado:String(r[2]),version:Number(r[5])||0,pedido:data};
+        break;
+      }
+      case 'respuestaOperacion': {
+        const rid=String(p.rid||'');
+        if(!/^[a-f0-9]{32,64}$/i.test(rid)){result={ok:false,error:'Identificador de respuesta inválido'};break;}
+        const cache=CacheService.getScriptCache().get('PI_RESP_'+rid);
+        result=cache?JSON.parse(cache):{ok:true,pendiente:true};
+        break;
+      }
+      case 'salud': result={ok:true,servicio:'Pantalla Inalámbrica',version:6};break;
+      default: result={ok:false,error:'Acción GET desconocida'};
+    }
+    return jsonp_(result,p.callback);
+  }catch(err){return jsonp_({ok:false,error:String(err.message||err)},p.callback);}
+}
+
+function doPost(e){
+  const p=(e&&e.parameter)||{};
+  let result;
+  try{
+    const id=idValido_(p.pantalla||PI.ID_INICIAL);
+    const a=String(p.accion||'');
+    const lock=LockService.getScriptLock();
+    if(!lock.tryLock(10000))throw new Error('El servidor está ocupado. Vuelve a intentar.');
+    try{
+      const sh=obtenerHoja_();
+      let n=filaPorPantalla_(sh,id);
+      if(!n && !['iniciarPantalla','loginVendedorPantalla'].includes(a))throw new Error('Pantalla no registrada: '+id);
+      if(a==='loginVendedorPantalla'){
+        const u=verificarVendedor_(p.usuario,p.contrasena);
+        if(!n){sh.appendRow([id,'Pantalla '+id,'INACTIVA','','',0]);n=sh.getLastRow();}
+        const token=Utilities.getUuid().replace(/-/g,'')+Utilities.getUuid().replace(/-/g,'');
+        CacheService.getScriptCache().put('PI_SES_'+token,JSON.stringify({pantalla:id,usuario:u.nombre}),21600);
+        sh.getRange(n,3).setValue('ACTIVA');guardarLatido_(id);
+        result={ok:true,disponible:true,pantalla:id,sesion:token,vendedor:u.nombre};
+      }else if(a==='iniciarPantalla'){
+        if(!validarSesionVendedor_(p.sesion,id))validarClave_(p.clavePantalla,'CLAVE_PANTALLA');
+        if(!n){sh.appendRow([id,'Pantalla '+id,'INACTIVA','','',0]);n=sh.getLastRow();}
+        sh.getRange(n,3).setValue('ACTIVA');
+        guardarLatido_(id);
+        result={ok:true,disponible:true,pantalla:id};
+      }else if(a==='latidoPantalla'){
+        if(!validarSesionVendedor_(p.sesion,id))validarClave_(p.clavePantalla,'CLAVE_PANTALLA');
+        sh.getRange(n,3).setValue('ACTIVA');guardarLatido_(id);
+        result={ok:true,disponible:true};
+      }else if(a==='cerrarPantalla'){
+        if(!validarSesionVendedor_(p.sesion,id))validarClave_(p.clavePantalla,'CLAVE_PANTALLA');
+        sh.getRange(n,3).setValue('INACTIVA');borrarLatido_(id);
+        result={ok:true,disponible:false};
+      }else if(a==='enviarPedido'){
+        validarClave_(p.clave,'CLAVE_ENVIO');
+        const row=sh.getRange(n,1,1,6).getValues()[0];
+        if(!pantallaDisponible_(id,row))throw new Error('La pantalla no está disponible. Inicia sesión en la pantalla receptora.');
+        const raw=String(p.pedido_json||'');
+        if(raw.length>PI.MAX_BYTES)throw new Error('Pedido demasiado grande');
+        const pedido=pedidoValidado_(JSON.parse(raw),id);
+        const ver=(Number(row[5])||0)+1;
+        sh.getRange(n,4,1,3).setValues([[JSON.stringify(pedido),new Date(),ver]]);
+        result={ok:true,pantalla:id,version:ver};
+      }else if(a==='finalizarPedido'){
+        if(!validarSesionVendedor_(p.sesion,id))validarClave_(p.clavePantalla,'CLAVE_PANTALLA');
+        const ver=(Number(sh.getRange(n,6).getValue())||0)+1;
+        sh.getRange(n,4,1,3).setValues([['',new Date(),ver]]);
+        result={ok:true,version:ver};
+      }else throw new Error('Acción POST desconocida');
+    }finally{lock.releaseLock();}
+  }catch(err){result={ok:false,error:String(err.message||err)};}
+  // Confirmación por consulta JSONP, independiente de los iframes de Google.
+  // El identificador aleatorio secreto NO contiene usuario ni contraseña.
+  const rid=String(p.rid||'');
+  if(/^[a-f0-9]{32,64}$/i.test(rid)){
+    try{CacheService.getScriptCache().put('PI_RESP_'+rid,JSON.stringify(result),120);}catch(err){}
   }
-  function finish(err,r){if(done)return;done=true;clearTimeout(waitId);clearTimeout(limit);iframe.remove();form.remove();err?reject(err):resolve(r);}
-  const limit=setTimeout(()=>finish(new Error('No llegó la respuesta del servidor en 40 segundos. Verifica la implementación pública de Apps Script V5.')),40000);
-  form.submit();waitId=setTimeout(poll,850);
-});}
-function setStatus(t){$('status').textContent=t;}
-async function beat(){if(!connected)return;try{const r=await post({accion:'latidoPantalla',pantalla,sesion:session});if(!r.ok)throw new Error(r.error||'Error de sesión');}catch(e){setStatus('Sin conexión con el servidor: '+e.message);}}
-async function read(){if(!connected||busy)return;busy=true;try{const r=await jsonp(API,{accion:'leerPantalla',pantalla,sesion:session});if(!r.ok)throw new Error(r.error||'Error de lectura');if(r.version!==version){version=r.version;pedido=r.pedido||null;renderPedido();}setStatus('Pantalla '+pantalla+' · '+(r.disponible?'EN LÍNEA':'Reconectando')+' · '+(pedido?'Pedido recibido':'Promociones'));}catch(e){setStatus('Reintentando conexión: '+e.message);}finally{busy=false}}
-function renderPedido(){const active=!!pedido;$('idle').classList.toggle('active',!active);$('sale').classList.toggle('active',active);$('paybox').style.display='none';if(!active)return;$('buyer').textContent=pedido.cliente||'Cliente en caja';$('total').textContent=fmt(pedido.total);const list=$('list');list.replaceChildren();for(const it of pedido.items||[]){const row=document.createElement('div');row.className='item';const pic=document.createElement('div');if(/^https:/.test(it.foto||'')){const img=new Image();img.src=it.foto;img.alt=it.nombre;img.onerror=()=>pic.replaceChildren(document.createTextNode('Sin foto'));pic.append(img);}else{pic.className='nofoto';pic.textContent='Sin foto';}const name=document.createElement('div');name.className='name';name.textContent=it.nombre;const qty=document.createElement('div');qty.className='qty';qty.textContent=it.cantidad;const amt=document.createElement('div');amt.className='sum';amt.textContent=fmt(it.importe);row.append(pic,name,qty,amt);list.append(row)}}
-function fechaActiva(s){if(!s)return true;const m=String(s).match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);const d=m?new Date(Number(m[3]),Number(m[2])-1,Number(m[1]),23,59,59):new Date(s);return isNaN(d.getTime())||new Date()<=d;}
-function foto(raw){const s=String(raw||'');const m=s.match(/\/d\/([A-Za-z0-9_-]+)/)||s.match(/[?&]id=([A-Za-z0-9_-]+)/);return m?'https://drive.google.com/thumbnail?id='+m[1]+'&sz=w900':s;}
-function renderOfertas(){const track=$('track');track.replaceChildren();slide=0;if(!ofertas.length){const d=document.createElement('div');d.className='emptyoffer';d.innerHTML='<strong>TODOENUNO_STORE</strong><p style="color:white;font-size:clamp(18px,2.3vw,30px)">Belleza · Papelería · Bazar · Mucho más</p>';track.append(d);return;}for(const p of ofertas){const panel=document.createElement('div');panel.className='slide';const content=document.createElement('div');const label=document.createElement('div');label.className='label';label.textContent=p.dia?'OFERTA DEL DÍA':'OFERTA DE LA SEMANA';const title=document.createElement('h2');title.textContent=p.nombre;const price=document.createElement('div');price.className='current';const discount=p.especial>0&&p.especial<p.precio;price.textContent=fmt(discount?p.especial:p.precio);content.append(label,title,price);if(discount){const old=document.createElement('div');old.className='old';old.textContent='Antes '+fmt(p.precio);const ahorro=document.createElement('div');ahorro.className='save';ahorro.textContent='Ahorras '+fmt(p.precio-p.especial)+' · '+Math.round(100*(p.precio-p.especial)/p.precio)+'%';content.append(old,ahorro);}const image=document.createElement('img');image.src=p.imagen;image.alt=p.nombre;image.onerror=()=>{image.style.visibility='hidden'};panel.append(content,image);track.append(panel);}track.style.transform='translateX(0)';}
-async function getOffers(){try{const r=await jsonp(CATALOG,{accion:'catalogoPublico'},25000);if(!r.ok||!Array.isArray(r.productos))throw new Error(r.error||'Catálogo sin productos');const yes=x=>['si','sí','true','1','yes'].includes(String(x||'').trim().toLowerCase());ofertas=r.productos.filter(p=>(yes(p.ofertaDia)||yes(p.ofertaSemana))&&fechaActiva(p.hastaFecha)&&p.imagenEditada).map(p=>({nombre:String(p.nombre||''),imagen:foto(p.imagenEditada),dia:yes(p.ofertaDia),precio:Number(p.precioPaquete)||0,especial:Number(p.precioOferta)||0})).filter(p=>p.nombre&&p.precio>0).slice(0,40);renderOfertas();}catch(e){setStatus('Promociones pendientes: '+e.message);}}
-setInterval(()=>{if(!pedido && ofertas.length>1){slide=(slide+1)%ofertas.length;$('track').style.transform='translateX(-'+slide*100+'%)';}},6500);
-$('loginForm').addEventListener('submit',async e=>{e.preventDefault();pantalla=$('pantalla').value.trim().toUpperCase().replace(/\s+/g,'_').replace(/[^A-Z0-9_-]/g,'');$('pantalla').value=pantalla;secret=$('secret').value.trim();$('loginMsg').textContent='Activando pantalla…';try{const r=await post({accion:'loginVendedorPantalla',pantalla,usuario:$('usuarioVendedor').value.trim(),contrasena:secret});if(!r.ok)throw new Error(r.error||'No autorizado');session=r.sesion;secret='';$('secret').value='';connected=true;$('login').style.display='none';await read();await getOffers();setInterval(read,3500);setInterval(beat,30000);setInterval(getOffers,5*60*1000);}catch(err){$('loginMsg').textContent=err.message+' Si falla, comprueba Ejecuciones en Apps Script y revisa si la solicitud llegó al servidor.';}});
-$('finish').addEventListener('click',async()=>{if(!connected)return;if(!confirm('¿Finalizar atención y volver a las ofertas?'))return;try{const r=await post({accion:'finalizarPedido',pantalla,sesion:session});if(!r.ok)throw new Error(r.error);await read();}catch(e){alert(e.message)}});
-$('logout').addEventListener('click',async()=>{if(!connected)return;if(!confirm('¿Desactivar esta pantalla?'))return;try{await post({accion:'cerrarPantalla',pantalla,sesion:session});}catch(e){}location.reload();});
-$('pay').addEventListener('click',()=>{const qr=prompt('URL HTTPS de la imagen de tu QR de pago (la integración automática del QR se hará al configurarlo en Sheets):','');if(!qr)return;if(!/^https:\/\//i.test(qr)){alert('Utiliza una URL segura de imagen');return;}$('qr').src=qr;$('paymentTotal').textContent=fmt(pedido?.total);$('paybox').style.display='flex';});
-$('payClose').addEventListener('click',()=>{$('paybox').style.display='none';});
-})();
-</script></body></html>
+  // Compatibilidad con la versión anterior del formulario de Ventas.
+  return respuestaIframe_(result,p.origen);
+}
+
+
+/**
+ * Usa el MISMO Sheet de usuarios de Ventas por Mayor, pero con lectura directa
+ * mediante SpreadsheetApp (sin UrlFetchApp ni permisos externos).
+ * La cuenta propietaria de este script DEBE tener acceso de lectura al Sheet
+ * de usuarios. Las contraseñas no se envían al navegador durante la validación.
+ */
+function verificarVendedor_(usuario,contrasena){
+  const login=normalizarLogin_(usuario);
+  const pass=String(contrasena||'');
+  if(!login||!pass)throw new Error('Ingresa usuario y contraseña de vendedor');
+  let libro;
+  try{
+    libro=SpreadsheetApp.openById('1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok');
+  }catch(err){
+    throw new Error('El propietario de Pantalla Inalámbrica debe tener acceso al Sheet de usuarios de Ventas por Mayor. Revisa el permiso para leer ese archivo.');
+  }
+  let data=null;
+  // El CSV de Ventas exporta la primera pestaña. Buscar por encabezados da
+  // flexibilidad si el proyecto utiliza una pestaña llamada Usuarios.
+  for(const hoja of libro.getSheets()){
+    if(hoja.getLastRow()<2)continue;
+    const rows=hoja.getDataRange().getDisplayValues();
+    const encabezados=rows[0].map(normalizarLogin_);
+    const indice=(nombres)=>nombres.map(n=>encabezados.indexOf(normalizarLogin_(n))).find(i=>i>=0);
+    const iu=indice(['usuario','user','username','nombre de usuario','nombre_usuario']);
+    const ip=indice(['contrasena','contraseña','clave','password','pass']);
+    const ir=indice(['rol','tipo','cargo','perfil']);
+    const inombre=indice(['nombre','nombre completo','nombre_completo','vendedor']);
+    if(iu===undefined||ip===undefined||ir===undefined)continue;
+    data={rows:rows.slice(1),iu,ip,ir,inombre};break;
+  }
+  if(!data)throw new Error('No se encontró una pestaña con columnas Usuario, Contraseña y Rol en el Sheet de Ventas');
+  const u=data.rows.find(r=>normalizarLogin_(r[data.iu])===login && String(r[data.ip]||'').trim()===pass);
+  if(!u)throw new Error('Usuario o contraseña incorrectos');
+  if(normalizarLogin_(u[data.ir])!=='vendedor')throw new Error('Solo el rol vendedor puede activar la pantalla');
+  return {nombre:String((data.inombre!==undefined&&u[data.inombre])||u[data.iu]).slice(0,80)};
+}
+
+/** Ejecuta esta prueba en el editor, sin escribir contraseñas en registros. */
+function probarLecturaUsuariosVentas(){
+  const ss=SpreadsheetApp.openById('1blxokXYIGCs7brVwfVlyrYocrVk8B-2aPsY7X-maqok');
+  const hojas=ss.getSheets().map(h=>h.getName());
+  Logger.log('LECTURA CORRECTA: '+hojas.join(', '));
+  return {ok:true,hojas:hojas};
+}
+
+function normalizarLogin_(s){return String(s||'').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+function validarSesionVendedor_(token,id){
+  if(!/^[0-9a-f]{64}$/i.test(String(token||'')))return false;
+  const cached=CacheService.getScriptCache().get('PI_SES_'+token);
+  if(!cached)return false;
+  try{return JSON.parse(cached).pantalla===id;}catch(e){return false;}
+}
+
+function obtenerHoja_(){
+  const ss=SpreadsheetApp.getActiveSpreadsheet();
+  if(!ss)throw new Error('El proyecto debe estar vinculado a Google Sheets');
+  let sh=ss.getSheetByName(PI.SHEET);
+  if(!sh){
+    const first=ss.getSheets()[0];
+    if(first && first.getLastRow()>=1){
+      const h=first.getRange(1,1,1,6).getDisplayValues()[0].map(x=>String(x).trim().toLowerCase());
+      if(PI.HEADERS.every((v,i)=>h[i]===v))sh=first;
+    }
+  }
+  if(!sh){
+    sh=ss.insertSheet(PI.SHEET);
+    sh.getRange(1,1,1,6).setValues([PI.HEADERS]);
+  }
+  const actual=sh.getRange(1,1,1,6).getDisplayValues()[0].map(x=>String(x).trim().toLowerCase());
+  if(!PI.HEADERS.every((v,i)=>actual[i]===v))throw new Error('Encabezados incorrectos en '+sh.getName());
+  return sh;
+}
+function filaPorPantalla_(sh,id){
+  const n=sh.getLastRow();if(n<2)return 0;
+  const values=sh.getRange(2,1,n-1,1).getDisplayValues();
+  const pos=values.findIndex(row=>String(row[0]).trim()===id);
+  return pos<0?0:pos+2;
+}
+function idValido_(value){
+  const v=String(value||'').trim().toUpperCase();
+  if(!/^[A-Z0-9_-]{3,25}$/.test(v))throw new Error('Código de pantalla inválido');
+  return v;
+}
+function validarClave_(clave,prop){
+  const esperada=PropertiesService.getScriptProperties().getProperty(prop);
+  if(!esperada || !clave || String(clave)!==esperada)throw new Error('Clave incorrecta o no configurada');
+}
+function latidoKey_(id){return 'PI_LATIDO_'+id;}
+function guardarLatido_(id){PropertiesService.getScriptProperties().setProperty(latidoKey_(id),String(Date.now()));}
+function borrarLatido_(id){PropertiesService.getScriptProperties().deleteProperty(latidoKey_(id));}
+function pantallaDisponible_(id,row){
+  if(String(row[2]).trim().toUpperCase()!=='ACTIVA')return false;
+  const ts=Number(PropertiesService.getScriptProperties().getProperty(latidoKey_(id)))||0;
+  return ts>0 && (Date.now()-ts)<PI.VIGENCIA_MS;
+}
+function pedidoValidado_(p,id){
+  if(!p||typeof p!=='object'||!Array.isArray(p.items)||p.items.length<1||p.items.length>PI.MAX_ITEMS)throw new Error('Pedido sin productos válidos');
+  const items=p.items.map(it=>({
+    nombre:String(it.nombre||'Producto').slice(0,250),
+    cantidad:String(it.cantidad||'1').slice(0,50),
+    importe:importe_(it.importe),
+    foto:/^https:\/\//i.test(String(it.foto||''))?String(it.foto).slice(0,800):''
+  }));
+  return {pantalla:id,cliente:String(p.cliente||'Cliente').slice(0,80),items:items,total:importe_(p.total),actualizado:new Date().toISOString()};
+}
+function importe_(v){const n=Number(v);if(!isFinite(n)||n<0||n>100000000)throw new Error('Importe inválido');return Math.round(n*100)/100;}
+function jsonp_(result,cb){
+  const json=JSON.stringify(result).replace(/</g,'\\u003c');
+  if(cb && /^[A-Za-z_$][A-Za-z0-9_$]{0,80}$/.test(cb)){
+    return ContentService.createTextOutput(cb+'('+json+');').setMimeType(ContentService.MimeType.JAVASCRIPT);
+  }
+  return ContentService.createTextOutput(json).setMimeType(ContentService.MimeType.JSON);
+}
+function respuestaIframe_(r,origen){
+  const safe=JSON.stringify(r).replace(/</g,'\\u003c');
+  // No reflejar un origen arbitrario como permiso: únicamente se comparte el acuse sin datos.
+  const dest=/^https:\/\/[a-z0-9.-]+(?::\d+)?$/i.test(String(origen||''))?String(origen):'*';
+  return HtmlService.createHtmlOutput('<!doctype html><html><head><meta charset="utf-8"></head><body><script>parent.postMessage(Object.assign({teusPantallaRespuesta:true},'+safe+'),'+JSON.stringify(dest)+');<\\/script></body></html>'.replace('<\\/script>','</script>')).setXFrameOptionsMode(HtmlService.XFrameOptionsMode.ALLOWALL);
+}
+
+/** PRUEBA INDEPENDIENTE DEL NAVEGADOR: escribe una fila INACTIVA. */
+function probarEscrituraPantalla(){
+  const hoja=obtenerHoja_();
+  const id='PRUEBA12';
+  let row=filaPorPantalla_(hoja,id);
+  if(!row){hoja.appendRow([id,'Pantalla de prueba','INACTIVA','',new Date(),0]);row=hoja.getLastRow();}
+  else{hoja.getRange(row,3).setValue('INACTIVA');hoja.getRange(row,5).setValue(new Date());}
+  SpreadsheetApp.flush();
+  Logger.log('ESCRITURA CORRECTA: '+hoja.getName()+' fila '+row);
+  return {ok:true,hoja:hoja.getName(),fila:row};
+}
+
+
+/**
+ * Ejecutar UNA VEZ desde el editor de Apps Script (no desde el navegador).
+ * Fuerza a Google a solicitar el permiso script.external_request si está disponible.
+ * Nota: 200 o 204 son respuestas correctas del servidor de prueba.
+ */
+function autorizarConexionExterna() {
+  const url='https://www.google.com/generate_204';
+  const respuesta=UrlFetchApp.fetch(url,{muteHttpExceptions:true,followRedirects:true});
+  const codigo=respuesta.getResponseCode();
+  Logger.log('UrlFetchApp ejecutado. HTTP '+codigo);
+  return {ok:codigo===204||codigo===200,http:codigo};
+}
