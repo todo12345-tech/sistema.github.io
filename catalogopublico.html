@@ -1548,6 +1548,88 @@ body.admin-mode .admin-field.admin-edited-photo-field{
   .hero-btn { font-size:16px; padding:5px 9px; }
 }
 </style>
+
+<style id="teus-v35-lightbox-exclusivo">
+/* Fotografía ampliada siempre por encima de buscador, carrito y navegación. */
+#imageModal.modal.lightbox-modal {
+  position:fixed !important;
+  inset:0 !important;
+  width:100vw !important;
+  height:100vh !important;
+  height:100dvh !important;
+  z-index:2147483000 !important;
+  background:rgba(8,12,18,.97) !important;
+  padding:52px 12px 24px !important;
+  align-items:center !important;
+  justify-content:center !important;
+  overflow:hidden !important;
+  overscroll-behavior:contain;
+}
+#imageModal .lightbox-content {
+  width:100% !important;
+  height:100% !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+}
+#imageModal #lightboxImage {
+  display:block !important;
+  width:auto !important;
+  height:auto !important;
+  max-width:100% !important;
+  max-height:100% !important;
+  object-fit:contain !important;
+  border-radius:7px !important;
+}
+#imageModal #closeImageModal {
+  position:absolute !important;
+  top:max(9px,env(safe-area-inset-top)) !important;
+  right:max(12px,env(safe-area-inset-right)) !important;
+  width:42px !important;
+  height:42px !important;
+  display:flex !important;
+  align-items:center !important;
+  justify-content:center !important;
+  border-radius:50% !important;
+  background:rgba(255,255,255,.2) !important;
+  color:white !important;
+  font-size:30px !important;
+  line-height:1 !important;
+  z-index:2147483001 !important;
+}
+@media(max-width:767px){
+  #imageModal.modal.lightbox-modal {padding:64px 10px 32px !important;}
+  #imageModal #lightboxImage {max-height:100% !important;}
+}
+</style>
+
+
+<style id="teus-v36-carrito-llamativo">
+/* Solo el botón del carrito: amarillo con productos, oscuro cuando está vacío. */
+#cartToggleBtn{
+  display:flex !important;align-items:center;justify-content:center;gap:5px;
+  border:2px solid rgba(255,255,255,.14);border-radius:999px;
+  background:#131921;color:#fff;padding:11px 13px;
+  box-shadow:0 4px 14px rgba(0,0,0,.25);
+  transition:background .2s,color .2s,box-shadow .2s;
+  cursor:pointer;
+}
+#cartToggleBtn i{font-size:17px}
+#mobileCartCount{font-size:12px;font-weight:900;min-width:13px;text-align:center}
+#cartToggleBtn.teus-carrito-con-productos{
+  background:#ffd814 !important;color:#131921 !important;
+  border-color:#f4bc00 !important;
+  box-shadow:0 4px 15px rgba(255,180,0,.45),0 2px 8px rgba(0,0,0,.16) !important;
+  animation:teusPulsoCarritoV36 2s ease-in-out infinite;
+}
+@keyframes teusPulsoCarritoV36{
+  0%,100%{transform:scale(1);box-shadow:0 4px 15px rgba(255,180,0,.43),0 2px 8px rgba(0,0,0,.16)}
+  50%{transform:scale(1.07);box-shadow:0 5px 21px rgba(255,193,7,.78),0 2px 8px rgba(0,0,0,.16)}
+}
+@media(prefers-reduced-motion:reduce){#cartToggleBtn.teus-carrito-con-productos{animation:none}}
+</style>
 </head>
 <body>
 
@@ -2656,6 +2738,7 @@ function updateCartUI() {
         document.getElementById('cartTotalSidebar').innerText = 'Subtotal: Bs 0.00';
         document.getElementById('cartCountBadge').innerText = '0';
         document.getElementById('mobileCartCount').innerText = '0';
+        document.getElementById('cartToggleBtn').classList.remove('teus-carrito-con-productos');
         document.getElementById('floatingCheckoutBtn').style.display = 'none';
         return;
     }
@@ -2669,7 +2752,8 @@ function updateCartUI() {
     document.getElementById('cartTotalSidebar').innerText = `Subtotal: Bs ${total.toFixed(2)}`;
     document.getElementById('cartCountBadge').innerText = units;
     document.getElementById('mobileCartCount').innerText = units;
-    document.getElementById('floatingCheckoutBtn').style.display = 'block';
+    document.getElementById('cartToggleBtn').classList.toggle('teus-carrito-con-productos', units > 0);
+    document.getElementById('floatingCheckoutBtn').style.display = (typeof teusCurrentMainView !== 'undefined' && teusCurrentMainView === 'cart') || document.getElementById('fullCartView')?.style.display === 'block' ? 'none' : 'block';
     container.querySelectorAll('.cart-minus').forEach(b=>b.onclick=()=>changeCartQty(+b.dataset.idx,-1));
     container.querySelectorAll('.cart-plus').forEach(b=>b.onclick=()=>changeCartQty(+b.dataset.idx,1));
     if(typeof renderFullCartView==='function') renderFullCartView();
@@ -2940,6 +3024,7 @@ function openFullCartView(ev){
     if(home) home.style.display='none';
     if(results) results.style.display='none';
     if(full) full.style.display='block';
+    document.getElementById('floatingCheckoutBtn').style.display='none';
     document.getElementById('inlineCheckout').style.display='none';
     document.getElementById('cartSidebar').classList.remove('open');
     document.body.classList.remove('cart-open');
@@ -2948,6 +3033,9 @@ function openFullCartView(ev){
 }
 function closeFullCartView(){
     teusCurrentMainView='catalog';
+    // Volver a mostrar el botón flotante solamente al regresar al catálogo.
+    const botonFlotante = document.getElementById('floatingCheckoutBtn');
+    if (botonFlotante) botonFlotante.style.display = cart.length ? 'block' : 'none';
     document.getElementById('inlineCheckout').style.display='none';
     document.getElementById('fullCartView').style.display='none';
     const current=internalHistory[historyIndex];
