@@ -1079,6 +1079,14 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
 #usuarioMayorBar{display:none;align-items:center;justify-content:space-between;gap:10px;background:#eef6ff;border:1px solid #d6e8fa;border-radius:12px;padding:9px 12px;margin:10px 0 18px;color:#17324d;font-size:13px}
 #usuarioMayorBar button{border:0;background:#17324d;color:#fff;border-radius:9px;padding:7px 10px;cursor:pointer}
 </style>
+
+<style id="teus-v421-seis-acciones">
+/* Los seis comandos del pedido, agrupados justo debajo del total. */
+#teusAccionesPedidoSeis{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px;margin:20px 0 0}
+#teusAccionesPedidoSeis>button{width:100%;min-width:0;min-height:62px;padding:12px;font-size:clamp(12px,1vw,17px);line-height:1.25;white-space:normal;text-align:center}
+@media(max-width:770px){#teusAccionesPedidoSeis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#teusAccionesPedidoSeis>button{min-height:56px;font-size:13px}}
+@media(max-width:390px){#teusAccionesPedidoSeis{grid-template-columns:1fr 1fr}#teusAccionesPedidoSeis>button{font-size:12px;padding:9px 6px}}
+</style>
 </head>
 <body>
 <div id="loginMayorOverlay">
@@ -1105,7 +1113,7 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                     <i class="fas fa-store"></i> Todoenuno_store
                 </div>
             </div>
-            <h1>Formulario de Ventas al Por Mayor</h1><div id="usuarioMayorBar"><span><i class="fas fa-user-circle"></i> <strong id="usuarioMayorNombre"></strong> · <span id="usuarioMayorRol"></span></span><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="teusEnviarPedidoPantallaManual" type="button" title="Envía una copia del pedido actual al HTML del cliente" style="background:#128c7e;color:white;width:auto;font-size:14px;padding:10px 14px;border-radius:9px"><i class="fas fa-paper-plane"></i> <span class="teus-btn-label">Enviar a pantalla inalámbrica</span></button><button id="teusAbrirPantallaCliente" type="button" title="Abrir pantalla-cliente.html en una segunda ventana" style="background:#1565c0;color:white;width:auto;font-size:14px;padding:10px 14px;border-radius:9px"><i class="fas fa-desktop"></i> Abrir pantalla del cliente</button><button id="nuevoPedidoMayorBtn" type="button" style="background:#dc3545"><i class="fas fa-trash-alt"></i> Nuevo pedido / Borrar todo</button><button id="logoutMayorBtn" type="button"><i class="fas fa-sign-out-alt"></i> Salir</button></div></div>
+            <h1>Formulario de Ventas al Por Mayor</h1><div id="usuarioMayorBar"><span><i class="fas fa-user-circle"></i> <strong id="usuarioMayorNombre"></strong> · <span id="usuarioMayorRol"></span></span><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="nuevoPedidoMayorBtn" type="button" style="background:#dc3545"><i class="fas fa-trash-alt"></i> Nuevo pedido / Borrar todo</button><button id="logoutMayorBtn" type="button"><i class="fas fa-sign-out-alt"></i> Salir</button></div></div>
             <form id="pedidoMayorForm">
                 <div class="form-group">
                     <div class="input-with-icon">
@@ -1275,7 +1283,7 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                         </div>
                     </div>
                 </div>
-                <div class="btn-group">
+                <div class="btn-group" id="teusAccionesPedidoSeis">
                     <button type="button" id="previsualizarBtn" class="btn-primary">
                         <i class="fas fa-eye"></i> Previsualizar
                     </button>
@@ -1285,6 +1293,9 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                     <button type="button" id="imprimirDatosBtn" class="btn-purple">
                         <i class="fas fa-print"></i> Imprimir Datos
                     </button>
+                    <button type="button" id="teusModoRapido" class="btn-warning" title="Previsualizar el pedido rápido con nombre y teléfono opcionales"><i class="fas fa-bolt"></i> Previsualizar pedido rápido</button>
+                    <button type="button" id="teusEnviarPedidoPantallaManual" class="btn-success" title="Enviar el pedido a la pantalla inalámbrica (requiere conexión)"><i class="fas fa-paper-plane"></i> Enviar a pantalla inalámbrica</button>
+                    <button type="button" id="teusAbrirPantallaCliente" class="btn-info" title="Abrir la segunda pantalla"><i class="fas fa-desktop"></i> Ver pantalla inalámbrica</button>
                 </div>
             </form>
             <div class="preview-container" id="previewContainer">
@@ -1342,6 +1353,14 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
             <button type="button" id="cargarPedidoBtn" class="btn-success">
                 <i class="fas fa-cloud-upload-alt"></i> Cargar Pedido
             </button>
+        </div>
+        <div class="cargar-pedido-container" id="teusPanelQr">
+            <div class="cargar-pedido-header"><div class="cargar-pedido-title"><i class="fas fa-qrcode"></i> Cargar QR de pago</div></div>
+            <p style="font-size:13px;color:#5c6978;margin-bottom:12px">El QR se mostrará al cliente cuando se seleccione «Pagar». Carga una imagen PNG/JPG. No confirma automáticamente el pago.</p>
+            <input id="teusArchivoQr" type="file" accept="image/png,image/jpeg,image/webp" style="padding:10px;font-size:14px">
+            <img id="teusVistaQr" alt="Vista previa del QR de pago" style="display:none;width:180px;height:180px;object-fit:contain;margin:12px auto;border:1px solid #ddd;border-radius:12px">
+            <button id="teusGuardarQr" type="button" class="btn-info" style="margin-top:12px"><i class="fas fa-save"></i> Guardar QR en este equipo</button>
+            <small id="teusQrInfo" style="display:block;margin-top:10px;color:#566">Para mostrarlo en otra pantalla, habrá que subirlo a Drive y usar un enlace público en la futura configuración del Script.</small>
         </div>
         <div class="cargar-pedido-container">
             <div class="cargar-pedido-header">
@@ -3714,59 +3733,68 @@ document.addEventListener('DOMContentLoaded', function() {
 })();
 </script>
 
-<script id="teus-cliente-externo-v2">
+
+<style id="teus-wireless-css">
+#teusQuickOverlay{display:none;position:fixed;inset:0;z-index:25000;background:rgba(8,23,37,.78);padding:15px;align-items:center;justify-content:center}
+#teusQuickOverlay.abierto{display:flex}#teusQuickCard{background:white;color:#24364a;max-width:870px;width:100%;max-height:95vh;overflow:auto;padding:22px;border-radius:18px;box-shadow:0 15px 55px #0006}
+#teusQuickCard h2{margin:0 0 14px;color:#19344b;border:0}#teusQuickCard label{display:block;font-size:13px;margin:8px 0 5px}#teusQuickCard input{padding:12px;font-size:15px}
+.teus-quick-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px}.teus-quick-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px}.teus-quick-actions button{width:auto;padding:12px 16px;font-size:14px}
+#teusQuickList{background:#f7fafc;border-radius:12px;padding:14px;margin-top:12px;max-height:45vh;overflow:auto}#teusQuickList .teusql{display:flex;align-items:center;gap:10px;border-bottom:1px solid #e7edf2;padding:9px 0}
+#teusQuickList .teusql img{width:55px;height:55px;object-fit:contain}#teusQuickList .teusql .name{flex:1;min-width:0;font-weight:600;font-size:13px}#teusQuickList .teusql .cash{white-space:nowrap;font-weight:800}
+#teusWirelessStatus{display:inline-flex;align-items:center;background:#fff5df;border:1px solid #f4dc9f;border-radius:8px;padding:6px 9px;color:#765200;font-size:12px}
+@media(max-width:650px){.teus-quick-grid{grid-template-columns:1fr}#teusQuickCard{padding:14px}.teus-quick-actions button{width:100%}}
+</style>
+<div id="teusQuickOverlay" role="dialog" aria-modal="true" aria-label="Pedido rápido">
+ <div id="teusQuickCard">
+  <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h2><i class="fas fa-bolt"></i> Pedido rápido</h2><button id="teusQuickClose" type="button" class="btn-danger" style="width:auto;padding:9px 14px;font-size:13px">Cerrar ✕</button></div>
+  <p style="font-size:13px;color:#546476">Previsualiza el pedido actual con sus fotografías y total. Puedes escribir solamente el nombre; el teléfono también es opcional. No necesitas domicilio, departamento ni envío.</p>
+  <div class="teus-quick-grid">
+   <div><label for="teusQuickName">Nombre del cliente (opcional)</label><input id="teusQuickName" placeholder="Ej.: María o Cliente en caja"></div>
+   <div><label for="teusQuickPhone">Teléfono (opcional)</label><input id="teusQuickPhone" type="tel" placeholder="Solo si el cliente desea darlo"></div>
+  </div>
+  <div style="margin:12px 0 5px" id="teusWirelessStatus">Pantalla: sin configurar</div>
+  <div id="teusQuickList"></div>
+  <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px"><b>Total:</b><strong id="teusQuickTotal" style="font-size:25px">Bs 0</strong></div>
+  <div class="teus-quick-actions"><button type="button" id="teusQuickSend" class="btn-success"><i class="fas fa-paper-plane"></i> Enviar a pantalla inalámbrica</button><button type="button" id="teusQuickGoItems" class="btn-info"><i class="fas fa-plus"></i> Agregar o editar productos</button><button type="button" id="teusQuickConfig" class="btn-secondary"><i class="fas fa-cog"></i> Configurar conexión</button></div>
+  <p id="teusQuickMsg" role="status" style="font-size:13px;color:#335;margin-top:10px"></p>
+ </div>
+</div>
+<script id="teus-wireless-v420">
 (function(){
 'use strict';
-const CHANNEL='teus_ventas_mayor_cliente_manual_v3';
-const KEY='teus_pantalla_cliente_ultimo_envio_v3';
-let canal=null,ventana=null,pendiente=null;
-try{if('BroadcastChannel' in window)canal=new BroadcastChannel(CHANNEL);}catch(e){}
-const dinero=t=>{let s=String(t||'').replace(/[^0-9.,-]/g,'');if(s.includes(',')&&s.includes('.'))s=s.replace(/,/g,'');else if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.');return Number(s)||0};
-const fotoValida=t=>/^https?:\/\//i.test(String(t||''))?String(t):'';
-function estado(){
-  const productos=[...document.querySelectorAll('#productosLista .producto-item')];
-  const items=productos.map(el=>({
-    nombre:el.querySelector('.producto-info strong')?.textContent?.trim()||'Producto',
-    cantidad:el.querySelector('.mayor-qty-val')?.textContent?.trim()||'1',
-    importe:dinero(el.querySelector('.producto-cantidad')?.textContent),
-    foto:fotoValida(el.querySelector('img.mayor-item-photo')?.src||'')
-  }));
-  return {tipo:'pedido_cliente_manual',id:Date.now()+'-'+Math.random().toString(36).slice(2,7),
-      actualizado:Date.now(),items,total:dinero(document.getElementById('totalCompra')?.textContent)};
-}
-function enviar(){
-  const datos=estado();
-  if(!datos.items.length){alert('Primero agrega productos al pedido.');return;}
-  pendiente=datos;
-  // Solo se publica al pulsar el botón, nunca al editar un artículo.
-  try{localStorage.setItem(KEY,JSON.stringify(datos));}catch(e){}
-  try{canal?.postMessage(datos);}catch(e){}
-  if(ventana&&!ventana.closed){
-    try{ventana.postMessage(datos,'*');}catch(e){}
-  }
-  const btn=document.getElementById('teusEnviarPedidoPantallaManual');
-  if(btn){const texto=btn.querySelector('.teus-btn-label');if(texto){texto.textContent='Pedido enviado';setTimeout(()=>texto.textContent='Enviar a pantalla inalámbrica',1800);}}
-}
-function abrir(){
-  if(ventana&&!ventana.closed){ventana.focus();return;}
-  const vistaPrevia=/(?:^|\.)codepen\.io$|(?:^|\.)cdpn\.io$/.test(location.hostname)||location.protocol==='file:';
-  if(vistaPrevia){
-    ventana=window.open('','teus_pantalla_cliente','width=1100,height=780,resizable=yes,scrollbars=yes');
-    if(ventana){ventana.document.open();ventana.document.write(HTML_CLIENTE);ventana.document.close();}
-  }else{
-    ventana=window.open(new URL('pantalla-cliente.html',location.href).href,'teus_pantalla_cliente','width=1100,height=780,resizable=yes,scrollbars=yes');
-  }
-  if(!ventana){alert('Permite ventanas emergentes para abrir la pantalla del cliente.');return;}
-  ventana.focus();
-  // Solo recuperar el último envío hecho expresamente, no el borrador actual.
-  if(pendiente)setTimeout(()=>{try{ventana?.postMessage(pendiente,'*');}catch(e){}},800);
-}
-const HTML_CLIENTE="\u003c!DOCTYPE html\u003e\u003chtml lang=\"es\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width,initial-scale=1\"\u003e\u003ctitle\u003eTodoenuno_store | Pantalla del cliente\u003c/title\u003e\n\u003cstyle\u003e\n:root{font-family:Arial,Helvetica,sans-serif;background:#f5f7fa;color:#142434}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;flex-direction:column}header{background:#142c41;color:#fff;padding:22px 3%;display:flex;justify-content:space-between;align-items:center;gap:10px}header strong{font-size:clamp(23px,3vw,36px)}header small{color:#ffd814;font-size:clamp(11px,1.5vw,17px)}main{flex:1;display:flex;flex-direction:column;gap:14px;padding:20px 2.5%;max-width:1700px;width:100%;margin:auto}h1{font-size:clamp(24px,3vw,36px);margin:0}#estado{color:#596a7b;font-size:15px}.tabla{background:white;border-radius:16px;box-shadow:0 5px 25px #0000000d;overflow:auto;flex:1}table{width:100%;border-collapse:collapse}th{background:#e8eef3;text-align:left;font-size:clamp(14px,1.7vw,21px)}th,td{padding:14px 18px;border-bottom:1px solid #e8edf1}td{font-size:clamp(16px,2vw,24px)}th:last-child,td:last-child{text-align:right}th:nth-child(3),td:nth-child(3){text-align:center;white-space:nowrap}.foto{height:82px;width:82px;object-fit:contain;padding:5px;background:#f7f8fa;border-radius:12px;border:1px solid #e4e8eb}.sin-foto{display:flex;align-items:center;justify-content:center;background:#f2f5f7;border-radius:12px;color:#97a1aa;width:82px;height:82px;font-size:12px}.nombre{font-weight:700;line-height:1.3}.importe{font-weight:700;white-space:nowrap}.cantidad{font-weight:700}.vacio{text-align:center!important;padding:70px 10px;color:#778899}footer{background:white;box-shadow:0 -4px 20px #00000012;padding:20px 3% 24px}.total{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#ffd814;border-radius:16px;padding:18px 22px;font-size:clamp(29px,4.5vw,56px);font-weight:900}.nota{text-align:center;color:#6d7c8d;font-size:12px;margin-top:12px}@media(max-width:700px){header{padding:16px 12px}main{padding:14px 8px}th,td{padding:10px 7px}.foto,.sin-foto{width:52px;height:52px}.nombre{font-size:14px}td{font-size:14px}.total{padding:16px 14px}}\n\u003c/style\u003e\u003c/head\u003e\u003cbody\u003e\u003cheader\u003e\u003cstrong\u003eTODOENUNO_STORE\u003c/strong\u003e\u003csmall\u003eTu compra en pantalla\u003c/small\u003e\u003c/header\u003e\u003cmain\u003e\u003ch1\u003eDetalle de tu pedido\u003c/h1\u003e\u003cdiv id=\"estado\"\u003eEsperando un pedido enviado desde Ventas por Mayor…\u003c/div\u003e\u003cdiv class=\"tabla\"\u003e\u003ctable\u003e\u003cthead\u003e\u003ctr\u003e\u003cth\u003eFoto\u003c/th\u003e\u003cth\u003eProducto\u003c/th\u003e\u003cth\u003eCantidad\u003c/th\u003e\u003cth\u003eImporte\u003c/th\u003e\u003c/tr\u003e\u003c/thead\u003e\u003ctbody id=\"filas\"\u003e\u003ctr\u003e\u003ctd class=\"vacio\" colspan=\"4\"\u003eEsperando productos…\u003c/td\u003e\u003c/tr\u003e\u003c/tbody\u003e\u003c/table\u003e\u003c/div\u003e\u003c/main\u003e\u003cfooter\u003e\u003cdiv class=\"total\"\u003e\u003cspan\u003eTOTAL\u003c/span\u003e\u003cspan id=\"total\"\u003eBs 0\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"nota\"\u003ePantalla informativa · El importe final se confirma en caja\u003c/div\u003e\u003c/footer\u003e\n\u003cscript\u003e\n(function(){\n'use strict';\nconst CHANNEL='teus_ventas_mayor_cliente_manual_v3';\nconst KEY='teus_pantalla_cliente_ultimo_envio_v3';\nconst $=id=\u003edocument.getElementById(id);\nconst dinero=n=\u003e'Bs '+Number(n||0).toLocaleString('es-BO',{maximumFractionDigits:2});\nlet bc=null;\nlet ultimoId='';\ntry { if('BroadcastChannel' in window) bc=new BroadcastChannel(CHANNEL); } catch(e) {}\nfunction mostrar(data) {\n  if(!data||data.tipo!=='pedido_cliente_manual'||!Array.isArray(data.items)||!Number.isFinite(Number(data.total)))return;\n  if(data.id && data.id===ultimoId)return;\n  ultimoId=data.id||'';\n  const tbody=$('filas');tbody.replaceChildren();\n  data.items.slice(0,200).forEach(it=\u003e{\n    const tr=document.createElement('tr');\n    const foto=document.createElement('td');\n    if(it.foto && /^https?:\\/\\//i.test(it.foto)){\n      const img=document.createElement('img');img.className='foto';img.alt='Foto de '+String(it.nombre||'Producto');\n      img.loading='lazy';img.onerror=()=\u003e{foto.textContent='Sin foto';};img.src=it.foto;foto.append(img);\n    }else{const sin=document.createElement('div');sin.className='sin-foto';sin.textContent='Sin foto';foto.append(sin);}\n    const nombre=document.createElement('td');nombre.className='nombre';nombre.textContent=String(it.nombre||'Producto');\n    const cantidad=document.createElement('td');cantidad.className='cantidad';cantidad.textContent=String(it.cantidad||'1');\n    const importe=document.createElement('td');importe.className='importe';importe.textContent=dinero(it.importe);\n    tr.append(foto,nombre,cantidad,importe);tbody.append(tr);\n  });\n  if(!data.items.length){\n    const tr=document.createElement('tr'),td=document.createElement('td');td.className='vacio';td.colSpan=4;td.textContent='El pedido enviado está vacío.';tr.append(td);tbody.append(tr);\n  }\n  $('total').textContent=dinero(data.total);\n  const fecha=new Date(data.actualizado||Date.now());\n  $('estado').textContent='Pedido enviado · '+data.items.length+' producto(s) · '+fecha.toLocaleTimeString('es-BO');\n  try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}\n  try{window.opener?.postMessage({tipo:'pedido_cliente_recibido',id:data.id},'*');}catch(e){}\n}\nwindow.addEventListener('message', e=\u003e{\n  if(e.source!==window.opener && e.origin!==location.origin)return;\n  mostrar(e.data);\n});\nif(bc) bc.onmessage=e=\u003emostrar(e.data);\nwindow.addEventListener('storage',e=\u003e{if(e.key===KEY&&e.newValue){try{mostrar(JSON.parse(e.newValue));}catch(err){}}});\ntry{const previo=JSON.parse(localStorage.getItem(KEY)||'null');if(previo)mostrar(previo);}catch(e){}\nif(!ultimoId)$('estado').textContent='Esperando que el vendedor presione «Enviar a pantalla inalámbrica»…';\n})();\n\u003c/script\u003e\u003c/body\u003e\u003c/html\u003e\n";
-document.getElementById('teusAbrirPantallaCliente')?.addEventListener('click',abrir);
-document.getElementById('teusEnviarPedidoPantallaManual')?.addEventListener('click',enviar);
-window.addEventListener('message',e=>{
- if(e.source===ventana && e.data?.tipo==='pedido_cliente_listo' && pendiente)ventana.postMessage(pendiente,'*');
-});
+const $=id=>document.getElementById(id);
+const SETTINGS='teus_wireless_config_v420';
+const GET_FORMAT='jsonp';
+let config={url:'https://script.google.com/macros/s/AKfycbznv8XuorgzcacQgiZmsfOY-wr4FZkCNoZKmvxP4zo0E7QtyK0iizYyUPdo_ZsXJa2cgg/exec',pantalla:'CAJA01',clave:'',urlPantalla:'pantalla-cliente.html'};
+try{Object.assign(config,JSON.parse(localStorage.getItem(SETTINGS)||'{}'));}catch(e){}
+const cash=t=>{let s=String(t||'').replace(/[^0-9.,-]/g,'');if(s.includes(',')&&s.includes('.'))s=s.replace(/,/g,'');else if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.');return Number(s)||0};
+const moneda=n=>'Bs '+Number(n||0).toLocaleString('es-BO',{maximumFractionDigits:2});
+const srcs=()=>[...document.querySelectorAll('#productosLista .producto-item')];
+function pedido(){const arr=srcs().map(el=>({nombre:el.querySelector('.producto-info strong')?.textContent?.trim()||'Producto',cantidad:el.querySelector('.mayor-qty-val')?.textContent?.trim()||'1',importe:cash(el.querySelector('.producto-cantidad')?.textContent),foto:el.querySelector('img.mayor-item-photo')?.src||''}));return {cliente:($('teusQuickName')?.value||'').trim()||'Cliente',items:arr,total:cash($('totalCompra')?.textContent),actualizado:new Date().toISOString(),idPantalla:config.pantalla};}
+function llenar(){const p=pedido(),list=$('teusQuickList');list.replaceChildren();p.items.forEach(it=>{const row=document.createElement('div');row.className='teusql';if(/^https?:/i.test(it.foto)){const img=document.createElement('img');img.src=it.foto;img.alt='';row.appendChild(img);}const name=document.createElement('div');name.className='name';name.textContent=it.nombre+' · '+it.cantidad;const cost=document.createElement('div');cost.className='cash';cost.textContent=moneda(it.importe);row.append(name,cost);list.appendChild(row)});if(!p.items.length)list.textContent='Aún no agregaste productos. Cierra esta ventana y agrégalos en el buscador habitual.';$('teusQuickTotal').textContent=moneda(p.total);}
+function informar(msg){$('teusQuickMsg').textContent=msg;}
+function configuracion(){const url=prompt('URL /exec de Pantalla Inalámbrica:',config.url);if(url===null)return;const pantalla=prompt('Código de pantalla:',config.pantalla);if(pantalla===null)return;const clave=prompt('Clave privada de envío (no utilizar tu contraseña de ventas):',config.clave);if(clave===null)return;config.url=url.trim();config.pantalla=pantalla.trim().toUpperCase()||'CAJA01';config.clave=clave.trim();localStorage.setItem(SETTINGS,JSON.stringify(config));comprobar();}
+// JSONP for read-only availability to avoid Apps Script CORS limitations.
+function jsonp(params,timeout=9000){return new Promise((resolve,reject)=>{if(!config.url){reject(new Error('Configura primero la URL del Apps Script.'));return;}const id='teusjsonp'+Math.random().toString(36).slice(2);let done=false;const sc=document.createElement('script');const timer=setTimeout(()=>finish(new Error('No respondió la conexión.')),timeout);function finish(err,result){if(done)return;done=true;clearTimeout(timer);sc.remove();delete window[id];err?reject(err):resolve(result);}window[id]=data=>finish(null,data);sc.onerror=()=>finish(new Error('No se pudo consultar el Apps Script.'));const query=new URLSearchParams({...params,callback:id,ts:Date.now()});sc.src=config.url+(config.url.includes('?')?'&':'?')+query;document.head.appendChild(sc);});}
+async function comprobar(){const status=$('teusWirelessStatus');if(!config.url){status.textContent='Pantalla: falta configurar Apps Script';return false;}try{const r=await jsonp({accion:'estadoPantalla',pantalla:config.pantalla});const active=!!(r&&r.ok&&r.disponible);status.textContent=active?'● '+config.pantalla+' disponible':'● '+config.pantalla+' no disponible';status.style.background=active?'#e2f6e7':'#fff5df';return active;}catch(e){status.textContent='Pantalla: sin conexión ('+e.message+')';return false;}}
+// Post via hidden form avoids cross-origin fetch blockage. Apps Script must respond with an HTML page that calls parent.postMessage({teusPantallaRespuesta:true,...},origin).
+let pendingSend=null;
+function enviarForm(payload){return new Promise((resolve,reject)=>{const id='teus_wireless_iframe_'+Date.now();const iframe=document.createElement('iframe');iframe.name=id;iframe.style.display='none';iframe.setAttribute('sandbox','allow-scripts allow-forms allow-same-origin');const form=document.createElement('form');form.method='POST';form.action=config.url;form.target=id;form.style.display='none';const values={accion:'enviarPedido',pantalla:config.pantalla,clave:config.clave,pedido_json:JSON.stringify(payload),origen:location.origin};Object.entries(values).forEach(([k,v])=>{const f=document.createElement('input');f.type='hidden';f.name=k;f.value=v;form.appendChild(f)});document.body.append(iframe,form);const timer=setTimeout(()=>end(new Error('No se recibió confirmación del servidor. Comprueba el Apps Script.')),15000);function onMessage(e){if(e.source!==iframe.contentWindow||!e.data?.teusPantallaRespuesta)return;end(null,e.data)}function end(err,result){clearTimeout(timer);window.removeEventListener('message',onMessage);iframe.remove();form.remove();err?reject(err):resolve(result)}window.addEventListener('message',onMessage);form.submit();});}
+async function enviar(){llenar();const p=pedido();if(!p.items.length){informar('Agrega al menos un producto antes de enviar.');return;}if(!config.url||!config.clave){informar('Primero configura el enlace y la clave del Apps Script.');configuracion();return;}const btn=$('teusQuickSend');btn.disabled=true;informar('Comprobando disponibilidad de '+config.pantalla+'…');try{if(!await comprobar())throw new Error('La pantalla no está disponible. Inicia sesión en la pantalla receptora.');informar('Enviando pedido…');const r=await enviarForm(p);if(!r.ok)throw new Error(r.error||'El servidor rechazó el pedido.');informar('✓ Pedido recibido por '+config.pantalla+'. La pantalla mostrará esta versión hasta el próximo envío.');}catch(e){informar('No se envió: '+e.message)}finally{btn.disabled=false}}
+function abrir(){const base=config.urlPantalla||'pantalla-cliente.html';const url=new URL(base,location.href);url.searchParams.set('pantalla',config.pantalla);window.open(url.href,'_blank','noopener');}
+function mostrar(){llenar();$('teusQuickOverlay').classList.add('abierto');comprobar();}
+$('teusModoRapido')?.addEventListener('click',mostrar);
+$('teusEnviarPedidoPantallaManual')?.addEventListener('click',mostrar);
+$('teusAbrirPantallaCliente')?.addEventListener('click',abrir);
+$('teusQuickSend')?.addEventListener('click',enviar);
+$('teusQuickClose')?.addEventListener('click',()=>$('teusQuickOverlay').classList.remove('abierto'));
+$('teusQuickGoItems')?.addEventListener('click',()=>$('teusQuickOverlay').classList.remove('abierto'));
+$('teusQuickConfig')?.addEventListener('click',configuracion);
+$('teusQuickOverlay')?.addEventListener('click',e=>{if(e.target===$('teusQuickOverlay'))$('teusQuickOverlay').classList.remove('abierto')});
+// QR local preview: QR never transmitted until linked to a public image in future backend.
+let qrData='';$('teusArchivoQr')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>500000) {alert('Usa una imagen de menos de 500 KB.');return;}const r=new FileReader();r.onload=()=>{qrData=String(r.result);$('teusVistaQr').src=qrData;$('teusVistaQr').style.display='block'};r.readAsDataURL(f)});
+$('teusGuardarQr')?.addEventListener('click',()=>{if(!qrData){alert('Elige la foto de tu QR primero.');return;}try{localStorage.setItem('teus_qr_local_v1',qrData);$('teusQrInfo').textContent='QR guardado en esta laptop. Para mostrarlo en otro dispositivo se configurará una URL del QR en Apps Script.'}catch(e){alert('El QR es muy grande para el almacenamiento de este navegador.')}});
+try{const v=localStorage.getItem('teus_qr_local_v1');if(v){$('teusVistaQr').src=v;$('teusVistaQr').style.display='block'}}catch(e){}
 })();
 </script>
 </body>
