@@ -1630,6 +1630,36 @@ body.admin-mode .admin-field.admin-edited-photo-field{
 }
 @media(prefers-reduced-motion:reduce){#cartToggleBtn.teus-carrito-con-productos{animation:none}}
 </style>
+
+<style id="teus-v39-layout-guard">
+/* V39: escritorio: carrito SOLO en la cabecera; nunca barra inferior gigante. */
+@media (min-width:769px){
+  #cartToggleBtn.cart-toggle-btn {display:none !important;visibility:hidden !important;}
+  #cartSidebar.cart-sidebar {width:185px !important;min-width:185px !important;max-width:185px !important;}
+  .hero {height:clamp(170px,17vw,255px) !important; margin:0 auto !important;}
+  .hero-slide img {object-fit:cover !important;width:100% !important;height:100% !important;}
+}
+/* Móvil: botón flotante compacto; banner de la proporción REAL del archivo. */
+@media (max-width:768px){
+  #cartToggleBtn.cart-toggle-btn {
+    position:fixed !important; width:50px !important; height:50px !important;
+    min-width:50px !important;max-width:50px !important;min-height:50px !important;
+    padding:0 6px !important;left:auto !important;right:10px !important;
+    top:auto !important;bottom:64px !important;margin:0 !important;
+    display:flex !important;align-items:center !important;justify-content:center !important;
+    border-radius:999px !important;z-index:10021 !important;
+  }
+  #cartToggleBtn.cart-toggle-btn i{flex:0 0 auto;}
+  .hero {width:100% !important;max-width:100% !important;height:auto !important;
+    aspect-ratio:var(--teus-banner-ratio, 3 / 1) !important;
+    margin:0 !important;background:#f4f5f7 !important;}
+  .hero-slides,.hero-slide {height:100% !important;}
+  .hero-slide img{width:100% !important;height:100% !important;object-fit:contain !important;}
+  .main-content {margin-top:8px !important;}
+}
+/* Evita una pantalla blanca enorme en el primer arranque. */
+.hero:empty{background:#f4f5f7 !important;}
+</style>
 </head>
 <body>
 
@@ -2306,7 +2336,15 @@ function renderHero() {
         bannerImage.alt = 'Banner Todoenuno_store';
         bannerImage.decoding = 'async';
         bannerImage.loading = container.children.length === 0 ? 'eager' : 'lazy';
-        if (container.children.length === 0) bannerImage.fetchPriority = 'high';
+        if (container.children.length === 0) {
+            bannerImage.fetchPriority = 'high';
+            bannerImage.addEventListener('load', () => {
+                if (bannerImage.naturalWidth && bannerImage.naturalHeight) {
+                    const hero = document.querySelector('.hero');
+                    if (hero) hero.style.setProperty('--teus-banner-ratio', bannerImage.naturalWidth + ' / ' + bannerImage.naturalHeight);
+                }
+            }, {once:true});
+        }
         slide.appendChild(bannerImage);
         container.appendChild(slide);
     });
@@ -2887,6 +2925,15 @@ document.getElementById('closeProductModal').onclick = () => closeModal('product
 document.getElementById('closeDescModal').onclick = () => closeModal('descModal');
 document.getElementById('closeOrderModal').onclick = () => closeModal('orderModal');
 document.getElementById('closeImageModal').onclick = closeImageModal;
+// V38: cerrar la fotografía al tocar cualquier zona oscura, incluso
+// el espacio del contenedor flexible que cubre toda la pantalla.
+// Un toque directamente en la fotografía NO la cierra.
+document.getElementById('imageModal').addEventListener('click', function(e) {
+    if (e.target.closest('#lightboxImage')) return;
+    if (e.target.closest('#closeImageModal')) return; // ya tiene su controlador
+    closeImageModal();
+});
+
 
 function closeModalOnOutsideClick(e) {
     if (e.target.classList && e.target.classList.contains('modal')) {
