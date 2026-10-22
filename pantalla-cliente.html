@@ -1,0 +1,36 @@
+<!DOCTYPE html><html lang="es"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Todoenuno_store | Pantalla del cliente</title>
+<style>
+:root{font-family:Arial,Helvetica,sans-serif;background:#f5f7fa;color:#142434}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;flex-direction:column}header{background:#142c41;color:#fff;padding:22px 3%;display:flex;justify-content:space-between;align-items:center;gap:10px}header strong{font-size:clamp(23px,3vw,36px)}header small{color:#ffd814;font-size:clamp(11px,1.5vw,17px)}main{flex:1;display:flex;flex-direction:column;gap:14px;padding:20px 2.5%;max-width:1700px;width:100%;margin:auto}h1{font-size:clamp(24px,3vw,36px);margin:0}#estado{color:#596a7b;font-size:15px}.tabla{background:white;border-radius:16px;box-shadow:0 5px 25px #0000000d;overflow:auto;flex:1}table{width:100%;border-collapse:collapse}th{background:#e8eef3;text-align:left;font-size:clamp(14px,1.7vw,21px)}th,td{padding:14px 18px;border-bottom:1px solid #e8edf1}td{font-size:clamp(16px,2vw,24px)}th:last-child,td:last-child{text-align:right}th:nth-child(3),td:nth-child(3){text-align:center;white-space:nowrap}.foto{height:82px;width:82px;object-fit:contain;padding:5px;background:#f7f8fa;border-radius:12px;border:1px solid #e4e8eb}.sin-foto{display:flex;align-items:center;justify-content:center;background:#f2f5f7;border-radius:12px;color:#97a1aa;width:82px;height:82px;font-size:12px}.nombre{font-weight:700;line-height:1.3}.importe{font-weight:700;white-space:nowrap}.cantidad{font-weight:700}.vacio{text-align:center!important;padding:70px 10px;color:#778899}footer{background:white;box-shadow:0 -4px 20px #00000012;padding:20px 3% 24px}.total{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#ffd814;border-radius:16px;padding:18px 22px;font-size:clamp(29px,4.5vw,56px);font-weight:900}.nota{text-align:center;color:#6d7c8d;font-size:12px;margin-top:12px}@media(max-width:700px){header{padding:16px 12px}main{padding:14px 8px}th,td{padding:10px 7px}.foto,.sin-foto{width:52px;height:52px}.nombre{font-size:14px}td{font-size:14px}.total{padding:16px 14px}}
+</style></head><body><header><strong>TODOENUNO_STORE</strong><small>Tu compra en pantalla</small></header><main><h1>Detalle de tu pedido</h1><div id="estado">Esperando conexión con ventas…</div><div class="tabla"><table><thead><tr><th>Foto</th><th>Producto</th><th>Cantidad</th><th>Importe</th></tr></thead><tbody id="filas"><tr><td class="vacio" colspan="4">Esperando productos…</td></tr></tbody></table></div></main><footer><div class="total"><span>TOTAL</span><span id="total">Bs 0</span></div><div class="nota">Pantalla informativa · El importe final se confirma en caja</div></footer>
+<script>
+(function(){
+const CHANNEL='teus_ventas_mayor_cliente_v2', KEY='teus_pantalla_cliente_estado_v2';
+let canal=null,ultimo=0,firma='';
+const dinero=n=>'Bs '+Number(n||0).toLocaleString('es-BO',{maximumFractionDigits:2});
+const $=id=>document.getElementById(id);
+function mostrar(estado){
+ if(!estado||estado.tipo!=='estado'||!Array.isArray(estado.items))return;
+ ultimo=Date.now();
+ const nuevaFirma=JSON.stringify([estado.items,estado.total]);
+ if(nuevaFirma!==firma){
+   firma=nuevaFirma;const tabla=$('filas');tabla.replaceChildren();
+   for(const it of estado.items){
+     const tr=document.createElement('tr'),foto=document.createElement('td'),nombre=document.createElement('td'),cantidad=document.createElement('td'),importe=document.createElement('td');
+     if(it.foto && /^(https?:\/\/|data:image\/)/i.test(it.foto)){
+        const img=document.createElement('img');img.className='foto';img.alt=String(it.nombre||'Foto del producto');img.src=it.foto;img.loading='lazy';img.onerror=()=>{foto.textContent='Sin foto';};foto.append(img);
+     }else{const p=document.createElement('div');p.className='sin-foto';p.textContent='Sin foto';foto.append(p);}
+     nombre.className='nombre';nombre.textContent=String(it.nombre||'Producto');cantidad.className='cantidad';cantidad.textContent=String(it.cantidad||'1');importe.className='importe';importe.textContent=dinero(it.importe);tr.append(foto,nombre,cantidad,importe);tabla.append(tr);
+   }
+   if(!estado.items.length){const row=document.createElement('tr'),cell=document.createElement('td');cell.className='vacio';cell.colSpan=4;cell.textContent='Esperando productos…';row.append(cell);tabla.append(row);}
+   $('total').textContent=dinero(estado.total);
+ }
+ $('estado').textContent=estado.items.length?`${estado.items.length} artículo(s) en el pedido`:'Los artículos aparecerán aquí mientras registramos tu compra.';
+}
+try{if('BroadcastChannel' in window){canal=new BroadcastChannel(CHANNEL);canal.onmessage=e=>{if(e.data?.tipo==='estado')mostrar(e.data);if(e.data?.tipo==='desconectado')$('estado').textContent='Pantalla de ventas desconectada.';};}}catch(e){}
+try{const local=JSON.parse(localStorage.getItem(KEY)||'null');if(local && Date.now()-local.actualizado<20000)mostrar(local);}catch(e){}
+function pedir(){canal?.postMessage({tipo:'solicitar'});}
+window.addEventListener('storage',e=>{if(e.key===KEY&&e.newValue){try{mostrar(JSON.parse(e.newValue));}catch(err){}}});
+setInterval(()=>{if(Date.now()-ultimo>9000){$('estado').textContent='Esperando conexión con Ventas por Mayor…';pedir();}},4000);
+pedir();
+})();
+</script></body></html>
