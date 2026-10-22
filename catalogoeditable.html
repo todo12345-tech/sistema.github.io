@@ -1796,7 +1796,29 @@ body.admin-mode .admin-original-reference::before{
 #results-view .admin-actions button{width:100%!important;white-space:normal!important;}
 @media(min-width:768px){#results-view .category-horizontal-track:has(.admin-editor){grid-template-columns:repeat(auto-fit,minmax(260px,1fr))!important;gap:22px!important;}}
 @media(max-width:767px){#results-view .category-product-card:has(.admin-editor){display:block!important;}#results-view .category-product-image{margin:0 auto 10px!important;max-width:230px!important;width:100%!important;height:200px!important;}}
-</style></head>
+</style>
+<style id="teus-v43-visual-solamente">
+/* Desktop: preserve the original full-bleed banner, avoid an oversized blank frame while loading */
+@media(min-width:769px){
+ .hero{height:clamp(180px,21vw,310px)!important;max-width:1400px!important;margin:0 auto!important}
+ .hero-slide{background-size:cover!important;background-position:center!important}
+ #cartToggleBtn.cart-toggle-btn{display:none!important}
+}
+/* Mobile: fit the complete banner and avoid the large empty lateral bands */
+@media(max-width:768px){
+ .hero{height:auto!important;aspect-ratio:3/1!important;max-width:100%!important;min-height:0!important;background:#f6f6f6!important}
+ .hero-slides,.hero-slide{height:100%!important}
+ .hero-slide{background-size:contain!important;background-repeat:no-repeat!important;background-position:center!important}
+ #cartToggleBtn.cart-toggle-btn{position:fixed!important;left:auto!important;right:12px!important;bottom:18px!important;top:auto!important;width:50px!important;height:50px!important;min-width:50px!important;max-width:50px!important;display:flex!important;align-items:center!important;justify-content:center!important;gap:3px!important;padding:0!important;border-radius:50%!important;background:#131921!important;color:white!important;z-index:201!important}
+ #cartToggleBtn.cart-toggle-btn #mobileCartCount{font-size:12px!important}
+}
+/* The lightbox must sit above search, header, cart and navigation on both devices */
+#imageModal.lightbox-modal{z-index:120000!important;background:rgba(0,0,0,.94)!important}
+#imageModal .lightbox-content{pointer-events:none;max-width:95vw;max-height:95dvh}
+#imageModal .lightbox-content img{pointer-events:auto;max-width:94vw!important;max-height:85dvh!important;object-fit:contain!important}
+#imageModal .close-lightbox{z-index:120001!important;top:max(12px,env(safe-area-inset-top))!important;right:14px!important;display:flex!important;align-items:center;justify-content:center;width:44px;height:44px}
+</style>
+</head>
 <body>
 
 <header id="mainHeader">
@@ -3986,5 +4008,13 @@ document.addEventListener('change', function(ev){
 });
 </script>
 
+
+<script id="teus-v43-lightbox-cierre">
+document.addEventListener('DOMContentLoaded',function(){
+ var modal=document.getElementById('imageModal'),close=document.getElementById('closeImageModal');
+ if(!modal||!close)return;
+ modal.addEventListener('click',function(e){if(e.target===modal)close.click();});
+});
+</script>
 </body>
 </html>
