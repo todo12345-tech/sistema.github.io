@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=yes">
-<title>Todoenuno_store - Visualización V3.1 · Dashboard Optimizado</title>
+<title>Todoenuno_store - Visualización V3.4 · Mixto y Apertura</title>
 <style>
 * {
 margin: 0;
@@ -988,6 +988,45 @@ body{padding:0;background:#eef2f8} .app-container{max-width:1600px;margin:auto}.
 .v31-monedas-row td:nth-child(5) { color:#92630a; font-weight:600; }
 .v31-monedas-row td:nth-child(7) { color:#85670c; font-size:12px; }
 .v32-caja-desglose{margin-top:7px;font-size:11px;line-height:1.5;color:#fff;font-weight:600;opacity:.95;overflow-wrap:anywhere}
+
+/* V3.2: detalle móvil de productos y montos asociados */
+.v32-lines{display:flex;flex-direction:column;gap:0;margin:8px 0;border:1px solid #e1e8f1;border-radius:10px;overflow:hidden}
+.v32-line{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px;align-items:start;padding:10px 11px;background:#fff;border-bottom:1px solid #edf1f6}
+.v32-line:nth-child(even){background:#f8fafc}
+.v32-line:last-child{border-bottom:none}
+.v32-prod{font-size:12px;line-height:1.4;color:#27374a;overflow-wrap:anywhere}
+.v32-amount{font-size:13px;font-weight:800;color:#137b51;white-space:nowrap;text-align:right}
+.v32-amount.unmatched{color:#a16207;font-weight:600;white-space:normal}
+.v32-sale-total{display:flex;justify-content:space-between;align-items:center;gap:8px;border-radius:9px;background:#eaf6ef;padding:10px 11px;color:#145c3c;font-size:12px;font-weight:700;margin-top:8px}
+.v32-sale-total strong{font-size:16px;white-space:nowrap}
+.v32-sale-card-header-amount{color:#125e45;font-size:14px;white-space:nowrap}
+.v32-notice{color:#8a5804;background:#fff9e8;padding:8px;border-radius:7px;font-size:11px;margin:6px 0}
+.v3-sale-card summary{list-style:none;display:flex;align-items:center;gap:6px}
+.v3-sale-card summary::-webkit-details-marker{display:none}
+.v3-sale-card summary::before{content:'▸';transition:transform .15s}
+.v3-sale-card details[open] summary::before{transform:rotate(90deg)}
+@media(max-width:760px){.v3-sale-card{padding:13px}.v3-sale-top{font-size:13px}.v3-sale-meta{line-height:1.45}}
+
+/* V3.4: desglose mixto, apertura informativa y lectura alternada */
+#salesTable tbody tr:not(.row-apertura):not(.row-cierre):not(.v31-monedas-row):nth-child(odd){background:#fff}
+#salesTable tbody tr:not(.row-apertura):not(.row-cierre):not(.v31-monedas-row):nth-child(even){background:#f1f4f8}
+#salesTable td{vertical-align:top;line-height:1.55}
+.v34-breakdown{display:flex;flex-direction:column;gap:3px;min-width:112px;font-size:12px}
+.v34-pair{display:flex;gap:7px;justify-content:space-between;align-items:center;padding:3px 6px;border-radius:5px;background:#f3f5fa}
+.v34-pair b{font-variant-numeric:tabular-nums;white-space:nowrap}
+.v34-pair.cash{color:#116c41;background:#e9f7ee}
+.v34-pair.qr{color:#185c99;background:#eaf3fc}
+.v34-pair.info{color:#744c10;background:#fff4dc}
+.v34-muted{font-size:11px;color:#64748b}
+.v34-apertura{color:#13663e;font-weight:800}
+.v34-card-breakdown{margin:8px 0;display:grid;gap:4px}
+.v3-mobile-cards .v3-sale-card:nth-child(odd){background:#fff}
+.v3-mobile-cards .v3-sale-card:nth-child(even){background:#f0f3f7}
+.v34-card-open{border-left:4px solid #26a568!important}
+.v34-card-close{border-left:4px solid #64748b!important}
+.v34-card-note{font-size:11px;color:#59687a;margin-top:6px}
+@media(max-width:760px){.v34-pair{font-size:12px}.v34-card-breakdown{margin:8px 0}}
+@media(max-width:340px){.v3-sale-card{padding:9px!important}.v3-sale-top{font-size:12px!important}.v32-sale-card-header-amount{font-size:12px}.v3-sale-meta{font-size:10px!important}.v32-line{grid-template-columns:minmax(0,1fr) minmax(63px,auto);gap:5px;padding:8px 6px}.v32-prod{font-size:11px}.v32-amount{font-size:11px}.v34-pair{font-size:11px}.table-container{padding:5px!important}.v3-section-heading{padding:10px 9px 0}}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
 </head>
@@ -1380,6 +1419,51 @@ function matchesSearch(item, searchTerm) {
 // Usamos una clave distinta para no pisar la sesión del index principal
 // ===================================================================
 const SESSION_KEY = 'visualizacion_currentUser';
+const ACTIVITY_KEY = 'visualizacion_lastActivity';
+const INACTIVITY_LIMIT_MS = 60 * 60 * 1000; // 1 hora real
+let lastActivityWrite = 0;
+
+function endSessionByInactivity() {
+    stopAutoRefresh();
+    currentUser = null;
+    localStorage.removeItem(SESSION_KEY);
+    localStorage.removeItem(ACTIVITY_KEY);
+    loginForm.reset();
+    showLoading(false);
+    appScreen.style.display = 'none';
+    loginScreen.style.display = 'block';
+    errorMessage.style.display = 'none';
+    // No se borran ventas, hojas ni configuraciones: solo la sesión de acceso.
+}
+function sessionStillValid() {
+    if (!currentUser) return false;
+    const last = Number(localStorage.getItem(ACTIVITY_KEY));
+    if (!Number.isFinite(last) || last <= 0 || Date.now() - last >= INACTIVITY_LIMIT_MS || last > Date.now() + 60000 || !localStorage.getItem(SESSION_KEY)) {
+        endSessionByInactivity();
+        return false;
+    }
+    return true;
+}
+function markRealActivity() {
+    if (!sessionStillValid()) return;
+    // Evita escribir continuamente en el almacenamiento.
+    const now = Date.now();
+    if (now - lastActivityWrite < 5000) return;
+    lastActivityWrite = now;
+    localStorage.setItem(ACTIVITY_KEY, String(now));
+}
+// Solo interacción humana: el refresco automático y las llamadas a Sheets NO renuevan sesión.
+['pointerdown', 'keydown', 'touchstart', 'wheel'].forEach(eventType =>
+    document.addEventListener(eventType, markRealActivity, {passive:true})
+);
+// Al retornar del fondo, suspensión, bloqueo del celular o pestaña inactiva:
+window.addEventListener('focus', sessionStillValid);
+window.addEventListener('pageshow', sessionStillValid);
+document.addEventListener('visibilitychange', () => { if (!document.hidden) sessionStillValid(); });
+window.addEventListener('storage', e => {
+    if ((e.key === SESSION_KEY || e.key === ACTIVITY_KEY) && currentUser) sessionStillValid();
+});
+setInterval(sessionStillValid, 15000);
 
 document.addEventListener('DOMContentLoaded', function() {
     const savedUser = localStorage.getItem(SESSION_KEY);
@@ -1388,7 +1472,7 @@ document.addEventListener('DOMContentLoaded', function() {
             const parsed = JSON.parse(savedUser);
             if (parsed && parsed.username && String(parsed.rol || '').toLowerCase().includes('admin')) {
                 currentUser = {username:parsed.username,nombre:parsed.nombre||parsed.username,rol:'admin'};
-                showApp();
+                if (sessionStillValid()) showApp();
             } else {
                 // ❌ Usuario no autorizado en esta página → forzar login
                 localStorage.removeItem(SESSION_KEY);
@@ -1412,7 +1496,7 @@ async function handleLogin(e) {
 e.preventDefault();const username=usernameInput.value.trim().toLowerCase(),password=passwordInput.value.trim();
 if(!username||!password){showError("Por favor ingresa usuario y contraseña");return;}
 showLoading(true);
-try{await cargarUsuariosCompartidos();if(!usuarios[username]||usuarios[username].password!==password){showError("Usuario o contraseña incorrectos");showLoading(false);return;}if(usuarios[username].rol!=='admin'){showError("Visualización es exclusiva para administradores");showLoading(false);return;}currentUser={username,nombre:usuarios[username].nombre,rol:'admin'};localStorage.setItem(SESSION_KEY,JSON.stringify(currentUser));showApp();}
+try{await cargarUsuariosCompartidos();if(!usuarios[username]||usuarios[username].password!==password){showError("Usuario o contraseña incorrectos");showLoading(false);return;}if(usuarios[username].rol!=='admin'){showError("Visualización es exclusiva para administradores");showLoading(false);return;}currentUser={username,nombre:usuarios[username].nombre,rol:'admin'};localStorage.setItem(SESSION_KEY,JSON.stringify(currentUser));localStorage.setItem(ACTIVITY_KEY,String(Date.now()));lastActivityWrite=Date.now();showApp();}
 catch(err){console.error(err);showError("No se pudo validar el acceso. Revisa la conexión.");showLoading(false);}
 }
 function togglePasswordVisibility() {
@@ -1457,6 +1541,7 @@ function handleLogout() {
         stopAutoRefresh();
         currentUser = null;
         localStorage.removeItem(SESSION_KEY);
+        localStorage.removeItem(ACTIVITY_KEY);
         loginForm.reset();
         errorMessage.style.display = 'none';
         loginScreen.style.display = 'block';
@@ -1673,6 +1758,7 @@ syncBadge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
 }
 
 async function loadData() {
+    if (!sessionStillValid()) return;
     updateSyncBadge('loading','Actualizando...');
     ventasElements.dataError.style.display='none';
     try {
@@ -1796,6 +1882,24 @@ btnAtras.disabled = false;
 btnAdelante.disabled = (currentMidnight >= today);
 }
 
+function v34Money(n){return 'Bs. '+Number(n||0).toFixed(2);}
+function v34Split(v){
+ const m=normalize(v.metodo_pago||'');
+ const ef=Number(v.monto_efectivo)||0, qr=Number(v.monto_qr)||0;
+ const isMixed=m.includes('mixto') || (ef>0 && qr>0);
+ if(!isSaleV3(v) || !isMixed)return '';
+ const present=ef>0||qr>0;
+ if(!present)return '<div class="v34-muted">Mixto · sin desglose registrado</div>';
+ let html='<div class="v34-breakdown"><div class="v34-pair cash"><span>Efectivo</span><b>'+v34Money(ef)+'</b></div><div class="v34-pair qr"><span>QR</span><b>'+v34Money(qr)+'</b></div></div>';
+ if(Math.abs(ef+qr-Number(v.total||0))>0.011)html+='<div class="v32-notice">⚠ Los pagos no coinciden con el total. Verificar registro.</div>';
+ return html;
+}
+function v34Movement(v){
+ if(v.tipo==='apertura')return '<span class="v34-apertura">Apertura: '+v34Money(v.monto_efectivo)+'</span>';
+ if(v.tipo==='cierre')return '<span class="v34-apertura">Cierre: '+v34Money(v.monto_efectivo)+'</span>';
+ if(v.tipo==='monedas')return v.moneda_monto_registrado?'+'+v34Money(cashMoveV3(v)):'Monto no disponible';
+ return '';
+}
 function displayData() {
 ventasElements.dataError.style.display = 'none';
 ventasElements.noDataMessage.style.display = 'none';
@@ -1818,7 +1922,7 @@ if (item.tipo === 'apertura') rowClass = 'class="row-apertura"';
 else if (item.tipo === 'cierre') rowClass = 'class="row-cierre"';
 else if (item.tipo === 'monedas') rowClass = 'class="v31-monedas-row"';
 const productosHTML = item.tipo==='monedas' ? '<strong>🪙 Monedas agregadas a caja</strong>' : item.productos ? item.productos.split('|').map(escV2).join('<br>') : '--';
-const montosHTML = item.tipo==='monedas' ? (item.moneda_monto_registrado ? '+'+cashMoveV3(item).toFixed(2)+' Bs' : 'Monto no disponible') : item.montos ? item.montos.split('|').map(escV2).join('<br>') : '—';
+const montosHTML = item.tipo!=='venta' ? v34Movement(item) : (item.montos ? item.montos.split('|').map(escV2).join('<br>') : '—') + (v34Split(item) ? '<div style="margin-top:6px">'+v34Split(item)+'</div>' : '');
 const sucLabel=item.hoja_origen==='feria'?'Feria':'Comercial';
 html += `<tr ${rowClass}>
 <td><span class="sheet-indicator ${item.hoja_origen==='feria'?'sheet-feria':'sheet-comercial'}">${sucLabel}</span></td>
@@ -1832,7 +1936,39 @@ html += `<tr ${rowClass}>
 <td>${escV2(item.usuario || '--')}</td>
 </tr>`;
 });
-ventasElements.salesBody.innerHTML = html;const mobileCards=document.getElementById('mobileCardsV3');if(mobileCards)mobileCards.innerHTML=filteredData.map(v=>'<article class="v3-sale-card"><div class="v3-sale-top"><strong>'+escV2(v.tipo==='monedas'?'🪙 Monedas agregadas':v.id)+'</strong><strong>'+(v.tipo==='monedas'?(v.moneda_monto_registrado?'+'+cashMoveV3(v).toFixed(2)+' Bs':'Monto no disponible'):'Bs. '+v.total.toFixed(2))+'</strong></div><div class="v3-sale-meta">'+escV2(v.hoja_origen)+' · '+escV2(v.fecha)+' · '+escV2(v.hora)+' · '+escV2(v.metodo_pago)+'</div><details><summary>Ver productos y detalles</summary><div class="v3-sale-desc">'+escV2(v.productos||'—').replace(/\|/g,' · ')+'</div><small>'+escV2(v.usuario)+'</small></details></article>').join('');
+ventasElements.salesBody.innerHTML = html;
+const mobileCards=document.getElementById('mobileCardsV3');
+if(mobileCards) mobileCards.innerHTML=filteredData.map(v=>{
+  const isCoins=v.tipo==='monedas';
+  const isSale=isSaleV3(v);
+  const rawProducts=String(v.productos||'').split('|').map(x=>x.trim()).filter(Boolean);
+  const rawAmounts=String(v.montos||'').split('|').map(x=>x.trim()).filter(Boolean);
+  const count=Math.max(rawProducts.length,rawAmounts.length);
+  const rows=Array.from({length:count},(_,i)=>{
+    const product=rawProducts[i]||'Producto sin descripción';
+    const amount=rawAmounts[i];
+    return '<div class="v32-line"><span class="v32-prod">'+escV2(product)+'</span><span class="v32-amount'+(amount?'':' unmatched')+'">'+(amount?'Bs. '+escV2(amount):'Sin monto individual')+'</span></div>';
+  }).join('');
+  const mismatch=rawProducts.length!==rawAmounts.length && !isCoins && isSale;
+  const caption=isCoins?'🪙 Monedas agregadas':v.tipo==='apertura'?'APERTURA DE CAJA':v.tipo==='cierre'?'CIERRE DE CAJA':v.id;
+  const headerAmount=isCoins?(v.moneda_monto_registrado?'+'+cashMoveV3(v).toFixed(2)+' Bs':'Monto no disponible'):'Bs. '+Number(v.total||0).toFixed(2);
+  const special=v.tipo==='apertura'||v.tipo==='cierre';
+  const breakdown=v34Split(v);
+  const movement=special?v34Movement(v):'';
+  const lines=isCoins?'<div class="v32-line"><span class="v32-prod">Monedas agregadas a caja</span><span class="v32-amount">'+escV2(headerAmount)+'</span></div>':special?'<div class="v32-line"><span class="v32-prod">Movimiento de caja</span><span class="v32-amount">'+movement+'</span></div>':(rows||'<div class="v32-line"><span class="v32-prod">Sin productos registrados</span><span class="v32-amount unmatched">—</span></div>');
+  return '<article class="v3-sale-card'+(v.tipo==='apertura'?' v34-card-open':v.tipo==='cierre'?' v34-card-close':'')+'">'
+   +'<div class="v3-sale-top"><strong>'+escV2(caption)+'</strong><strong class="v32-sale-card-header-amount">'+escV2(headerAmount)+'</strong></div>'
+   +'<div class="v3-sale-meta">'+escV2(v.hoja_origen||'')+' · '+escV2(v.fecha||'')+' · '+escV2(v.hora||'')+' · '+escV2(v.metodo_pago||'')+'</div>'
+   +(special?'<div class="v34-card-breakdown">'+movement+' <span class="v34-card-note">(No cuenta como venta)</span></div>':'')
+   +(breakdown?'<div class="v34-card-breakdown">'+breakdown+'</div>':'')
+   +'<details><summary>'+(special?'Ver movimiento de caja':isCoins?'Ver monedas':'Ver productos y precios ('+rawProducts.length+')')+'</summary>'
+   +'<div class="v32-lines">'+lines+'</div>'
+   +(special?'<div class="v34-card-note">Monto informativo. No se suma al total de ventas.</div>':'')
+   +(mismatch?'<div class="v32-notice">⚠ La cantidad de productos y montos no coincide en el registro original. Revisa los datos; no se asignaron precios faltantes.</div>':'')
+   +(isSale?'<div class="v32-sale-total"><span>TOTAL DE ESTA VENTA</span><strong>Bs. '+Number(v.total||0).toFixed(2)+'</strong></div>':'')
+   +'<div class="v3-sale-meta">Usuario: '+escV2(v.usuario||'—')+'</div>'
+   +'</details></article>';
+}).join('');
 ventasElements.tableWrapper.style.display = 'block';
 const total = filteredData.filter(isSaleV3).reduce((s,i) => s + i.total, 0);
 totalFinalAmount.textContent = 'Bs. ' + total.toFixed(2);
@@ -1877,7 +2013,7 @@ filterData();
 showUpdateNotification('Datos de ejemplo cargados', 2000);
 }
 
-function startAutoRefresh() { if (dataInterval) clearInterval(dataInterval); dataInterval = setInterval(() => {if(!document.hidden && currentUser)loadData();}, 180000); }
+function startAutoRefresh() { if (dataInterval) clearInterval(dataInterval); dataInterval = setInterval(() => {if(!document.hidden && sessionStillValid())loadData();}, 180000); }
 function stopAutoRefresh() { if (dataInterval) { clearInterval(dataInterval); dataInterval = null; } }
 
 function showLiquidity(mode) {
