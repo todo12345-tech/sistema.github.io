@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Ventas al Por Mayor · V4.14 ITEMS · Ubicación GPS Santa Cruz</title>
+<title>Todoenuno_store - Ventas al Por Mayor · V4.17 DOS HTML · Ubicación GPS Santa Cruz</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -1105,7 +1105,7 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                     <i class="fas fa-store"></i> Todoenuno_store
                 </div>
             </div>
-            <h1>Formulario de Ventas al Por Mayor</h1><div id="usuarioMayorBar"><span><i class="fas fa-user-circle"></i> <strong id="usuarioMayorNombre"></strong> · <span id="usuarioMayorRol"></span></span><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="nuevoPedidoMayorBtn" type="button" style="background:#dc3545"><i class="fas fa-trash-alt"></i> Nuevo pedido / Borrar todo</button><button id="logoutMayorBtn" type="button"><i class="fas fa-sign-out-alt"></i> Salir</button></div></div>
+            <h1>Formulario de Ventas al Por Mayor</h1><div id="usuarioMayorBar"><span><i class="fas fa-user-circle"></i> <strong id="usuarioMayorNombre"></strong> · <span id="usuarioMayorRol"></span></span><div style="display:flex;gap:8px;flex-wrap:wrap"><button id="teusEnviarPedidoPantallaManual" type="button" title="Envía una copia del pedido actual al HTML del cliente" style="background:#128c7e;color:white;width:auto;font-size:14px;padding:10px 14px;border-radius:9px"><i class="fas fa-paper-plane"></i> <span class="teus-btn-label">Enviar a pantalla inalámbrica</span></button><button id="teusAbrirPantallaCliente" type="button" title="Abrir pantalla-cliente.html en una segunda ventana" style="background:#1565c0;color:white;width:auto;font-size:14px;padding:10px 14px;border-radius:9px"><i class="fas fa-desktop"></i> Abrir pantalla del cliente</button><button id="nuevoPedidoMayorBtn" type="button" style="background:#dc3545"><i class="fas fa-trash-alt"></i> Nuevo pedido / Borrar todo</button><button id="logoutMayorBtn" type="button"><i class="fas fa-sign-out-alt"></i> Salir</button></div></div>
             <form id="pedidoMayorForm">
                 <div class="form-group">
                     <div class="input-with-icon">
@@ -3711,6 +3711,62 @@ document.addEventListener('DOMContentLoaded', function() {
     $('mayorPickerAll').addEventListener('click',()=>{data.forEach((x,i)=>{x.c=true;if(source==='local'&&window.__teusChecklistSync)window.__teusChecklistSync(i,true)});saveChecks();paint()});
     $('mayorPickerNone').addEventListener('click',()=>{data.forEach((x,i)=>{x.c=false;if(source==='local'&&window.__teusChecklistSync)window.__teusChecklistSync(i,false)});saveChecks();paint()});
   });
+})();
+</script>
+
+<script id="teus-cliente-externo-v2">
+(function(){
+'use strict';
+const CHANNEL='teus_ventas_mayor_cliente_manual_v3';
+const KEY='teus_pantalla_cliente_ultimo_envio_v3';
+let canal=null,ventana=null,pendiente=null;
+try{if('BroadcastChannel' in window)canal=new BroadcastChannel(CHANNEL);}catch(e){}
+const dinero=t=>{let s=String(t||'').replace(/[^0-9.,-]/g,'');if(s.includes(',')&&s.includes('.'))s=s.replace(/,/g,'');else if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.');return Number(s)||0};
+const fotoValida=t=>/^https?:\/\//i.test(String(t||''))?String(t):'';
+function estado(){
+  const productos=[...document.querySelectorAll('#productosLista .producto-item')];
+  const items=productos.map(el=>({
+    nombre:el.querySelector('.producto-info strong')?.textContent?.trim()||'Producto',
+    cantidad:el.querySelector('.mayor-qty-val')?.textContent?.trim()||'1',
+    importe:dinero(el.querySelector('.producto-cantidad')?.textContent),
+    foto:fotoValida(el.querySelector('img.mayor-item-photo')?.src||'')
+  }));
+  return {tipo:'pedido_cliente_manual',id:Date.now()+'-'+Math.random().toString(36).slice(2,7),
+      actualizado:Date.now(),items,total:dinero(document.getElementById('totalCompra')?.textContent)};
+}
+function enviar(){
+  const datos=estado();
+  if(!datos.items.length){alert('Primero agrega productos al pedido.');return;}
+  pendiente=datos;
+  // Solo se publica al pulsar el botón, nunca al editar un artículo.
+  try{localStorage.setItem(KEY,JSON.stringify(datos));}catch(e){}
+  try{canal?.postMessage(datos);}catch(e){}
+  if(ventana&&!ventana.closed){
+    try{ventana.postMessage(datos,'*');}catch(e){}
+  }
+  const btn=document.getElementById('teusEnviarPedidoPantallaManual');
+  if(btn){const texto=btn.querySelector('.teus-btn-label');if(texto){texto.textContent='Pedido enviado';setTimeout(()=>texto.textContent='Enviar a pantalla inalámbrica',1800);}}
+}
+function abrir(){
+  if(ventana&&!ventana.closed){ventana.focus();return;}
+  const vistaPrevia=/(?:^|\.)codepen\.io$|(?:^|\.)cdpn\.io$/.test(location.hostname)||location.protocol==='file:';
+  if(vistaPrevia){
+    ventana=window.open('','teus_pantalla_cliente','width=1100,height=780,resizable=yes,scrollbars=yes');
+    if(ventana){ventana.document.open();ventana.document.write(HTML_CLIENTE);ventana.document.close();}
+  }else{
+    ventana=window.open(new URL('pantalla-cliente.html',location.href).href,'teus_pantalla_cliente','width=1100,height=780,resizable=yes,scrollbars=yes');
+  }
+  if(!ventana){alert('Permite ventanas emergentes para abrir la pantalla del cliente.');return;}
+  ventana.focus();
+  // Solo recuperar el último envío hecho expresamente, no el borrador actual.
+  if(pendiente)setTimeout(()=>{try{ventana?.postMessage(pendiente,'*');}catch(e){}},800);
+}
+const HTML_CLIENTE="\u003c!DOCTYPE html\u003e\u003chtml lang=\"es\"\u003e\u003chead\u003e\u003cmeta charset=\"UTF-8\"\u003e\u003cmeta name=\"viewport\" content=\"width=device-width,initial-scale=1\"\u003e\u003ctitle\u003eTodoenuno_store | Pantalla del cliente\u003c/title\u003e\n\u003cstyle\u003e\n:root{font-family:Arial,Helvetica,sans-serif;background:#f5f7fa;color:#142434}*{box-sizing:border-box}body{margin:0;min-height:100vh;display:flex;flex-direction:column}header{background:#142c41;color:#fff;padding:22px 3%;display:flex;justify-content:space-between;align-items:center;gap:10px}header strong{font-size:clamp(23px,3vw,36px)}header small{color:#ffd814;font-size:clamp(11px,1.5vw,17px)}main{flex:1;display:flex;flex-direction:column;gap:14px;padding:20px 2.5%;max-width:1700px;width:100%;margin:auto}h1{font-size:clamp(24px,3vw,36px);margin:0}#estado{color:#596a7b;font-size:15px}.tabla{background:white;border-radius:16px;box-shadow:0 5px 25px #0000000d;overflow:auto;flex:1}table{width:100%;border-collapse:collapse}th{background:#e8eef3;text-align:left;font-size:clamp(14px,1.7vw,21px)}th,td{padding:14px 18px;border-bottom:1px solid #e8edf1}td{font-size:clamp(16px,2vw,24px)}th:last-child,td:last-child{text-align:right}th:nth-child(3),td:nth-child(3){text-align:center;white-space:nowrap}.foto{height:82px;width:82px;object-fit:contain;padding:5px;background:#f7f8fa;border-radius:12px;border:1px solid #e4e8eb}.sin-foto{display:flex;align-items:center;justify-content:center;background:#f2f5f7;border-radius:12px;color:#97a1aa;width:82px;height:82px;font-size:12px}.nombre{font-weight:700;line-height:1.3}.importe{font-weight:700;white-space:nowrap}.cantidad{font-weight:700}.vacio{text-align:center!important;padding:70px 10px;color:#778899}footer{background:white;box-shadow:0 -4px 20px #00000012;padding:20px 3% 24px}.total{display:flex;justify-content:space-between;align-items:center;gap:12px;background:#ffd814;border-radius:16px;padding:18px 22px;font-size:clamp(29px,4.5vw,56px);font-weight:900}.nota{text-align:center;color:#6d7c8d;font-size:12px;margin-top:12px}@media(max-width:700px){header{padding:16px 12px}main{padding:14px 8px}th,td{padding:10px 7px}.foto,.sin-foto{width:52px;height:52px}.nombre{font-size:14px}td{font-size:14px}.total{padding:16px 14px}}\n\u003c/style\u003e\u003c/head\u003e\u003cbody\u003e\u003cheader\u003e\u003cstrong\u003eTODOENUNO_STORE\u003c/strong\u003e\u003csmall\u003eTu compra en pantalla\u003c/small\u003e\u003c/header\u003e\u003cmain\u003e\u003ch1\u003eDetalle de tu pedido\u003c/h1\u003e\u003cdiv id=\"estado\"\u003eEsperando un pedido enviado desde Ventas por Mayor…\u003c/div\u003e\u003cdiv class=\"tabla\"\u003e\u003ctable\u003e\u003cthead\u003e\u003ctr\u003e\u003cth\u003eFoto\u003c/th\u003e\u003cth\u003eProducto\u003c/th\u003e\u003cth\u003eCantidad\u003c/th\u003e\u003cth\u003eImporte\u003c/th\u003e\u003c/tr\u003e\u003c/thead\u003e\u003ctbody id=\"filas\"\u003e\u003ctr\u003e\u003ctd class=\"vacio\" colspan=\"4\"\u003eEsperando productos…\u003c/td\u003e\u003c/tr\u003e\u003c/tbody\u003e\u003c/table\u003e\u003c/div\u003e\u003c/main\u003e\u003cfooter\u003e\u003cdiv class=\"total\"\u003e\u003cspan\u003eTOTAL\u003c/span\u003e\u003cspan id=\"total\"\u003eBs 0\u003c/span\u003e\u003c/div\u003e\u003cdiv class=\"nota\"\u003ePantalla informativa · El importe final se confirma en caja\u003c/div\u003e\u003c/footer\u003e\n\u003cscript\u003e\n(function(){\n'use strict';\nconst CHANNEL='teus_ventas_mayor_cliente_manual_v3';\nconst KEY='teus_pantalla_cliente_ultimo_envio_v3';\nconst $=id=\u003edocument.getElementById(id);\nconst dinero=n=\u003e'Bs '+Number(n||0).toLocaleString('es-BO',{maximumFractionDigits:2});\nlet bc=null;\nlet ultimoId='';\ntry { if('BroadcastChannel' in window) bc=new BroadcastChannel(CHANNEL); } catch(e) {}\nfunction mostrar(data) {\n  if(!data||data.tipo!=='pedido_cliente_manual'||!Array.isArray(data.items)||!Number.isFinite(Number(data.total)))return;\n  if(data.id && data.id===ultimoId)return;\n  ultimoId=data.id||'';\n  const tbody=$('filas');tbody.replaceChildren();\n  data.items.slice(0,200).forEach(it=\u003e{\n    const tr=document.createElement('tr');\n    const foto=document.createElement('td');\n    if(it.foto && /^https?:\\/\\//i.test(it.foto)){\n      const img=document.createElement('img');img.className='foto';img.alt='Foto de '+String(it.nombre||'Producto');\n      img.loading='lazy';img.onerror=()=\u003e{foto.textContent='Sin foto';};img.src=it.foto;foto.append(img);\n    }else{const sin=document.createElement('div');sin.className='sin-foto';sin.textContent='Sin foto';foto.append(sin);}\n    const nombre=document.createElement('td');nombre.className='nombre';nombre.textContent=String(it.nombre||'Producto');\n    const cantidad=document.createElement('td');cantidad.className='cantidad';cantidad.textContent=String(it.cantidad||'1');\n    const importe=document.createElement('td');importe.className='importe';importe.textContent=dinero(it.importe);\n    tr.append(foto,nombre,cantidad,importe);tbody.append(tr);\n  });\n  if(!data.items.length){\n    const tr=document.createElement('tr'),td=document.createElement('td');td.className='vacio';td.colSpan=4;td.textContent='El pedido enviado está vacío.';tr.append(td);tbody.append(tr);\n  }\n  $('total').textContent=dinero(data.total);\n  const fecha=new Date(data.actualizado||Date.now());\n  $('estado').textContent='Pedido enviado · '+data.items.length+' producto(s) · '+fecha.toLocaleTimeString('es-BO');\n  try{localStorage.setItem(KEY,JSON.stringify(data));}catch(e){}\n  try{window.opener?.postMessage({tipo:'pedido_cliente_recibido',id:data.id},'*');}catch(e){}\n}\nwindow.addEventListener('message', e=\u003e{\n  if(e.source!==window.opener && e.origin!==location.origin)return;\n  mostrar(e.data);\n});\nif(bc) bc.onmessage=e=\u003emostrar(e.data);\nwindow.addEventListener('storage',e=\u003e{if(e.key===KEY&&e.newValue){try{mostrar(JSON.parse(e.newValue));}catch(err){}}});\ntry{const previo=JSON.parse(localStorage.getItem(KEY)||'null');if(previo)mostrar(previo);}catch(e){}\nif(!ultimoId)$('estado').textContent='Esperando que el vendedor presione «Enviar a pantalla inalámbrica»…';\n})();\n\u003c/script\u003e\u003c/body\u003e\u003c/html\u003e\n";
+document.getElementById('teusAbrirPantallaCliente')?.addEventListener('click',abrir);
+document.getElementById('teusEnviarPedidoPantallaManual')?.addEventListener('click',enviar);
+window.addEventListener('message',e=>{
+ if(e.source===ventana && e.data?.tipo==='pedido_cliente_listo' && pendiente)ventana.postMessage(pendiente,'*');
+});
 })();
 </script>
 </body>
