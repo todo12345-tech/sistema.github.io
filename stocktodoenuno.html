@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V31 · STOCK · Fotos originales visibles y ampliables - Todoenuno_store</title>
+    <title>V32 · STOCK · Roles y móvil iPhone 5 - Todoenuno_store</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -51,6 +51,7 @@
         .user-bar-info i { color: #4a90e2; font-size: 18px; }
         .user-bar-badge { background: #e3f2fd; color: #1565c0; padding: 4px 12px; border-radius: 20px; font-size: 12px; font-weight: 600; text-transform: uppercase; }
         .user-bar-badge.admin { background: #fff3cd; color: #856404; }
+.user-bar-badge.encargado{background:#dff5ed;color:#146b49;}
         .btn-logout { background: #dc3545; color: white; border: none; padding: 10px 18px; border-radius: 8px; font-size: 13px; font-weight: 600; cursor: pointer; display: flex; align-items: center; gap: 6px; width: auto; margin: 0; grid-column: auto; }
         .btn-logout:hover { background: #c82333; transform: none; box-shadow: none; }
 
@@ -417,6 +418,45 @@
 #modalCrearUbicacionRegistro .modal-content{background:#fff!important;opacity:1!important;color:#1f2937!important;box-shadow:0 18px 50px rgba(0,0,0,.4)!important;}
 #modalCrearUbicacionRegistro .modal-header{background:#263f57!important;opacity:1!important;}
 #modalCrearUbicacionRegistro input,#modalCrearUbicacionRegistro select{background:#fff!important;opacity:1!important;}
+
+/* V32: encargado mantiene los permisos operativos del vendedor, sin acceso ADMIN */
+.user-bar-badge.encargado{background:#e8f4ff;color:#145e9d;border:1px solid #b6d9fa}
+/* iPhone 5: 320 CSS px; evitar desbordes y permitir lectura cómoda */
+@media(max-width:360px){
+ html,body{width:100%;max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+ body{padding:5px!important}
+ .container{padding:10px 8px!important;width:100%;max-width:100%;min-width:0;margin-bottom:8px}
+ .user-bar{padding:9px 8px!important;gap:7px;align-items:flex-start}
+ .user-bar-info{min-width:0;flex:1 1 100%;flex-wrap:wrap;gap:6px;overflow-wrap:anywhere}
+ .user-bar-badge{font-size:10px;padding:4px 7px}
+ .btn-logout{width:100%;justify-content:center;padding:10px}
+ h1{font-size:17px!important}h2{font-size:15px!important;line-height:1.3}
+ .subtitulo{font-size:11px!important;line-height:1.45}
+ .stats-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px}
+ .stat-card{padding:9px!important;min-width:0}
+ .stat-value{font-size:18px!important;overflow-wrap:anywhere}
+ .stat-label{font-size:9px!important;line-height:1.3}
+ .form-grid,.filtros-bar{min-width:0;padding:9px!important;gap:9px!important}
+ .form-group,.form-group.full,.autocomplete-wrapper{min-width:0;width:100%}
+ input,select,textarea{max-width:100%;min-width:0;font-size:16px!important}
+ .item-action-card{padding:10px!important;min-width:0}
+ .item-action-card h3{font-size:14px!important}
+ .item-action-card p{font-size:11px!important}
+ .guia-registro{padding:9px!important}.guia-paso{padding:8px}
+ .ubicacion-card{min-width:245px!important;max-width:85vw}
+ .ubicaciones-acciones{display:grid;grid-template-columns:1fr;gap:7px}
+ .ubicaciones-acciones button{width:100%;justify-content:center;min-width:0}
+ .tabla-scroll,.tabla-container{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
+ .modal-overlay{padding:5px!important}
+ .modal-card{max-height:calc(100dvh - 10px)!important;width:100%;border-radius:12px!important}
+ .modal-header{padding:10px!important}.modal-body{padding:10px!important}
+ .modal-footer{padding:9px!important}
+ .fotos-candidatas-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
+ .foto-candidata-card{min-width:0}
+ .notification{max-width:calc(100vw - 12px)!important}
+}
+/* V33: ajuste seguro para pantalla de 320px */
+@media(max-width:360px){body{padding:5px!important}.container{padding:10px 8px!important}.user-bar{padding:9px!important}.ubicaciones-acciones{display:grid;grid-template-columns:1fr 1fr;gap:6px}.ubicaciones-acciones button{font-size:11px!important;padding:9px 5px!important;min-width:0;overflow-wrap:anywhere}.mov-row{grid-template-columns:1fr!important;gap:5px;padding:11px}.modal-card{max-height:96dvh}.modal-body{padding:11px}.modal-footer{padding:9px}.ajuste-resumen{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.ajuste-box{padding:5px}.ajuste-box strong{font-size:12px}.user-bar-info{min-width:0;flex-wrap:wrap}}
 </style>
 </head>
 <body>
@@ -472,7 +512,7 @@
     </div>
 
     <div class="container">
-        <h1><i class="fas fa-boxes"></i> Todoenuno_store - Inventario V14</h1>
+        <h1><i class="fas fa-boxes"></i> Todoenuno_store - Inventario V32</h1>
         <p class="subtitulo">Stock por ubicación · Inventario físico · Traspasos</p>
 
         <div class="stats-grid" id="statsGrid">
@@ -633,7 +673,7 @@
                     <button type="button" class="btn-secundario" id="btnComoFunciona"><i class="fas fa-question-circle"></i> ¿Cómo funciona?</button>
                     <button type="button" class="btn-secundario solo-admin" id="btnAdministrarUbicaciones"><i class="fas fa-map-marker-alt"></i> Ubicaciones</button>
                     <button type="button" class="btn-entrada" id="btnEntradaExterna"><i class="fas fa-plus-circle"></i> Entrada externa / compra</button>
-                    <button type="button" class="btn-ajuste solo-admin" id="btnAjustarStock"><i class="fas fa-balance-scale"></i> Ajustar stock</button>
+                    <button type="button" class="btn-ajuste solo-corrector" id="btnAjustarStock"><i class="fas fa-balance-scale"></i> Ajustar stock</button>
                     <button type="button" class="btn-info" id="btnHistorialProducto"><i class="fas fa-history"></i> Historial de producto</button>
 </div>
             </div>
@@ -992,7 +1032,7 @@
         <div class="form-group"><label>Paquetes reales</label><input type="number" id="ajustePaquetes" min="0" step="1"></div>
         <div class="form-group"><label>Unidades reales</label><input type="number" id="ajusteUnidades" min="0" step="1"></div>
       </div>
-      <div class="form-group" style="margin-top:12px"><label>Nota / explicación</label><input id="ajusteNota" placeholder="Ej: al contar encontré 2 unidades menos"></div>
+      <div class="form-group" style="margin-top:12px"><label>Nota / explicación obligatoria (mínimo 12 caracteres)</label><input id="ajusteNota" placeholder="Ej: al contar encontré 2 unidades menos"></div>
     </div>
     <div class="modal-footer"><button class="modal-btn modal-btn-cancel" id="cancelarAjustarStockBtn">Cancelar</button><button class="modal-btn modal-btn-save" id="confirmarAjustarStockBtn"><i class="fas fa-check"></i> Registrar ajuste</button></div>
   </div>
@@ -1439,45 +1479,39 @@
         return { clase: 'ok', texto: `${diffDias} días`, dias: diffDias };
     }
 
+    function normalizarRolStock(rol) {
+        const r=String(rol||'vendedor').trim().toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+        if(r==='administrador'||r==='admin') return 'administrador';
+        if(r==='encargado'||r==='encargada') return 'encargado';
+        return 'vendedor';
+    }
     function esAdmin() {
-        return !!(currentUser && String(currentUser.rol||'').toLowerCase().includes('admin'));
+        return !!(currentUser && normalizarRolStock(currentUser.rol)==='administrador');
+    }
+    function puedeCorregirStock() { return esAdmin() || esEncargado(); }
+    function esEncargado() {
+        return !!(currentUser && normalizarRolStock(currentUser.rol)==='encargado');
     }
 
+    let tokenStockSesion = ""; // Token temporal solo en memoria. Nunca se almacena contraseña.
     // ============================================================
     // 🔐 LOGIN
     // ============================================================
-    async function cargarUsuarios() {
-        try {
-            console.log('👥 Cargando usuarios...');
-            const r = await fetch(URL_USUARIOS + '&_t=' + Date.now());
-            if (!r.ok) throw new Error('Status ' + r.status);
-            const texto = await r.text();
-            const datos = parsearCSV(texto);
-            usuariosSistema = datos.filter(u => u.usuario && u.usuario.trim() !== '' && u.contrasena);
-            console.log('✅ Usuarios cargados:', usuariosSistema.length);
-            return true;
-        } catch (e) {
-            console.error('❌ Error al cargar usuarios:', e);
-            return false;
-        }
-    }
+    async function cargarUsuarios(){ return true; /* Autenticación exclusiva del servidor */ }
 
     async function intentarLogin(usuario, contrasena) {
-        if (usuariosSistema.length === 0) {
-            const ok = await cargarUsuarios();
-            if (!ok) return { ok: false, error: 'No se pudo conectar con el servidor de usuarios.' };
-        }
-        const u = usuariosSistema.find(user =>
-            (user.usuario || '').toLowerCase() === usuario.toLowerCase() &&
-            (user.contrasena || '') === contrasena
-        );
-        if (!u) return { ok: false, error: 'Usuario o contraseña incorrectos' };
-        return { ok: true, user: { username: u.usuario.toLowerCase(), rol: u.rol || 'vendedor' } };
+        try {
+            const res=await stockApi('iniciarSesionStock',{usuario,contrasena});
+            tokenStockSesion=res.session_token;
+            if (!tokenStockSesion) return {ok:false,error:'No se recibió sesión válida.'};
+            return {ok:true,user:{username:res.user.username,rol:normalizarRolStock(res.user.rol)}};
+        } catch(err) {return {ok:false,error:err.message||String(err)};}
     }
 
     function iniciarSesion(user) {
+        user.rol=normalizarRolStock(user.rol);
         currentUser = user;
-        localStorage.setItem('currentUser', JSON.stringify(user));
+        localStorage.removeItem('currentUser');
         localStorage.setItem('lastActivity', String(Date.now()));
         lastActivityTime = Date.now();
         document.getElementById('loginScreen').style.display = 'none';
@@ -1485,7 +1519,7 @@
         document.getElementById('userName').textContent = user.username;
         const badge = document.getElementById('userRoleBadge');
         badge.textContent = user.rol;
-        badge.className = 'user-bar-badge' + (esAdmin() ? ' admin' : '');
+        badge.className = 'user-bar-badge' + (esAdmin() ? ' admin' : (esEncargado() ? ' encargado' : ''));
         aplicarPermisos();
         iniciarListenersActividad();
         Notificaciones.mostrar(`Bienvenido, ${user.username}`, 'success', 3000);
@@ -1496,6 +1530,9 @@
     }
 
     function cerrarSesion(mensaje = 'Sesión cerrada') {
+        const tokenAnterior=tokenStockSesion;
+        tokenStockSesion='';
+        if (tokenAnterior) fetch(STOCK_APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({accion:'cerrarSesionStock',session_token:tokenAnterior})}).catch(()=>{});
         currentUser = null;
         localStorage.removeItem('currentUser');
         localStorage.removeItem('lastActivity');
@@ -1515,6 +1552,7 @@
         document.querySelectorAll('.solo-admin').forEach(el => {
             el.style.display = admin ? 'flex' : 'none';
         });
+        document.querySelectorAll('.solo-corrector').forEach(el => { el.style.display = puedeCorregirStock() ? 'inline-flex' : 'none'; });
         document.querySelectorAll('.solo-admin-col').forEach(el => { el.style.display = admin ? 'table-cell' : 'none'; });
         const btnEliminarMasivo=document.getElementById('btnEliminarSeleccionados'); if(btnEliminarMasivo) btnEliminarMasivo.style.display=admin?'inline-flex':'none';
     }
@@ -1801,7 +1839,8 @@
         const payload = {
             accion,
             ...datos,
-            usuario: currentUser?.username || datos.usuario || ''
+            usuario: currentUser?.username || datos.usuario || '',
+            session_token: tokenStockSesion
         };
 
         let r;
@@ -2492,10 +2531,30 @@
               <div><strong>${m.tipo||''}</strong><br><small>${m.estado||''}</small></div>
               <div>${m.origen||'—'} → ${m.destino||'—'}</div>
               <div>${m.motivo||''}<br><small>${m.cajas_anterior||0}C/${m.paquetes_anterior||0}P/${m.unidades_anterior||0}U → ${m.cajas_nueva||0}C/${m.paquetes_nueva||0}P/${m.unidades_nueva||0}U</small></div>
-              ${esAdmin()?`<div><button type="button" class="btn-secondary" onclick="eliminarMovimientoAdmin('${m.id||''}')">🗑️ Eliminar</button></div>`:''}
+              ${puedeCorregirStock() && m.id ? `<div><button type="button" class="btn-secondary" onclick="solicitarAnulacionControlada('${String(m.id).replace(/[^a-zA-Z0-9_-]/g,'')}')">↩ Anular con control</button></div>` : ''}
+              
             </div>`).join('');
         }catch(e){console.error(e);out.innerHTML='<div style="padding:18px;text-align:center;color:#c0392b">No se pudo leer el historial. Verifica que la pestaña movimientos sea pública/legible.</div>';}
     }
+
+    // V33: la anulación DEBE ejecutarse de forma atómica en Apps Script.
+    // El navegador nunca borra ni revierte existencias por su cuenta.
+    window.solicitarAnulacionControlada = async function(id){
+        if(!puedeCorregirStock()) {Notificaciones.mostrar('Sin permisos para anular movimientos','warning');return;}
+        if(!id){Notificaciones.mostrar('El movimiento no tiene ID válido','warning');return;}
+        const motivo=prompt('Motivo obligatorio de anulación de '+id+' (mínimo 12 caracteres):');
+        if(motivo===null)return;
+        if(motivo.trim().length<12){Notificaciones.mostrar('Escribe un motivo más detallado (12 caracteres)','warning');return;}
+        if(!confirm('Solicitar anulación controlada del movimiento '+id+'?\n\nEl servidor debe validar el estado y revertir el stock una sola vez. No se eliminará el historial.'))return;
+        try {
+            const respuesta=await stockApi('anularMovimientoControlado',{id_movimiento:id,motivo:motivo.trim(),rol_solicitante:normalizarRolStock(currentUser.rol)});
+            if(!respuesta || respuesta.ok===false || respuesta.anulado!==true){
+                throw new Error('Apps Script no confirmó la anulación. Debe implementar anularMovimientoControlado con validación de permisos, bloqueo y reversión atómica.');
+            }
+            Notificaciones.mostrar('Anulación confirmada por el servidor y registrada en historial','success',6500);
+            await cargarInventario(); await buscarMovimientosProducto();
+        }catch(e){Notificaciones.mostrar('Sin anular: '+e.message,'error',9000);}
+    };
 
     window.eliminarMovimientoAdmin=async function(id){
         if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede eliminar movimientos','warning');return;}
@@ -2532,16 +2591,16 @@
         document.getElementById('ajusteUnidades').value=getUnidades(p);
     }
     async function confirmarAjusteStock(){
-        if(!esAdmin()){Notificaciones.mostrar('Solo ADMIN puede ajustar stock','warning');return;}
+        if(!puedeCorregirStock()){Notificaciones.mostrar('Solo ADMIN o ENCARGADO puede corregir stock','warning');return;}
         const item=itemAjusteSeleccionado();if(!item){Notificaciones.mostrar('Selecciona un producto','warning');return;}
         const nc=numeroStock(document.getElementById('ajusteCajas').value),np=numeroStock(document.getElementById('ajustePaquetes').value),nu=numeroStock(document.getElementById('ajusteUnidades').value);
         const ac=getCajas(item),ap=getPaquetes(item),au=getUnidades(item);
         if(nc===ac&&np===ap&&nu===au){Notificaciones.mostrar('No hay ninguna diferencia para ajustar','info');return;}
         const motivo=document.getElementById('ajusteMotivo').value;const nota=document.getElementById('ajusteNota').value.trim();
-        if(!nota&&motivo==='OTRO'){Notificaciones.mostrar('Escribe una explicación','warning');return;}
+        if(nota.length<12){Notificaciones.mostrar('Explica la corrección (mínimo 12 caracteres)','warning');return;}
         const btn=document.getElementById('confirmarAjustarStockBtn');btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Ajustando...';
         try{
-            const res=await stockApi('ajustarStock',{id_stock:getIdStock(item),cajas:nc,paquetes:np,unidades:nu,motivo:motivo+(nota?' - '+nota:''),sucursal:getUbicacion(item),referencia:generarReferenciaOperacion('AJUSTE')});
+            const res=await stockApi('ajustarStock',{id_stock:getIdStock(item),cajas:nc,paquetes:np,unidades:nu,motivo:motivo+' - '+nota+' | Responsable: '+currentUser.username+' ('+normalizarRolStock(currentUser.rol)+') | Antes: '+ac+'C/'+ap+'P/'+au+'U → Después: '+nc+'C/'+np+'P/'+nu+'U',sucursal:getUbicacion(item),referencia:generarReferenciaOperacion('AJUSTE')});
             Notificaciones.mostrar(`✅ Ajuste registrado · ${res.referencia||''}`,'success',6500);cerrarAjustarStock();setTimeout(cargarInventario,1200);
         }catch(e){console.error(e);Notificaciones.mostrar('No se pudo registrar el ajuste: '+e.message,'error',7000);}
         finally{btn.disabled=false;btn.innerHTML='<i class="fas fa-check"></i> Registrar ajuste';}
@@ -3309,7 +3368,7 @@
     document.getElementById('guardarNuevaUbicacionBtn').addEventListener('click',crearUbicacion);
 
     document.getElementById('btnEntradaExterna').addEventListener('click',abrirEntradaExterna);
-    document.getElementById('btnAjustarStock').addEventListener('click',()=>{if(!esAdmin()){Notificaciones.mostrar('Ajustar stock es solo para administrador.','warning');return;}abrirAjustarStock();});
+    document.getElementById('btnAjustarStock').addEventListener('click',()=>{if(!puedeCorregirStock()){Notificaciones.mostrar('Solo administrador o encargado.','warning');return;}abrirAjustarStock();});
     document.getElementById('btnHistorialProducto').addEventListener('click',abrirHistorialProducto);
     document.getElementById('nombre').addEventListener('input',()=>{evaluarProductoNuevo();});
     document.getElementById('nombre').addEventListener('blur',()=>{
@@ -3385,8 +3444,8 @@
     // 🚀 INICIO
     // ============================================================
     window.onload = async function() {
-        await cargarUsuarios();
-        const usuarioGuardado = localStorage.getItem('currentUser');
+        // Login validado en Apps Script. No descargar base de usuarios al navegador.
+        const usuarioGuardado = null; // V34: exige nuevo login; no restaurar credenciales sin clave validada.
         const lastActivity = parseInt(localStorage.getItem('lastActivity') || '0');
 
         if (usuarioGuardado && lastActivity) {
@@ -3394,6 +3453,7 @@
             if (diff < INACTIVIDAD_MS) {
                 try {
                     const user = JSON.parse(usuarioGuardado);
+                    user.rol=normalizarRolStock(user.rol);
                     currentUser = user;
                     lastActivityTime = lastActivity;
                     document.getElementById('loginScreen').style.display = 'none';
@@ -3401,7 +3461,7 @@
                     document.getElementById('userName').textContent = user.username;
                     const badge = document.getElementById('userRoleBadge');
                     badge.textContent = user.rol;
-                    badge.className = 'user-bar-badge' + (esAdmin() ? ' admin' : '');
+                    badge.className = 'user-bar-badge' + (esAdmin() ? ' admin' : (esEncargado() ? ' encargado' : ''));
                     aplicarPermisos();
                     iniciarListenersActividad();
                     Notificaciones.mostrar(`Bienvenido de vuelta, ${user.username}`, 'success', 3000);
