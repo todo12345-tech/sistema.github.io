@@ -1493,7 +1493,8 @@
         return !!(currentUser && normalizarRolStock(currentUser.rol)==='encargado');
     }
 
-    let tokenStockSesion = ""; // Token temporal solo en memoria. Nunca se almacena contraseña.
+    let tokenStockSesion = ""; // Token temporal validado por STOCK.
+    let claveItemsSesion = ""; // Contraseña solo en RAM, para autenticación del servidor ITEMS V17. No almacenar en localStorage/sessionStorage.
     // ============================================================
     // 🔐 LOGIN
     // ============================================================
@@ -1503,6 +1504,7 @@
         try {
             const res=await stockApi('iniciarSesionStock',{usuario,contrasena});
             tokenStockSesion=res.session_token;
+            if (tokenStockSesion) claveItemsSesion=contrasena;
             if (!tokenStockSesion) return {ok:false,error:'No se recibió sesión válida.'};
             return {ok:true,user:{username:res.user.username,rol:normalizarRolStock(res.user.rol)}};
         } catch(err) {return {ok:false,error:err.message||String(err)};}
@@ -1532,6 +1534,7 @@
     function cerrarSesion(mensaje = 'Sesión cerrada') {
         const tokenAnterior=tokenStockSesion;
         tokenStockSesion='';
+        claveItemsSesion='';
         if (tokenAnterior) fetch(STOCK_APPS_SCRIPT_URL,{method:'POST',body:JSON.stringify({accion:'cerrarSesionStock',session_token:tokenAnterior})}).catch(()=>{});
         currentUser = null;
         localStorage.removeItem('currentUser');
@@ -3098,31 +3101,28 @@
         aviso.style.display='none'; acciones.style.display='none'; return null;
     }
     function archivoADataURL(file){return new Promise((resolve,reject)=>{if(!file)return resolve('');const r=new FileReader();r.onload=()=>resolve(String(r.result||''));r.onerror=reject;r.readAsDataURL(file);});}
-    // V35: enviar identidad/sesión de Stock a ITEMS en operaciones que requieren autorización.
-    // ITEMS debe validar el token con la API de Stock en el servidor; no confiar solo en "rol".
+    // V36: ITEMS V17 autentica todas sus operaciones privadas por usuario + contrasena.
+    // La sesión de Stock no es interoperable con ITEMS; reutilizamos la contraseña introducida
+    // en el mismo inicio de sesión, SOLO en memoria, y la borramos al cerrar sesión.
     async function postItemsJSON(payload){
-        const accion=String(payload?.accion||'');
-        const escritura=accion==='guardarProducto'||accion==='subirImagen';
-        if(escritura && (!currentUser || !tokenStockSesion)){
-            throw new Error('Tu sesión de Stock expiró. Cierra sesión e ingresa nuevamente antes de crear el ITEM.');
+        if(!currentUser || !tokenStockSesion || !claveItemsSesion){
+            throw new Error('Para operar con ITEMS debes iniciar sesión nuevamente en Stock.');
         }
-        const datos=escritura?{
+        const datos={
             ...payload,
             usuario:currentUser.username,
-            session_token:tokenStockSesion,
-            rol_solicitante:normalizarRolStock(currentUser.rol),
-            origen_sistema:'stock'
-        }:payload;
+            contrasena:claveItemsSesion
+        };
         const r=await fetch(ITEMS_APPS_SCRIPT_URL,{
             method:'POST',headers:{'Content-Type':'text/plain;charset=utf-8'},
             body:JSON.stringify(datos),redirect:'follow',cache:'no-store'
         });
         const txt=await r.text();let resp={};
-        try{resp=JSON.parse(txt)}catch(_){throw new Error('El servidor ITEMS no devolvió una respuesta válida. HTTP '+r.status);}
+        try{resp=JSON.parse(txt)}catch(_){throw new Error('ITEMS no devolvió una respuesta JSON válida. HTTP '+r.status);}
         if(!r.ok||resp.ok===false){
             const msg=String(resp.error||resp.mensaje||('HTTP '+r.status));
-            if(escritura && /iniciar sesi[oó]n|no autorizad|sin sesi[oó]n|sesi[oó]n inv[aá]lida/i.test(msg)){
-                throw new Error('ITEMS rechazó la sesión de Stock. El HTML ya envía el token, pero falta que el Apps Script de ITEMS reconozca y valide esa sesión. Respuesta: '+msg);
+            if(/credenciales incorrectas|debes iniciar sesi[oó]n|no autorizad/i.test(msg)){
+                throw new Error('ITEMS no reconoció las credenciales de tu inicio de sesión de Stock. '+msg);
             }
             throw new Error(msg);
         }
