@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=yes">
 
     <title>Todoenuno Store | Catálogo Mayorista</title>
+    <!-- V47: condiciones de entrega exclusivas de WhatsApp, conforme a Ventas por Mayor -->
     <!-- V33 · banner adaptable y miniaturas Drive para tarjetas; originales en zoom -->
     <!-- VERSIÓN PÚBLICA LIMPIA: catálogo de solo lectura + carrito + WhatsApp -->
     <meta name="description" content="Catálogo mayorista con envíos a toda Bolivia. Accesorios, decants, maquillaje y más al mejor precio. Hacé tu pedido por WhatsApp.">
@@ -1660,6 +1661,48 @@ body.admin-mode .admin-field.admin-edited-photo-field{
 /* Evita una pantalla blanca enorme en el primer arranque. */
 .hero:empty{background:#f4f5f7 !important;}
 </style>
+<style id="teus-v42-ofertas-precios-reales">
+/* Mostrar ahorro visible solo cuando ITEMS tiene un precio especial menor al regular. */
+.offer-mini-prices{display:flex;flex-direction:column;align-items:center;gap:3px;font-size:11px;line-height:1.25;margin:5px 0 3px;color:#384657}
+.offer-mini-prices strong{font-size:13px;color:#b12704}.offer-mini-prices b{font-size:11px;color:#08764f}
+.offer-mini-prices del{color:#6b7280}.offer-mini-price{font-size:12px;font-weight:700;color:#b12704;margin:5px 0 2px}
+.offer-catalogue-label{display:inline-block;align-self:flex-start;background:#f08804;color:#fff;padding:5px 9px;margin:5px 0;border-radius:14px;font-weight:800;font-size:11px}
+.offer-real-save{display:inline-block;background:#e5f5ec;color:#08764f;padding:5px 9px;font-size:13px;font-weight:800;border-radius:8px;margin:5px 0}
+/* Los bloques de inicio contienen ahora el precio y el ahorro, no solo la etiqueta. */
+.offers-card .multi-item{grid-template-rows:auto!important}
+.offers-card .grid-item{min-width:0}
+.offers-card .savings-badge{font-size:10px;line-height:1.15;white-space:normal}
+</style>
+<style id="teus-v43-savings-offers">
+/* Promociones: ahorro protagonista en todas las vistas, sin etiqueta duplicada */
+.teus-offer-saving{
+ display:block!important;width:100%;background:#f08804;color:#fff!important;
+ text-align:center;font-size:clamp(12px,1.1vw,15px);font-weight:800;
+ border-radius:14px;padding:9px 10px;margin:7px 0;line-height:1.3;
+ white-space:normal;overflow-wrap:anywhere;box-sizing:border-box;
+}
+.teus-offer-saving-mini{font-size:12px;padding:7px 5px;margin:5px auto;}
+.multi-item .teus-offer-saving-mini{display:flex;align-items:center;justify-content:center;min-height:35px}
+.category-product-body .teus-offer-saving{max-width:100%}
+@media(max-width:600px){.teus-offer-saving{font-size:12px;padding:8px 6px}}
+</style>
+<style id="teus-v44-offer-views">
+/* Inicio: una sola línea promocional debajo de cada fotografía. */
+.offers-card .grid-item .teus-offer-saving-mini,
+.offers-card .grid-item .teus-offer-no-discount{font-size:11px!important;min-height:34px;display:flex!important;justify-content:center;align-items:center;line-height:1.15;text-align:center;padding:7px 4px!important;margin:5px 0!important;border-radius:13px;background:#ef8b00;color:white;font-weight:800;width:100%;}
+/* Interior: el precio anterior, actual y ahorro deben ser distintos y legibles. */
+.teus-offer-price-detail{display:flex;flex-direction:column;align-items:flex-start;gap:5px;margin:8px 0 12px;width:100%;}
+.teus-offer-before{font-size:13px;color:#667085;line-height:1.25;}
+.teus-offer-before del{color:#777;}
+.teus-offer-now{font-size:clamp(18px,1.8vw,25px);font-weight:850;color:#b12704;line-height:1.2;overflow-wrap:anywhere;}
+.teus-offer-price-detail .teus-offer-saving{width:auto;max-width:100%;margin:1px 0 0;padding:7px 11px;font-size:13px;background:#ef8b00;color:#fff;line-height:1.2;text-align:left;}
+.teus-offer-await-discount{display:inline-block;border-radius:12px;background:#ef8b00;color:#fff;font-size:11px;font-weight:800;padding:6px 11px;}
+@media(max-width:700px){.teus-offer-now{font-size:20px;}.teus-offer-price-detail .teus-offer-saving{font-size:12px;}}
+</style>
+<style id="teus-v45-ofertas-claras">
+.offers-card .teus-offer-pending,.category-product-card .teus-offer-pending{background:#fff3df!important;color:#8c4a00!important;border:1px dashed #e6a047!important}
+.offers-card .teus-offer-saving-mini{display:flex!important;justify-content:center;align-items:center;min-height:38px;font-size:12px!important}
+</style>
 </head>
 <body>
 
@@ -1931,22 +1974,24 @@ function offerDiscountPercent(p){
 }
 function publicOfferPriceHtml(p, compact=false){
     if(!offerIsActive(p)) return '';
-    const etiqueta=offerLabel(p);
-    if(!offerHasSpecialPrice(p)) {
-        // Destacada sin rebaja: precio habitual, sin porcentaje ni ahorro inventados.
-        if(compact) return `<div class="savings-badge">${etiqueta}</div>`;
-        return `<div class="price-now">Ahora: Bs ${Number(p.precioPaquete).toFixed(2)}</div>
-                <div><span class="offer-premium-tag">${etiqueta}</span></div>`;
-    }
-    const pct=offerDiscountPercent(p);
+    const precioBase=Number(p.precioPaquete)||0;
+    if(precioBase<=0) return '';
+    const especialValido=offerHasSpecialPrice(p);
+    const actual=especialValido?Number(p.precioOferta):precioBase;
+    // Compartimos los mismos valores de referencia que ya utiliza el resto
+    // del catálogo. La referencia del 25% es calculada, no un precio histórico.
+    const visual=getVisualPrice(precioBase);
+    const referencia=Number(visual.before)||precioBase;
+    const ahorro=Math.max(0,referencia-actual);
+    const bs=n=>'Bs '+Number(n).toFixed(2);
     if(compact){
-        return `<div class="savings-badge">⚡ -${pct}% · Bs ${Number(p.precioOferta).toFixed(2)}</div>`;
+        return `<div class="teus-offer-saving teus-offer-saving-mini" title="Ahorro frente a precio de referencia calculado">💰 Ahorras: ${bs(ahorro)}</div>`;
     }
-    return `<div class="offer-premium-box">
-              <span class="offer-premium-percent">-${pct}%</span>
-              <span class="offer-premium-price">Bs ${Number(p.precioOferta).toFixed(2)}</span>
-            </div>
-            <div><span class="offer-premium-tag">⚡ OFERTA POR TIEMPO LIMITADO</span></div>`;
+    return `<div class="teus-offer-price-detail">
+       <div class="teus-offer-before">Referencia: <del>${bs(referencia)}</del></div>
+       <div class="teus-offer-now">Ahora: ${bs(actual)}</div>
+       <div class="teus-offer-saving" title="Ahorro frente a precio de referencia calculado">💰 Ahorras: ${bs(ahorro)}</div>
+    </div>`;
 }
 
 function shuffleArray(arr) {
@@ -2508,15 +2553,8 @@ function renderCategoryProducts(products) {
             <div class="category-product-name" title="${escapeHtml(prod.nombre)}">${escapeHtml(prod.nombre)}</div>`;
         if (disponible) {
           const enOferta = !!(browsingOfferMode && offerIsActive(prod));
-          if (enOferta && offerHasSpecialPrice(prod)) {
-            // Precio especial real: mantiene la referencia visual anterior.
-            const pct = offerDiscountPercent(prod);
-            cards += `<div class="category-price-before">Antes: Bs ${visual.before.toFixed(2)}</div>
-                      <div class="category-price-now">Ahora: Bs ${Number(prod.precioOferta).toFixed(2)}</div>
-                      <span class="category-save">⚡ OFERTA POR TIEMPO LIMITADO · -${pct}%</span>`;
-          } else if (enOferta) {
-            cards += `<div class="category-price-now">Ahora: Bs ${visual.now.toFixed(2)}</div>
-                      <span class="category-save">${offerLabel(prod)}</span>`;
+          if (enOferta) {
+            cards += publicOfferPriceHtml(prod, false);
           } else {
             cards += `<div class="category-price-before">Antes: Bs ${visual.before.toFixed(2)}</div>
                       <div class="category-price-now">Ahora: Bs ${visual.now.toFixed(2)}</div>
@@ -2597,10 +2635,9 @@ function renderResultsList(products) {
                     <div class="info-col">
                         <h2 class="product-title" data-idx="${i}">${escapeHtml(prod.nombre)}</h2>`;
         if (disponible) {
-            html += `<div class="price-container"><del>Antes: Bs ${visual.before.toFixed(2)}</del>
-                     ${(browsingOfferMode && offerIsActive(prod))
+            html += `<div class="price-container">${(browsingOfferMode && offerIsActive(prod))
                        ? publicOfferPriceHtml(prod)
-                       : `<div class="price-now">Ahora: Bs ${visual.now.toFixed(2)}</div><div class="savings-badge">💰 Ahorras Bs ${visual.save.toFixed(2)}</div>`}</div>
+                       : `<del>Antes: Bs ${visual.before.toFixed(2)}</del><div class="price-now">Ahora: Bs ${visual.now.toFixed(2)}</div><div class="savings-badge">💰 Ahorras Bs ${visual.save.toFixed(2)}</div>`}</div>
                      <div class="delivery-info">📦 Cantidad: ${escapeHtml(prod.unidadesTexto)} por paquete<br>🚚 Entrega rápida a toda Bolivia</div>
                      <div>
                          <button class="add-btn" data-idx="${i}">Agregar al carrito</button>
@@ -2675,9 +2712,7 @@ window.openProductModal = function(product) {
             ${hasPaquete ? `<div class="price-package">
                 <div class="option-title">📦 Paquete</div>
                 <div class="option-price">
-                    <del>Antes: Bs ${visual.before.toFixed(2)}</del>
-                    <div class="price-now">Ahora: Bs ${visual.now.toFixed(2)}</div>
-                    ${(browsingOfferMode && offerIsActive(product))?(offerHasSpecialPrice(product)?publicOfferPriceHtml(product):`<div><span class="offer-premium-tag">${offerLabel(product)}</span></div>`):''}
+                    ${(browsingOfferMode && offerIsActive(product)) ? publicOfferPriceHtml(product) : `<del>Antes: Bs ${visual.before.toFixed(2)}</del><div class="price-now">Ahora: Bs ${visual.now.toFixed(2)}</div>`}
                 </div>
                 ${(browsingOfferMode && offerIsActive(product))?'':`<div class="savings-badge-modal">💰 Ahorras Bs ${visual.save.toFixed(2)}</div>`}
                 <div class="option-detail">${escapeHtml(product.unidadesTexto)} por paquete</div>
@@ -3305,21 +3340,20 @@ document.getElementById('inlineOrderForm').onsubmit=function(e){
     mensaje+=`📍 *Dirección:* ${direccion}\n`;
     mensaje+=`🗺️ *Departamento:* ${dept}\n`;
 
+    // Condiciones comerciales de Ventas por Mayor, solamente para el mensaje WhatsApp.
     let notaEnvio='';
-
     if(dept==='Santa Cruz'){
         if(tipo==='provincia'){
-            const provincia=(document.getElementById('inlineProvinceName')?.value||'').trim() || 'No especificada';
+            const provincia=(document.getElementById('inlineProvinceName')?.value||'').trim();
             const key=document.getElementById('inlineProvincePoint')?.value||'';
-            const p=(typeof TEUS_PROVINCE_POINTS!=='undefined' && TEUS_PROVINCE_POINTS[key]) ? TEUS_PROVINCE_POINTS[key] : null;
-            const transportadora=p ? `${p.label} (${Number(p.costo||0).toFixed(0)} Bs)` : 'No seleccionada';
+            const p=TEUS_PROVINCE_POINTS[key];
             mensaje+=`🏘️ *Provincia:* ${provincia}\n`;
-            mensaje+=`🚚 *Transportadora de salida:* ${transportadora}\n`;
-            notaEnvio='Nota: El costo de envío mostrado es para llevar el pedido hasta la terminal de buses. El envío a provincia se realiza bajo la modalidad de pago en destino (por pagar).';
+            mensaje+=`🚚 *Transportadora de salida:* ${p.label} (${p.costo} Bs)\n`;
+            notaEnvio='El costo de envío mostrado es para llevar el pedido hasta la terminal de buses. El envío a provincia se realiza bajo la modalidad de pago en destino (por pagar). Se contactará al cliente para informar el costo total del envío en caso de que no sea posible enviar por pagar.';
         }else if(tipo==='ciudad'){
             const zona=document.getElementById('inlineCityZone')?.value||'No especificada';
             mensaje+=`📍 *Zona en ciudad:* ${zona}\n`;
-            notaEnvio='Nota: El costo de envío en ciudad se coordinará por WhatsApp.';
+            notaEnvio='📌 IMPORTANTE: Para poder alistar el pedido, requerimos el comprobante de pago. El costo de envío se cotizará cuando el paquete esté listo, ya que los precios de la empresa de delivery (Yango) varían durante el día. Si el cliente no recibe el paquete en el momento de la entrega, la empresa Yango tiene una política de espera de 5 a 10 minutos; si no hay recepción, el paquete será devuelto a nuestro origen y se generará un costo adicional del cual NO NOS RESPONSABILIZAMOS. Recomendamos coordinar bien la entrega.';
         }else if(tipo==='recoger'){
             const diaEl=document.getElementById('inlinePickupDay') || document.getElementById('inlineDiaRecogida') || document.getElementById('diaRecogida');
             const dia=(diaEl?.value||'').trim() || 'No especificado';
@@ -3327,12 +3361,12 @@ document.getElementById('inlineOrderForm').onsubmit=function(e){
             mensaje+=`📅 *Día de recogida:* ${dia}\n`;
             costoEnvio=0;
             total=subtotal;
-            notaEnvio='Nota: El cliente pasará a recoger el pedido. No hay costo de envío.';
+            notaEnvio='El cliente pasará a recoger el pedido en tienda. No hay costo de envío.';
         }
     }else{
-        const transportadora=(document.getElementById('inlineTransportName')?.value||'').trim() || 'No especificada';
+        const transportadora=(document.getElementById('inlineTransportName')?.value||'').trim();
         mensaje+=`🚚 *Transportadora:* ${transportadora}\n`;
-        notaEnvio='Nota: El envío se coordinará con la transportadora indicada.';
+        notaEnvio='Los envíos a otros departamentos se realizan todos los días excepto miércoles, sábados y domingos. Para despachar el mismo día, el pago debe realizarse antes de las 4:00 PM; de lo contrario, se agendará para el siguiente día hábil. El costo de envío es de 15 Bs para llevar el pedido hasta la terminal. El transporte hacia el departamento de destino se coordinará con el cliente y se pagará en destino (por pagar) cuando la transportadora lo permita. Si no fuese posible, se informará el costo adicional antes del despacho.';
     }
 
     mensaje+=`💰 *Estado de pago:* Enviado a WhatsApp\n\n`;
@@ -3353,19 +3387,17 @@ document.getElementById('inlineOrderForm').onsubmit=function(e){
         mensaje+=`🚚 *Costo de envío:* Sin costo (cliente recoge)\n`;
         mensaje+=`💵 *TOTAL:* ${subtotal.toFixed(2).replace(/\.00$/,'')} Bs\n`;
     }else if(entrega.costoVariable){
-        mensaje+=`🚚 *Costo de envío:* Se cotizará por WhatsApp\n`;
+        mensaje+=`🚚 *Costo de envío:* Se cotizará cuando el paquete esté listo\n`;
         mensaje+=`💵 *TOTAL:* ${subtotal.toFixed(2).replace(/\.00$/,'')} Bs\n`;
     }else{
-        mensaje+=`🚚 *Costo de envío:* ${costoEnvio.toFixed(2).replace(/\.00$/,'')} Bs\n`;
+        mensaje+=`🚚 *Costo de envío (hasta terminal):* ${costoEnvio.toFixed(2).replace(/\.00$/,'')} Bs\n`;
         mensaje+=`💵 *TOTAL:* ${total.toFixed(2).replace(/\.00$/,'')} Bs\n`;
     }
 
     const nota=(document.getElementById('inlineNote')?.value||'').trim();
-    if(nota){
-        mensaje+=`\n📝 Nota: ${nota}\n`;
-    }else if(notaEnvio){
-        mensaje+=`\n📝 ${notaEnvio}\n`;
-    }
+    // La nota opcional del cliente nunca debe sustituir las condiciones de envío.
+    if(nota) mensaje+=`\n📝 *Observaciones del cliente:* ${nota}\n`;
+    if(notaEnvio) mensaje+=`\n📝 *Condiciones de entrega:* ${notaEnvio}\n`;
 
     mensaje+=`\n📅 *Fecha:* ${new Date().toLocaleString('es-BO')}`;
 
