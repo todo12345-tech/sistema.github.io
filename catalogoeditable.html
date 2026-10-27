@@ -2558,9 +2558,9 @@ async function loginAdmin(){
  if(!user||!pass){err.textContent='Ingresa usuario y contraseña.';return}
  try{
   // Validación real del ADMIN en Apps Script, sin descargar hoja de usuarios.
-  const result=await itemsPrivateRequest({accion:'listarItemsAdmin',usuario:user,contrasena:pass});
-  if(!result.ok)throw new Error(result.error||'No tienes autorización ADMIN.');
-  adminActual={usuario:user,nombre:user,contrasena:pass};
+  const result=await itemsPrivateRequest({accion:'verificarAccesoCatalogo',usuario:user,contrasena:pass});
+  if(!result.ok)throw new Error(result.error||'No tienes autorización para editar el catálogo.');
+  adminActual={usuario:user,nombre:user,contrasena:pass,rol:result.rol};
   // Contraseña únicamente en memoria: jamás sessionStorage/localStorage.
   document.getElementById('loginPass').value='';
   document.getElementById('loginModal').style.display='none';
@@ -2569,7 +2569,7 @@ async function loginAdmin(){
 }
 function applyAdminUI(){
  const btn=document.getElementById('signInBtn'),badge=document.getElementById('adminBadge');
- if(adminActual){btn.innerHTML='<i class="fas fa-sign-out-alt"></i> Salir';badge.style.display='inline-block';badge.textContent='ADMIN · '+(adminActual.nombre||adminActual.usuario)}
+ if(adminActual){btn.innerHTML='<i class="fas fa-sign-out-alt"></i> Salir';badge.style.display='inline-block';badge.textContent=(adminActual.rol==='administrador'?'ADMIN':'ENCARGADO')+' · '+(adminActual.nombre||adminActual.usuario)}
  else{btn.innerHTML='<i class="fas fa-user-shield"></i> Login';badge.style.display='none'}
 }
 async function toggleLogin(){
@@ -2766,13 +2766,13 @@ async function itemsPrivateRequest(payload){
  return data;
 }
 async function adminPost(payload){
- if(!adminActual||!adminActual.usuario||!adminActual.contrasena)throw new Error('Inicia sesión ADMIN para continuar.');
+ if(!adminActual||!adminActual.usuario||!adminActual.contrasena)throw new Error('Inicia sesión para continuar.');
  return itemsPrivateRequest({...payload,usuario:adminActual.usuario,contrasena:adminActual.contrasena});
 }
 function adminEditorHtml(prod,i){
     if(!adminActual) return '';
     return `<div class="admin-editor" data-admin-idx="${i}">
-      <div class="admin-editor-title"><i class="fas fa-user-shield"></i> ADMINISTRAR ITEM
+      <div class="admin-editor-title"><i class="fas fa-user-shield"></i> EDITAR ITEM
         <span class="admin-status ${prod.publicado?'on':'off'}">${prod.publicado?'PUBLICADO':'NO PUBLICADO'}</span>
         <span class="admin-status ${prod.dispPaquete?'on':'off'}">${prod.dispPaquete?'DISPONIBLE':'SIN DISPONIBILIDAD'}</span>
       </div>
@@ -2801,8 +2801,8 @@ function adminEditorHtml(prod,i){
       ${prod.imagenOriginalRaw?`<div class="admin-photo-link"><strong>Original:</strong> ${escapeHtml(prod.imagenOriginalRaw)}</div>`:''}
       <div class="admin-actions" style="margin-top:11px">
         <button class="admin-save" data-idx="${i}"><i class="fas fa-save"></i> Guardar cambios</button>
-        <button class="admin-delete" data-idx="${i}"><i class="fas fa-trash"></i> Eliminar solo item</button>
-        <button class="admin-delete-photo" data-idx="${i}"><i class="fas fa-trash-alt"></i> Eliminar item + foto</button>
+        ${adminActual.rol==='administrador'?`<button class="admin-delete" data-idx="${i}"><i class="fas fa-trash"></i> Eliminar solo item</button>
+        <button class="admin-delete-photo" data-idx="${i}"><i class="fas fa-trash-alt"></i> Eliminar item + foto</button>`:''}
       </div>
     </div>`;
 }
@@ -2893,6 +2893,7 @@ async function guardarAdminItem(i,box){
     }
 }
 async function eliminarAdminItem(i,conFoto){
+    if(!adminActual||adminActual.rol!=='administrador'){alert('Solo un Administrador puede eliminar productos.');return;}
     const p=currentResults[i]; if(!p)return;
     const texto=conFoto?'¿Eliminar COMPLETAMENTE este item y también su imagen editada de Drive?':'¿Eliminar solamente este item? La foto de Drive se conservará.';
     if(!confirm(texto+'\n\n'+p.nombre))return;
