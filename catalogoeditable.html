@@ -2557,7 +2557,7 @@ async function loginAdmin(){
  const err=document.getElementById('loginError');err.textContent='Verificando con Apps Script...';
  if(!user||!pass){err.textContent='Ingresa usuario y contraseña.';return}
  try{
-  // Validación real del ADMIN en Apps Script, sin descargar hoja de usuarios.
+  // Validación real de Administrador o Encargado en Apps Script, sin descargar hoja de usuarios.
   const result=await itemsPrivateRequest({accion:'verificarAccesoCatalogo',usuario:user,contrasena:pass});
   if(!result.ok)throw new Error(result.error||'No tienes autorización para editar el catálogo.');
   adminActual={usuario:user,nombre:user,contrasena:pass,rol:result.rol};
@@ -2565,7 +2565,13 @@ async function loginAdmin(){
   document.getElementById('loginPass').value='';
   document.getElementById('loginModal').style.display='none';
   applyAdminUI();await loadProducts();showHomeView(false);
- }catch(e){err.textContent=e.message||String(e);adminActual=null}
+ }catch(e){
+  const mensaje=String(e.message||e);
+  err.textContent=/Acción no reconocida|No existe la acción|action not found/i.test(mensaje)
+    ? 'Tu Apps Script ITEMS publicado está desactualizado. Implementa ITEMS V19 como NUEVA VERSIÓN de la implementación existente.'
+    : mensaje;
+  adminActual=null;
+}
 }
 function applyAdminUI(){
  const btn=document.getElementById('signInBtn'),badge=document.getElementById('adminBadge');
