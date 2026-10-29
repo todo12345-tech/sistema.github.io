@@ -1087,6 +1087,40 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
 @media(max-width:770px){#teusAccionesPedidoSeis{grid-template-columns:repeat(2,minmax(0,1fr));gap:9px}#teusAccionesPedidoSeis>button{min-height:56px;font-size:13px}}
 @media(max-width:390px){#teusAccionesPedidoSeis{grid-template-columns:1fr 1fr}#teusAccionesPedidoSeis>button{font-size:12px;padding:9px 6px}}
 </style>
+<style id="teus-alistamiento-monitor-v5">
+/* Monitor HDMI / cable: cuadrícula de alta densidad, sin conexión remota */
+#mayorPickerScreen{background:#eef2f6;}
+.mayor-picker-top{padding:10px 20px 9px;}
+.mayor-picker-topline h2{font-size:19px!important;}
+.mayor-picker-description{font-size:12px;margin-top:3px;}
+.mayor-picker-searchbar{margin-top:7px;}
+.mayor-picker-searchbar input{padding:9px 12px!important;}
+.mayor-picker-results{margin-top:3px;min-height:0;font-size:11px;}
+.mayor-picker-progress{margin-top:5px;font-size:12px;}
+.mayor-picker-track{height:6px;margin-top:5px;}
+.mayor-picker-viewtools{display:flex;justify-content:space-between;align-items:center;margin-top:5px;font-size:11px;color:#62758b;}
+.mayor-picker-monitor-btn{width:auto!important;font-size:11px!important;padding:5px 9px!important;color:#244768!important;background:#e7f0fa!important;box-shadow:none!important;}
+#mayorPickerList{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));align-content:start;gap:9px;padding:12px 16px 18px;max-width:none;}
+.mayor-picker-product{min-width:0;min-height:88px;margin:0;padding:9px;gap:9px;border-radius:10px;border-width:1px;box-shadow:0 1px 4px #0000000a;cursor:default;}
+.mayor-picker-product.done{border-width:2px;}
+.mayor-picker-checkbox{width:24px!important;height:24px!important;min-width:24px;flex:0 0 24px;cursor:pointer;}
+.mayor-picker-photo,.mayor-picker-ph{width:70px;height:70px;flex:0 0 70px;object-fit:contain;background:white;cursor:zoom-in;}
+.mayor-picker-photo:hover{outline:2px solid #2581c5;outline-offset:1px;}
+.mayor-picker-heading{gap:5px;}
+.mayor-picker-label{font-size:13px;line-height:1.3;overflow-wrap:anywhere;}
+.mayor-picker-number{font-size:10px;min-width:27px;padding:3px;}
+.mayor-picker-info{gap:4px;}
+.mayor-picker-price{font-size:11px;}
+.mayor-picker-footer{padding:7px 15px;justify-content:flex-end;}
+.mayor-picker-footer button{font-size:12px!important;min-height:36px!important;padding:8px 13px!important;width:auto!important;}
+#imageLightbox{z-index:2000005!important;cursor:zoom-out;}
+#imageLightbox .lightbox-content img{max-height:88vh;max-width:90vw;object-fit:contain;cursor:default;}
+#teusAccionesPedidoSeis{grid-template-columns:repeat(2,minmax(0,1fr));}
+@media(min-width:1650px){#mayorPickerList{grid-template-columns:repeat(5,minmax(0,1fr));}.mayor-picker-photo,.mayor-picker-ph{width:82px;height:82px;flex-basis:82px;}.mayor-picker-label{font-size:14px;}}
+@media(min-width:1100px) and (max-width:1440px){#mayorPickerList{grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(max-width:1099px){#mayorPickerList{grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(max-width:620px){#mayorPickerList{grid-template-columns:1fr;padding:8px;gap:7px;}.mayor-picker-product{min-height:77px;}.mayor-picker-photo,.mayor-picker-ph{width:62px;height:62px;flex-basis:62px;}.mayor-picker-top{padding:9px 10px;}.mayor-picker-label{font-size:13px;}.mayor-picker-viewtools>span{display:none;}.mayor-picker-footer button{flex:1!important;}}
+</style>
 </head>
 <body>
 <div id="loginMayorOverlay">
@@ -1294,8 +1328,7 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                         <i class="fas fa-print"></i> Imprimir Datos
                     </button>
                     <button type="button" id="teusModoRapido" class="btn-warning" title="Previsualizar el pedido rápido con nombre y teléfono opcionales"><i class="fas fa-bolt"></i> Previsualizar pedido rápido</button>
-                    <button type="button" id="teusEnviarPedidoPantallaManual" class="btn-success" title="Enviar el pedido a la pantalla inalámbrica (requiere conexión)"><i class="fas fa-paper-plane"></i> Enviar a pantalla inalámbrica</button>
-                    <button type="button" id="teusAbrirPantallaCliente" class="btn-info" title="Abrir la segunda pantalla"><i class="fas fa-desktop"></i> Ver pantalla inalámbrica</button>
+                    <button type="button" id="teusAbrirVentanaMonitor" class="btn-info" title="Abrir una ventana independiente para arrastrarla al segundo monitor"><i class="fas fa-external-link-alt"></i> Abrir alistar en otra ventana</button>
                 </div>
             </form>
             <div class="preview-container" id="previewContainer">
@@ -1404,7 +1437,8 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                 </div>
                 <div class="alistar-stats" id="alistarStats">0/0 items</div>
             </div>
-            <button type="button" id="abrirModoAlistar" class="btn-info mayor-modo-alistar-btn"><i class="fas fa-expand"></i> Solo alistar pedido · Pantalla completa</button>
+            <button type="button" id="abrirModoAlistar" class="btn-info mayor-modo-alistar-btn"><i class="fas fa-desktop"></i> Alistar en esta pantalla · Pantalla completa</button>
+            <button type="button" id="teusAbrirVentanaMonitor2" class="mayor-modo-alistar-btn" style="background:#147eac"><i class="fas fa-external-link-alt"></i> Abrir en ventana para segundo monitor</button>
             <div class="alistar-items" id="alistarItems">
                 <div class="alistar-empty">
                     <i class="fas fa-clipboard-list"></i>
@@ -1510,9 +1544,10 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
 <section id="mayorPickerScreen" aria-label="Solo alistar pedido">
   <div class="mayor-picker-top">
     <div class="mayor-picker-topline"><h2><i class="fas fa-clipboard-check"></i> Alistar pedido</h2><button type="button" class="mayor-picker-exit" id="mayorPickerExit"><i class="fas fa-times"></i> Cerrar</button></div>
-    <div class="mayor-picker-description">Solo productos y cantidades. Marca cada uno al prepararlo.</div>
+    <div class="mayor-picker-description">Vista compacta para monitor · Haz clic en una foto para ampliarla y en la casilla para marcar el producto.</div>
     <div class="mayor-picker-searchbar"><input id="mayorPickerSearch" type="search" autocomplete="off" placeholder="Buscar producto dentro del pedido…" aria-label="Buscar productos para alistar"><button type="button" id="mayorPickerSearchClear" class="mayor-picker-search-clear" aria-label="Limpiar búsqueda" title="Limpiar búsqueda"><i class="fas fa-times"></i></button></div>
     <div class="mayor-picker-results" id="mayorPickerResults" aria-live="polite"></div>
+    <div class="mayor-picker-viewtools"><span><i class="fas fa-desktop"></i> Alistamiento en monitor</span><button type="button" id="mayorPickerFullscreen" class="mayor-picker-monitor-btn" title="Expandir vista en monitor"><i class="fas fa-expand"></i> Expandir</button></div>
     <div class="mayor-picker-progress"><span id="mayorPickerCount">0 / 0 listos</span><span id="mayorPickerPercent">0%</span></div>
     <div class="mayor-picker-track"><div id="mayorPickerFill"></div></div>
   </div>
@@ -2818,6 +2853,7 @@ document.addEventListener('DOMContentLoaded', function() {
             return {n:item.descripcion, i:producto?.imagen||'', c:!!item.alistado, precio:Number(item.monto)||0};
         });
     }
+    window.__teusGetMonitorData = productosSoloAlistar;
     window.__teusChecklistSync = (index,checked)=>{
         if(items[index]){items[index].alistado=checked;actualizarAlistamiento();guardarPedidoMayorEnCurso()}
     };
@@ -3681,7 +3717,7 @@ document.addEventListener('DOMContentLoaded', function() {
       card.setAttribute('role','group');card.setAttribute('aria-label',x.n);
       const check=document.createElement('input');check.type='checkbox';check.className='mayor-picker-checkbox';check.checked=!!x.c;check.setAttribute('aria-label','Marcar '+x.n);
       const img=safeImage(x.i);let picture;
-      if(img){picture=document.createElement('img');picture.className='mayor-picker-photo';picture.src=img;picture.alt='Producto';picture.loading='lazy';picture.referrerPolicy='no-referrer';picture.onerror=()=>{picture.replaceWith(document.createTextNode('📦'))}}
+      if(img){picture=document.createElement('img');picture.className='mayor-picker-photo';picture.src=img;picture.alt='Producto';picture.loading='lazy';picture.referrerPolicy='no-referrer';picture.tabIndex=0;picture.setAttribute('role','button');picture.setAttribute('aria-label','Ampliar fotografía de '+x.n);picture.addEventListener('click',ev=>{ev.stopPropagation();abrirLightbox(img)});picture.addEventListener('keydown',ev=>{if(ev.key==='Enter'||ev.key===' '){ev.preventDefault();ev.stopPropagation();abrirLightbox(img)}});picture.onerror=()=>{picture.replaceWith(document.createTextNode('📦'))}}
       else {picture=document.createElement('div');picture.className='mayor-picker-ph';picture.textContent='📦'}
       const info=document.createElement('div');info.className='mayor-picker-info';
       const head=document.createElement('div');head.className='mayor-picker-heading';
@@ -3696,14 +3732,14 @@ document.addEventListener('DOMContentLoaded', function() {
       }
       card.append(check,picture,info);
       check.addEventListener('change',()=>toggleCheck(i,check.checked));
-      card.addEventListener('click',ev=>{if(ev.target===check)return;toggleCheck(i,!x.c)});
+      card.addEventListener('click',ev=>{if(ev.target===check||ev.target===picture)return;toggleCheck(i,!x.c)});
       list.append(card);
     });
     if(!visible){const empty=document.createElement('div');empty.className='mayor-picker-empty';empty.textContent=data.length?'No hay productos que coincidan con la búsqueda.':'Este pedido todavía no contiene productos.';list.append(empty)}
     const done=data.filter(x=>x.c).length;const pct=data.length?Math.round(done*100/data.length):0;
     $('mayorPickerCount').textContent=`${done} / ${data.length} listos`;
     $('mayorPickerPercent').textContent=pct+'%';$('mayorPickerFill').style.width=pct+'%';
-    $('mayorPickerResults').textContent=query?`Mostrando ${visible} de ${data.length} productos · ${done} preparados`:`${data.length} productos · toca cualquier artículo para tildarlo`;
+    $('mayorPickerResults').textContent=query?`Mostrando ${visible} de ${data.length} productos · ${done} preparados`:`${data.length} productos · marca la casilla de cada producto al prepararlo`;
   }
   function show(arr,mode){
     searchText='';$('mayorPickerSearch').value='';source=mode;data=arr.map((x,i)=>({n:String(x.n||'Producto'),i:safeImage(x.i),c:!!x.c,num:i+1,precio:x.precio===undefined?null:x.precio}));persistKey=keyFor(data);
@@ -3727,7 +3763,8 @@ document.addEventListener('DOMContentLoaded', function() {
     if(isShare)shareParse();
     $('mayorPickerSearch').addEventListener('input',e=>{searchText=e.target.value;paint()});
     $('mayorPickerSearchClear').addEventListener('click',()=>{searchText='';$('mayorPickerSearch').value='';paint();$('mayorPickerSearch').focus()});
-    $('mayorPickerExit').addEventListener('click',()=>document.body.classList.remove('mayor-solo-alistar'));
+    $('mayorPickerExit').addEventListener('click',()=>{document.body.classList.remove('mayor-solo-alistar');if(document.fullscreenElement)document.exitFullscreen().catch(()=>{});});
+    $('mayorPickerFullscreen').addEventListener('click',async()=>{try{if(document.fullscreenElement){await document.exitFullscreen()}else{await $('mayorPickerScreen').requestFullscreen()}}catch(e){console.info('Pantalla completa opcional:',e.message)}});
     $('mayorPickerAll').addEventListener('click',()=>{data.forEach((x,i)=>{x.c=true;if(source==='local'&&window.__teusChecklistSync)window.__teusChecklistSync(i,true)});saveChecks();paint()});
     $('mayorPickerNone').addEventListener('click',()=>{data.forEach((x,i)=>{x.c=false;if(source==='local'&&window.__teusChecklistSync)window.__teusChecklistSync(i,false)});saveChecks();paint()});
   });
@@ -3750,47 +3787,72 @@ document.addEventListener('DOMContentLoaded', function() {
   <div style="display:flex;align-items:center;justify-content:space-between;gap:10px"><h2><i class="fas fa-bolt"></i> Pedido rápido</h2><button id="teusQuickClose" type="button" class="btn-danger" style="width:auto;padding:9px 14px;font-size:13px">Cerrar ✕</button></div>
   <p style="font-size:13px;color:#546476">Previsualiza los productos, fotografías y total. Se usa automáticamente el nombre y el teléfono del formulario principal, si están disponibles. No requiere datos de envío.</p>
   <div id="teusQuickCustomerInfo" style="padding:12px 14px;background:#edf7ff;border-radius:10px;margin:10px 0;color:#20394c">Cliente: <strong id="teusQuickCustomerName">Cliente en caja</strong><span id="teusQuickCustomerPhone"></span></div>
-  <div style="margin:12px 0 5px" id="teusWirelessStatus">Pantalla: sin configurar</div>
+  
   <div id="teusQuickList"></div>
   <div style="display:flex;justify-content:space-between;align-items:center;margin-top:12px"><b>Total:</b><strong id="teusQuickTotal" style="font-size:25px">Bs 0</strong></div>
-  <div class="teus-quick-actions"><button type="button" id="teusQuickSend" class="btn-success"><i class="fas fa-paper-plane"></i> Enviar a pantalla inalámbrica</button><button type="button" id="teusQuickGoItems" class="btn-info"><i class="fas fa-plus"></i> Agregar o editar productos</button></div>
+  <div class="teus-quick-actions"><button type="button" id="teusQuickGoItems" class="btn-info"><i class="fas fa-plus"></i> Agregar o editar productos</button></div>
   <p id="teusQuickMsg" role="status" style="font-size:13px;color:#335;margin-top:10px"></p>
  </div>
 </div>
-<div id="teusScreenPicker" class="teus-screen-picker" role="dialog" aria-modal="true" aria-labelledby="teusScreenPickerTitle" hidden>
- <div class="teus-screen-picker-card"><div class="teus-picker-head"><h3 id="teusScreenPickerTitle"><i class="fas fa-desktop"></i> Selecciona una pantalla disponible</h3><button type="button" id="teusPickerCancel" aria-label="Cerrar selector">✕</button></div><p>Elige el dispositivo al que quieres enviar este pedido.</p><div id="teusScreenPickerList" class="teus-screen-picker-list"></div></div>
-</div>
-<style id="teus-screen-picker-css">
-.teus-screen-picker[hidden]{display:none!important}.teus-screen-picker{position:fixed;inset:0;z-index:110000;background:rgba(10,26,42,.75);display:flex;align-items:center;justify-content:center;padding:18px}.teus-screen-picker-card{width:min(550px,96vw);max-height:85vh;overflow:auto;background:white;border-radius:20px;padding:25px;color:#1c3246;box-shadow:0 20px 80px #0004}.teus-picker-head{display:flex;justify-content:space-between;align-items:start;gap:10px}.teus-picker-head h3{font-size:21px;margin:0}.teus-picker-head button{background:#edf2f6;color:#24384f;width:40px;height:40px;padding:0;font-size:22px;border-radius:9px;flex:none}.teus-screen-picker-card p{font-size:14px;color:#657387;margin:12px 0 17px}.teus-screen-picker-list{display:grid;gap:10px}.teus-screen-option{display:flex;align-items:center;justify-content:space-between;gap:12px;text-align:left;padding:18px!important;background:#f4f9ff!important;color:#15334d!important;border:2px solid #cbdfee!important;border-radius:13px!important;font-size:17px!important;width:100%!important}.teus-screen-option:hover,.teus-screen-option:focus-visible{background:#e1f4e9!important;border-color:#13a474!important;transform:none!important}.teus-screen-option small{display:block;font-weight:400;font-size:12px;color:#596e82;margin-top:4px}.teus-screen-dot{display:inline-block;background:#19ad71;width:11px;height:11px;border-radius:50%;margin-right:8px}.teus-screen-option .fas{color:#0b8b65}
-</style>
-<script id="teus-wireless-v426">
+<script id="teus-local-preview-v5">
+(function(){
+ 'use strict';
+ const $=id=>document.getElementById(id);
+ const fmt=n=>'Bs '+Number(n||0).toLocaleString('es-BO',{maximumFractionDigits:2});
+ function vista(){
+   if(!window.usuarioMayorActual){alert('Inicia sesión en Ventas por Mayor.');return}
+   $('teusQuickCustomerName').textContent=($('fullName')?.value||'').trim()||'Cliente en caja';
+   $('teusQuickCustomerPhone').textContent=($('phone')?.value||'').trim()?' · Teléfono registrado':'';
+   const list=$('teusQuickList');list.replaceChildren();
+   const items=document.querySelectorAll('#productosLista .producto-item');
+   items.forEach(el=>{
+     const fila=document.createElement('div');fila.className='teusql';
+     const foto=el.querySelector('img.mayor-item-photo');
+     if(foto?.src){const img=document.createElement('img');img.src=foto.src;img.alt='Producto';img.style.cursor='zoom-in';img.addEventListener('click',()=>abrirLightbox(foto.src));fila.append(img)}
+     const nombre=document.createElement('div');nombre.className='name';nombre.textContent=(el.querySelector('.producto-info strong')?.textContent||'Producto')+' · '+(el.querySelector('.mayor-qty-val')?.textContent||'1');
+     const monto=document.createElement('div');monto.className='cash';monto.textContent=(el.querySelector('.producto-cantidad')?.textContent||'').trim();fila.append(nombre,monto);list.append(fila)
+   });
+   if(!items.length)list.textContent='No hay productos agregados.';
+   $('teusQuickTotal').textContent=fmt(Number(($('totalCompra')?.textContent||'0').replace(/\./g,'').replace(',','.')));
+   $('teusQuickOverlay').classList.add('abierto');
+ }
+ $('teusModoRapido')?.addEventListener('click',vista);
+ $('teusQuickClose')?.addEventListener('click',()=>$('teusQuickOverlay').classList.remove('abierto'));
+ $('teusQuickGoItems')?.addEventListener('click',()=>$('teusQuickOverlay').classList.remove('abierto'));
+ $('teusQuickOverlay')?.addEventListener('click',e=>{if(e.target===$('teusQuickOverlay'))$('teusQuickOverlay').classList.remove('abierto')});
+ let qrData='';$('teusArchivoQr')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>500000){alert('Usa un QR menor de 500 KB');return;}const r=new FileReader();r.onload=()=>{qrData=String(r.result);$('teusVistaQr').src=qrData;$('teusVistaQr').style.display='block'};r.readAsDataURL(f)});
+ $('teusGuardarQr')?.addEventListener('click',()=>{if(!qrData){alert('Elige una imagen primero');return;}try{localStorage.setItem('teus_qr_local_v1',qrData);$('teusQrInfo').textContent='QR guardado en esta laptop.'}catch(e){alert('La imagen es demasiado grande.')}});
+})();
+</script>
+<script id="teus-monitor-ventana-v51">
 (function(){
 'use strict';
-const API='https://script.google.com/macros/s/AKfycbzMqTItarxje6E7kLC5LPVmva-G9JGaHZEANBJxciVMMXXtWKrwX4yv3R7Lroz5kK3C6w/exec';
-const $=id=>document.getElementById(id);
-let sesionEnvio='', authPendiente=null, pantallas=[];
-const num=t=>{let s=String(t||'').replace(/[^0-9.,-]/g,'');if(s.includes(',')&&s.includes('.'))s=s.replace(/,/g,'');else if(s.includes(',')&&!s.includes('.'))s=s.replace(',','.');return Number(s)||0};
-const money=n=>'Bs '+Number(n||0).toLocaleString('es-BO',{maximumFractionDigits:2});
-function pedido(){const items=[...document.querySelectorAll('#productosLista .producto-item')].map(el=>({nombre:el.querySelector('.producto-info strong')?.textContent?.trim()||'Producto',cantidad:el.querySelector('.mayor-qty-val')?.textContent?.trim()||'1',importe:num(el.querySelector('.producto-cantidad')?.textContent),foto:el.querySelector('img.mayor-item-photo')?.src||''}));return {cliente:($('fullName')?.value||'').trim()||'Cliente en caja',items,total:num($('totalCompra')?.textContent)};}
-function info(t){if($('teusQuickMsg'))$('teusQuickMsg').textContent=t;}
-function lista(){const p=pedido();$('teusQuickCustomerName').textContent=p.cliente;$('teusQuickCustomerPhone').textContent=($('phone')?.value||'').trim()?' · Teléfono registrado':'';const container=$('teusQuickList');container.replaceChildren();p.items.forEach(it=>{const row=document.createElement('div');row.className='teusql';if(/^https?:\/\//i.test(it.foto)){const img=document.createElement('img');img.src=it.foto;img.alt='';row.append(img)}const name=document.createElement('div');name.className='name';name.textContent=it.nombre+' · '+it.cantidad;const price=document.createElement('div');price.className='cash';price.textContent=money(it.importe);row.append(name,price);container.append(row)});if(!p.items.length)container.textContent='No hay productos agregados.';$('teusQuickTotal').textContent=money(p.total)}
-function jsonp(params,timeout=13000){return new Promise((resolve,reject)=>{const cb='pi_auto_'+Math.random().toString(36).slice(2);const tag=document.createElement('script');let done=false;const timer=setTimeout(()=>finish(new Error('No respondió Apps Script')),timeout);function finish(err,r){if(done)return;done=true;clearTimeout(timer);tag.remove();delete window[cb];err?reject(err):resolve(r)}window[cb]=r=>finish(null,r);tag.onerror=()=>finish(new Error('No se pudo conectar con Apps Script'));tag.src=API+'?'+new URLSearchParams({...params,callback:cb,ts:Date.now()});document.head.append(tag)})}
-function post(payload){return new Promise((resolve,reject)=>{const bytes=new Uint8Array(20);crypto.getRandomValues(bytes);const rid=Array.from(bytes,x=>x.toString(16).padStart(2,'0')).join('');const frame=document.createElement('iframe');frame.name='w_auto_'+rid;frame.style.display='none';const form=document.createElement('form');form.method='POST';form.action=API;form.target=frame.name;form.style.display='none';for(const [k,v] of Object.entries({...payload,rid,origen:location.origin})){const input=document.createElement('input');input.type='hidden';input.name=k;input.value=String(v);form.append(input)}document.body.append(frame,form);let stopped=false,timeout,delay;function finish(err,r){if(stopped)return;stopped=true;clearTimeout(timeout);clearTimeout(delay);frame.remove();form.remove();err?reject(err):resolve(r)}async function poll(){if(stopped)return;try{const r=await jsonp({accion:'respuestaOperacion',rid},10000);if(r&&!r.pendiente){finish(null,r);return}}catch(e){}if(!stopped)delay=setTimeout(poll,1100)}timeout=setTimeout(()=>finish(new Error('Apps Script no confirmó la operación')),42000);form.submit();delay=setTimeout(poll,900)})}
-window.teusWirelessLogout=()=>{sesionEnvio='';authPendiente=null;};
-window.teusWirelessAuth=(usuario,clave)=>{sesionEnvio='';authPendiente=post({accion:'loginVendedorEnvio',pantalla:'CAJA01',usuario,contrasena:clave}).then(r=>{if(!r.ok)throw Error(r.error||'No autorizado');sesionEnvio=r.sesionEnvio;return sesionEnvio}).catch(e=>{console.warn('Autorización de Pantalla Inalámbrica:',e.message);return ''});return authPendiente;};
-async function disponibles(){const r=await jsonp({accion:'listarPantallas'});if(!r?.ok)throw Error(r?.error||'No se pudo consultar pantallas');pantallas=r.pantallas||[];if($('teusWirelessStatus')){$('teusWirelessStatus').textContent=pantallas.length?'● '+pantallas.map(x=>x.id).join(', ')+' · disponibles':'● No hay pantallas activas';$('teusWirelessStatus').style.background=pantallas.length?'#e2f6e7':'#fff5df';}return pantallas;}
-function elegirPantalla(targets){return new Promise(resolve=>{const overlay=$('teusScreenPicker'),list=$('teusScreenPickerList'),cancel=$('teusPickerCancel');list.replaceChildren();let closed=false;function finish(id){if(closed)return;closed=true;overlay.hidden=true;overlay.removeEventListener('click',onBackdrop);cancel.removeEventListener('click',onCancel);document.removeEventListener('keydown',onKey);resolve(id)}function onBackdrop(e){if(e.target===overlay)finish(null)}function onCancel(){finish(null)}function onKey(e){if(e.key==='Escape')finish(null)}targets.forEach(x=>{const btn=document.createElement('button');btn.type='button';btn.className='teus-screen-option';const box=document.createElement('span');const primary=document.createElement('strong');primary.textContent=x.id;const detail=document.createElement('small');detail.textContent=x.nombre||'Pantalla disponible';box.append(primary,detail);const tick=document.createElement('i');tick.className='fas fa-chevron-right';btn.append(box,tick);btn.addEventListener('click',()=>finish(x.id));list.append(btn)});overlay.hidden=false;overlay.addEventListener('click',onBackdrop);cancel.addEventListener('click',onCancel);document.addEventListener('keydown',onKey);list.querySelector('button')?.focus()})}
-async function enviar(){const btn=$('teusQuickSend');if(!window.usuarioMayorActual){info('Inicia sesión en Ventas por Mayor para enviar.');return;}const p=pedido();if(!p.items.length){info('Primero agrega productos.');return;}btn.disabled=true;try{info('Buscando pantallas activas…');const targets=await disponibles();if(!targets.length)throw Error('No hay pantallas activas. Abre Pantalla Inalámbrica e inicia sesión allí.');let destino=targets[0].id;if(targets.length>1){destino=await elegirPantalla(targets);if(!destino){info('Envío cancelado.');return;}}if(authPendiente)await authPendiente;if(!sesionEnvio)throw Error('Por seguridad, vuelve a iniciar sesión en Ventas por Mayor una vez para autorizar el envío.');info('Enviando a '+destino+'…');const r=await post({accion:'enviarPedido',pantalla:destino,sesionEnvio,pedido_json:JSON.stringify(p)});if(!r.ok)throw Error(r.error||'No se pudo enviar');info('✓ Pedido enviado correctamente a '+destino+'.');}catch(e){info('No se envió: '+e.message)}finally{btn.disabled=false}}
-async function mostrar(){if(!window.usuarioMayorActual){alert('Inicia sesión en Ventas por Mayor.');return;}lista();$('teusQuickOverlay').classList.add('abierto');try{await disponibles()}catch(e){info(e.message)}}
-$('teusModoRapido')?.addEventListener('click',mostrar);
-$('teusEnviarPedidoPantallaManual')?.addEventListener('click',()=>{mostrar().then(()=>enviar())});
-$('teusQuickSend')?.addEventListener('click',enviar);
-$('teusQuickClose')?.addEventListener('click',()=>$('teusQuickOverlay').classList.remove('abierto'));
-$('teusQuickGoItems')?.addEventListener('click',()=>$('teusQuickOverlay').classList.remove('abierto'));
-$('teusQuickOverlay')?.addEventListener('click',e=>{if(e.target===$('teusQuickOverlay'))$('teusQuickOverlay').classList.remove('abierto')});
-$('teusAbrirPantallaCliente')?.addEventListener('click',()=>window.open(new URL('pantalla-cliente.html',location.href).href,'_blank','noopener'));
-let qrData='';$('teusArchivoQr')?.addEventListener('change',e=>{const f=e.target.files?.[0];if(!f)return;if(f.size>500000){alert('Usa un QR menor de 500 KB');return;}const r=new FileReader();r.onload=()=>{qrData=String(r.result);$('teusVistaQr').src=qrData;$('teusVistaQr').style.display='block'};r.readAsDataURL(f)});
-$('teusGuardarQr')?.addEventListener('click',()=>{if(!qrData){alert('Elige una imagen primero');return;}try{localStorage.setItem('teus_qr_local_v1',qrData);$('teusQrInfo').textContent='QR guardado en esta laptop.'}catch(e){alert('La imagen es demasiado grande.')}});
+const monitorHtml = `<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TodoenUno | Alistar pedido · Monitor</title>
+<style>
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:#23394e;background:#eef2f6}header{position:sticky;top:0;background:#fff;padding:11px 18px;box-shadow:0 2px 8px #0001;z-index:10}h1{font-size:21px;margin:0 0 6px}.sub{font-size:12px;color:#66798b}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}input[type=search]{font:inherit;min-width:210px;flex:1;padding:11px;border-radius:9px;border:1px solid #cbd5e1}.status{font-weight:700;font-size:14px}.track{height:7px;border-radius:9px;background:#e4e7eb;overflow:hidden;margin-top:8px}#fill{height:100%;width:0;background:#1ea66b}button{cursor:pointer;border:0;border-radius:8px;padding:10px 12px;color:white;background:#344e68;font-weight:700}button.green{background:#129b63}button.grey{background:#687582}main{padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-content:start}.item{background:#fff;border:1px solid #dce4ec;border-radius:12px;display:flex;align-items:center;gap:9px;padding:10px;min-height:90px}.item.done{background:#e4f8ed;border:2px solid #32b67e}.item input[type=checkbox]{width:26px;height:26px;flex:none;accent-color:#16a66a;cursor:pointer}.item img{width:76px;height:76px;object-fit:contain;border-radius:9px;background:#fff;cursor:zoom-in;flex:none}.info{min-width:0;flex:1}.title{font-size:14px;font-weight:650;overflow-wrap:anywhere}.number{font-size:11px;font-weight:800;color:#5d7290}.cost{color:#c45637;font-weight:750;font-size:12px;margin-top:5px}#empty{display:none;text-align:center;padding:30px;color:#6c7885}#light{display:none;position:fixed;inset:0;background:#000d;z-index:30;align-items:center;justify-content:center;padding:25px;cursor:zoom-out}#light.active{display:flex}#light img{max-width:95vw;max-height:91vh;object-fit:contain;border-radius:8px}#closeLight{position:absolute;right:16px;top:12px;background:#343a40}footer{position:fixed;bottom:0;right:0;left:0;padding:8px 15px;background:#fff;display:flex;justify-content:flex-end;gap:8px;box-shadow:0 -2px 9px #0001}main{padding-bottom:75px}@media(min-width:1600px){main{grid-template-columns:repeat(5,minmax(0,1fr))}}@media(max-width:1100px){main{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:780px){main{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){main{grid-template-columns:1fr}.item img{width:64px;height:64px}}
+</style></head><body><header><h1>✓ Alistar pedido <small style="font-size:12px;font-weight:400;color:#63758a">· Segundo monitor</small></h1><div class="sub">Haz clic en la fotografía para ampliarla. Marca cada casilla cuando el producto esté preparado.</div><div class="toolbar"><input type="search" id="search" placeholder="Buscar producto en el pedido…"><span class="status" id="status">0 / 0 listos</span><button id="expand">⛶ Pantalla completa</button></div><div class="track"><div id="fill"></div></div></header><main id="list"></main><div id="empty"></div><footer><button class="green" id="all">✓ Marcar todos</button><button class="grey" id="none">↶ Desmarcar todos</button></footer><div id="light"><button id="closeLight">✕</button><img id="big" alt="Imagen del producto ampliada"></div>
+<script>
+(function(){
+'use strict';
+const $=id=>document.getElementById(id);const parent=window.opener;
+let previous='';let current=[];
+function rows(){try{if(!parent||parent.closed)return null;return parent.__teusGetMonitorData?parent.__teusGetMonitorData():[]}catch(e){return null}}
+function mark(i,checked){try{if(parent&&!parent.closed&&parent.__teusChecklistSync){parent.__teusChecklistSync(i,checked);refresh(true)}}catch(e){console.error(e)}}
+function render(arr){const list=$('list');list.replaceChildren();const query=$('search').value.normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase();let count=0;arr.forEach((p,i)=>{if(!String(p.n||'').normalize('NFD').replace(/[\\u0300-\\u036f]/g,'').toLowerCase().includes(query))return;count++;const c=document.createElement('article');c.className='item'+(p.c?' done':'');const check=document.createElement('input');check.type='checkbox';check.checked=!!p.c;check.title='Marcar preparado';check.addEventListener('change',()=>mark(i,check.checked));c.append(check);if(/^https:\\/\\//i.test(String(p.i||''))){const img=document.createElement('img');img.src=p.i;img.alt=p.n;img.referrerPolicy='no-referrer';img.addEventListener('click',()=>{$('big').src=p.i;$('light').classList.add('active')});c.append(img)}else{const ph=document.createElement('span');ph.textContent='📦';ph.style.fontSize='30px';c.append(ph)}const info=document.createElement('div');info.className='info';const num=document.createElement('div');num.className='number';num.textContent='#'+String(i+1).padStart(2,'0');const title=document.createElement('div');title.className='title';title.textContent=p.n||'Producto';info.append(num,title);if(p.precio!=null){const cost=document.createElement('div');cost.className='cost';cost.textContent='Costo: '+Number(p.precio||0).toLocaleString('es-BO',{maximumFractionDigits:2})+' Bs';info.append(cost)}c.append(info);list.append(c)});$('empty').style.display=count?'none':'block';$('empty').textContent=arr.length?'Sin coincidencias':'No hay productos en el pedido. Agrégalos desde la pantalla principal.';}
+function refresh(force){const arr=rows();if(arr===null){$('status').textContent='Pantalla principal desconectada';return}current=arr;const signature=JSON.stringify(arr);if(force||signature!==previous){previous=signature;render(arr)}const done=arr.filter(x=>x.c).length;$('status').textContent=done+' / '+arr.length+' listos · '+(arr.length?Math.round(done*100/arr.length):0)+'%';$('fill').style.width=(arr.length?done*100/arr.length:0)+'%'}
+$('search').addEventListener('input',()=>render(current));$('all').addEventListener('click',()=>{current.forEach((p,i)=>{if(!p.c)mark(i,true)});refresh(true)});$('none').addEventListener('click',()=>{current.forEach((p,i)=>{if(p.c)mark(i,false)});refresh(true)});$('expand').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})});$('closeLight').addEventListener('click',()=>{$('light').classList.remove('active')});$('light').addEventListener('click',e=>{if(e.target===$('light'))$('light').classList.remove('active')});window.addEventListener('keydown',e=>{if(e.key==='Escape')$('light').classList.remove('active')});refresh(true);setInterval(()=>refresh(false),650);
+})();
+<\/script></body></html>`;
+let monitorWindow=null;
+function launch(){
+  if(typeof window.__teusGetMonitorData!=='function'){alert('Inicia sesión y abre el pedido antes de mostrarlo.');return;}
+  if(monitorWindow&&!monitorWindow.closed){monitorWindow.focus();return;}
+  monitorWindow=window.open('','teus_alistar_monitor','width=1250,height=820,resizable=yes,scrollbars=yes');
+  if(!monitorWindow){alert('El navegador bloqueó la ventana. Permite ventanas emergentes para esta página y vuelve a pulsar el botón.');return;}
+  monitorWindow.document.open();monitorWindow.document.write(monitorHtml);monitorWindow.document.close();monitorWindow.focus();
+}
+document.getElementById('teusAbrirVentanaMonitor')?.addEventListener('click',launch);
+document.getElementById('teusAbrirVentanaMonitor2')?.addEventListener('click',launch);
 })();
 </script>
 </body>
