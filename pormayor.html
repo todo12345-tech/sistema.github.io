@@ -1339,7 +1339,7 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                     <button type="button" id="imprimirDatosBtn" class="btn-purple">
                         <i class="fas fa-print"></i> Imprimir Datos
                     </button>
-                    <button type="button" id="teusModoRapido" class="btn-warning" title="Previsualizar el pedido rápido con nombre y teléfono opcionales"><i class="fas fa-bolt"></i> Previsualizar pedido rápido</button>
+                    <button type="button" id="teusActivarSalvapantallas" class="btn-warning" title="Mostrar las ofertas inmediatamente en el segundo monitor"><i class="fas fa-bolt"></i> Activar salvapantallas</button>
                 </div>
             </form>
             <div class="preview-container" id="previewContainer">
@@ -1788,6 +1788,8 @@ document.addEventListener('DOMContentLoaded', function() {
     let editingIndex = null;
     let estadoPago = 'Pendiente';
     let productosData = [];
+    window.__teusOfertasDesdeItems = () => productosData.filter(x=>x.ofertaMonitor).map(x=>x.ofertaMonitor);
+    window.__teusEstadoItems = () => ({estado:mayorCatalogoEstado,detalle:mayorCatalogoDetalle,total:productosData.length,ofertas:productosData.filter(x=>x.ofertaMonitor).length});
     let precioEditado = false;
     let cantidadesPedido = { cajas: 0, paquetes: 0, unidades: 0 };
     let seleccionPedidoPendiente = null;
@@ -1997,6 +1999,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 .replace(/[_-]+/g,' ').replace(/\s+/g,' ');
             const headers=filas[0].map(canon);
             const indice=(...nombres)=>headers.findIndex(h=>nombres.map(canon).includes(h));
+            const indiceOferta=(...nombres)=>headers.findIndex(h=>nombres.map(canon).some(n=>h===n || h.startsWith(n+' ') || h.startsWith(n+'('))); 
             const iNombre=indice('nombre','producto');
             const iSeccion=indice('seccion','sección','categoria','categoría');
             const iPrecioPaquete=indice('precio de paquete','precio paquete','precio por paquete');
@@ -2006,6 +2009,30 @@ document.addEventListener('DOMContentLoaded', function() {
             const iDisponibleUnidad=indice('hay disponibilidad por unidad','disponibilidad por unidad','disponible unidad');
             const iImagenEditada=indice('imagen editada','imagen_editada');
             const iImagenOriginal=indice('imagen original','imagen_original');
+            // Ofertas públicas: encabezados flexibles de ITEMS, jamás inferir una oferta por precio ordinario.
+            const iPrecioOferta=indiceOferta('precio especial de oferta','precio de oferta','precio oferta','precio especial oferta','precio promocional','precio promocion','oferta precio','precio especial','precio oferta bs');
+            const iPrecioAntes=indiceOferta('precio normal','precio antes','precio anterior','precio sin oferta','antes','precio regular','precio original');
+            const iHastaOferta=indiceOferta('hasta que fecha','hasta qué fecha','fecha fin oferta','fecha vencimiento oferta','hasta fecha','fin de oferta','oferta hasta','vigencia oferta');
+            const iPublicar=indiceOferta('publicado','publicar','esta publicado','está publicado','visible en catalogo','visible en catálogo','estado publicacion');
+            // Misma estructura del catálogo público: L=ofertaDia, M=ofertaSemana,
+            // N=hastaFecha, O=precioOferta. En algunos Sheets la fila de encabezados
+            // es distinta, por eso aquí las 4 columnas se leen por posición.
+            const iOfertaDia=indiceOferta('oferta dia','oferta del dia','oferta de dia');
+            const iOfertaSemana=indiceOferta('oferta semana','oferta de la semana');
+            const colOfertaDia=iOfertaDia>=0?iOfertaDia:11;
+            const colOfertaSemana=iOfertaSemana>=0?iOfertaSemana:12;
+            const colFechaPublica=iHastaOferta>=0?iHastaOferta:13;
+            const colPrecioPublico=iPrecioOferta>=0?iPrecioOferta:14;
+            function fechaOfertaValida(v){
+                const txt=String(v||'').trim();if(!txt)return true;
+                let fecha=null;const dmy=txt.match(/^(\d{1,2})[\/.-](\d{1,2})[\/.-](\d{4})/);
+                const iso=txt.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+                if(dmy)fecha=new Date(Number(dmy[3]),Number(dmy[2])-1,Number(dmy[1]),23,59,59,999);
+                else if(iso)fecha=new Date(Number(iso[1]),Number(iso[2])-1,Number(iso[3]),23,59,59,999);
+                else {const n=Number(txt);if(Number.isFinite(n)&&n>30000&&n<100000)fecha=new Date(Date.UTC(1899,11,30)+n*86400000);}
+                return fecha instanceof Date && !isNaN(fecha) && fecha.getTime()>=Date.now();
+            }
+
             if(iNombre<0 || (iPrecioPaquete<0 && iPrecioUnidad<0)) {
                 throw new Error('ITEMS: faltan columnas nombre o precio. Encabezados: '+headers.join(', '));
             }
@@ -2020,6 +2047,31 @@ document.addEventListener('DOMContentLoaded', function() {
                 const match=cantidadStr.match(/^(\d+)\s*(.*)$/);
                 const numUnidades=match ? Number(match[1]) : 1;
                 const textoUnidad=match ? (match[2]||'unidades').trim() : (cantidadStr||'unidades');
+                const oferta=precioNumeroMayor(leer(c,colPrecioPublico));
+                const ofertaDia=mayorEsSi(leer(c,colOfertaDia));
+                const ofertaSemana=mayorEsSi(leer(c,colOfertaSemana));
+                const vigenteOferta=fechaOfertaValida(leer(c,colFechaPublica));
+                // No mostrar artículo completamente agotado ni explícitamente no publicado.
+                const publicado=leer(c,iPublicar);
+                const disponibleP=mayorEstadoDisponibilidad(leer(c,iDisponiblePaquete));
+                const disponibleU=mayorEstadoDisponibilidad(leer(c,iDisponibleUnidad));
+                const precioBase=precioPaquete>0?precioPaquete:precioUnidad;
+                const precioAntes=precioNumeroMayor(leer(c,iPrecioAntes));
+                const precioNormal=precioAntes>0?precioAntes:precioBase;
+                // Copiar las reglas del catálogo público: un producto destacado
+                // puede estar en oferta aun sin precio especial. Se muestra el precio
+                // normal con el ahorro visual del catálogo (25%), tal como allí.
+                const precioVisible=oferta>0 && oferta<precioPaquete?oferta:precioPaquete;
+                const precioVisualAntes=precioPaquete*1.25;
+                const ofertaMonitor=(ofertaDia||ofertaSemana) && vigenteOferta
+                  && disponibleP===true && precioPaquete>0
+                  && !/^(no|false|0|oculto|sin publicar)$/i.test(publicado)
+                  && (leer(c,iImagenEditada)||leer(c,iImagenOriginal))
+                  ? {nombre,imagen:imagenOficialMayor(leer(c,iImagenEditada)||leer(c,iImagenOriginal)),
+                     precioNormal:precioVisualAntes,precioOferta:precioVisible,
+                     ahorro:Math.round((precioVisualAntes-precioVisible)*100)/100,seccion,
+                     tipo:ofertaDia?'OFERTA DEL DÍA':'OFERTA DE LA SEMANA'}
+                  : null;
                 productos.push({
                     seccion,nombre,precioPaquete:precioPaquete || precioUnidad,
                     precioMayor:0,precioUnidad,
@@ -2027,7 +2079,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     numUnidades,textoUnidad,
                     disponiblePaquete:mayorEstadoDisponibilidad(leer(c,iDisponiblePaquete)),
                     disponibleUnidad:mayorEstadoDisponibilidad(leer(c,iDisponibleUnidad)),
-                    origenDatos:'ITEMS'
+                    ofertaMonitor,origenDatos:'ITEMS'
                 });
             }
             if (!productos.length) throw new Error('No hay productos con precio en ITEMS');
@@ -3921,7 +3973,7 @@ document.addEventListener('DOMContentLoaded', function() {
    $('teusQuickTotal').textContent=fmt(Number(($('totalCompra')?.textContent||'0').replace(/\./g,'').replace(',','.')));
    $('teusQuickOverlay').classList.add('abierto');
  }
- $('teusModoRapido')?.addEventListener('click',vista);
+ // Pedido rápido queda disponible internamente, pero su botón fue reemplazado por Salvapantallas.
  $('teusQuickClose')?.addEventListener('click',()=>$('teusQuickOverlay').classList.remove('abierto'));
  $('teusQuickGoItems')?.addEventListener('click',()=>$('teusQuickOverlay').classList.remove('abierto'));
  $('teusQuickOverlay')?.addEventListener('click',e=>{if(e.target===$('teusQuickOverlay'))$('teusQuickOverlay').classList.remove('abierto')});
@@ -4025,12 +4077,49 @@ footer{position:static;grid-row:3;z-index:12}
 @media(max-width:850px){#monitorWorkspace{grid-template-columns:minmax(0,1fr) 280px;gap:8px;padding:8px}#list{grid-template-columns:1fr}#monitorSummary{grid-column:2}}
 @media(max-width:630px){body{height:100dvh}#monitorWorkspace{grid-template-columns:1fr;grid-template-rows:minmax(0,1.5fr) minmax(150px,1fr)}#list{grid-column:1;grid-row:1}#monitorSummary{grid-column:1;grid-row:2}}
 @media(min-width:1600px){main{grid-template-columns:repeat(5,minmax(0,1fr))}}@media(max-width:1100px){main{grid-template-columns:repeat(3,minmax(0,1fr))}}@media(max-width:780px){main{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:520px){main{grid-template-columns:1fr}.item img{width:64px;height:64px}}
-</style></head><body><header><h1>✓ Alistar pedido <small style="font-size:12px;font-weight:400;color:#63758a">· Segundo monitor</small></h1><div class="sub">Haz clic en la fotografía para ampliarla. Marca cada casilla cuando el producto esté preparado.</div><div class="toolbar"><input type="search" id="search" placeholder="Buscar producto en el pedido…"><span class="status" id="status">0 / 0 listos</span><span class="status" id="monitorTotal" style="color:#087247">Total: 0,00 Bs</span><button id="expand">⛶ Pantalla completa</button></div><div class="track"><div id="fill"></div></div></header><div id="monitorWorkspace"><main id="list"></main><section id="monitorSummary" style="background:#f8fbff;border:1px solid #dce9f7;border-radius:16px;padding:12px 14px;margin-top:10px"></section></div><div id="empty"></div><footer><button class="green" id="all">✓ Marcar todos</button><button class="grey" id="none">↶ Desmarcar todos</button><button id="pay" style="background:#1477c5">▦ Pagar</button></footer><div id="payLayer" role="dialog" aria-modal="true"><div id="payCard"><button id="closePay">✕</button><h2>Escanea para pagar</h2><img id="payImage" alt="QR de pago"><div id="payDetails" style="text-align:left;max-width:750px;margin:10px auto;color:#20354c"></div><p>Verifica el pago antes de entregar el pedido.</p></div></div><div id="light"><button id="closeLight">✕</button><img id="big" alt="Imagen del producto ampliada"></div>
+/* Salvapantallas publicitario — únicamente segundo monitor */
+#teusStandby{position:fixed;inset:0;z-index:90;background:linear-gradient(145deg,#151e30 0%,#08101f 100%);display:none;align-items:center;justify-content:center;color:#fff;overflow:hidden}
+#teusStandby.active{display:flex}
+#teusStandbySlide{width:min(94vw,1320px);height:min(88vh,850px);display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);align-items:center;gap:3vw;padding:3vw;border-radius:26px;background:linear-gradient(125deg,#203c5e,#10192d 65%);box-shadow:0 15px 70px #0008;transition:opacity .35s,transform .35s}
+#teusStandbySlide.swap{opacity:0;transform:translateX(-26px)}
+#teusStandbyPhoto{width:100%;height:min(69vh,680px);object-fit:contain;border-radius:20px;background:#fff}
+#teusStandbyInfo{min-width:0;padding:16px 0;display:flex;flex-direction:column;gap:16px}
+#teusStandbyInfo .teus-label{font-size:clamp(13px,1.4vw,20px);font-weight:800;color:#ffd23f;letter-spacing:2px}
+#teusStandbyName{font-weight:900;font-size:clamp(25px,3.5vw,55px);line-height:1.12;overflow-wrap:anywhere}
+#teusStandbyBefore{font-size:clamp(17px,1.8vw,26px);color:#c4cede;text-decoration:line-through}
+#teusStandbyNow{font-weight:900;color:#ffda48;font-size:clamp(34px,5vw,76px)}
+#teusStandbySave{display:inline-block;align-self:flex-start;background:#f6b900;color:#1d2c3b;padding:9px 17px;border-radius:40px;font-size:clamp(16px,1.8vw,26px);font-weight:900}
+#teusStandbyFoot{position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#c4cede;font-size:14px;letter-spacing:.5px}
+@media(max-width:720px){#teusStandbySlide{height:91vh;grid-template-columns:1fr;grid-template-rows:48% auto;gap:10px;padding:20px}#teusStandbyPhoto{height:100%}#teusStandbyInfo{gap:8px;padding:0}#teusStandbyNow{font-size:36px}}
+</style></head><body><header><h1>✓ Alistar pedido <small style="font-size:12px;font-weight:400;color:#63758a">· Segundo monitor</small></h1><div class="sub">Haz clic en la fotografía para ampliarla. Marca cada casilla cuando el producto esté preparado.</div><div class="toolbar"><input type="search" id="search" placeholder="Buscar producto en el pedido…"><span class="status" id="status">0 / 0 listos</span><span class="status" id="monitorTotal" style="color:#087247">Total: 0,00 Bs</span><button id="expand">⛶ Pantalla completa</button></div><div class="track"><div id="fill"></div></div></header><div id="monitorWorkspace"><main id="list"></main><section id="monitorSummary" style="background:#f8fbff;border:1px solid #dce9f7;border-radius:16px;padding:12px 14px;margin-top:10px"></section></div><div id="empty"></div><footer><button class="green" id="all">✓ Marcar todos</button><button class="grey" id="none">↶ Desmarcar todos</button><button id="pay" style="background:#1477c5">▦ Pagar</button></footer><div id="payLayer" role="dialog" aria-modal="true"><div id="payCard"><button id="closePay">✕</button><h2>Escanea para pagar</h2><img id="payImage" alt="QR de pago"><div id="payDetails" style="text-align:left;max-width:750px;margin:10px auto;color:#20354c"></div><p>Verifica el pago antes de entregar el pedido.</p></div></div><div id="light"><button id="closeLight">✕</button><img id="big" alt="Imagen del producto ampliada"></div><div id="teusStandby" aria-label="Ofertas del catálogo"><div id="teusStandbySlide"><img id="teusStandbyPhoto" alt="Producto en oferta"><div id="teusStandbyInfo"><div class="teus-label">TODOENUNO_STORE · OFERTAS</div><div id="teusStandbyName"></div><div id="teusStandbyBefore"></div><div id="teusStandbyNow"></div><div id="teusStandbySave"></div></div></div><div id="teusStandbyFoot">Calidad y soluciones prácticas para todos · Toca la pantalla para volver al pedido</div></div>
 <script>
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);const parent=window.opener || (window.parent!==window ? window.parent : null);
 let previous='';let current=[];let lastSummary='';let lastConnectionGood=false;
+const esMonitorIndependiente=!!window.opener && !window.frameElement;
+let ultimaActividad=Date.now(), ultimaFirmaPedido='', ofertaPos=0, ultCambio=0;
+const TIEMPO_STANDBY=2*60*1000, ROTACION=8000;
+function ofertasReales(){try{return parent?.__teusOfertasMonitor?.()||[]}catch(e){return []}}
+function salirStandby(){const el=$('teusStandby');if(el)el.classList.remove('active');ultimaActividad=Date.now()}
+function mostrarOferta(){const arr=ofertasReales();if(!arr.length){salirStandby();return}ofertaPos=ofertaPos%arr.length;const x=arr[ofertaPos],slide=$('teusStandbySlide');slide.classList.add('swap');
+const pintar=()=>{const photo=$('teusStandbyPhoto');photo.src=x.imagen||'';photo.alt=x.nombre;$('teusStandbyName').textContent=x.nombre;$('teusStandbyBefore').textContent='Antes: '+money(x.precioNormal);$('teusStandbyNow').textContent='Ahora: '+money(x.precioOferta);$('teusStandbySave').textContent='AHORRAS: '+money(x.ahorro);slide.classList.remove('swap')};
+if(!$('teusStandby').classList.contains('active'))pintar();else setTimeout(pintar,300);
+$('teusStandby').classList.add('active');ultCambio=Date.now()}
+function cicloStandby(){if(!esMonitorIndependiente)return;if($('payLayer').classList.contains('active')||$('light').classList.contains('active'))return;
+if(!$('teusStandby').classList.contains('active')){if(Date.now()-ultimaActividad>=TIEMPO_STANDBY&&ofertasReales().length)mostrarOferta()}
+else if(Date.now()-ultCambio>=ROTACION){ofertaPos++;mostrarOferta()}}
+async function activarStandbyManual(){
+ if(!esMonitorIndependiente)return false;
+ if($('payLayer').classList.contains('active')){alert('Cierra el QR de pago antes de mostrar las ofertas.');return false;}
+ if($('light').classList.contains('active')){alert('Cierra la fotografía ampliada antes de mostrar las ofertas.');return false;}
+ try{await parent?.__teusCargarOfertasPublicas?.()}catch(e){console.warn('No fue posible consultar las ofertas del catálogo público:',e)}
+ if(!ofertasReales().length){const info=parent?.__teusEstadoOfertas?.();alert('No se pudieron mostrar promociones del catálogo público. '+(info?.detalle||'Comprueba la conexión a Internet y el servicio de catálogo.'));return false;}
+ ofertaPos=0; mostrarOferta();return true;
+}
+window.__teusProbarOfertas=activarStandbyManual;
+window.__teusActivarStandbyDesdeVentas=activarStandbyManual;
+
 const money=n=>(Number(n)||0).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2})+' Bs';
 function resumen(){try{return parent?.__teusGetPaymentSummary?.()||null}catch(e){return null}}
 function pintarResumenPedido(){const root=$('monitorSummary');if(!root)return;const r=resumen()||{detalle:[],total:0};const detalle=Array.isArray(r.detalle)?r.detalle:[];root.replaceChildren();const head=document.createElement('div');head.style='display:flex;justify-content:space-between;align-items:center;gap:10px;flex-wrap:wrap;margin-bottom:8px';const h=document.createElement('h3');h.textContent='Resumen del pedido';h.style='margin:0;font-size:20px;color:#243b53';const badge=document.createElement('span');badge.textContent=detalle.length+' producto'+(detalle.length===1?'':'s');badge.style='background:#e8f1fb;color:#1f4f82;border:1px solid #cfe0f2;border-radius:999px;padding:4px 10px;font-size:12px;font-weight:800';head.append(h,badge);root.append(head);if(!detalle.length){const empty=document.createElement('div');empty.style='font-size:14px;color:#6b7c93;background:#fff;border:1px dashed #d9e2ec;border-radius:12px;padding:10px 12px;text-align:center';empty.textContent='Aún no hay productos cargados.';root.append(empty);return;}const list=document.createElement('div');list.style='display:grid;gap:8px';detalle.forEach(it=>{const row=document.createElement('div');row.style='display:grid;grid-template-columns:minmax(90px,130px) 1fr auto;gap:10px;align-items:center;background:#fff;border:1px solid #e6edf5;border-radius:12px;padding:9px 11px';const qty=document.createElement('div');qty.textContent=it.qty||'Producto';qty.style='font-weight:800;color:#1f4f82;font-size:14px';const name=document.createElement('div');name.textContent=it.n||'Producto';name.style='font-weight:700;color:#243b53;font-size:14px';const price=document.createElement('div');price.textContent=money(it.precio);price.style='font-weight:900;color:#087247;font-size:14px;white-space:nowrap';row.append(qty,name,price);list.append(row)});root.append(list);const total=document.createElement('div');total.style='display:flex;justify-content:space-between;gap:10px;margin-top:10px;padding-top:10px;border-top:1px dashed #cbd5e1;font-weight:900;color:#087247;font-size:24px';const tl=document.createElement('span');tl.textContent='Total del pedido';const tv=document.createElement('span');tv.textContent=money(r.total);total.append(tl,tv);root.append(total)}
@@ -4039,10 +4128,10 @@ const t=document.createElement('div');t.textContent='Detalle del pedido';t.style
 const list=document.createElement('div');list.style='max-height:21vh;overflow:auto;border:1px solid #e5eaf1;border-radius:10px';r.detalle.forEach(x=>{const row=document.createElement('div');row.style='display:flex;justify-content:space-between;gap:14px;padding:8px 10px;border-bottom:1px solid #e8edf2;font-size:13px';const name=document.createElement('span');name.textContent=x.n;const cost=document.createElement('strong');cost.style.whiteSpace='nowrap';cost.textContent=money(x.precio);row.append(name,cost);list.append(row)});if(!r.detalle.length)list.textContent='Sin productos';root.append(list);
 const total=document.createElement('div');total.style='display:flex;justify-content:space-between;gap:10px;margin-top:10px;font-weight:900;color:#087247;font-size:clamp(19px,2.4vw,27px)';const lab=document.createElement('span');lab.textContent='TOTAL A PAGAR';const value=document.createElement('span');value.textContent=money(r.total);total.append(lab,value);root.append(total)}
 function rows(){try{if(!parent||parent.closed)return null;return parent.__teusGetMonitorData?parent.__teusGetMonitorData():null}catch(e){return null}}
-function mark(i,checked){try{if(parent&&!parent.closed&&parent.__teusChecklistSync){parent.__teusChecklistSync(i,checked);refresh(true)}}catch(e){console.error(e)}}
+function mark(i,checked){salirStandby();try{if(parent&&!parent.closed&&parent.__teusChecklistSync){parent.__teusChecklistSync(i,checked);refresh(true)}}catch(e){console.error(e)}}
 function hq(u,size){const s=String(u||'').trim();if(!s)return '';const m=s.match(/\/d\/([^/?]+)/)||s.match(/[?&]id=([^&]+)/)||s.match(/thumbnail\?id=([^&]+)/)||s.match(/uc\?(?:export=view&)?id=([^&]+)/);if(m)return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w'+Math.max(600,Number(size)||1600);return /^https:\/\//i.test(s)?s:''}
 function render(arr){const list=$('list');list.replaceChildren();const query=$('search').value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();let count=0;arr.forEach((p,i)=>{if(!String(p.n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(query))return;count++;const c=document.createElement('article');c.className='item'+(p.c?' done':'');const check=document.createElement('input');check.type='checkbox';check.checked=!!p.c;check.title='Marcar preparado';check.addEventListener('change',()=>mark(i,check.checked));c.append(check);const thumb=hq(p.i,900);const zoom=hq(p.i,1800);if(thumb){const img=document.createElement('img');img.src=thumb;img.alt=p.n;img.referrerPolicy='no-referrer';img.loading='eager';img.addEventListener('click',()=>{$('big').src=zoom||thumb;$('light').classList.add('active')});c.append(img)}else{const ph=document.createElement('span');ph.textContent='📦';ph.style.fontSize='30px';c.append(ph)}const info=document.createElement('div');info.className='info';const num=document.createElement('div');num.className='number';num.textContent='#'+String(i+1).padStart(2,'0');const title=document.createElement('div');title.className='title';title.textContent=p.n||'Producto';info.append(num,title);if(p.precio!=null){const cost=document.createElement('div');cost.className='cost';cost.textContent='Costo: '+Number(p.precio||0).toLocaleString('es-BO',{maximumFractionDigits:2})+' Bs';info.append(cost)}c.append(info);list.append(c)});$('empty').style.display=count?'none':'block';$('empty').textContent=arr.length?'Sin coincidencias':'No hay productos en el pedido. Agrégalos desde la pantalla principal.';}
-function refresh(force){const next=rows();if(next===null){$('status').textContent=lastConnectionGood?'Sin conexión temporal · mostrando último pedido':'Conecta la ventana principal';return;}lastConnectionGood=true;current=next;const r=resumen();if(r){$('monitorTotal').textContent='Total: '+money(r.total);const sig=JSON.stringify(r);if(force||sig!==lastSummary){lastSummary=sig;pintarResumenPedido();if($('payLayer').classList.contains('active'))pintarPago()}}const signature=JSON.stringify(next);if(force||signature!==previous){previous=signature;render(next)}const done=next.filter(x=>x.c).length;$('status').textContent=done+' / '+next.length+' listos · '+(next.length?Math.round(done*100/next.length):0)+'%';$('fill').style.width=(next.length?done*100/next.length:0)+'%'}
+function refresh(force){const next=rows();if(next===null){$('status').textContent=lastConnectionGood?'Sin conexión temporal · mostrando último pedido':'Conecta la ventana principal';return;}lastConnectionGood=true;current=next;const itemsFirma=JSON.stringify(next.map(x=>[x.n,x.i,x.precio]));if(itemsFirma!==ultimaFirmaPedido){if(ultimaFirmaPedido)salirStandby();ultimaFirmaPedido=itemsFirma}const r=resumen();if(r){$('monitorTotal').textContent='Total: '+money(r.total);const sig=JSON.stringify(r);if(force||sig!==lastSummary){lastSummary=sig;pintarResumenPedido();if($('payLayer').classList.contains('active'))pintarPago()}}const signature=JSON.stringify(next);if(force||signature!==previous){previous=signature;render(next)}const done=next.filter(x=>x.c).length;$('status').textContent=done+' / '+next.length+' listos · '+(next.length?Math.round(done*100/next.length):0)+'%';$('fill').style.width=(next.length?done*100/next.length:0)+'%'}
 $('search').addEventListener('input',()=>render(current));$('all').addEventListener('click',()=>{current.forEach((p,i)=>{if(!p.c)mark(i,true)});refresh(true)});$('none').addEventListener('click',()=>{current.forEach((p,i)=>{if(p.c)mark(i,false)});refresh(true)});$('expand').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})});$('closeLight').addEventListener('click',()=>{$('light').classList.remove('active')});$('light').addEventListener('click',e=>{if(e.target===$('light'))$('light').classList.remove('active')});window.addEventListener('keydown',e=>{if(e.key==='Escape'){$('light').classList.remove('active');changePayment(false)}});
 // Función pública invocada desde el sistema de ventas (sin rebote).
 window.__teusSetPayVisibleLocal=function(visible,data){
@@ -4068,7 +4157,13 @@ function changePayment(visible){
 $('pay').addEventListener('click',()=>changePayment(true));
 $('closePay').addEventListener('click',()=>changePayment(false));
 $('payLayer').addEventListener('click',e=>{if(e.target===$('payLayer'))changePayment(false)});
-refresh(true);setInterval(()=>refresh(false),1100);
+if(esMonitorIndependiente){
+$('teusStandby').addEventListener('pointerdown',salirStandby);
+window.addEventListener('keydown',e=>{if($('teusStandby').classList.contains('active')){salirStandby();e.preventDefault()}},true);
+// Registrar actividad real, sin que los refrescos automáticos reinicien el reloj.
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#teusStandby'))ultimaActividad=Date.now()},true);
+}
+refresh(true);setInterval(()=>refresh(false),1100);setInterval(cicloStandby,1000);
 })();
 ${'</scr'+'ipt>'}</body></html>`;
 let monitorWindow=null;
@@ -4127,8 +4222,76 @@ document.getElementById('abrirModoAlistar')?.addEventListener('click',function(e
   e.preventDefault();e.stopImmediatePropagation();openLaptopMirror();
 },true);
 
+document.getElementById('teusActivarSalvapantallas')?.addEventListener('click',()=>{
+  // Abrir la ventana en el gesto del usuario y activar cuando termine de construir su HTML.
+  if(!monitorWindow || monitorWindow.closed) launch();
+  if(!monitorWindow || monitorWindow.closed) return;
+  const w=monitorWindow;
+  let tries=0;
+  const intentar=()=>{
+    if(w.closed){alert('Se cerró la ventana del segundo monitor.');return}
+    try {
+      if(typeof w.__teusActivarStandbyDesdeVentas==='function'){w.__teusActivarStandbyDesdeVentas();return;}
+    } catch(e){ console.error('Error al activar salvapantallas:',e); }
+    if(++tries<20){setTimeout(intentar,150);return;}
+    alert('No se pudo iniciar el salvapantallas. Cierra el segundo monitor y ábrelo de nuevo.');
+  };
+  intentar();
+});
 document.getElementById('teusAbrirVentanaMonitor')?.addEventListener('click',launch);
 document.getElementById('teusAbrirVentanaMonitor2')?.addEventListener('click',launch);
+})();
+</script>
+<script id="teus-ofertas-publicas-v66">
+/* V6.6: las ofertas del catálogo público se leen de las columnas L:O del mismo
+   ITEMS que YA utiliza el sistema de ventas, sin depender del Apps Script JSONP.
+   El endpoint público queda como respaldo, nunca es la fuente obligatoria. */
+(function(){
+ 'use strict';
+ const ENDPOINT='https://script.google.com/macros/s/AKfycbw_BiqTbqL0eaMRKZTmJqbgsIchHBKQEocRprOGpPbHbIh2HCcTEW4cXYdgmGCPZqn3/exec';
+ const CACHE_KEY='teus_ofertas_items_v66';
+ const TTL=5*60*1000;
+ let ofertas=[],ultimaConsulta=0,consulta=null,estado='Preparando ofertas de ITEMS';
+ const si=x=>['si','sí','yes','true','1'].includes(String(x??'').trim().toLowerCase());
+ const numero=x=>{const n=Number(String(x??'').trim().replace(',','.'));return Number.isFinite(n)?n:0};
+ function fechaFin(s){s=String(s||'').trim();if(!s)return null;const m=s.match(/^(\d{1,2})[\/\-](\d{1,2})[\/\-](\d{4})$/);let d=m?new Date(+m[3],+m[2]-1,+m[1],23,59,59,999):new Date(s);if(Number.isNaN(d.getTime()))return null;if(!m)d.setHours(23,59,59,999);return d}
+ function imagen(src){const t=String(src||'').trim();if(!t)return '';const m=t.match(/\/d\/([\w-]+)/)||t.match(/[?&]id=([\w-]+)/);return m?'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w1600':t}
+ function convertir(rows){return rows.filter(x=>{if(!(si(x.ofertaDia)||si(x.ofertaSemana)))return false;const f=fechaFin(x.hastaFecha);return(!f||Date.now()<=f.getTime())&&si(x.disponibilidadPaquete)&&numero(x.precioPaquete)>0&&String(x.nombre||'').trim()&&String(x.imagenEditada||'').trim()}).map(x=>{const base=numero(x.precioPaquete),esp=numero(x.precioOferta),actual=esp>0&&esp<base?esp:base;return{nombre:String(x.nombre||'').trim(),imagen:imagen(x.imagenEditada),precioNormal:base*1.25,precioOferta:actual,ahorro:Math.max(0,base*1.25-actual),tipo:si(x.ofertaDia)?'OFERTA DEL DÍA':'OFERTA DE LA SEMANA'}})}
+ function jsonp(){return new Promise((resolve,reject)=>{const cb='teusOfertasPublicas_'+Date.now()+'_'+Math.floor(Math.random()*100000);const script=document.createElement('script');let done=false;const clean=()=>{done=true;try{delete window[cb]}catch(e){}script.remove();clearTimeout(timer)};const timer=setTimeout(()=>{if(!done){clean();reject(Error('Tiempo de espera agotado del catálogo público'))}},10000);window[cb]=data=>{if(done)return;clean();if(!data||data.ok!==true)return reject(Error(data?.error||'Respuesta inválida'));resolve(data)};script.onerror=()=>{if(!done){clean();reject(Error('El servicio de catálogo no respondió'))}};script.src=ENDPOINT+'?accion=catalogoPublico&callback='+encodeURIComponent(cb)+'&_='+Date.now();document.head.appendChild(script)})}
+ function cache(){try{const c=JSON.parse(localStorage.getItem(CACHE_KEY)||'null');return c?.fecha&&Array.isArray(c.ofertas)&&Date.now()-c.fecha<24*3600000?c.ofertas:null}catch(e){return null}}
+ function setOfertas(arr,origen){ofertas=arr;ultimaConsulta=Date.now();estado=origen+': '+arr.length+' ofertas';if(arr.length)try{localStorage.setItem(CACHE_KEY,JSON.stringify({fecha:Date.now(),ofertas:arr}))}catch(e){}return ofertas}
+ async function leerItems(){
+   // Si el lector habitual está todavía cargando, darle unos segundos para concluir.
+   for(let i=0;i<18;i++){
+     const datos=window.__teusOfertasDesdeItems?.()||[];
+     const info=window.__teusEstadoItems?.();
+     if(datos.length)return setOfertas(datos,'ITEMS');
+     if(info?.estado==='listo'||info?.estado==='desactualizado'||info?.estado==='error')break;
+     await new Promise(r=>setTimeout(r,250));
+   }
+   return null;
+ }
+ window.__teusOfertasMonitor=()=>ofertas;
+ window.__teusEstadoOfertas=()=>({estado:ofertas.length?'ok':'sin_ofertas',detalle:estado,total:ofertas.length,ofertas:ofertas.length});
+ window.__teusCargarOfertasPublicas=async(force=false)=>{
+   if(consulta)return consulta;
+   const itemsAhora=window.__teusOfertasDesdeItems?.()||[];
+   if(itemsAhora.length)return setOfertas(itemsAhora,'ITEMS actualizado');
+   if(!force&&ultimaConsulta&&Date.now()-ultimaConsulta<TTL)return ofertas;
+   consulta=(async()=>{
+     const directo=await leerItems();if(directo?.length)return directo;
+     // Respaldo: el servicio público usado por el catálogo, si funciona.
+     try{const data=await jsonp();const disponibles=convertir(Array.isArray(data.productos)?data.productos:[]);if(disponibles.length)return setOfertas(disponibles,'Catálogo público');estado='El catálogo público respondió, pero sin ofertas vigentes por paquete'}
+     catch(e){estado='ITEMS no contiene ofertas reconocidas y el catálogo público no respondió: '+e.message;console.warn(estado)}
+     const guardadas=cache();if(guardadas?.length)return setOfertas(guardadas,'Últimas ofertas guardadas');
+     return ofertas;
+   })();
+   try{return await consulta}finally{consulta=null}
+ };
+ // La consulta de ventas comienza al iniciar la sesión; evitamos arrancar
+ // al mismo tiempo una petición pública que podría fallar por restricciones.
+ setTimeout(()=>window.__teusCargarOfertasPublicas().catch(e=>console.warn(e)),3500);
+ setInterval(()=>window.__teusCargarOfertasPublicas(true).catch(()=>{}),TTL);
 })();
 </script>
 </body>
