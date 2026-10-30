@@ -1340,7 +1340,6 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                         <i class="fas fa-print"></i> Imprimir Datos
                     </button>
                     <button type="button" id="teusModoRapido" class="btn-warning" title="Previsualizar el pedido rápido con nombre y teléfono opcionales"><i class="fas fa-bolt"></i> Previsualizar pedido rápido</button>
-                    <button type="button" id="teusAbrirVentanaMonitor" class="btn-info" title="Abrir una ventana independiente para arrastrarla al segundo monitor"><i class="fas fa-external-link-alt"></i> Abrir alistar en otra ventana</button>
                 </div>
             </form>
             <div class="preview-container" id="previewContainer">
@@ -1450,7 +1449,7 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                 </div>
                 <div class="alistar-stats" id="alistarStats">0/0 items</div>
             </div>
-            <button type="button" id="abrirModoAlistar" class="btn-info mayor-modo-alistar-btn"><i class="fas fa-desktop"></i> Alistar en esta pantalla · Pantalla completa</button>
+            <button type="button" id="abrirModoAlistar" class="btn-info mayor-modo-alistar-btn"><i class="fas fa-desktop"></i> Alistar en laptop · Vista espejo</button>
             <button type="button" id="teusAbrirVentanaMonitor2" class="mayor-modo-alistar-btn" style="background:#147eac"><i class="fas fa-external-link-alt"></i> Abrir en ventana para segundo monitor</button>
             <div class="alistar-items" id="alistarItems">
                 <div class="alistar-empty">
@@ -3994,6 +3993,7 @@ document.addEventListener('DOMContentLoaded', function() {
    overlay.style.display=visible?'flex':'none';
    // Una sola autoridad central evita propagación recursiva entre ventanas.
    try{window.__teusMonitorWindow?.__teusSetPayVisibleLocal?.(!!visible,visible?qrImg.src:'')}catch(e){console.info('Monitor desconectado',e)}
+   try{window.__teusLaptopMirrorPay?.(!!visible,visible?qrImg.src:'')}catch(e){}
  };
  document.getElementById('teusPagarPicker')?.addEventListener('click',()=>window.__teusSetPayVisible(true));
  document.getElementById('teusCerrarQrPantalla')?.addEventListener('click',()=>window.__teusSetPayVisible(false));
@@ -4029,7 +4029,7 @@ footer{position:static;grid-row:3;z-index:12}
 <script>
 (function(){
 'use strict';
-const $=id=>document.getElementById(id);const parent=window.opener;
+const $=id=>document.getElementById(id);const parent=window.opener || (window.parent!==window ? window.parent : null);
 let previous='';let current=[];let lastSummary='';let lastConnectionGood=false;
 const money=n=>(Number(n)||0).toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2})+' Bs';
 function resumen(){try{return parent?.__teusGetPaymentSummary?.()||null}catch(e){return null}}
@@ -4080,6 +4080,53 @@ function launch(){
   window.__teusMonitorWindow=monitorWindow;
   monitorWindow.document.open();monitorWindow.document.write(monitorHtml);monitorWindow.document.close();monitorWindow.focus();
 }
+
+// V5.9: El alistado de la laptop es la misma aplicación que la ventana del monitor.
+// iframe srcdoc conserva el mismo origen y consulta el pedido vivo del formulario principal.
+let laptopFrame = null;
+let laptopLayer = null;
+function openLaptopMirror(){
+  if(typeof window.__teusGetMonitorData !== 'function'){
+    alert('Primero inicia sesión y prepara un pedido.'); return;
+  }
+  if(!laptopLayer){
+    laptopLayer=document.createElement('div');
+    laptopLayer.id='teusLaptopMirrorLayer';
+    laptopLayer.style.cssText='position:fixed;inset:0;z-index:2000006;background:#edf2f6;display:flex;flex-direction:column;overflow:hidden';
+    const toolbar=document.createElement('div');
+    toolbar.style.cssText='height:42px;flex:0 0 42px;display:flex;justify-content:space-between;align-items:center;padding:4px 12px;background:#17324d;color:#fff;font:600 13px Segoe UI,Arial,sans-serif';
+    const title=document.createElement('span');title.textContent='Alistar pedido · Vista de laptop';
+    const close=document.createElement('button');close.type='button';close.textContent='✕ Cerrar y volver a ventas';
+    close.style.cssText='width:auto;padding:7px 12px;font-size:12px;border-radius:7px;background:#bb3542;color:#fff;border:0;cursor:pointer';
+    close.addEventListener('click',closeLaptopMirror);
+    toolbar.append(title,close);
+    laptopFrame=document.createElement('iframe');
+    laptopFrame.title='Alistamiento idéntico al segundo monitor';
+    laptopFrame.style.cssText='width:100%;height:100%;min-height:0;flex:1;border:0;background:#eef2f6';
+    laptopFrame.setAttribute('allow','fullscreen');
+    laptopLayer.append(toolbar,laptopFrame);
+    document.body.appendChild(laptopLayer);
+  }
+  laptopLayer.style.display='flex';
+  if(!laptopFrame.dataset.ready){
+    laptopFrame.srcdoc=monitorHtml;
+    laptopFrame.dataset.ready='1';
+  }
+}
+function closeLaptopMirror(){
+  if(document.fullscreenElement) document.exitFullscreen().catch(()=>{});
+  if(laptopLayer)laptopLayer.style.display='none';
+}
+window.__teusOpenLaptopMirror=openLaptopMirror;
+window.__teusCloseLaptopMirror=closeLaptopMirror;
+window.__teusLaptopMirrorPay=function(visible,data){
+  try{laptopFrame?.contentWindow?.__teusSetPayVisibleLocal?.(visible,data)}catch(e){}
+};
+// Capture antes del antiguo listener: evita cargar la pantalla vertical obsoleta.
+document.getElementById('abrirModoAlistar')?.addEventListener('click',function(e){
+  e.preventDefault();e.stopImmediatePropagation();openLaptopMirror();
+},true);
+
 document.getElementById('teusAbrirVentanaMonitor')?.addEventListener('click',launch);
 document.getElementById('teusAbrirVentanaMonitor2')?.addEventListener('click',launch);
 })();
