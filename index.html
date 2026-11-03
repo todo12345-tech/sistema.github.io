@@ -1362,6 +1362,16 @@ async function cargarStockInventario() {
     }
 }
 
+// V26.68: lectura de inventario al volver a la aplicación, sin escribir ni descontar.
+let teusUltimaConsultaFoco=0;
+async function teusActualizarStockAlVolver(){
+    if(document.hidden || Date.now()-teusUltimaConsultaFoco<9000)return;
+    teusUltimaConsultaFoco=Date.now();
+    try{await cargarStockInventario();}catch(e){/* conservar la última lectura válida */}
+}
+window.addEventListener('focus',teusActualizarStockAlVolver);
+document.addEventListener('visibilitychange',()=>{if(!document.hidden)teusActualizarStockAlVolver()});
+
 async function cargarProductosAgregadosVenta(){
     try{
         const nonce=`${Date.now()}_${Math.random().toString(36).slice(2)}`;
@@ -2350,9 +2360,20 @@ function interpretarLineaProductoPedido(linea) {
         }
 
         // Formato actual: "2 caja(s) + 3 paquete(s) + 4 unidad(es) - Producto".
-        const mc = limpio.match(/(\d+(?:[.,]\d+)?)\s*caja(?:s|\(s\))?/i);
-        const mp = limpio.match(/(\d+(?:[.,]\d+)?)\s*paquete(?:s|\(s\))?/i);
-        const mu = limpio.match(/(\d+(?:[.,]\d+)?)\s*unidad(?:es|\(es\))?/i);
+        // Contar solo los términos de cantidad, nunca las equivalencias internas
+        // (ej.: «1 caja de 24 paquetes + 2 paquetes» tiene 2 paquetes sueltos, no 24).
+        const cantidadParte = limpio.split(' - ')[0].replace(/\(\s*\d+\s+unidades\s*\)/gi, '');
+        const mc = cantidadParte.match(/(?:^|\+)\s*(\d+(?:[.,]\d+)?)\s*caja(?:s|\(s\))?/i);
+        const mp = cantidadParte.match(/(?:^|\+)\s*(\d+(?:[.,]\d+)?)\s*paquete(?:s|\(s\))?/i);
+        // V26.68: Las equivalencias descriptivas NO son unidades adicionales.
+        // Ej.: 2 paquetes de 12 unidades c/u (24 unidades) = 24, no 36 ni 48.
+        // Los sueltos solo se leen si aparecen como término independiente (+ 3 unidades).
+        const partePresentacion = limpio.split(' - ')[0];
+        const presentacionSinAclaraciones = partePresentacion
+            .replace(/\(\s*\d+\s+unidades\s*\)/gi, '')
+            .replace(/\bde\s+\d+\s+unidades(?:\s*c\s*\/\s*u)?\b/gi, '')
+            .replace(/\bde\s+\d+\s+unidades\s+cada\s+uno\b/gi, '');
+        const mu = presentacionSinAclaraciones.match(/(?:^|\+)\s*(\d+(?:[.,]\d+)?)\s*unidad(?:es|\(es\))?/i);
         if (mc) cajas = Number(mc[1].replace(',', '.')) || 0;
         if (mp) paquetes = Number(mp[1].replace(',', '.')) || 0;
         if (mu) unidades = Number(mu[1].replace(',', '.')) || 0;
