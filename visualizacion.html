@@ -1029,6 +1029,92 @@ body{padding:0;background:#eef2f8} .app-container{max-width:1600px;margin:auto}.
 @media(max-width:340px){.v3-sale-card{padding:9px!important}.v3-sale-top{font-size:12px!important}.v32-sale-card-header-amount{font-size:12px}.v3-sale-meta{font-size:10px!important}.v32-line{grid-template-columns:minmax(0,1fr) minmax(63px,auto);gap:5px;padding:8px 6px}.v32-prod{font-size:11px}.v32-amount{font-size:11px}.v34-pair{font-size:11px}.table-container{padding:5px!important}.v3-section-heading{padding:10px 9px 0}}
 </style>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+<style id="teus-v35-freshness-css">
+/* V3.5: trazabilidad de datos por sucursal */
+.v35-freshness{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;border:1px solid #d8e2f0;background:#f6f9ff;border-radius:12px;padding:12px}
+.v35-freshness>div:not(.v35-wide){display:flex;flex-direction:column;gap:5px;min-width:0}
+.v35-freshness .v35-k{color:#52657b;font-size:11px;font-weight:700;text-transform:uppercase}
+.v35-freshness strong{font-size:13px;color:#1c3b56;overflow-wrap:anywhere}
+.v35-freshness .v35-wide{grid-column:1/-1;font-size:12px;color:#455b6d;padding-top:6px;border-top:1px solid #e0e8f3}
+.v35-freshness .v35-wide.v35-warning{color:#a23422;font-weight:700}
+@media(max-width:640px){.v35-freshness{grid-template-columns:1fr}}
+</style>
+<style id="teus-v36-last-written-css">
+.v36-row-note{display:block;color:#536678;font-size:10px;line-height:1.4;margin-top:4px}
+.v36-date-btn{display:inline-block;border:1px solid #216bad;background:#eef6ff;border-radius:8px;padding:6px 10px;color:#195689;font-size:11px;font-weight:700;cursor:pointer;margin-top:7px}
+.v36-date-btn:disabled{opacity:.5;cursor:not-allowed}
+</style>
+<style id="teus-v39-precios-destino">
+/* V3.9: parejas producto/monto inseparables y destino combinado; no altera otras zonas */
+.teus-sale-lines{display:flex;flex-direction:column;gap:0;min-width:320px}
+.teus-sale-line{display:grid;grid-template-columns:minmax(0,1fr) 112px;column-gap:12px;align-items:start;padding:5px 7px;border-bottom:1px solid #e3e9f1;min-height:29px}
+.teus-sale-line:nth-child(even){background:rgba(225,232,243,.43)}
+.teus-sale-line:last-child{border-bottom:0}
+.teus-sale-name{white-space:normal;overflow-wrap:anywhere;min-width:0}
+.teus-sale-price{text-align:right;white-space:nowrap;font-variant-numeric:tabular-nums;font-weight:700;color:#20394f}
+.teus-sale-price.teus-missing{font-weight:400;color:#9a5c16;white-space:normal;font-size:11px}
+.teus-sale-head{display:grid;grid-template-columns:minmax(0,1fr) 112px;gap:12px}
+.teus-destination{white-space:normal!important;overflow-wrap:anywhere;min-width:128px;font-size:12px;line-height:1.45}
+.teus-destination small{display:block;color:#64748b;font-size:11px}
+.teus-destination strong{font-size:12px;color:#283c52}
+@media(max-width:760px){.teus-sale-lines{min-width:0}.teus-destination{min-width:0}.teus-sale-line{grid-template-columns:minmax(0,1fr) 78px;gap:5px;padding:6px 3px}.teus-sale-price{font-size:11px}}
+</style>
+
+<style id="teus-v40-hora-apertura-iphone5">
+/* Hora compacta y legible; impedir que la fila de apertura monte sus importes. */
+#salesTable{table-layout:auto;min-width:1030px}
+#salesTable th:nth-child(5),#salesTable td:nth-child(5){width:74px;min-width:74px;max-width:74px;white-space:nowrap!important;text-align:center;font-variant-numeric:tabular-nums}
+#salesTable th:nth-child(4),#salesTable td:nth-child(4){min-width:96px;white-space:nowrap!important}
+#salesTable .teus-sale-cell{min-width:310px;max-width:680px;white-space:normal!important;vertical-align:top}
+#salesTable td{vertical-align:top}
+#salesTable .teus-cash-movement{display:flex;align-items:center;flex-wrap:wrap;gap:8px;padding:6px 8px;min-height:36px;white-space:normal;overflow-wrap:anywhere}
+#salesTable .teus-cash-movement .teus-cash-label{font-weight:700;min-width:0;flex:1 1 135px}
+#salesTable .teus-cash-movement .teus-cash-amount{font-weight:800;color:#13663e;white-space:nowrap;font-variant-numeric:tabular-nums;flex:0 0 auto}
+#salesTable .row-cierre .teus-cash-amount{color:inherit}
+#salesTable .row-apertura td:nth-child(8),#salesTable .row-cierre td:nth-child(8){font-variant-numeric:tabular-nums;white-space:nowrap}
+#salesTable .teus-sale-line{padding-top:3px;padding-bottom:3px}
+@media(max-width:760px){
+  /* En celular se muestran las tarjetas de operaciones; la tabla no ensancha la página. */
+  #normalTableContainer{max-width:100%;overflow:hidden}
+  #tableWrapper{max-width:100%}
+  .v3-mobile-cards{width:100%;min-width:0}
+  .v3-sale-card{min-width:0;overflow:hidden}
+  .v32-line{grid-template-columns:minmax(0,1fr) minmax(70px,85px);gap:7px}
+  .v32-prod,.v32-amount{overflow-wrap:anywhere}
+  .v32-amount{white-space:normal;text-align:right}
+}
+@media(max-width:375px){
+  /* iPhone 5 / SE (320px): botones y datos táctiles sin cortes horizontales */
+  html,body,.app-container,.main-content,.container{max-width:100%;overflow-x:hidden}
+  .app-header{padding:9px 8px}
+  .app-header h1{font-size:16px}
+  .main-content{padding:5px}
+  .day-panel,.controls{padding:9px}
+  .filters-row{grid-template-columns:minmax(0,1fr);gap:8px}
+  .filters-row #sheetSelector,.filters-row #dateFilter,.filters-row #searchInput{grid-column:1/-1;min-width:0;width:100%;max-width:100%}
+  .quick-filters{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+  .quick-filter-btn{font-size:11px;min-height:35px;padding:6px 4px}
+  .buttons-row{grid-template-columns:repeat(2,minmax(0,1fr));gap:6px}
+  .buttons-row .btn{font-size:11px;min-width:0;min-height:42px;padding:8px 4px}
+  .stats{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px;padding:6px}
+  .stat-card{padding:9px 5px}
+  .stat-value{font-size:15px;overflow-wrap:anywhere}
+  .stat-label{font-size:9px}
+  .dynamic-grid,.branch-comparison{grid-template-columns:repeat(2,minmax(0,1fr));gap:5px}
+  .v3-sale-top{flex-wrap:wrap}
+  .v3-sale-top strong:first-child{max-width:100%;flex:1 1 55%}
+  .v3-sale-meta{overflow-wrap:anywhere}
+  .v32-line{grid-template-columns:minmax(0,1fr) 72px;padding:8px 5px;gap:5px}
+  .v32-prod{font-size:11px}
+  .v32-amount{font-size:11px}
+  .v35-freshness{grid-template-columns:1fr}
+  .v36-date-btn{max-width:100%;white-space:normal}
+  .user-info{gap:5px;min-width:0}
+  .user-details{min-width:0}
+  .user-details h3{overflow-wrap:anywhere}
+  .logout-btn{padding:7px 8px;font-size:11px}
+}
+</style>
 </head>
 <body>
 <!-- PANTALLA DE LOGIN -->
@@ -1153,6 +1239,12 @@ body{padding:0;background:#eef2f8} .app-container{max-width:1600px;margin:auto}.
 <i class="fas fa-file-excel"></i> Exportar
 </button>
 </div>
+<div class="v35-freshness" id="freshnessPanel" role="status" aria-live="polite">
+ <div><span class="v35-k">Última consulta exitosa</span><strong id="lastQueryAt">Todavía no se consultó</strong></div>
+ <div><span class="v35-k">Última fila registrada (orden de hoja)</span><strong id="lastRecordAt">Sin confirmar</strong><small id="lastRowNumber" class="v36-row-note">—</small><button type="button" id="goToLastRowDate" class="v36-date-btn" onclick="teGoToLastRecordedDate()" disabled>Ver esa fecha</button></div>
+ <div><span class="v35-k">Fecha más reciente de venta (calendario)</span><strong id="lastSaleAt">Sin confirmar</strong></div>
+ <div class="v35-wide" id="freshnessNotice">La fecha de consulta no significa que existan ventas nuevas.</div>
+</div>
 <div class="sheet-source-indicator" id="sheetSourceIndicator">
 <i class="fas fa-database"></i> Leyendo datos de: <strong id="currentSheetName">Comercial</strong>
 </div>
@@ -1240,6 +1332,7 @@ Adelante <i class="fas fa-chevron-right"></i>
 <tr>
 <th>Sucursal</th>
 <th>ID</th>
+<th>Destino</th>
 <th>Fecha</th>
 <th>Hora</th>
 <th>Productos</th>
@@ -1391,7 +1484,7 @@ function matchesSearch(item, searchTerm) {
         (item.montos || '') + ' ' +
         (item.total || '') + ' ' +
         (item.metodo_pago || '') + ' ' +
-        (item.usuario || '') + ' ' + (item.hoja_origen || item.sucursal || '')
+        (item.usuario || '') + ' ' + (item.direccion || '') + ' ' + (item.departamento || '') + ' ' + (item.hoja_origen || item.sucursal || '')
     );
     if (text.includes(searchNorm)) {
         return true;
@@ -1615,28 +1708,91 @@ setTimeout(() => notification.remove(), 300);
 }, duration);
 }
 
+// V3.5: La URL /export?sheet=... no identifica de forma confiable una pestaña.
+// Usar Google Visualization con el nombre explícito de la pestaña y comprobar
+// el contenido, antes de asignar una sucursal a una fila.
+const TEUS_SHEET_NAMES = {
+  comercial:['comercial','Comercial'],
+  feria:['feria','Feria','Feria Barrio Lindo']
+};
+function teNorm(v){return String(v??'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim().toLowerCase();}
+function teBranchEvidence(row){
+  const fields=['tipo_sucursal','sucursal','nombre_sucursal','sede','local','ubicacion'];
+  const vals=fields.map(k=>row[k]).filter(v=>String(v??'').trim());
+  if(!vals.length)return null;
+  const evidence=vals.map(teNorm);
+  if(evidence.some(v=>/feria|barrio lindo/.test(v)))return 'feria';
+  if(evidence.some(v=>/comercial|tienda central|local central/.test(v)))return 'comercial';
+  return null;
+}
+function teDateValid(s){return /^\d{4}-\d{2}-\d{2}$/.test(s)&&!Number.isNaN(new Date(s+'T12:00:00').getTime());}
+// Lectura V3.8: priorizar CSV sin inferencia de tipos para preservar nombres y montos.
+// Google Visualization convierte en vacías las celdas de texto en columnas mixtas.
+// La ruta /export sin gid puede devolver siempre la primera pestaña: por eso
+// nunca se usa para Feria y se contrasta con la pestaña Comercial de gviz.
+function teSaleMatchKey(r){
+  const date=String(r.fecha||'').trim();
+  const time=String(r.hora||'').trim();
+  const total=String(r.total_venta||'').replace(/[^\d.,-]/g,'').trim();
+  return [date,time,total].join('|');
+}
+function teConfirmedSameSheet(a,b){
+  if(!a.length || !b.length)return false;
+  const keys=new Set(b.map(teSaleMatchKey).filter(k=>k.split('|')[0]&&k.split('|')[1]));
+  const matches=a.filter(r=>keys.has(teSaleMatchKey(r))).length;
+  // Una coincidencia de fecha/hora/total basta si hay pocos movimientos;
+  // con hojas extensas se exigen al menos dos coincidencias.
+  return matches>=Math.min(2,a.length,b.length);
+}
+async function teFetchCsvRows(url){
+  const r=await fetch(url,{cache:'no-store'});
+  if(!r.ok)throw new Error(`HTTP ${r.status}`);
+  const csv=await r.text();
+  if(!csv.trim()||/^\s*</.test(csv)||/google\.visualization\.Query\.setResponse/.test(csv.slice(0,200)))throw new Error('Respuesta CSV inválida');
+  const rows=parseCSV(csv);
+  if(!rows.length)throw new Error('Pestaña vacía o sin encabezados');
+  const headers=Object.keys(rows[0]);
+  if(!headers.includes('fecha')||!headers.some(k=>k==='productos'||k==='total_venta'))throw new Error('Columnas de ventas no reconocidas');
+  return rows;
+}
 async function loadDataFromGoogleSheets(sheetType) {
-    if (!['comercial','feria'].includes(sheetType)) throw new Error(`Hoja inválida: ${sheetType}`);
-    const urls = [
-        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/export?format=csv&sheet=${encodeURIComponent(sheetType)}&_=${Date.now()}`,
-        `https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetType)}&_=${Date.now()}`
-    ];
-    let ultimoError = null;
-    for (const csvUrl of urls) {
-        try {
-            const response = await fetch(csvUrl, {cache:'no-store'});
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const csvText = await response.text();
-            if (!csvText.trim()) throw new Error('CSV vacío');
-            const parsedData = parseCSV(csvText);
-            if (!parsedData.length) throw new Error('Sin filas reconocibles');
-            return processData(parsedData, sheetType);
-        } catch (e) {
-            ultimoError = e;
-            console.warn(`Lectura ${sheetType} falló con una ruta; probando alternativa`, e);
+  if(!['comercial','feria'].includes(sheetType))throw new Error('Sucursal desconocida');
+  const errors=[];
+  for(const sheetName of TEUS_SHEET_NAMES[sheetType]){
+    try{
+      const gvizUrl=`https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(sheetName)}&_=${Date.now()}`;
+      const rows=await teFetchCsvRows(gvizUrl);
+      const evidence=rows.map(teBranchEvidence).filter(Boolean);
+      let selected=rows;
+      if(evidence.length){
+        const conflicting=evidence.filter(x=>x!==sheetType).length;
+        if(conflicting){
+          selected=rows.filter(x=>teBranchEvidence(x)===sheetType);
+          if(!selected.length)throw new Error('La pestaña contiene datos de otra sucursal');
         }
-    }
-    throw ultimoError || new Error(`No se pudo leer ${sheetType}`);
+      }else if(sheetType==='feria' && !/feria|barrio lindo/i.test(sheetName)){
+        throw new Error('No se puede verificar que los registros sean de Feria');
+      }
+      // Comercial: CSV de exportación conserva cada celda tal como está escrita.
+      // Solo utilizarlo si una comprobación independiente confirma que ES Comercial.
+      if(sheetType==='comercial'){
+        try{
+          const rawUrl=`https://docs.google.com/spreadsheets/d/${VENTAS_SHEET_ID}/export?format=csv&_=${Date.now()}`;
+          const original=await teFetchCsvRows(rawUrl);
+          const foreign=original.map(teBranchEvidence).filter(x=>x&&x!=='comercial');
+          if(!foreign.length && teConfirmedSameSheet(original,selected)){
+            return processData(original,'comercial');
+          }
+          console.warn('CSV íntegro sin corroboración de Comercial; se mantiene consulta de pestaña');
+        }catch(exportErr){console.warn('CSV original no disponible',exportErr);}
+      }
+      // Si alguna celda se perdió por inferencia, señalarlo en consola.
+      const missingNames=selected.filter(r=>!String(r.id||'').trim()).length;
+      if(missingNames)console.warn(`La lectura de ${sheetName} omitió ${missingNames} nombres; Google Visualization puede descartar tipos mixtos.`);
+      return processData(selected,sheetType);
+    }catch(err){errors.push(`${sheetName}: ${err.message}`);}
+  }
+  throw new Error(`No se pudo comprobar la pestaña ${sheetType}: ${errors.join(' | ')}`);
 }
 function parseCSV(csvText) {
     const rows=[]; let row=[], field='', quoted=false;
@@ -1657,9 +1813,11 @@ function parseCSV(csvText) {
     if(field || row.length){ row.push(field); if(row.some(v=>String(v).trim()!=='')) rows.push(row); }
     if(rows.length<2) return [];
     const headers=rows[0].map(h=>String(h).replace(/^\uFEFF/,'').trim().toLowerCase());
-    return rows.slice(1).map(vals=>{
-        const obj={}; headers.forEach((h,i)=>obj[h]=String(vals[i]??'').trim()); return obj;
-    }).filter(obj=>Object.values(obj).some(v=>v!==''));
+    return rows.slice(1).map((vals,idx)=>{
+        const obj={}; headers.forEach((h,i)=>obj[h]=String(vals[i]??'').trim());
+        obj.__teSourceIndex=idx+2; // Referencia en el CSV, no número garantizado de fila física.
+        return obj;
+    }).filter(obj=>Object.entries(obj).some(([k,v])=>k!=='__teSourceIndex'&&v!==''));
 }
 
 function moneyV3(v){const z=String(v??'').replace(/\s/g,'').replace(/Bs\.?/ig,'');if(!z)return 0;const n=Number(z.includes(',')&&!z.includes('.')?z.replace(',','.'):z.replace(/,/g,''));return Number.isFinite(n)?n:0;}
@@ -1683,7 +1841,9 @@ const montoQrField = Object.keys(item).find(k => k.trim().toLowerCase() === 'mon
 const aperturaCajaField = Object.keys(item).find(k => k.trim().toLowerCase() === 'apertura_caja');
 const cierreCajaField = Object.keys(item).find(k => k.trim().toLowerCase() === 'cierre_caja');
 const montosField = Object.keys(item).find(k => k.trim().toLowerCase() === 'montos');
-const idReal = idField && item[idField] ? item[idField].trim() : `${sheetType}_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`;
+const direccionField = Object.keys(item).find(k => teNorm(k).replace(/\s+/g,'_') === 'direccion');
+const departamentoField = Object.keys(item).find(k => teNorm(k).replace(/\s+/g,'_') === 'departamento');
+const idReal = idField && item[idField] ? item[idField].trim() : 'Sin nombre registrado';
 const fechaOriginal = fechaField ? item[fechaField] || '' : '';
 let fechaFiltro = '';
 if (fechaOriginal.includes('/')) {
@@ -1709,10 +1869,12 @@ if (idUpper.includes('APERTURA') || productosLower.includes('apertura') || apert
 if (idUpper.includes('CIERRE') || productosLower.includes('cierre') || cierreCajaValor.includes('CIERRE')) tipo = 'cierre';
 return {
 id: idReal, fecha: fechaOriginal, fechaFiltro, hora: horaField ? item[horaField] || '' : '',
+ posicionOrigen: Number(item.__teSourceIndex)||null,
 productos: productosField ? item[productosField] || '' : '', total, metodo_pago: metodoPagoField ? item[metodoPagoField] || '' : '',
 usuario: usuarioField ? item[usuarioField] || '' : '', sucursal: tipoSucursalField ? item[tipoSucursalField] || sheetType : sheetType,
 tipo, monto_efectivo:montoEfectivo, monto_qr:montoQr, hoja_origen:sheetType, apertura_caja:aperturaCajaValor, cierre_caja:cierreCajaValor,
 montos: montosField ? (item[montosField] || '') : '',
+direccion: direccionField ? String(item[direccionField] || '').trim() : '', departamento: departamentoField ? String(item[departamentoField] || '').trim() : '',
  efectivo_recibido:moneyV3(item['efectivo_recibido']),cambio_efectivo:moneyV3(item['cambio_efectivo']),devuelto_qr:moneyV3(item['devuelto_qr']||item['cambio_qr']),
  ingreso_efectivo:moneyV3(item['ingreso_efectivo']), moneda_monto_registrado:[item['ingreso_efectivo'],item['monto_efectivo']].some(v=>String(v??'').trim()!=='' && moneyV3(v)!==0), estado_venta:String(item['estado_venta']||''), observaciones:String(item['observaciones']||''), id_venta:String(item['id_venta']||'')
 };
@@ -1730,7 +1892,7 @@ updateDayPanel(todayStr);
 updateSheetSourceIndicator();
 ventasElements.dateFilter.addEventListener('change',function(){quickRange='personalizado';document.querySelectorAll('.quick-filter-btn').forEach(b=>b.classList.remove('active'));updateDayPanel(this.value);filterData();});
 ventasElements.searchInput.addEventListener('input', filterData);
-ventasElements.sheetSelector.addEventListener('change', function() { currentSheet = this.value; updateSheetIndicator(); updateSheetSourceIndicator(); loadData(); });
+ventasElements.sheetSelector.addEventListener('change', function() { currentSheet = this.value; updateSheetIndicator(); updateSheetSourceIndicator(); teUpdateFreshness(); loadData(); });
 document.querySelectorAll('.quick-filter-btn').forEach(btn=>btn.addEventListener('click',()=>{quickRange=btn.dataset.range;document.querySelectorAll('.quick-filter-btn').forEach(b=>b.classList.toggle('active',b===btn));aplicarFechaRapida(quickRange);}));
 loadData();
 }
@@ -1757,40 +1919,105 @@ syncBadge.innerHTML = `<i class="fas fa-exclamation-triangle"></i> ${message}`;
 }
 }
 
+let teLoadSequence=0;
+const teLastQuery={comercial:null,feria:null};
+const teLastData={comercial:[],feria:[]};
+const teLastError={comercial:null,feria:null};
+function teDisplayDate(row){
+ if(!row)return 'Sin registros';
+ const fecha=row.fechaFiltro||row.fecha||'Fecha desconocida';
+ return fecha+(row.hora?' · '+row.hora:'');
+}
+function teNewest(rows,predicate){
+ return rows.filter(x=>teDateValid(x.fechaFiltro)&&(!predicate||predicate(x)))
+ .sort((a,b)=>(b.fechaFiltro+'T'+(b.hora||'')).localeCompare(a.fechaFiltro+'T'+(a.hora||'')))[0];
+}
+function teLastWritten(rows){
+ // teLastData conserva el orden del CSV tal como Google lo entrega.
+ // Nunca ordenar estas filas por fecha: pueden existir fechas retroactivas.
+ return rows&&rows.length?rows[rows.length-1]:null;
+}
+function teGoToLastRecordedDate(){
+ if(currentSheet==='ambas')return;
+ const record=teLastWritten(teLastData[currentSheet]);
+ if(!record||!teDateValid(record.fechaFiltro))return;
+ const input=document.getElementById('dateFilter');
+ const search=document.getElementById('searchInput');
+ if(search)search.value='';
+ input.value=record.fechaFiltro;
+ quickRange='personalizado';
+ document.querySelectorAll('.quick-filter-btn').forEach(b=>b.classList.remove('active'));
+ updateDayPanel(record.fechaFiltro);
+ filterData();
+ document.getElementById('normalTableContainer')?.scrollIntoView({behavior:'smooth',block:'start'});
+}
+function teUpdateFreshness(){
+ const sources=currentSheet==='ambas'?['comercial','feria']:[currentSheet];
+ const set=(id,value)=>{const el=document.getElementById(id);if(el)el.textContent=value;};
+ const fmt=d=>d?d.toLocaleString('es-BO',{day:'2-digit',month:'2-digit',year:'numeric',hour:'2-digit',minute:'2-digit',second:'2-digit'}):'Sin consulta exitosa';
+ set('lastQueryAt',sources.map(k=>(sources.length>1?(k==='feria'?'Feria: ':'Comercial: '):'')+fmt(teLastQuery[k])).join(' | '));
+ const lastRows=sources.map(k=>({k,row:teLastWritten(teLastData[k])}));
+ set('lastRecordAt',lastRows.map(({k,row})=>(sources.length>1?(k==='feria'?'Feria: ':'Comercial: '):'')+teDisplayDate(row)).join(' | '));
+ const single=sources.length===1?lastRows[0].row:null;
+ const rowNote=document.getElementById('lastRowNumber');
+ if(rowNote)rowNote.textContent=single&&single.posicionOrigen?'Registro n.º '+(single.posicionOrigen-1)+' del CSV (fila estimada '+single.posicionOrigen+'). La fila real puede variar si hay filas vacías.':sources.length>1?'Selecciona una sucursal para ver el último registro de cada hoja.':'Sin posición disponible';
+ const go=document.getElementById('goToLastRowDate');
+ if(go){go.disabled=!single||!teDateValid(single.fechaFiltro);go.textContent=single&&teDateValid(single.fechaFiltro)?'Ver registros del '+teDisplayDate(single).split(' · ')[0]:'Ver esa fecha';}
+ const rows=sources.flatMap(k=>teLastData[k]||[]);
+ const newestSale=teNewest(rows,isSaleV3);
+ set('lastSaleAt',teDisplayDate(newestSale));
+ const warnings=sources.filter(k=>teLastError[k]).map(k=>`${k==='feria'?'Feria':'Comercial'}: ${teLastError[k]}`);
+ const days=newestSale?Math.floor((Date.now()-new Date(newestSale.fechaFiltro+'T12:00:00').getTime())/86400000):null;
+ const notice=document.getElementById('freshnessNotice');
+ if(notice){
+   notice.classList.toggle('v35-warning',warnings.length>0||days>30);
+   const invalidDate=single&&newestSale&&teDateValid(single.fechaFiltro)&&single.fechaFiltro<newestSale.fechaFiltro;
+   notice.textContent=warnings.length?'⚠ '+warnings.join(' · '):
+     !newestSale?'No hay ventas registradas verificadas en la sucursal consultada.':
+     invalidDate?'Atención: la última fila escrita tiene una fecha anterior a otras ventas de la hoja. Son conceptos distintos; revisa fechas que estén fuera de orden.':
+     days>30?'Historial antiguo: la fecha más reciente de venta es de hace '+days+' días. No corresponde a la fecha de consulta.':
+     'La última fila escrita y la fecha más reciente son datos diferentes. Usa «Ver registros» para consultar la fecha de la última fila.';
+ }
+}
 async function loadData() {
-    if (!sessionStillValid()) return;
-    updateSyncBadge('loading','Actualizando...');
+    if(!sessionStillValid())return;
+    const seq=++teLoadSequence;
+    const selected=currentSheet;
+    // No presentar ventas de una sucursal anterior mientras se cambia de origen.
+    allData=[];filteredData=[];filterData();
+    updateSyncBadge('loading','Verificando hojas...');
     ventasElements.dataError.style.display='none';
-    try {
-        let data=[];
-        if(currentSheet==='ambas'){
-            const resultados=await Promise.allSettled([
-                loadDataFromGoogleSheets('comercial'),
-                loadDataFromGoogleSheets('feria')
-            ]);
-            const c=resultados[0].status==='fulfilled'?resultados[0].value:[];
-            const f=resultados[1].status==='fulfilled'?resultados[1].value:[];
-            data=[...c,...f];
-            if(resultados.some(r=>r.status==='rejected')){
-                showNotification('warning','Lectura parcial','Una sucursal no respondió, pero se muestran los datos disponibles.',5000);
-            }
-            if(!data.length) throw new Error('Ninguna sucursal devolvió registros');
-        } else {
-            data=await loadDataFromGoogleSheets(currentSheet);
-        }
-        allData=data;
-        allData.sort((a,b)=>`${b.fechaFiltro||''}T${b.hora||''}`.localeCompare(`${a.fechaFiltro||''}T${a.hora||''}`));
-        lastSyncTime=new Date();
-        updateSyncBadge('success',`${data.length} registros`);
-        showUpdateNotification(`${data.length} registros cargados`,1800);
-        filterData();
-        updateNavButtons();
-    } catch(error){
-        console.error(error);
-        ventasElements.dataError.style.display='block';
-        ventasElements.dataError.innerHTML=`<i class="fas fa-exclamation-triangle"></i> No se pudieron leer los datos de Google Sheets. `;
-        updateSyncBadge('error','Error de conexión');
-        if(allData.length)filterData();else{filteredData=[];filterData();}
+    const sources=selected==='ambas'?['comercial','feria']:[selected];
+    const results=await Promise.allSettled(sources.map(k=>loadDataFromGoogleSheets(k)));
+    if(seq!==teLoadSequence||selected!==currentSheet)return;
+    const data=[];let success=0;
+    results.forEach((result,i)=>{
+      const k=sources[i];
+      if(result.status==='fulfilled'){
+        success++;
+        teLastData[k]=result.value;
+        teLastQuery[k]=new Date();
+        teLastError[k]=null;
+        data.push(...result.value);
+      }else{
+        teLastData[k]=[];
+        teLastError[k]=result.reason?.message||'Error de lectura';
+        console.warn('Lectura no verificada de '+k,result.reason);
+      }
+    });
+    allData=data.sort((a,b)=>`${b.fechaFiltro||''}T${b.hora||''}`.localeCompare(`${a.fechaFiltro||''}T${a.hora||''}`));
+    lastSyncTime=success?new Date():lastSyncTime;
+    teUpdateFreshness();
+    filterData();
+    updateNavButtons();
+    if(!success){
+      updateSyncBadge('error','Origen no verificado');
+      ventasElements.dataError.style.display='block';
+      ventasElements.dataError.innerHTML='<i class="fas fa-exclamation-triangle"></i> No se pudo verificar la hoja de esta sucursal. No se mostrarán ventas de otra hoja como si fueran de aquí.';
+    }else{
+      updateSyncBadge('success',`${data.length} registros verificados`);
+      if(success<sources.length)showNotification('warning','Lectura parcial','No se pudo verificar una sucursal; las ventas de esa sucursal no se muestran.',5000);
+      else showUpdateNotification(`${data.length} registros verificados`,1600);
     }
 }
 function updateDayPanel(dateString) {
@@ -1900,6 +2127,26 @@ function v34Movement(v){
  if(v.tipo==='monedas')return v.moneda_monto_registrado?'+'+v34Money(cashMoveV3(v)):'Monto no disponible';
  return '';
 }
+// V3.9: Producto y su monto comparten siempre una única fila, aunque el nombre salte de línea.
+function teusPairedSales(item){
+ const products=String(item.productos||'').split('|').map(x=>x.trim()).filter(Boolean);
+ const amounts=String(item.montos||'').split('|').map(x=>x.trim());
+ // No inferir qué precio corresponde a qué producto cuando faltan valores.
+ const count=Math.max(products.length, amounts.filter(Boolean).length);
+ if(!count)return '<div class="teus-sale-line"><span class="teus-sale-name">—</span><span class="teus-sale-price teus-missing">Sin monto</span></div>';
+ let rows='';
+ for(let i=0;i<count;i++){
+   const n=products[i]||'Producto no identificado';
+   const a=amounts[i]||'';
+   rows+='<div class="teus-sale-line"><span class="teus-sale-name">'+escV2(n)+'</span><span class="teus-sale-price'+(a?'':' teus-missing')+'">'+(a?escV2(a):'Sin monto individual')+'</span></div>';
+ }
+ return rows;
+}
+function teusDestination(item){
+ const dir=String(item.direccion||'').trim(),dept=String(item.departamento||'').trim();
+ if(!dir&&!dept)return '<span style="color:#94a3b8">No registrado</span>';
+ return (dir?'<strong>'+escV2(dir)+'</strong>':'')+(dept?'<small>Departamento: '+escV2(dept)+'</small>':'');
+}
 function displayData() {
 ventasElements.dataError.style.display = 'none';
 ventasElements.noDataMessage.style.display = 'none';
@@ -1916,21 +2163,22 @@ if (metodoAbreviado.toLowerCase().includes('efectivo')) metodoAbreviado = 'Efe';
 else if (metodoAbreviado.toLowerCase().includes('qr')) metodoAbreviado = 'QR';
 else if (metodoAbreviado.toLowerCase().includes('tarjeta')) metodoAbreviado = 'Tarj';
 const paymentClass = (item.metodo_pago && item.metodo_pago.toLowerCase().includes('efectivo')) ? 'efectivo' : (item.metodo_pago && item.metodo_pago.toLowerCase().includes('qr') ? 'qr' : '');
-const horaFormateada = item.hora ? (item.hora.includes(':') ? item.hora.substring(0,5) : item.hora) : '--:--';
+const horaFormateada = (()=>{const h=String(item.hora||'').trim();const m=h.match(/(?:^|\s)(\d{1,2}):(\d{2})(?::\d{2})?/);return m?m[1].padStart(2,'0')+':'+m[2]:(h||'--:--');})();
 let rowClass = '';
 if (item.tipo === 'apertura') rowClass = 'class="row-apertura"';
 else if (item.tipo === 'cierre') rowClass = 'class="row-cierre"';
 else if (item.tipo === 'monedas') rowClass = 'class="v31-monedas-row"';
-const productosHTML = item.tipo==='monedas' ? '<strong>🪙 Monedas agregadas a caja</strong>' : item.productos ? item.productos.split('|').map(escV2).join('<br>') : '--';
-const montosHTML = item.tipo!=='venta' ? v34Movement(item) : (item.montos ? item.montos.split('|').map(escV2).join('<br>') : '—') + (v34Split(item) ? '<div style="margin-top:6px">'+v34Split(item)+'</div>' : '');
+const datosPareados = item.tipo==='venta' ? teusPairedSales(item) :
+  '<div class="teus-cash-movement"><span class="teus-cash-label">'+(item.tipo==='monedas'?'🪙 Monedas agregadas a caja':escV2(item.productos||'Movimiento de caja'))+'</span><span class="teus-cash-amount">'+v34Movement(item)+'</span></div>';
+const extraDesglose = item.tipo==='venta' ? v34Split(item) : '';
 const sucLabel=item.hoja_origen==='feria'?'Feria':'Comercial';
 html += `<tr ${rowClass}>
 <td><span class="sheet-indicator ${item.hoja_origen==='feria'?'sheet-feria':'sheet-comercial'}">${sucLabel}</span></td>
 <td>${escV2(item.id)}</td>
+<td class="teus-destination">${teusDestination(item)}</td>
 <td>${escV2(item.fecha || '--/--/----')}</td>
 <td>${horaFormateada}</td>
-<td>${productosHTML}</td>
-<td>${montosHTML}</td>
+<td colspan="2" class="teus-sale-cell"><div class="teus-sale-lines">${datosPareados}</div>${extraDesglose?'<div style="margin-top:6px">'+extraDesglose+'</div>':''}</td>
 <td><strong>${item.tipo==='monedas'?'No es venta':item.total.toFixed(2)}</strong></td>
 <td class="${paymentClass}">${metodoAbreviado}</td>
 <td>${escV2(item.usuario || '--')}</td>
@@ -1942,7 +2190,7 @@ if(mobileCards) mobileCards.innerHTML=filteredData.map(v=>{
   const isCoins=v.tipo==='monedas';
   const isSale=isSaleV3(v);
   const rawProducts=String(v.productos||'').split('|').map(x=>x.trim()).filter(Boolean);
-  const rawAmounts=String(v.montos||'').split('|').map(x=>x.trim()).filter(Boolean);
+  const rawAmounts=String(v.montos||'').split('|').map(x=>x.trim());
   const count=Math.max(rawProducts.length,rawAmounts.length);
   const rows=Array.from({length:count},(_,i)=>{
     const product=rawProducts[i]||'Producto sin descripción';
@@ -1959,6 +2207,7 @@ if(mobileCards) mobileCards.innerHTML=filteredData.map(v=>{
   return '<article class="v3-sale-card'+(v.tipo==='apertura'?' v34-card-open':v.tipo==='cierre'?' v34-card-close':'')+'">'
    +'<div class="v3-sale-top"><strong>'+escV2(caption)+'</strong><strong class="v32-sale-card-header-amount">'+escV2(headerAmount)+'</strong></div>'
    +'<div class="v3-sale-meta">'+escV2(v.hoja_origen||'')+' · '+escV2(v.fecha||'')+' · '+escV2(v.hora||'')+' · '+escV2(v.metodo_pago||'')+'</div>'
+   +'<div class="v3-sale-meta">Destino: '+(v.direccion||v.departamento?(escV2(v.direccion||'')+(v.direccion&&v.departamento?' · ':'')+escV2(v.departamento||'')):'No registrado')+'</div>'
    +(special?'<div class="v34-card-breakdown">'+movement+' <span class="v34-card-note">(No cuenta como venta)</span></div>':'')
    +(breakdown?'<div class="v34-card-breakdown">'+breakdown+'</div>':'')
    +'<details><summary>'+(special?'Ver movimiento de caja':isCoins?'Ver monedas':'Ver productos y precios ('+rawProducts.length+')')+'</summary>'
@@ -1986,17 +2235,17 @@ filterData();
 
 function exportToExcel() {
 if (filteredData.length === 0) { alert('No hay datos para exportar'); return; }
-let csvContent = "text/csv;charset=utf-8,";
-const headers = ["Sucursal","ID","Fecha","Hora","Productos","Montos","Total Venta","Método","Usuario"];
-csvContent += headers.join(",") + "\n";
-filteredData.forEach(item => {
-const row = [`"${item.hoja_origen||item.sucursal||""}"`,item.id,`"${item.fecha}"`,`"${item.hora}"`,`"${item.productos}"`,`"${item.montos}"`,item.total.toFixed(2),`"${item.metodo_pago}"`,`"${item.usuario}"`];
-csvContent += row.join(",") + "\n";
-});
-const link = document.createElement('a');
-link.setAttribute('href', encodeURI(csvContent));
-link.setAttribute('download', `ventas_${currentSheet}_${new Date().toISOString().split('T')[0]}.csv`);
-document.body.appendChild(link); link.click(); document.body.removeChild(link);
+const csvCell=v=>'"'+String(v??'').replace(/"/g,'""')+'"';
+const headers = ["Sucursal","ID","Dirección","Departamento","Fecha","Hora","Productos","Montos","Total Venta","Método","Usuario"];
+const rows=filteredData.map(item=>[
+ item.hoja_origen||item.sucursal||'',item.id,item.direccion||'',item.departamento||'',item.fecha,item.hora,
+ item.productos,item.montos,item.total.toFixed(2),item.metodo_pago,item.usuario
+].map(csvCell).join(','));
+const content='\uFEFF'+[headers.map(csvCell).join(','),...rows].join('\r\n');
+const blob=new Blob([content],{type:'text/csv;charset=utf-8;'});
+const url=URL.createObjectURL(blob),link=document.createElement('a');
+link.href=url;link.download=`ventas_${currentSheet}_${new Date().toISOString().split('T')[0]}.csv`;
+document.body.appendChild(link);link.click();link.remove();setTimeout(()=>URL.revokeObjectURL(url),1000);
 }
 
 function loadSampleData() {
