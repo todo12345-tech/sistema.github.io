@@ -4078,7 +4078,7 @@ document.addEventListener('DOMContentLoaded', function() {
    pagoDetalle.append(lista);
    const monto=document.createElement('div');monto.style='margin-top:9px;display:flex;justify-content:space-between;gap:10px;font-weight:900;font-size:clamp(19px,2.4vw,27px);color:#086c43';const tag=document.createElement('span');tag.textContent='TOTAL A PAGAR';const val=document.createElement('span');val.textContent=money(r.total);monto.append(tag,val);pagoDetalle.append(monto);
  }
- // El overlay debe vivir dentro del elemento fullscreen: un elemento fuera queda oculto.
+ // Compatibilidad con versiones antiguas del modal; V7.0 no lo muestra en ventas.
  function placeOverlay(){
    const full=document.fullscreenElement;
    const target=full || document.body;
@@ -4089,6 +4089,9 @@ document.addEventListener('DOMContentLoaded', function() {
    if(!data){try{data=localStorage.getItem('teus_qr_local_v1')||''}catch(e){}}
    return data;
  }
+ window.__teusPaymentState={open:false,qr:'',version:0};
+ window.__teusIsPaymentOpen=()=>!!window.__teusPaymentState?.open;
+ window.__teusGetPaymentState=()=>window.__teusPaymentState;
  window.__teusSetPayVisible=function(visible){
    if(!overlay)return;
    if(visible){
@@ -4097,17 +4100,32 @@ document.addEventListener('DOMContentLoaded', function() {
      qrImg.src=data;
      pintarResumenPago();
    }
-   placeOverlay();
-   overlay.style.display=visible?'flex':'none';
+   // V7.0: el QR solo se dibuja en el monitor externo y en la miniatura.
+   // No bloquear la pantalla de ventas; el modal principal permanece oculto.
+   overlay.style.display='none';
+   // Estado persistente durante la sesión: la ventana del monitor lo consulta
+   // constantemente y recupera las órdenes perdidas (también tras fullscreen).
+   window.__teusPaymentState={open:!!visible,qr:visible?qrImg.src:'',version:(window.__teusPaymentState?.version||0)+1};
    // Una sola autoridad central evita propagación recursiva entre ventanas.
    try{window.__teusMonitorWindow?.__teusSetPayVisibleLocal?.(!!visible,visible?qrImg.src:'')}catch(e){console.info('Monitor desconectado',e)}
    try{window.__teusLaptopMirrorPay?.(!!visible,visible?qrImg.src:'')}catch(e){}
  };
+ // Reenvío de estado a la ventana que pudiera reanudarse después de estar minimizada.
+ setInterval(()=>{
+   const state=window.__teusPaymentState;
+   const mon=window.__teusMonitorWindow;
+   if(!state?.open || !mon || mon.closed)return;
+   try{
+     const layer=mon.document?.getElementById('payLayer');
+     if(layer && !layer.classList.contains('active'))mon.__teusSetPayVisibleLocal?.(true,state.qr);
+   }catch(e){}
+ },1100);
  document.getElementById('teusPagarPicker')?.addEventListener('click',()=>window.__teusSetPayVisible(true));
  document.getElementById('teusCerrarQrPantalla')?.addEventListener('click',()=>window.__teusSetPayVisible(false));
  overlay?.addEventListener('click',e=>{if(e.target===overlay)window.__teusSetPayVisible(false)});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay?.style.display==='flex')window.__teusSetPayVisible(false)});
- document.addEventListener('fullscreenchange',placeOverlay);
+ // No mover el modal al fullscreen de ventas: ahora es exclusivamente remoto.
+ document.addEventListener('fullscreenchange',()=>{if(overlay)overlay.style.display='none'});
 })();
 </script>
 <script id="teus-monitor-ventana-v51">
@@ -4115,7 +4133,7 @@ document.addEventListener('DOMContentLoaded', function() {
 'use strict';
 const monitorHtml = String.raw`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TodoenUno | Alistar pedido · Monitor</title>
 <style>
-*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:#23394e;background:#eef2f6}header{position:sticky;top:0;background:#fff;padding:11px 18px;box-shadow:0 2px 8px #0001;z-index:10}h1{font-size:21px;margin:0 0 6px}.sub{font-size:12px;color:#66798b}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}input[type=search]{font:inherit;min-width:210px;flex:1;padding:11px;border-radius:9px;border:1px solid #cbd5e1}.status{font-weight:700;font-size:14px}.track{height:7px;border-radius:9px;background:#e4e7eb;overflow:hidden;margin-top:8px}#fill{height:100%;width:0;background:#1ea66b}button{cursor:pointer;border:0;border-radius:8px;padding:10px 12px;color:white;background:#344e68;font-weight:700}button.green{background:#129b63}button.grey{background:#687582}main{padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-content:start}.item{background:#fff;border:1px solid #dce4ec;border-radius:12px;display:flex;align-items:center;gap:10px;padding:11px;min-height:102px}.item.done{background:#e4f8ed;border:2px solid #32b67e}.item input[type=checkbox]{width:26px;height:26px;flex:none;accent-color:#16a66a;cursor:pointer}.item img{width:92px;height:92px;object-fit:contain;border-radius:9px;background:#fff;cursor:zoom-in;flex:none}.info{min-width:0;flex:1}.title{font-size:14px;font-weight:650;overflow-wrap:anywhere}.number{font-size:11px;font-weight:800;color:#5d7290}.cost{color:#c45637;font-weight:750;font-size:12px;margin-top:5px}#empty{display:none;text-align:center;padding:30px;color:#6c7885}#light{display:none;position:fixed;inset:0;background:#000d;z-index:30;align-items:center;justify-content:center;padding:25px;cursor:zoom-out}#light.active{display:flex}#light img{max-width:97vw;max-height:94vh;object-fit:contain;border-radius:8px}#closeLight{position:absolute;right:16px;top:12px;background:#343a40}#payLayer{display:none;position:fixed;inset:0;background:rgba(5,16,26,.96);z-index:60;align-items:center;justify-content:center;padding:16px}#payLayer.active{display:flex}#payCard{background:#fff;text-align:center;border-radius:18px;padding:15px;width:min(96vw,900px);max-height:96vh;overflow-y:auto;position:relative}#payCard h2{font-size:clamp(18px,2.2vw,28px);margin:7px 40px 12px}#payImage{display:block;object-fit:contain;width:min(46vh,410px);max-width:78vw;max-height:46vh;margin:auto}#closePay{position:absolute;top:8px;right:9px;background:#334155;font-size:18px}#payCard p{font-size:12px;color:#64748b;margin:8px 0 0}footer{position:fixed;bottom:0;right:0;left:0;padding:8px 15px;background:#fff;display:flex;justify-content:flex-end;gap:8px;box-shadow:0 -2px 9px #0001}main{padding-bottom:75px}
+*{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:#23394e;background:#eef2f6}header{position:sticky;top:0;background:#fff;padding:11px 18px;box-shadow:0 2px 8px #0001;z-index:10}h1{font-size:21px;margin:0 0 6px}.sub{font-size:12px;color:#66798b}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}input[type=search]{font:inherit;min-width:210px;flex:1;padding:11px;border-radius:9px;border:1px solid #cbd5e1}.status{font-weight:700;font-size:14px}.track{height:7px;border-radius:9px;background:#e4e7eb;overflow:hidden;margin-top:8px}#fill{height:100%;width:0;background:#1ea66b}button{cursor:pointer;border:0;border-radius:8px;padding:10px 12px;color:white;background:#344e68;font-weight:700}button.green{background:#129b63}button.grey{background:#687582}main{padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-content:start}.item{background:#fff;border:1px solid #dce4ec;border-radius:12px;display:flex;align-items:center;gap:10px;padding:11px;min-height:102px}.item.done{background:#e4f8ed;border:2px solid #32b67e}.item input[type=checkbox]{width:26px;height:26px;flex:none;accent-color:#16a66a;cursor:pointer}.item img{width:92px;height:92px;object-fit:contain;border-radius:9px;background:#fff;cursor:zoom-in;flex:none}.info{min-width:0;flex:1}.title{font-size:14px;font-weight:650;overflow-wrap:anywhere}.number{font-size:11px;font-weight:800;color:#5d7290}.cost{color:#c45637;font-weight:750;font-size:12px;margin-top:5px}#empty{display:none;text-align:center;padding:30px;color:#6c7885}#light{display:none;position:fixed;inset:0;background:#000d;z-index:30;align-items:center;justify-content:center;padding:25px;cursor:zoom-out}#light.active{display:flex}#light img{max-width:97vw;max-height:94vh;object-fit:contain;border-radius:8px}#closeLight{position:absolute;right:16px;top:12px;background:#343a40}#payLayer{display:none;position:fixed;inset:0;background:rgba(5,16,26,.96);z-index:150;align-items:center;justify-content:center;padding:16px}#payLayer.active{display:flex}#payCard{background:#fff;text-align:center;border-radius:18px;padding:15px;width:min(96vw,900px);max-height:96vh;overflow-y:auto;position:relative}#payCard h2{font-size:clamp(18px,2.2vw,28px);margin:7px 40px 12px}#payImage{display:block;object-fit:contain;width:min(46vh,410px);max-width:78vw;max-height:46vh;margin:auto}#closePay{position:absolute;top:8px;right:9px;background:#334155;font-size:18px}#payCard p{font-size:12px;color:#64748b;margin:8px 0 0}footer{position:fixed;bottom:0;right:0;left:0;padding:8px 15px;background:#fff;display:flex;justify-content:flex-end;gap:8px;box-shadow:0 -2px 9px #0001}main{padding-bottom:75px}
 /* V5.8: panel lateral fijo, no ocupar toda la altura sobre las fotografías */
 body{height:100dvh;display:grid;grid-template-rows:auto minmax(0,1fr) auto;overflow:hidden}
 header{position:static;grid-row:1;box-shadow:0 2px 9px #0001;padding:9px 14px}
@@ -4162,15 +4180,16 @@ function mostrarOferta(){const arr=ofertasReales();if(!arr.length){salirStandby(
 const pintar=()=>{const photo=$('teusStandbyPhoto');photo.src=x.imagen||'';photo.alt=x.nombre;$('teusStandbyName').textContent=x.nombre;$('teusStandbyBefore').textContent='Antes: '+money(x.precioNormal);$('teusStandbyNow').textContent='Ahora: '+money(x.precioOferta);$('teusStandbySave').textContent='AHORRAS: '+money(x.ahorro);slide.classList.remove('swap')};
 if(!$('teusStandby').classList.contains('active'))pintar();else setTimeout(pintar,300);
 $('teusStandby').classList.add('active');ultCambio=Date.now()}
-function cicloStandby(){if(!esMonitorIndependiente)return;if($('payLayer').classList.contains('active')||$('light').classList.contains('active'))return;
+function cicloStandby(){if(!esMonitorIndependiente)return;if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active')||$('light').classList.contains('active'))return;
 if(!$('teusStandby').classList.contains('active')){if(Date.now()-ultimaActividad>=TIEMPO_STANDBY&&ofertasReales().length)mostrarOferta()}
 else if(Date.now()-ultCambio>=ROTACION){ofertaPos++;mostrarOferta()}}
 async function activarStandbyManual(){
  if(!esMonitorIndependiente)return false;
- if($('payLayer').classList.contains('active')){alert('Cierra el QR de pago antes de mostrar las ofertas.');return false;}
+ if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active')){alert('Cierra el QR de pago antes de mostrar las ofertas.');return false;}
  if($('light').classList.contains('active')){alert('Cierra la fotografía ampliada antes de mostrar las ofertas.');return false;}
  try{await parent?.__teusCargarOfertasPublicas?.()}catch(e){console.warn('No fue posible consultar las ofertas del catálogo público:',e)}
  if(!ofertasReales().length){const info=parent?.__teusEstadoOfertas?.();alert('No se pudieron mostrar promociones del catálogo público. '+(info?.detalle||'Comprueba la conexión a Internet y el servicio de catálogo.'));return false;}
+ if(parent?.__teusIsPaymentOpen?.())return false;
  ofertaPos=0; mostrarOferta();return true;
 }
 window.__teusProbarOfertas=activarStandbyManual;
@@ -4187,17 +4206,33 @@ function rows(){try{if(!parent||parent.closed)return null;return parent.__teusGe
 function mark(i,checked){salirStandby();try{if(parent&&!parent.closed&&parent.__teusChecklistSync){parent.__teusChecklistSync(i,checked);refresh(true)}}catch(e){console.error(e)}}
 function hq(u,size){const s=String(u||'').trim();if(!s)return '';const m=s.match(/\/d\/([^/?]+)/)||s.match(/[?&]id=([^&]+)/)||s.match(/thumbnail\?id=([^&]+)/)||s.match(/uc\?(?:export=view&)?id=([^&]+)/);if(m)return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w'+Math.max(600,Number(size)||1600);return /^https:\/\//i.test(s)?s:''}
 function render(arr){const list=$('list');list.replaceChildren();const query=$('search').value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();let count=0;arr.forEach((p,i)=>{if(!String(p.n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(query))return;count++;const c=document.createElement('article');c.className='item'+(p.c?' done':'');const check=document.createElement('input');check.type='checkbox';check.checked=!!p.c;check.title='Marcar preparado';check.addEventListener('change',()=>mark(i,check.checked));c.append(check);const thumb=hq(p.i,900);const zoom=hq(p.i,1800);if(thumb){const img=document.createElement('img');img.src=thumb;img.alt=p.n;img.referrerPolicy='no-referrer';img.loading='eager';img.addEventListener('click',()=>{$('big').src=zoom||thumb;$('light').classList.add('active')});c.append(img)}else{const ph=document.createElement('span');ph.textContent='📦';ph.style.fontSize='30px';c.append(ph)}const info=document.createElement('div');info.className='info';const num=document.createElement('div');num.className='number';num.textContent='#'+String(i+1).padStart(2,'0');const title=document.createElement('div');title.className='title';title.textContent=p.n||'Producto';info.append(num,title);if(p.precio!=null){const cost=document.createElement('div');cost.className='cost';cost.textContent='Costo: '+Number(p.precio||0).toLocaleString('es-BO',{maximumFractionDigits:2})+' Bs';info.append(cost)}c.append(info);list.append(c)});$('empty').style.display=count?'none':'block';$('empty').textContent=arr.length?'Sin coincidencias':'No hay productos en el pedido. Agrégalos desde la pantalla principal.';}
-function refresh(force){const next=rows();if(next===null){$('status').textContent=lastConnectionGood?'Sin conexión temporal · mostrando último pedido':'Conecta la ventana principal';return;}lastConnectionGood=true;current=next;const itemsFirma=JSON.stringify(next.map(x=>[x.n,x.i,x.precio]));if(itemsFirma!==ultimaFirmaPedido){if(ultimaFirmaPedido)salirStandby();ultimaFirmaPedido=itemsFirma}const r=resumen();if(r){$('monitorTotal').textContent='Total: '+money(r.total);const sig=JSON.stringify(r);if(force||sig!==lastSummary){lastSummary=sig;pintarResumenPedido();if($('payLayer').classList.contains('active'))pintarPago()}}const signature=JSON.stringify(next);if(force||signature!==previous){previous=signature;render(next)}const done=next.filter(x=>x.c).length;$('status').textContent=done+' / '+next.length+' listos · '+(next.length?Math.round(done*100/next.length):0)+'%';$('fill').style.width=(next.length?done*100/next.length:0)+'%'}
+function refresh(force){
+ // Recuperación de sincronización: pago y cierre nacen siempre en el principal.
+ try{
+   const payment=parent?.__teusGetPaymentState?.();
+   if(payment){
+     const active=$('payLayer').classList.contains('active');
+     if(!!payment.open!==active){window.__teusSetPayVisibleLocal(!!payment.open,payment.qr||'');}
+     else if(payment.open){
+       salirStandby();
+       if(payment.qr && $('payImage').src!==payment.qr) $('payImage').src=payment.qr;
+     }
+   }
+ }catch(e){console.warn('Sincronización QR:',e)}
+ const next=rows();if(next===null){$('status').textContent=lastConnectionGood?'Sin conexión temporal · mostrando último pedido':'Conecta la ventana principal';return;}lastConnectionGood=true;current=next;const itemsFirma=JSON.stringify(next.map(x=>[x.n,x.i,x.precio]));if(itemsFirma!==ultimaFirmaPedido){if(ultimaFirmaPedido)salirStandby();ultimaFirmaPedido=itemsFirma}const r=resumen();if(r){$('monitorTotal').textContent='Total: '+money(r.total);const sig=JSON.stringify(r);if(force||sig!==lastSummary){lastSummary=sig;pintarResumenPedido();if($('payLayer').classList.contains('active'))pintarPago()}}const signature=JSON.stringify(next);if(force||signature!==previous){previous=signature;render(next)}const done=next.filter(x=>x.c).length;$('status').textContent=done+' / '+next.length+' listos · '+(next.length?Math.round(done*100/next.length):0)+'%';$('fill').style.width=(next.length?done*100/next.length:0)+'%'}
 $('search').addEventListener('input',()=>render(current));$('all').addEventListener('click',()=>{current.forEach((p,i)=>{if(!p.c)mark(i,true)});refresh(true)});$('none').addEventListener('click',()=>{current.forEach((p,i)=>{if(p.c)mark(i,false)});refresh(true)});$('expand').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})});$('closeLight').addEventListener('click',()=>{$('light').classList.remove('active')});$('light').addEventListener('click',e=>{if(e.target===$('light'))$('light').classList.remove('active')});window.addEventListener('keydown',e=>{if(e.key==='Escape'){$('light').classList.remove('active');changePayment(false)}});
 // Función pública invocada desde el sistema de ventas (sin rebote).
 window.__teusSetPayVisibleLocal=function(visible,data){
  if(visible){
+   // El salvapantallas no debe tapar nunca el QR.
+   salirStandby();
    if(!data){try{data=parent?.__teusQrActual?.()||parent?.localStorage.getItem('teus_qr_local_v1')||''}catch(e){}}
    if(!data)return false;
    $('payImage').src=data;
    pintarPago();
  }
  $('payLayer').classList.toggle('active',!!visible);
+ if(!visible)ultimaActividad=Date.now();
  return true;
 };
 function changePayment(visible){
@@ -4390,7 +4425,7 @@ document.getElementById('teusActivarSalvapantallas')?.addEventListener('click',(
  $('teusLiveOpenLarge')?.addEventListener('click',()=>{if(typeof openLaptopMirror==='function')openLaptopMirror()});
  tick();setInterval(tick,650);
 })();
-// El antiguo boton de imprimir datos ahora muestra el QR en ambas pantallas.
+// El antiguo botón de imprimir datos muestra el QR en el monitor externo y su miniatura.
 // Captura evita que el listener anterior abra el formulario de impresion.
 document.getElementById('imprimirDatosBtn')?.addEventListener('click',function(ev){
   ev.preventDefault();ev.stopImmediatePropagation();
