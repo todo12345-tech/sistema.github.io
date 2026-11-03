@@ -797,6 +797,39 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 @media(max-width:520px){.teus-fecha-turno{padding:10px!important;gap:7px;font-size:12px!important;align-items:stretch;flex-direction:column}.teus-fecha-turno>span:first-child{font-size:12px}.teus-apertura-estado{display:flex;width:100%;font-size:11px;padding:8px 9px}#cierreCajaModal .modal-content{padding:14px!important}#cierreCajaModal .modal-header h3{font-size:17px}.teus-cierre-origen{font-size:12px;padding:10px}#cierreCajaModal .modal-actions button{font-size:12px!important;padding:10px 5px!important}.teus-solo-salir-v2669{font-size:12px}}
 @media(max-width:340px){.teus-fecha-turno>span:first-child{font-size:11px}#cierreCajaModal .modal-actions{gap:6px}}
 </style>
+<style id="teus-hist-quick-css">
+/* V26.67 — registro histórico en una sola pantalla, exclusivo ADMIN */
+#teusHistQuick{position:fixed;inset:0;z-index:12050;background:rgba(16,27,40,.72);display:none;align-items:center;justify-content:center;padding:12px;}
+#teusHistQuick.abierto{display:flex;}
+#teusHistQuick .th-card{background:#fff;width:min(960px,100%);max-height:calc(100vh - 24px);max-height:calc(100dvh - 24px);overflow-y:auto;border-radius:15px;box-shadow:0 22px 75px #0005;padding:18px;color:#243749;}
+#teusHistQuick .th-head{display:flex;justify-content:space-between;gap:12px;align-items:center;border-bottom:1px solid #e0e7ed;padding-bottom:12px;margin-bottom:14px;}
+#teusHistQuick .th-head h2{padding:0;margin:0;border:0;font-size:20px;}
+#teusHistQuick button.th-close{width:35px;height:35px;min-width:35px;border-radius:50%;background:#edf1f5;color:#334155;padding:0;font-size:23px;}
+#teusHistQuick .th-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;}
+#teusHistQuick .th-span2{grid-column:span 2;}
+#teusHistQuick label{font-size:12px;margin:0 0 5px;color:#334155;font-weight:700;}
+#teusHistQuick input,#teusHistQuick select{font-size:15px;padding:10px;width:100%;min-width:0;border:1px solid #ced8e1;background:#fff;border-radius:8px;}
+#teusHistQuick .th-field{min-width:0;}
+#teusHistQuick .th-section{margin-top:17px;border-top:1px solid #e1e8ed;padding-top:13px;}
+#teusHistQuick .th-product{display:grid;grid-template-columns:minmax(0,1fr) 115px 34px;gap:7px;margin-top:8px;align-items:center;}
+#teusHistQuick .th-product button{min-width:34px;width:34px;height:38px;padding:0;border-radius:7px;background:#ef4444;}
+#teusHistQuick .th-hint{font-size:11px;color:#64748b;line-height:1.5;margin-top:8px;}
+#teusHistQuick .th-summary{background:#eaf6ef;border:1px solid #d2eadb;border-radius:9px;margin-top:14px;padding:12px;display:flex;justify-content:space-between;gap:10px;align-items:center;font-size:15px;}
+#teusHistQuick .th-actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;position:sticky;bottom:-18px;padding:12px 0;background:#fff;z-index:2;}
+#teusHistQuick .th-actions button{width:auto;flex:1 1 170px;padding:12px 10px;}
+#teusHistQuick .th-add{width:auto;padding:10px 14px;background:#386c9b;font-size:12px;margin-top:10px;}
+#teusHistQuick .th-save{background:#18875d;}
+#teusHistQuick .th-secondary{background:#64748b;}
+#teusHistQuick .th-note{background:#fff8e6;border-left:4px solid #efad38;padding:10px;border-radius:7px;margin-top:12px;font-size:12px;line-height:1.45;}
+#teusHistQuick .th-error{display:none;margin-top:10px;background:#fff0ef;color:#a52d28;padding:10px;border-radius:7px;font-size:12px;}
+#teusHistQuick .th-error.visible{display:block;}
+#teusHistQuick .th-autocomplete{position:relative;}
+#teusHistQuick .th-suggestions{position:absolute;z-index:4;left:0;right:0;top:100%;background:white;border:1px solid #ccd8e3;border-radius:7px;max-height:180px;overflow:auto;box-shadow:0 7px 16px #0002;display:none;}
+#teusHistQuick .th-suggestions button{width:100%;padding:9px 11px;display:block;text-align:left;border-radius:0;background:#fff;color:#243749;border-bottom:1px solid #edf1f4;box-shadow:none;font-weight:500;font-size:12px;}
+#teusHistQuick .th-suggestions button:hover{background:#edf5ff;transform:none;}
+@media(max-width:700px){#teusHistQuick{padding:5px;}#teusHistQuick .th-card{padding:12px;max-height:calc(100dvh - 10px);}#teusHistQuick .th-grid{grid-template-columns:repeat(2,minmax(0,1fr));}#teusHistQuick .th-product{grid-template-columns:minmax(0,1fr) 83px 30px;gap:4px;}#teusHistQuick .th-product button{min-width:30px;width:30px;}#teusHistQuick .th-actions{bottom:-12px;} }
+@media(max-width:350px){#teusHistQuick .th-head h2{font-size:17px;}#teusHistQuick .th-grid{gap:7px;}#teusHistQuick input,#teusHistQuick select{font-size:14px;padding:8px;}#teusHistQuick .th-product{grid-template-columns:minmax(0,1fr) 74px 28px;}}
+</style>
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -5131,58 +5164,120 @@ document.addEventListener('wheel',e=>{if(e.target instanceof HTMLInputElement &&
 });
 
 
-async function agregarVentaAntiguaV261(){
-  if(!esAdministrador()){Notificaciones.mostrar('Solo ADMIN puede cargar ventas antiguas','warning');return;}
-  if(!Array.isArray(items)||!items.length){Notificaciones.mostrar('Primero agrega los productos a Productos Agregados','warning');return;}
-  const suc=obtenerDatosSucursal();
-  if(!suc || !suc.nombre){Notificaciones.mostrar('Selecciona una sucursal antes de registrar','warning');return;}
-  const entrada=prompt('Fecha de la venta antigua (DD/MM/AAAA):','');
-  if(entrada===null)return;
-  const fecha=entrada.trim();
-  const m=fecha.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
-  if(!m){Notificaciones.mostrar('Fecha inválida. Usa DD/MM/AAAA','warning');return;}
-  const d=new Date(Number(m[3]),Number(m[2])-1,Number(m[1]));
-  if(d.getFullYear()!==Number(m[3])||d.getMonth()!==Number(m[2])-1||d.getDate()!==Number(m[1])||d.getTime()>Date.now()){
-    Notificaciones.mostrar('La fecha no existe o está en el futuro','warning');return;
-  }
-  const fechaReal=[String(d.getDate()).padStart(2,'0'),String(d.getMonth()+1).padStart(2,'0'),d.getFullYear()].join('/');
-  const horaEntrada=prompt('Hora de esa venta (HH:MM):','12:00');
-  if(horaEntrada===null)return;
-  const hora=horaEntrada.trim();
-  if(!/^([01]?\d|2[0-3]):[0-5]\d$/.test(hora)){Notificaciones.mostrar('Hora inválida. Usa HH:MM','warning');return;}
-  const pagoEntrada=prompt('Método de pago (EFECTIVO / QR / MIXTO / DESCONOCIDO):','DESCONOCIDO');
-  if(pagoEntrada===null)return;
-  const metodo_pago=pagoEntrada.trim().toUpperCase();
-  if(!['EFECTIVO','QR','MIXTO','DESCONOCIDO'].includes(metodo_pago)){Notificaciones.mostrar('Método de pago inválido','warning');return;}
-  const productos=items.map(i=>String(i.descripcion||'')).join(' | ');
-  const montos=items.map(i=>(Number(i.monto)||0).toFixed(2)).join(' | ');
-  const suma=items.reduce((n,i)=>n+(Number(i.monto)||0),0);
-  const totalVenta=Number(suma.toFixed(2));
-  const clave='teus_historica_pendiente_v2628';
-  let pendiente=null;
-  try{pendiente=JSON.parse(localStorage.getItem(clave)||'null');}catch(e){}
-  const huella=JSON.stringify({fecha:fechaReal,hora,sucursal:suc.nombre,productos,montos,totalVenta,metodo_pago});
-  if(pendiente&&pendiente.huella!==huella){
-    Notificaciones.mostrar('Hay otra venta antigua pendiente de confirmar. Revisa su registro antes de preparar una diferente.','warning',7000);return;
-  }
-  const id_venta=pendiente?.id_venta || `VTA-HIST-${Date.now()}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
-  const ok=confirm(`VENTA ANTIGUA\nSucursal: ${suc.nombre}\nFecha: ${fechaReal} ${hora}\n${productos.replaceAll(' | ','\n')}\nTotal: ${totalVenta.toFixed(2)} Bs\nPago: ${metodo_pago}\n\nNo modificará Stock ni la caja actual. ¿Guardar en Google Sheets?`);
-  if(!ok)return;
-  localStorage.setItem(clave,JSON.stringify({id_venta,huella}));
-  try{
-    const r=await backendV26('venta_historica',{
-      id_venta,fecha:fechaReal,hora,sucursal:suc.nombre,productos,montos,
-      total_venta:totalVenta,numero_productos:items.length,metodo_pago,
-      nombre_cliente:String(nombreClienteActual||'').trim()||'Cliente General',
-      telefono:telefonoClienteActual||'',direccion:direccionClienteActual||'',departamento:departamentoClienteActual||'',
-      observaciones:'Carga histórica desde Productos Agregados',usuario:currentUser?.nombre||'',rol:currentUser?.rol||''
-    });
-    if(!r?.ok||r.id_venta!==id_venta)throw new Error(r?.error||'El servidor no confirmó el ID de venta.');
-    localStorage.removeItem(clave);
-    items=[]; actualizarListaItems();actualizarPrevisualizacion();limpiarBorradorVentaV26();
-    Notificaciones.mostrar(`Venta antigua ${r.id_venta} registrada en ${r.hoja||suc.nombre}. No afectó caja ni Stock.`, 'success',6500);
-  }catch(e){Notificaciones.mostrar('No se confirmó la venta antigua: '+(e.message||e)+'. Conservamos el carrito y el ID para reintentar sin duplicar.','error',9000);}
+// V26.67 — alta histórica en un solo formulario; mantiene backend y permisos originales.
+const TH_PREFS='teus_historica_preferencias_v2667';
+const TH_PENDING='teus_historica_pendiente_v2628';
+let thLineas=[], thGuardando=false, thImportacionOriginal=false;
+const thEl=id=>document.getElementById(id);
+const thEsc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function thFechaIso(){const d=new Date();return [d.getFullYear(),String(d.getMonth()+1).padStart(2,'0'),String(d.getDate()).padStart(2,'0')].join('-');}
+function thIsoAFecha(v){const [y,m,d]=String(v||'').split('-');return `${d}/${m}/${y}`;}
+function thPrefs(){try{return JSON.parse(localStorage.getItem(TH_PREFS)||'{}')||{};}catch(e){return {};}}
+function thGuardarPrefs(){localStorage.setItem(TH_PREFS,JSON.stringify({fecha:thEl('thFecha').value,sucursal:thEl('thSucursal').value,hora:thEl('thHora').value,metodo:thEl('thPago').value}));}
+function thMensaje(msg){const e=thEl('thError');e.textContent=msg;e.classList.toggle('visible',!!msg);}
+function thTotalYRender(){
+  const n=thLineas.filter(x=>String(x.descripcion).trim()).length;
+  const suma=thLineas.reduce((t,x)=>t+(Number(String(x.monto).replace(',','.'))||0),0);
+  thEl('thCuenta').textContent=n+' producto'+(n===1?'':'s');
+  thEl('thTotal').textContent='Bs. '+suma.toLocaleString('es-BO',{minimumFractionDigits:2,maximumFractionDigits:2});
 }
+function thPintarLineas(){
+  const cont=thEl('thProductos');cont.textContent='';
+  thLineas.forEach((line,index)=>{
+    const row=document.createElement('div');row.className='th-product';
+    const wrap=document.createElement('div');wrap.className='th-autocomplete';
+    const nombre=document.createElement('input');nombre.placeholder='Producto o descripción';nombre.setAttribute('aria-label','Descripción producto '+(index+1));nombre.value=line.descripcion;
+    nombre.addEventListener('input',()=>{line.descripcion=nombre.value;thTotalYRender();thSugerir(nombre,lista,line);});
+    const lista=document.createElement('div');lista.className='th-suggestions';
+    nombre.addEventListener('blur',()=>setTimeout(()=>{lista.style.display='none'},180));
+    wrap.append(nombre,lista);
+    const monto=document.createElement('input');monto.type='text';monto.inputMode='decimal';monto.placeholder='Bs total';monto.setAttribute('aria-label','Monto total producto '+(index+1));monto.value=line.monto;
+    monto.addEventListener('input',()=>{line.monto=monto.value;thTotalYRender();});
+    const borrar=document.createElement('button');borrar.type='button';borrar.textContent='×';borrar.title='Quitar producto';borrar.setAttribute('aria-label','Eliminar producto '+(index+1));
+    borrar.addEventListener('click',()=>{thLineas.splice(index,1);thImportacionOriginal=false;thPintarLineas();});
+    row.append(wrap,monto,borrar);cont.append(row);
+  });thTotalYRender();
+}
+function thSugerir(input,lista,line){
+ const q=String(input.value||'').toLocaleLowerCase().trim();lista.textContent='';
+ if(q.length<2){lista.style.display='none';return;}
+ const posibles=[...(Array.isArray(catalogoProductos)?catalogoProductos:[]),...(Array.isArray(productosAgregadosCache)?productosAgregadosCache:[]),...(Array.isArray(stockCache)?stockCache:[])];
+ const resultados=posibles.filter(p=>String(p.nombre||p.descripcion||'').toLocaleLowerCase().includes(q)).slice(0,7);
+ resultados.forEach(p=>{const b=document.createElement('button');b.type='button';b.textContent=String(p.nombre||p.descripcion||'');b.addEventListener('mousedown',e=>e.preventDefault());b.addEventListener('click',()=>{line.descripcion=b.textContent;input.value=line.descripcion;lista.style.display='none';});lista.append(b);});
+ lista.style.display=resultados.length?'block':'none';
+}
+function thAgregarLinea(desc='',monto=''){thLineas.push({descripcion:String(desc),monto:String(monto)});thPintarLineas();}
+function thImportarProductos(){if(!Array.isArray(items)||!items.length){thMensaje('No hay productos agregados en la venta principal para copiar. Puedes añadirlos aquí directamente.');return;}
+  const existentes=thLineas.some(x=>String(x.descripcion).trim());
+  if(existentes&&!confirm('¿Reemplazar los productos de este formulario por los del carrito principal?'))return;
+  thLineas=items.map(i=>({descripcion:String(i.descripcion||''),monto:String(i.monto??'')}));
+  thImportacionOriginal=true;thMensaje('');thPintarLineas();
+}
+function thAbrir(){
+ if(!esAdministrador()){Notificaciones.mostrar('Solo ADMIN puede cargar ventas antiguas','warning');return;}
+ const suc=thEl('thSucursal'),prefs=thPrefs();suc.textContent='';
+ Object.keys(sucursales).forEach(k=>{const o=document.createElement('option');o.value=k;o.textContent=sucursales[k].nombre||k;suc.append(o);});
+ const hoy=thFechaIso();const fecha=(prefs.fecha&&prefs.fecha<=hoy)?prefs.fecha:hoy;
+ thEl('thFecha').max=hoy;thEl('thFecha').value=fecha;
+ suc.value=(prefs.sucursal&&sucursales[prefs.sucursal])?prefs.sucursal:sucursalSeleccionada;
+ thEl('thHora').value=prefs.hora||'12:00';thEl('thPago').value=prefs.metodo||'DESCONOCIDO';
+ thEl('thCliente').value=String(nombreClienteActual||'').trim()||'Cliente General';
+ thEl('thTelefono').value=telefonoClienteActual||'';thEl('thDireccion').value=direccionClienteActual||'';thEl('thDepartamento').value=departamentoClienteActual||'';
+ thLineas=Array.isArray(items)&&items.length?items.map(i=>({descripcion:String(i.descripcion||''),monto:String(i.monto??'')})):[{descripcion:'',monto:''}];
+ thImportacionOriginal=!!(Array.isArray(items)&&items.length);
+ thPintarLineas();thMensaje('');thEl('teusHistQuick').classList.add('abierto');thEl('teusHistQuick').setAttribute('aria-hidden','false');
+}
+function thCerrar(){if(thGuardando)return;thEl('teusHistQuick').classList.remove('abierto');thEl('teusHistQuick').setAttribute('aria-hidden','true');}
+async function thGuardarVenta(event){
+ event.preventDefault();if(thGuardando)return;if(!esAdministrador())return;
+ thMensaje('');const iso=thEl('thFecha').value,hora=thEl('thHora').value,skey=thEl('thSucursal').value,suc=sucursales[skey];
+ if(!iso||!/^\d{4}-\d{2}-\d{2}$/.test(iso)||iso>thFechaIso()||new Date(iso+'T12:00:00').toISOString().slice(0,10)!==iso){thMensaje('Selecciona una fecha válida, que no sea futura.');return;}
+ if(!/^([01]\d|2[0-3]):[0-5]\d$/.test(hora)){thMensaje('Ingresa una hora válida (HH:MM).');return;}
+ if(!suc){thMensaje('Selecciona una sucursal válida.');return;}
+ const metodo_pago=thEl('thPago').value;
+ if(!['EFECTIVO','QR','MIXTO','DESCONOCIDO'].includes(metodo_pago)){thMensaje('Selecciona un método de pago.');return;}
+ const nombre=thEl('thCliente').value.trim();if(!nombre){thMensaje('Indica el nombre del cliente.');return;}
+ const lineas=thLineas.filter(l=>String(l.descripcion||'').trim()||String(l.monto||'').trim());
+ if(!lineas.length){thMensaje('Agrega por lo menos un producto.');return;}
+ if(lineas.some(l=>!String(l.descripcion).trim()||!String(l.monto).trim()||!/^\d+(?:[.,]\d{1,2})?$/.test(String(l.monto).trim())||Number(String(l.monto).replace(',','.'))<=0)){
+   thMensaje('Cada producto necesita una descripción y un monto positivo válido (ejemplo: 120.50).');return;
+ }
+ const fecha=thIsoAFecha(iso),productos=lineas.map(l=>l.descripcion.trim()).join(' | ');
+ const montos=lineas.map(l=>Number(String(l.monto).replace(',','.')).toFixed(2)).join(' | ');
+ const totalVenta=Number(lineas.reduce((t,l)=>t+Number(String(l.monto).replace(',','.')),0).toFixed(2));
+ const huella=JSON.stringify({fecha,hora,sucursal:suc.nombre,productos,montos,totalVenta,metodo_pago,nombre,telefono:thEl('thTelefono').value,direccion:thEl('thDireccion').value,departamento:thEl('thDepartamento').value});
+ let pendiente=null;try{pendiente=JSON.parse(localStorage.getItem(TH_PENDING)||'null');}catch(e){}
+ if(pendiente&&pendiente.huella!==huella){thMensaje('Hay una venta antigua pendiente de confirmar. Recupera sus datos o verifica si ya se guardó antes de registrar otra; así evitamos duplicados.');return;}
+ const id_venta=pendiente?.id_venta||`VTA-HIST-${Date.now()}-${Math.random().toString(36).slice(2,7).toUpperCase()}`;
+ if(!confirm(`Registrar venta histórica en ${suc.nombre}\n${fecha} ${hora} · ${nombre}\n${lineas.length} productos · Bs. ${totalVenta.toFixed(2)} · ${metodo_pago}\n\nNo modificará Stock ni la caja actual. ¿Confirmar?`))return;
+ thGuardarPrefs();localStorage.setItem(TH_PENDING,JSON.stringify({id_venta,huella}));
+ thGuardando=true;const boton=thEl('thGuardar');boton.disabled=true;boton.textContent='Guardando en Google Sheets...';
+ try{
+  const r=await backendV26('venta_historica',{
+   id_venta,fecha,hora,sucursal:suc.nombre,productos,montos,total_venta:totalVenta,
+   numero_productos:lineas.length,metodo_pago,nombre_cliente:nombre,telefono:thEl('thTelefono').value.trim(),
+   direccion:thEl('thDireccion').value.trim(),departamento:thEl('thDepartamento').value.trim(),
+   observaciones:'Carga histórica desde formulario rápido',usuario:currentUser?.nombre||'',rol:currentUser?.rol||''
+  });
+  if(!r?.ok||r.id_venta!==id_venta)throw new Error(r?.error||'El servidor no confirmó el identificador de la venta.');
+  localStorage.removeItem(TH_PENDING);
+  if(thImportacionOriginal){items=[];actualizarListaItems();actualizarPrevisualizacion();limpiarBorradorVentaV26();}
+  thImportacionOriginal=false;thLineas=[{descripcion:'',monto:''}];thPintarLineas();
+  thEl('thCliente').value='Cliente General';thEl('thTelefono').value='';thEl('thDireccion').value='';thEl('thDepartamento').value='';
+  thMensaje('');Notificaciones.mostrar(`Venta histórica guardada: ${r.id_venta}. Fecha y sucursal listas para la siguiente. No afectó caja ni Stock.`, 'success',7000);
+  thEl('thProductos').querySelector('input')?.focus();
+ }catch(e){thMensaje('No se pudo confirmar la venta: '+(e.message||e)+'. Los datos permanecen intactos para reintentar. No la vuelvas a registrar antes de comprobar su estado en Sheets.');}
+ finally{thGuardando=false;boton.disabled=false;boton.innerHTML='<i class="fas fa-save"></i> Guardar y registrar otra';}
+}
+function agregarVentaAntiguaV261(){thAbrir();}
+document.addEventListener('DOMContentLoaded',()=>{
+ thEl('thClose')?.addEventListener('click',thCerrar);thEl('thCancelar')?.addEventListener('click',thCerrar);
+ thEl('teusHistQuick')?.addEventListener('click',e=>{if(e.target===thEl('teusHistQuick'))thCerrar();});
+ document.addEventListener('keydown',e=>{if(e.key==='Escape'&&thEl('teusHistQuick')?.classList.contains('abierto'))thCerrar();});
+ thEl('thAgregar')?.addEventListener('click',()=>thAgregarLinea());thEl('thImportar')?.addEventListener('click',thImportarProductos);
+ thEl('thForm')?.addEventListener('submit',thGuardarVenta);
+ ['thFecha','thHora','thSucursal','thPago'].forEach(id=>thEl(id)?.addEventListener('change',thGuardarPrefs));
+});
 document.addEventListener('click',function(e){
   const a=e.target.closest?.('#menuAgregarVentaAntigua');
   if(a){e.preventDefault();agregarVentaAntiguaV261();}
@@ -5499,5 +5594,31 @@ document.addEventListener('DOMContentLoaded',()=>{
 
 </script>
 
+<div id="teusHistQuick" role="dialog" aria-modal="true" aria-labelledby="thTitle" aria-hidden="true">
+<div class="th-card">
+ <div class="th-head"><h2 id="thTitle"><i class="fas fa-history"></i> Registrar ventas antiguas</h2><button type="button" class="th-close" id="thClose" aria-label="Cerrar">×</button></div>
+ <form id="thForm" autocomplete="off">
+  <div class="th-grid">
+   <div class="th-field"><label for="thFecha">Fecha original *</label><input type="date" id="thFecha" required></div>
+   <div class="th-field"><label for="thHora">Hora original *</label><input type="time" id="thHora" required value="12:00"></div>
+   <div class="th-field th-span2"><label for="thSucursal">Sucursal original *</label><select id="thSucursal" required></select></div>
+   <div class="th-field th-span2"><label for="thCliente">Cliente / ID *</label><input id="thCliente" placeholder="Cliente general" required></div>
+   <div class="th-field th-span2"><label for="thPago">Método de pago</label><select id="thPago"><option value="DESCONOCIDO">Desconocido</option><option value="EFECTIVO">Efectivo</option><option value="QR">QR</option><option value="MIXTO">Mixto</option></select></div>
+   <div class="th-field"><label for="thTelefono">Teléfono</label><input id="thTelefono" type="tel" placeholder="Opcional"></div>
+   <div class="th-field"><label for="thDepartamento">Departamento</label><input id="thDepartamento" placeholder="Ej.: Santa Cruz"></div>
+   <div class="th-field th-span2"><label for="thDireccion">Dirección / destino</label><input id="thDireccion" placeholder="Opcional"></div>
+  </div>
+  <div class="th-section"><strong><i class="fas fa-box-open"></i> Productos de esta venta</strong>
+   <div class="th-hint">Agrega productos aquí sin afectar el carrito de la venta actual. Escribe la descripción exacta y el importe total de cada producto; puedes buscar nombres del catálogo.</div>
+   <div id="thProductos"></div>
+   <button type="button" class="th-add" id="thAgregar"><i class="fas fa-plus"></i> Añadir producto</button>
+   <button type="button" class="th-add" id="thImportar" style="background:#7363a7"><i class="fas fa-copy"></i> Copiar productos agregados</button>
+  </div>
+  <div class="th-summary"><span id="thCuenta">0 productos</span><strong id="thTotal">Bs. 0,00</strong></div>
+  <div class="th-note"><strong>Carga histórica:</strong> se guardará con la fecha original mediante la acción existente de Google Sheets. No descuenta stock ni modifica la caja actual. La fecha y la sucursal permanecen seleccionadas para cargar varias ventas seguidas.</div>
+  <div class="th-error" id="thError" role="alert"></div>
+  <div class="th-actions"><button type="button" class="th-secondary" id="thCancelar">Cerrar</button><button type="submit" class="th-save" id="thGuardar"><i class="fas fa-save"></i> Guardar y registrar otra</button></div>
+ </form>
+</div></div>
 </body>
 </html>
