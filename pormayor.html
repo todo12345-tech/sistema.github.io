@@ -1100,6 +1100,9 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
 .teus-live-mini-total{font-size:11px;font-weight:900;color:#087647;border-top:1px solid #cbd5e1;margin-top:5px;padding-top:5px;display:flex;justify-content:space-between;gap:3px}
 .teus-live-mini-payment{flex:1;min-height:0;display:flex;flex-direction:column;align-items:center;justify-content:center;background:#fff;gap:5px;padding:8px}
 .teus-live-mini-payment-title{font-size:11px;font-weight:900}.teus-live-mini-payment img{width:120px;max-height:145px;object-fit:contain}.teus-live-mini-payment #teusLiveQrTotal{font-size:13px;font-weight:900;color:#087647}
+.teus-live-preview-screen.teus-wakeup-ready{cursor:pointer;outline:3px solid #ffc107;outline-offset:2px;}
+.teus-live-preview-screen.teus-wakeup-ready:hover{filter:brightness(1.06);}
+.teus-live-preview-screen.teus-wakeup-ready:focus-visible{outline:4px solid #2680d9;}
 .teus-live-mini-standby{flex:1;min-height:0;background:linear-gradient(145deg,#142744,#10182b);color:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:5px;padding:8px}
 .teus-live-mini-standby>span{color:#ffd647;font-size:9px;font-weight:850}.teus-live-mini-standby img{height:105px;max-width:75%;object-fit:contain;border-radius:6px;background:#fff}
 .teus-live-mini-standby b{font-size:10px;line-height:1.2;max-height:28px;overflow:hidden}.teus-live-mini-standby strong{color:#ffd647;font-size:14px}.teus-live-mini-standby small{background:#f4bc27;color:#16253c;font-size:9px;font-weight:850;border-radius:14px;padding:3px 8px}
@@ -2886,6 +2889,8 @@ document.addEventListener('DOMContentLoaded', function() {
         Notificaciones.mostrar('Pedido vaciado','info');
     });
     function actualizarListaItems() {
+        // V7.1: toda modificación real del pedido devuelve el monitor al alistamiento.
+        try { window.__teusPedidoModificado?.(); } catch (e) {}
         productosLista.innerHTML = '';
         let subtotal = 0;
         if (items.length === 0) {
@@ -4120,7 +4125,7 @@ document.addEventListener('DOMContentLoaded', function() {
      if(layer && !layer.classList.contains('active'))mon.__teusSetPayVisibleLocal?.(true,state.qr);
    }catch(e){}
  },1100);
- document.getElementById('teusPagarPicker')?.addEventListener('click',()=>window.__teusSetPayVisible(true));
+ document.getElementById('teusPagarPicker')?.addEventListener('click',()=>window.__teusSetPayVisible(!window.__teusIsPaymentOpen()));
  document.getElementById('teusCerrarQrPantalla')?.addEventListener('click',()=>window.__teusSetPayVisible(false));
  overlay?.addEventListener('click',e=>{if(e.target===overlay)window.__teusSetPayVisible(false)});
  document.addEventListener('keydown',e=>{if(e.key==='Escape'&&overlay?.style.display==='flex')window.__teusSetPayVisible(false)});
@@ -4173,11 +4178,14 @@ const $=id=>document.getElementById(id);const parent=window.opener || (window.pa
 let previous='';let current=[];let lastSummary='';let lastConnectionGood=false;
 const esMonitorIndependiente=!!window.opener && !window.frameElement;
 let ultimaActividad=Date.now(), ultimaFirmaPedido='', ofertaPos=0, ultCambio=0;
+let versionStandby=0; // cancela activaciones y transiciones anteriores
 const TIEMPO_STANDBY=2*60*1000, ROTACION=8000;
 function ofertasReales(){try{return parent?.__teusOfertasMonitor?.()||[]}catch(e){return []}}
-function salirStandby(){const el=$('teusStandby');if(el)el.classList.remove('active');ultimaActividad=Date.now()}
+function salirStandby(){versionStandby++;const el=$('teusStandby');if(el)el.classList.remove('active');$('teusStandbySlide')?.classList.remove('swap');ultimaActividad=Date.now()}
+window.__teusSalirSalvapantallasDesdeVentas=()=>{salirStandby();return true};
+window.__teusStandbyActivo=()=>!!$('teusStandby')?.classList.contains('active');
 function mostrarOferta(){const arr=ofertasReales();if(!arr.length){salirStandby();return}ofertaPos=ofertaPos%arr.length;const x=arr[ofertaPos],slide=$('teusStandbySlide');slide.classList.add('swap');
-const pintar=()=>{const photo=$('teusStandbyPhoto');photo.src=x.imagen||'';photo.alt=x.nombre;$('teusStandbyName').textContent=x.nombre;$('teusStandbyBefore').textContent='Antes: '+money(x.precioNormal);$('teusStandbyNow').textContent='Ahora: '+money(x.precioOferta);$('teusStandbySave').textContent='AHORRAS: '+money(x.ahorro);slide.classList.remove('swap')};
+const token=versionStandby;const pintar=()=>{if(token!==versionStandby)return;const photo=$('teusStandbyPhoto');photo.src=x.imagen||'';photo.alt=x.nombre;$('teusStandbyName').textContent=x.nombre;$('teusStandbyBefore').textContent='Antes: '+money(x.precioNormal);$('teusStandbyNow').textContent='Ahora: '+money(x.precioOferta);$('teusStandbySave').textContent='AHORRAS: '+money(x.ahorro);slide.classList.remove('swap')};
 if(!$('teusStandby').classList.contains('active'))pintar();else setTimeout(pintar,300);
 $('teusStandby').classList.add('active');ultCambio=Date.now()}
 function cicloStandby(){if(!esMonitorIndependiente)return;if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active')||$('light').classList.contains('active'))return;
@@ -4185,11 +4193,16 @@ if(!$('teusStandby').classList.contains('active')){if(Date.now()-ultimaActividad
 else if(Date.now()-ultCambio>=ROTACION){ofertaPos++;mostrarOferta()}}
 async function activarStandbyManual(){
  if(!esMonitorIndependiente)return false;
- if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active')){alert('Cierra el QR de pago antes de mostrar las ofertas.');return false;}
+ // Pulsar otra vez el botón: vuelve inmediatamente al alistamiento.
+ if($('teusStandby').classList.contains('active')){salirStandby();return true;}
  if($('light').classList.contains('active')){alert('Cierra la fotografía ampliada antes de mostrar las ofertas.');return false;}
+ // Los modos son excluyentes: al pedir ofertas, cerrar QR en el monitor.
+ if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active'))changePayment(false);
+ const token=++versionStandby;
  try{await parent?.__teusCargarOfertasPublicas?.()}catch(e){console.warn('No fue posible consultar las ofertas del catálogo público:',e)}
+ // Si llegó una nueva venta, QR u otra pulsación mientras cargaban ofertas, no mostrarlas.
+ if(token!==versionStandby || parent?.__teusIsPaymentOpen?.())return false;
  if(!ofertasReales().length){const info=parent?.__teusEstadoOfertas?.();alert('No se pudieron mostrar promociones del catálogo público. '+(info?.detalle||'Comprueba la conexión a Internet y el servicio de catálogo.'));return false;}
- if(parent?.__teusIsPaymentOpen?.())return false;
  ofertaPos=0; mostrarOferta();return true;
 }
 window.__teusProbarOfertas=activarStandbyManual;
@@ -4245,7 +4258,7 @@ function changePayment(visible){
  if(visible){alert('La pantalla de ventas debe permanecer abierta para mostrar el QR en ambos monitores.');return}
  window.__teusSetPayVisibleLocal(false);
 }
-$('pay').addEventListener('click',()=>changePayment(true));
+$('pay').addEventListener('click',()=>changePayment(!($('payLayer').classList.contains('active')||parent?.__teusIsPaymentOpen?.())));
 $('closePay').addEventListener('click',()=>changePayment(false));
 $('payLayer').addEventListener('click',e=>{if(e.target===$('payLayer'))changePayment(false)});
 if(esMonitorIndependiente){
@@ -4359,12 +4372,37 @@ document.getElementById('teusActivarSalvapantallas')?.addEventListener('click',(
   };
   intentar();
 });
+// V7.1: al editar/agregar/quitar artículos, volver al alistamiento sin tocar el QR.
+window.__teusPedidoModificado=function(){
+  try{if(monitorWindow&&!monitorWindow.closed)monitorWindow.__teusSalirSalvapantallasDesdeVentas?.()}catch(e){}
+};
 // V6.7: reflejo ligero de la ventana REAL del segundo monitor, sin captura de pantalla.
 (function setupLivePreview(){
  const $=id=>document.getElementById(id);
  const screen=$('teusLiveScreen');if(!screen)return;
  const status=$('teusLiveStatus'),off=$('teusLiveOff'),head=$('teusLiveMiniHead'),work=$('teusLiveMiniWork'),payment=$('teusLiveMiniPayment'),standby=$('teusLiveMiniStandby');
  const productBox=$('teusLiveMiniProducts'),summaryBox=$('teusLiveMiniSummary');
+ // V7.2: tocar la miniatura es una llamada para despertar la pantalla de ofertas.
+ // Solo se realiza si el segundo monitor realmente está en salvapantallas.
+ function despertarDesdeMiniatura(){
+   const w=monitorWindow;
+   if(!w || w.closed)return;
+   try {
+     if(w.__teusStandbyActivo?.()){
+       w.__teusSalirSalvapantallasDesdeVentas?.();
+       tick();
+     }
+   } catch(err){console.warn('No se pudo despertar el segundo monitor',err);}
+ }
+ screen.setAttribute('tabindex','0');
+ screen.setAttribute('title','Cuando esté mostrando ofertas, haz clic aquí para regresar al alistamiento');
+ screen.addEventListener('click',despertarDesdeMiniatura);
+ screen.addEventListener('keydown',ev=>{
+   if(ev.key==='Enter'||ev.key===' '){
+     ev.preventDefault();
+     despertarDesdeMiniatura();
+   }
+ });
  const money=v=>(Number(v)||0).toLocaleString('es-BO',{minimumFractionDigits:0,maximumFractionDigits:0})+' Bs';
  let lastSignature='',lastMode='',lastOffer='',lastQr='';
  function showMode(mode,connected){
@@ -4409,8 +4447,10 @@ document.getElementById('teusActivarSalvapantallas')?.addEventListener('click',(
  function tick(){
   let state=null;
   try{if(monitorWindow&&!monitorWindow.closed&&typeof monitorWindow.__teusGetLivePreviewState==='function')state=monitorWindow.__teusGetLivePreviewState()}catch(e){}
-  if(!state){if(lastMode!=='off'){lastMode='off';showMode('',false);lastSignature='';lastOffer='';lastQr='';}return;}
-  const mode=state.mode||'alistar';if(mode!==lastMode){lastMode=mode;showMode(mode,true)}
+  if(!state){screen.classList.remove('teus-wakeup-ready');if(lastMode!=='off'){lastMode='off';showMode('',false);lastSignature='';lastOffer='';lastQr='';}return;}
+  const mode=state.mode||'alistar';
+  screen.classList.toggle('teus-wakeup-ready',mode==='ofertas');
+  if(mode!==lastMode){lastMode=mode;showMode(mode,true)}
   if(mode==='alistar')refreshItems(state);
   if(mode==='pagar'){
    const src=state.qr||'';
@@ -4429,6 +4469,11 @@ document.getElementById('teusActivarSalvapantallas')?.addEventListener('click',(
 // Captura evita que el listener anterior abra el formulario de impresion.
 document.getElementById('imprimirDatosBtn')?.addEventListener('click',function(ev){
   ev.preventDefault();ev.stopImmediatePropagation();
+  // Misma tecla: primera pulsación muestra el QR; segunda lo cierra.
+  if(window.__teusIsPaymentOpen?.()){
+    window.__teusSetPayVisible(false);
+    return;
+  }
   const qr=window.__teusQrActual?.() || (()=>{try{return localStorage.getItem('teus_qr_local_v1')||''}catch(e){return ''}})();
   if(!qr){alert('Carga primero tu QR en el panel lateral de pagos.');return;}
   if(!monitorWindow || monitorWindow.closed)launch();
