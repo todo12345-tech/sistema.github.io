@@ -1938,11 +1938,31 @@ function teusPresentacionesEnCarrito(idStock){
  return partes.join(' + ');
 }
 function teusTextoSaldoStock(r){
- const total=unidadesTotalesFilaVenta(r),reservado=teusReservadas(r.id_stock),libre=Math.max(0,total-reservado);
- const upp=Math.max(1,nStock(r.unidades_por_paquete)||1),ppc=Math.max(1,nStock(r.paquetes_por_caja)||1);
- const perCaja=upp*ppc;let resto=libre;
- const cajas=Math.floor(resto/perCaja);resto%=perCaja;
- const paquetes=Math.floor(resto/upp);const unidades=resto%upp;
+ // V26.70: respetar el tipo de empaque que realmente consta en Stock.
+ // Si paquetes_por_caja no está definido, 1 paquete NO implica 1 caja física.
+ const cajasFisicas=Math.max(0,nStock(r.cajas));
+ const paquetesFisicos=Math.max(0,nStock(r.paquetes));
+ const unidadesFisicas=Math.max(0,nStock(r.unidades));
+ const upp=Math.max(1,nStock(r.unidades_por_paquete)||1);
+ const ppc=Math.max(1,nStock(r.paquetes_por_caja)||1);
+ const total=unidadesTotalesFilaVenta(r);
+ const reservado=teusReservadas(r.id_stock);
+ const libre=Math.max(0,total-reservado);
+ // Si no hay productos comprometidos, mostrar EXACTAMENTE lo registrado,
+ // sin convertir paquetes a cajas por una equivalencia implícita de 1:1.
+ if(reservado<=0){
+   return {total,reservado,libre,descripcion:`${cajasFisicas} caja(s) · ${paquetesFisicos} paquete(s) · ${unidadesFisicas} unidad(es)`};
+ }
+ // Cuando ya hay artículos comprometidos, calcular lo disponible expresado
+ // en presentaciones físicas, sin crear más cajas que las realmente existentes.
+ let resto=libre;
+ const porCaja=upp*ppc;
+ const cajas=Math.min(cajasFisicas,Math.floor(resto/porCaja));
+ resto-=cajas*porCaja;
+ const paquetesDisponibles=paquetesFisicos+(cajasFisicas-cajas)*ppc;
+ const paquetes=Math.min(paquetesDisponibles,Math.floor(resto/upp));
+ resto-=paquetes*upp;
+ const unidades=resto;
  return {total,reservado,libre,descripcion:`${cajas} caja(s) · ${paquetes} paquete(s) · ${unidades} unidad(es)`};
 }
 function renderVentaSmartStock(){
@@ -4421,13 +4441,28 @@ async function eliminarVenta(index, autorizacionAdmin = null) {
             motivo:String(confirm.value||'').trim()
         });
         if(!res.ok||!res.eliminada)throw Error(res.error||'No se confirmó la eliminación');
-        // Siempre recargar desde la hoja oficial; no mantener la venta en el respaldo local.
+        // V26.69: eliminar una fila y devolver las existencias son DOS resultados distintos.
+        // El backend es la única autoridad sobre los movimientos; nunca sumar stock desde HTML.
+        const unidadesRepuestas=Number(res.stock_repuesto);
+        const reposicionReportada=Number.isFinite(unidadesRepuestas)&&unidadesRepuestas>0;
+        const reposicionExplicitamenteFallida=(res.reposicion_ok===false||res.stock_reposicion_ok===false||res.stock_repuesto===0||res.stock_repuesto==='0'||res.reposicion_pendiente===true);
+        // Evitar que una consulta vieja pise el stock posterior a una reposición.
         ventasDelDia=ventasDelDia.filter(v=>v!==venta);
         ultimaFirmaGoogleVentas='';
         guardarVentasLocalSeguro();
-        await cargarVentasDiaDesdeSheet({notificar:false,forzar:true});
+        try { await cargarVentasDiaDesdeSheet({notificar:false,forzar:true}); }
+        catch(err){console.warn('No se pudo refrescar la tabla después de eliminar',err);}
         actualizarVentasDelDia();
-        Notificaciones.mostrar('Venta eliminada. Unidades devueltas a Stock: '+(res.stock_repuesto||0)+'. Evento: '+res.id_evento,'success',7000);
+        try { await cargarStockInventario(); }
+        catch(err){console.warn('No se pudo comprobar Stock actualizado',err);}
+        const evento=String(res.id_evento||id||'sin identificador');
+        if(reposicionExplicitamenteFallida){
+            await Swal.fire({icon:'error',title:'Venta eliminada, pero Stock NO fue confirmado',html:'<p>La venta se eliminó, pero el servidor informó <b>0 unidades repuestas</b> o una reposición pendiente.</p><p><b>No vuelvas a eliminar ni sumes mercadería manualmente.</b> Revisa el movimiento y la venta con el administrador.</p><p style="font-size:12px">Referencia: '+evento.replace(/[&<>"']/g,'')+'</p>',confirmButtonText:'Entendido'});
+        }else if(reposicionReportada){
+            Notificaciones.mostrar('Venta eliminada. El servidor informa '+unidadesRepuestas+' unidad(es) repuesta(s). Evento: '+evento,'success',9000);
+        }else{
+            await Swal.fire({icon:'warning',title:'Eliminación realizada; reposición sin confirmar',html:'<p>La venta fue eliminada, pero el servidor <b>no indicó cuántas unidades devolvió</b>.</p><p>Verifica Stock y sus movimientos antes de efectuar cualquier otro ajuste.</p><p style="font-size:12px">Referencia: '+evento.replace(/[&<>"']/g,'')+'</p>',confirmButtonText:'Entendido'});
+        }
     }catch(e){console.error(e);Notificaciones.mostrar('No se eliminó: '+(e.message||e),'error',9000);}
 }
 
