@@ -2311,26 +2311,73 @@ document.addEventListener('DOMContentLoaded', function() {
         return String(t || '').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().replace(/[^a-z0-9]+/g,' ').trim();
     }
 
+    // V7.4: Lectura de Stock exclusivamente informativa; nunca registra salidas.
+    // Una única consulta en vuelo evita respuestas atrasadas que pisen datos frescos.
+    let mayorStockEnCurso = null;
+    let mayorUltimaConsultaStock = 0;
+    let mayorStockError = '';
+    let mayorStockSolicitud = 0;
     async function cargarStockMayorista() {
-        try {
-            // Lectura DIRECTA desde Google Sheets.
-            // No consume ninguna operación GET de SheetDB.
-            const url = `${STOCK_GOOGLE_CSV_URL}&tq=${encodeURIComponent('select *')}&_=${Date.now()}`;
-            const r = await fetch(url, { cache: 'no-store', credentials: 'omit' });
-            if (!r.ok) throw new Error(`Stock Google no disponible (${r.status})`);
-            const csv = await r.text();
-            const inicio = csv.trim().slice(0, 160).toLowerCase();
-            if (!csv.trim() || inicio.includes('<html') || inicio.includes('<!doctype html')) {
-                throw new Error('Google Stock devolvió una respuesta inválida');
+        if (mayorStockEnCurso) return mayorStockEnCurso;
+        const solicitud = ++mayorStockSolicitud;
+        mayorStockEnCurso = (async function(){
+            let error = null;
+            const nonce = Date.now() + '_' + Math.random().toString(36).slice(2);
+            const urls = [
+                `${STOCK_GOOGLE_CSV_URL}&tq=${encodeURIComponent('select *')}&_=${nonce}`,
+                `https://docs.google.com/spreadsheets/d/${STOCK_GOOGLE_SHEET_ID}/export?format=csv&sheet=stock&_=${nonce}`
+            ];
+            for (const url of urls) {
+                try {
+                    const r = await fetch(url, { cache:'no-store', credentials:'omit' });
+                    if (!r.ok) throw new Error('HTTP '+r.status);
+                    const csv = await r.text();
+                    const inicio = csv.trim().slice(0,160).toLowerCase();
+                    if (!csv.trim() || inicio.includes('<html') || inicio.includes('<!doctype html')) throw new Error('Respuesta no CSV');
+                    const filas = parseCSVStockMayorista(csv);
+                    if (!filas.length || !filas.some(x => Object.keys(x).some(k => normalizarNombreStock(k)==='nombre')))
+                        throw new Error('CSV sin columnas de Stock verificables');
+                    if (solicitud === mayorStockSolicitud) {
+                        stockDataMayorista = filas;
+                        mayorUltimaConsultaStock = Date.now();
+                        mayorStockError = '';
+                    }
+                    return true;
+                } catch (e) {error=e;}
             }
-
-            const filas = parseCSVStockMayorista(csv);
-            stockDataMayorista = Array.isArray(filas) ? filas : [];
-        } catch (e) {
-            console.warn('No se pudo consultar stock desde Google Sheets:', e);
-            stockDataMayorista = [];
-        }
+            mayorStockError=String((error && error.message)||'No se pudo leer Stock');
+            console.warn('Stock mayorista: conservando última lectura confirmada',error);
+            return false;
+        })();
+        try {return await mayorStockEnCurso;} finally {mayorStockEnCurso=null;}
     }
+    function mayorEstadoConsultaStock() {
+        if (!mayorUltimaConsultaStock) return mayorStockError?'Stock no verificable; vuelve a consultar.':'Consultando Stock…';
+        const seg=Math.floor((Date.now()-mayorUltimaConsultaStock)/1000);
+        return (mayorStockError?'Última lectura válida, sin conexión nueva · ':'Actualizado hace ')+seg+' s · Solo consulta';
+    }
+    function mayorMostrarStockActualizado() {
+        if (modalCantidad.style.display!=='flex' || !productoSeleccionado) return;
+        renderStockConsulta(productoSeleccionado);
+        const e=obtenerEmpaqueProducto(productoSeleccionado);
+        const equivalencias=[];
+        if (e.unidadesPorPaquete) equivalencias.push(`1 paquete = ${e.unidadesPorPaquete} unidades`);
+        if (e.paquetesPorCaja) equivalencias.push(`1 caja = ${e.paquetesPorCaja} paquetes`);
+        document.getElementById('modalEquivalencias').textContent=equivalencias.length?'Presentación registrada: '+equivalencias.join(' · '):'Presentación: equivalencias sin verificar';
+        actualizarModalPedido();
+    }
+    async function mayorRefrescarStockVisible(forzar=false) {
+        if (document.hidden && !forzar) return;
+        const abierto=modalCantidad.style.display==='flex';
+        // Modal abierto: cada 5 s; en espera: 25 s. Al recuperar el foco, consultar siempre.
+        const periodo=abierto?4500:25000;
+        if (!forzar && mayorUltimaConsultaStock && Date.now()-mayorUltimaConsultaStock<periodo) return;
+        await cargarStockMayorista();
+        mayorMostrarStockActualizado();
+    }
+    setInterval(()=>mayorRefrescarStockVisible(),5000);
+    window.addEventListener('focus',()=>mayorRefrescarStockVisible(true));
+    document.addEventListener('visibilitychange',()=>{if (!document.hidden) mayorRefrescarStockVisible(true);});
 
     function parseCSVStockMayorista(csv) {
         const filas = [];
@@ -2375,9 +2422,10 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function renderStockConsulta(producto) {
         const box = document.getElementById('stockConsultaContenido');
+        if(!box || !producto)return;
         const filas = stockDelProducto(producto);
         if (!filas.length) {
-            box.innerHTML = '<b>Sin stock registrado todavía.</b><br><span style="color:#777">Puedes continuar tomando el pedido normalmente.</span>';
+            box.innerHTML = `<b>${mayorStockError?'No se puede verificar stock nuevo.':'Sin stock registrado para este producto.'}</b><div style="margin-top:5px;font-size:11px;color:#687782">${mayorEstadoConsultaStock()} · Esta consulta NO descuenta inventario.</div>`;
             return;
         }
         box.innerHTML = filas.map(x => {
@@ -2385,8 +2433,11 @@ document.addEventListener('DOMContentLoaded', function() {
             if(nStock(x.cajas)) partes.push(`${nStock(x.cajas)} caja(s)`);
             if(nStock(x.paquetes)) partes.push(`${nStock(x.paquetes)} paquete(s)`);
             if(nStock(x.unidades)) partes.push(`${nStock(x.unidades)} unidad(es)`);
-            return `<div style="padding:5px 0;border-bottom:1px solid #f0e4bd"><b>${x.ubicacion || 'Sin ubicación'}</b>: ${partes.length ? partes.join(' · ') : '0'}</div>`;
-        }).join('');
+            const up=nStock(x.unidades_por_paquete)||nStock(producto.numUnidades);
+            const pc=nStock(x.paquetes_por_caja);
+            const eq=up>0 ? nStock(x.unidades)+nStock(x.paquetes)*up+(pc>0?nStock(x.cajas)*pc*up:0) : null;
+            return `<div style="padding:5px 0;border-bottom:1px solid #f0e4bd"><b>${mayorEscapar(x.ubicacion || 'Sin ubicación')}</b>: ${partes.length?partes.join(' · '):'0'}${eq!==null?`<span style="color:#137a51;font-weight:700"> · ${eq} unidades equivalentes</span>`:''}</div>`;
+        }).join('')+`<div style="font-size:11px;color:${mayorStockError?'#b45309':'#687782'};margin-top:6px">${mayorEstadoConsultaStock()} · No descuenta ni reserva stock.</div>`;
     }
 
     function obtenerEmpaqueProducto(producto) {
@@ -2491,6 +2542,8 @@ document.addEventListener('DOMContentLoaded', function() {
         renderStockConsulta(producto);
         actualizarModalPedido();
         modalCantidad.style.display='flex';
+        // Reconsulta el Stock real al abrir el producto, sin recargar la página.
+        mayorRefrescarStockVisible(true);
         setTimeout(function(){
             const btn = modalCantidad.querySelector('[data-ptipo="unidades"][data-pdelta="1"]');
             if (btn) btn.focus();
@@ -4179,30 +4232,52 @@ let previous='';let current=[];let lastSummary='';let lastConnectionGood=false;
 const esMonitorIndependiente=!!window.opener && !window.frameElement;
 let ultimaActividad=Date.now(), ultimaFirmaPedido='', ofertaPos=0, ultCambio=0;
 let versionStandby=0; // cancela activaciones y transiciones anteriores
+let cargaStandby=false;
+let suspenderStandbyHasta=0; // evita que vuelva a aparecer inmediatamente tras despertarlo
 const TIEMPO_STANDBY=2*60*1000, ROTACION=8000;
 function ofertasReales(){try{return parent?.__teusOfertasMonitor?.()||[]}catch(e){return []}}
-function salirStandby(){versionStandby++;const el=$('teusStandby');if(el)el.classList.remove('active');$('teusStandbySlide')?.classList.remove('swap');ultimaActividad=Date.now()}
-window.__teusSalirSalvapantallasDesdeVentas=()=>{salirStandby();return true};
+function salirStandby(){
+ versionStandby++;
+ cargaStandby=false;
+ const el=$('teusStandby');
+ if(el){el.classList.remove('active');el.style.removeProperty('display')}
+ $('teusStandbySlide')?.classList.remove('swap');
+ ultimaActividad=Date.now();
+ suspenderStandbyHasta=ultimaActividad+TIEMPO_STANDBY;
+ return true;
+}
+window.__teusSalirSalvapantallasDesdeVentas=salirStandby;
+window.__teusWakeMonitorFromVentas=salirStandby;
 window.__teusStandbyActivo=()=>!!$('teusStandby')?.classList.contains('active');
 function mostrarOferta(){const arr=ofertasReales();if(!arr.length){salirStandby();return}ofertaPos=ofertaPos%arr.length;const x=arr[ofertaPos],slide=$('teusStandbySlide');slide.classList.add('swap');
 const token=versionStandby;const pintar=()=>{if(token!==versionStandby)return;const photo=$('teusStandbyPhoto');photo.src=x.imagen||'';photo.alt=x.nombre;$('teusStandbyName').textContent=x.nombre;$('teusStandbyBefore').textContent='Antes: '+money(x.precioNormal);$('teusStandbyNow').textContent='Ahora: '+money(x.precioOferta);$('teusStandbySave').textContent='AHORRAS: '+money(x.ahorro);slide.classList.remove('swap')};
 if(!$('teusStandby').classList.contains('active'))pintar();else setTimeout(pintar,300);
 $('teusStandby').classList.add('active');ultCambio=Date.now()}
-function cicloStandby(){if(!esMonitorIndependiente)return;if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active')||$('light').classList.contains('active'))return;
-if(!$('teusStandby').classList.contains('active')){if(Date.now()-ultimaActividad>=TIEMPO_STANDBY&&ofertasReales().length)mostrarOferta()}
+function cicloStandby(){
+ if(!esMonitorIndependiente || cargaStandby)return;
+ if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active')||$('light').classList.contains('active'))return;
+ if(!$('teusStandby').classList.contains('active')){
+   if(Date.now()>=suspenderStandbyHasta && Date.now()-ultimaActividad>=TIEMPO_STANDBY && ofertasReales().length)mostrarOferta();
+ }
 else if(Date.now()-ultCambio>=ROTACION){ofertaPos++;mostrarOferta()}}
 async function activarStandbyManual(){
  if(!esMonitorIndependiente)return false;
- // Pulsar otra vez el botón: vuelve inmediatamente al alistamiento.
- if($('teusStandby').classList.contains('active')){salirStandby();return true;}
- if($('light').classList.contains('active')){alert('Cierra la fotografía ampliada antes de mostrar las ofertas.');return false;}
- // Los modos son excluyentes: al pedir ofertas, cerrar QR en el monitor.
+ // SEGUNDA PULSACIÓN: cancelar también si las ofertas aún estaban cargando.
+ if($('teusStandby').classList.contains('active')||cargaStandby){salirStandby();return true;}
+ if($('light').classList.contains('active'))return false;
+ // QR y salvapantallas no se superponen: cerrar el QR desde su autoridad principal.
  if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active'))changePayment(false);
  const token=++versionStandby;
- try{await parent?.__teusCargarOfertasPublicas?.()}catch(e){console.warn('No fue posible consultar las ofertas del catálogo público:',e)}
- // Si llegó una nueva venta, QR u otra pulsación mientras cargaban ofertas, no mostrarlas.
- if(token!==versionStandby || parent?.__teusIsPaymentOpen?.())return false;
- if(!ofertasReales().length){const info=parent?.__teusEstadoOfertas?.();alert('No se pudieron mostrar promociones del catálogo público. '+(info?.detalle||'Comprueba la conexión a Internet y el servicio de catálogo.'));return false;}
+ cargaStandby=true;
+ try{await parent?.__teusCargarOfertasPublicas?.()}catch(e){console.warn('Ofertas no disponibles:',e)}
+ if(token!==versionStandby)return false;
+ cargaStandby=false;
+ if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active'))return false;
+ if(!ofertasReales().length){
+   const info=parent?.__teusEstadoOfertas?.();
+   alert('No hay promociones vigentes disponibles. '+(info?.detalle||''));
+   salirStandby();return false;
+ }
  ofertaPos=0; mostrarOferta();return true;
 }
 window.__teusProbarOfertas=activarStandbyManual;
@@ -4263,6 +4338,7 @@ $('closePay').addEventListener('click',()=>changePayment(false));
 $('payLayer').addEventListener('click',e=>{if(e.target===$('payLayer'))changePayment(false)});
 if(esMonitorIndependiente){
 $('teusStandby').addEventListener('pointerdown',salirStandby);
+$('teusStandby').addEventListener('click',salirStandby);
 window.addEventListener('keydown',e=>{if($('teusStandby').classList.contains('active')){salirStandby();e.preventDefault()}},true);
 // Registrar actividad real, sin que los refrescos automáticos reinicien el reloj.
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#teusStandby'))ultimaActividad=Date.now()},true);
@@ -4356,18 +4432,28 @@ document.getElementById('abrirModoAlistar')?.addEventListener('click',function(e
   e.preventDefault();e.stopImmediatePropagation();openLaptopMirror();
 },true);
 
+let intentoSalvaVersion=0,esperandoSalva=false;
 document.getElementById('teusActivarSalvapantallas')?.addEventListener('click',()=>{
+  const accion=++intentoSalvaVersion;
+  if(esperandoSalva){esperandoSalva=false;try{monitorWindow?.__teusWakeMonitorFromVentas?.()}catch(e){}return;}
+  esperandoSalva=true;
   // Abrir la ventana en el gesto del usuario y activar cuando termine de construir su HTML.
   if(!monitorWindow || monitorWindow.closed) launch();
-  if(!monitorWindow || monitorWindow.closed) return;
+  if(!monitorWindow || monitorWindow.closed){esperandoSalva=false;return;}
   const w=monitorWindow;
   let tries=0;
   const intentar=()=>{
-    if(w.closed){alert('Se cerró la ventana del segundo monitor.');return}
-    try {
-      if(typeof w.__teusActivarStandbyDesdeVentas==='function'){w.__teusActivarStandbyDesdeVentas();return;}
-    } catch(e){ console.error('Error al activar salvapantallas:',e); }
+    if(accion!==intentoSalvaVersion)return;
+    if(w.closed){esperandoSalva=false;alert('Se cerró la ventana del segundo monitor.');return}
+    try{
+      if(typeof w.__teusActivarStandbyDesdeVentas==='function'){
+        esperandoSalva=false;
+        w.__teusActivarStandbyDesdeVentas();
+        return;
+      }
+    }catch(e){console.error('Error de salvapantallas:',e)}
     if(++tries<20){setTimeout(intentar,150);return;}
+    esperandoSalva=false;
     alert('No se pudo iniciar el salvapantallas. Cierra el segundo monitor y ábrelo de nuevo.');
   };
   intentar();
@@ -4388,11 +4474,13 @@ window.__teusPedidoModificado=function(){
    const w=monitorWindow;
    if(!w || w.closed)return;
    try {
-     if(w.__teusStandbyActivo?.()){
-       w.__teusSalirSalvapantallasDesdeVentas?.();
-       tick();
+     const real=!!w.__teusStandbyActivo?.();
+     if(real || screen.classList.contains('teus-wakeup-ready')){
+       w.__teusWakeMonitorFromVentas?.();
+       // Actualiza la vista inmediatamente, no esperar al próximo sondeo.
+       lastMode='';tick();
      }
-   } catch(err){console.warn('No se pudo despertar el segundo monitor',err);}
+   }catch(err){console.warn('No se pudo despertar el segundo monitor',err);}
  }
  screen.setAttribute('tabindex','0');
  screen.setAttribute('title','Cuando esté mostrando ofertas, haz clic aquí para regresar al alistamiento');
@@ -4465,32 +4553,38 @@ window.__teusPedidoModificado=function(){
  $('teusLiveOpenLarge')?.addEventListener('click',()=>{if(typeof openLaptopMirror==='function')openLaptopMirror()});
  tick();setInterval(tick,650);
 })();
-// El antiguo botón de imprimir datos muestra el QR en el monitor externo y su miniatura.
-// Captura evita que el listener anterior abra el formulario de impresion.
+// Mostrar QR: cada clic cancela cualquier apertura anterior pendiente.
+let intentoQrVersion=0,qrEsperando=false;
 document.getElementById('imprimirDatosBtn')?.addEventListener('click',function(ev){
   ev.preventDefault();ev.stopImmediatePropagation();
   // Misma tecla: primera pulsación muestra el QR; segunda lo cierra.
-  if(window.__teusIsPaymentOpen?.()){
+  const accion=++intentoQrVersion;
+  if(window.__teusIsPaymentOpen?.()||qrEsperando){
+    qrEsperando=false;
     window.__teusSetPayVisible(false);
     return;
   }
+  qrEsperando=true;
   const qr=window.__teusQrActual?.() || (()=>{try{return localStorage.getItem('teus_qr_local_v1')||''}catch(e){return ''}})();
-  if(!qr){alert('Carga primero tu QR en el panel lateral de pagos.');return;}
+  if(!qr){qrEsperando=false;alert('Carga primero tu QR en el panel lateral de pagos.');return;}
   if(!monitorWindow || monitorWindow.closed)launch();
-  if(!monitorWindow || monitorWindow.closed)return;
+  if(!monitorWindow || monitorWindow.closed){qrEsperando=false;return;}
   // Asegurar que el codigo del segundo monitor termino de inicializarse.
   const w=monitorWindow;
   let attempts=0;
   const show=()=>{
-    if(w.closed){alert('Se cerro el segundo monitor. Vuelve a abrirlo.');return;}
+    if(accion!==intentoQrVersion)return; // segunda pulsación canceló la primera
+    if(w.closed){qrEsperando=false;alert('Se cerró el segundo monitor. Vuelve a abrirlo.');return;}
     try{
       if(typeof w.__teusSetPayVisibleLocal==='function' && typeof window.__teusSetPayVisible==='function'){
+        qrEsperando=false;
         window.__teusSetPayVisible(true);
         return;
       }
     }catch(err){console.warn('QR: esperando monitor',err)}
     if(++attempts<30){setTimeout(show,100);return;}
-    alert('El segundo monitor no respondio. Cierralo y abre una ventana nueva.');
+    qrEsperando=false;
+    alert('El segundo monitor no respondió. Cierra esa ventana y abre una nueva.');
   };
   show();
 },true);
