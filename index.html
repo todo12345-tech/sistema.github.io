@@ -3909,7 +3909,7 @@ async function cambiarSucursalSeguroV2631(){
 }
 // Editar solo ventas modernas con ID. No modifica Stock ni la cantidad realmente pagada.
 async function editarVentaSeguraV2631(index){
-  if(!esAdministrador()){Notificaciones.mostrar('Solo ADMIN puede editar ventas.','warning');return;}
+  if(!currentUser || !['admin','encargado'].includes(normalizarRolSistema(currentUser.rol))){Notificaciones.mostrar('Solo ADMIN o ENCARGADO pueden editar ventas.','warning');return;}
   const venta=ventasDelDia[index]; if(!venta)return;
   const id=String(venta.id_venta||'').trim();
   // Para ventas históricas se usa una huella verificada en servidor, nunca una fila supuesta.
@@ -3925,6 +3925,11 @@ async function editarVentaSeguraV2631(index){
   const lineas=partesProductos.map((descripcion,i)=>({descripcion,monto:partesMontos[i]??''}));
   const estructuraCorrecta=partesProductos.length===partesMontos.length && lineas.every(l=>l.descripcion && l.monto!=='' && Number.isFinite(Number(l.monto.replace(',','.'))) && Number(l.monto.replace(',','.'))>=0);
   let eliminados=0;
+  const metodoOriginal=String(venta.metodo_pago||'').trim().toLowerCase();
+  const mOriginal=metodoOriginal.includes('mixto')?'Mixto':metodoOriginal.includes('qr')?'QR':'Efectivo';
+  let agregadoSeq=0;
+  const parseMoney=v=>Number(String(v??'').replace(',','.'));
+  const extraInputs=()=>`<div style="display:grid;grid-template-columns:1fr 1fr;gap:8px"><div><label style="display:block;font-size:12px">Método de cobro correcto</label><select id="ev31_metodo" class="swal2-select" style="width:100%;margin:0"><option value="Efectivo" ${mOriginal==='Efectivo'?'selected':''}>Efectivo</option><option value="QR" ${mOriginal==='QR'?'selected':''}>QR</option><option value="Mixto" ${mOriginal==='Mixto'?'selected':''}>Mixto</option></select></div><div id="ev31_mix_box" style="display:none"><label style="display:block;font-size:12px">Cobrado en efectivo (Bs)</label><input id="ev31_cash" type="number" min="0" step="0.01" value="${escape(String(venta.monto_efectivo||''))}" style="width:100%;padding:9px"/></div></div><p id="ev31_pago_resumen" style="color:#37516b;font-size:12px;margin:7px 0"></p>`;
   // V26.67: cambio de total solo si el administrador confirma devolución QR ya realizada.
   const mostrarFilas=()=>{
     const cont=document.getElementById('ev31_lista');
@@ -3936,9 +3941,10 @@ async function editarVentaSeguraV2631(index){
       const cantidad=parsed?parsed[1]:'';
       const presentacion=parsed?parsed[2]:'';
       const detalle=parsed?`<div style="display:flex;align-items:center;gap:6px;margin-top:8px;flex-wrap:wrap"><label style="font-size:12px;margin:0">Cantidad</label><input type="number" min="1" step="1" value="${escape(cantidad)}" data-ev-cant="${i}" style="width:74px;padding:8px;border:1px solid #cbd5e1;border-radius:7px"><span style="font-size:12px;color:#64748b">${escape(presentacion)}</span></div>`:`<small style="display:block;color:#64748b;margin-top:6px">Descripción original conservada</small>`;
+      const nombreEditable=l.nuevo?`<input type="text" data-ev-nombre="${i}" value="${escape(l.descripcion)}" placeholder="Ej.: 2 paquetes - Producto" style="width:100%;padding:9px;border:1px solid #bbb;border-radius:6px">`:`<strong style="display:block;overflow-wrap:anywhere;margin-top:4px;color:#18344d;font-size:14px">${escape(textoNombre)}</strong>`;
       return `<div style="border:1px solid #dbe4ec;border-radius:12px;padding:12px;margin-bottom:9px;background:#fff;text-align:left" data-ev-fila="${i}">
         <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
-          <div style="min-width:0;flex:1"><div style="font-size:11px;color:#64748b;font-weight:700">PRODUCTO ${i+1}</div><strong style="display:block;overflow-wrap:anywhere;margin-top:4px;color:#18344d;font-size:14px">${escape(textoNombre)}</strong>${detalle}</div>
+          <div style="min-width:0;flex:1"><div style="font-size:11px;color:#64748b;font-weight:700">PRODUCTO ${i+1}</div>${nombreEditable}${detalle}</div>
           <button type="button" data-ev-borrar="${i}" style="border:1px solid #fecaca;background:#fff1f2;color:#b91c1c;padding:8px;border-radius:8px;cursor:pointer;font-size:12px;width:auto;min-width:72px">✕ Quitar</button>
         </div>
         <label style="font-size:12px;margin:9px 0 4px;display:block">Importe registrado (Bs)</label><input type="number" min="0" step="0.01" data-ev-monto="${i}" value="${escape(String(l.monto).replace(',','.'))}" style="max-width:180px;width:100%;padding:9px;border-radius:8px;border:1px solid #cbd5e1;font-weight:700">
@@ -3961,6 +3967,7 @@ async function editarVentaSeguraV2631(index){
     document.querySelectorAll('#ev31_lista [data-ev-fila]').forEach(div=>{
       const idx=Number(div.dataset.evFila),l=lineas[idx];if(!l||l.eliminado)return;
       const monto=div.querySelector('[data-ev-monto]');if(monto)l.monto=monto.value;
+      const nuevoNombre=div.querySelector('[data-ev-nombre]');if(nuevoNombre)l.descripcion=nuevoNombre.value.trim();
       const cant=div.querySelector('[data-ev-cant]');
       if(cant){
         const parsed=l.descripcion.match(/^(\d+)\s+(unidad(?:es)?|paquete(?:s)?|caja(?:s)?)\s*-\s*(.+)$/i);
@@ -3972,16 +3979,21 @@ async function editarVentaSeguraV2631(index){
   };
   const r=await Swal.fire({
     title:'Editar venta',width:'min(740px,97vw)',
-    html:`<div style="text-align:left"><p style="font-size:12px;color:#475569;margin-bottom:10px">${id?'ID: '+escape(id):'Venta anterior sin ID (se verificará contra el registro original)'} · Solo ADMIN</p>${formulario}
+    html:`<div style="text-align:left"><p style="font-size:12px;color:#475569;margin-bottom:10px">${id?'ID: '+escape(id):'Venta anterior sin ID (se verificará contra el registro original)'} · Permiso: ${escape(normalizarRolSistema(currentUser.rol))}</p>${formulario}
       <h3 style="margin:18px 0 8px;font-size:16px;color:#18344d">Productos de esta venta</h3>
       <p style="font-size:12px;color:#475569;margin:0 0 10px">Cada producto está unido a su importe. Puedes corregir cantidades, montos o quitar una línea completa sin usar el símbolo |.</p>
       ${estructuraCorrecta?'':`<p style="padding:10px;border:1px solid #fca5a5;background:#fff1f2;color:#991b1b;border-radius:8px">Esta venta tiene datos de productos o importes incompletos/descuadrados. No se permite modificar el detalle automáticamente. Revisa el registro original.</p>`}
-      <div id="ev31_lista"></div><p id="ev31_resumen" style="padding:11px;background:#eaf3fb;border-radius:8px;font-size:12px;font-weight:700;color:#173b5a"></p>
+      <div id="ev31_lista"></div><button type="button" id="ev31_agregar" style="background:#eef7ff;color:#145a9b;border:1px solid #9dccf0;padding:9px;border-radius:9px;width:100%;font-weight:700">+ Agregar otro producto al registro</button><p style="font-size:11px;color:#925b16;margin:6px 0">Importante: agregar o aumentar productos requiere conciliación de Stock en el servidor. Esta edición no inventará ni descontará existencias.</p><p id="ev31_resumen" style="padding:11px;background:#eaf3fb;border-radius:8px;font-size:12px;font-weight:700;color:#173b5a"></p>
       <p style="color:#92400e;font-size:12px;margin:10px 0;background:#fffbeb;padding:10px;border-radius:8px">Si eliminas productos, el total se recalcula. Para reducir una venta QR debes confirmar que el dinero de la diferencia YA fue devuelto al cliente. No repone Stock automáticamente.</p>
       <label style="display:flex;align-items:flex-start;gap:9px;margin:14px 0;padding:11px;border:1px solid #fbbf24;border-radius:9px;background:#fffbeb;font-size:13px;color:#854d0e"><input type="checkbox" id="ev31_reembolso_confirmado" style="width:18px;height:18px;flex-shrink:0"><span><b>Confirmo que ya hice la devolución de dinero por QR al cliente.</b> Obligatorio si el total disminuye. El sistema registrará la diferencia en el historial y actualizará el monto QR de la venta; no enviará ningún reembolso bancario.</span></label>
-      <label style="display:block;text-align:left;margin:12px 0 4px">Motivo obligatorio</label><input id="ev31_motivo" class="swal2-input" style="width:100%;margin:0" placeholder="Ej.: corrección administrativa de producto"></div>`,
+      <h3 style="margin:15px 0 7px;font-size:15px">Cobro registrado</h3>${extraInputs()}<label style="display:block;text-align:left;margin:12px 0 4px">Confirma tu contraseña de usuario para autorizar la edición</label><input id="ev31_clave" type="password" autocomplete="off" class="swal2-input" style="width:100%;margin:0" placeholder="Contraseña de tu cuenta"><label style="display:block;text-align:left;margin:12px 0 4px">Motivo obligatorio</label><input id="ev31_motivo" class="swal2-input" style="width:100%;margin:0" placeholder="Ej.: corrección administrativa de producto"></div>`,
     showCancelButton:true,confirmButtonText:'Guardar corrección',cancelButtonText:'Cancelar',
-    didOpen:()=>{mostrarFilas();if(!estructuraCorrecta)document.getElementById('ev31_lista').style.pointerEvents='none';},
+    didOpen:()=>{mostrarFilas();if(!estructuraCorrecta){document.getElementById('ev31_lista').style.pointerEvents='none';document.getElementById('ev31_agregar').disabled=true;}
+      document.getElementById('ev31_agregar').addEventListener('click',()=>{capturarFilas();lineas.push({descripcion:'',monto:'0.00',nuevo:true});agregadoSeq++;mostrarFilas();});
+      const metodo=document.getElementById('ev31_metodo');
+      const actualizarPago=()=>{const mixto=metodo.value==='Mixto';document.getElementById('ev31_mix_box').style.display=mixto?'block':'none';const total=lineas.filter(l=>!l.eliminado).reduce((a,l)=>a+(parseMoney(l.monto)||0),0);const cash=metodo.value==='Efectivo'?total:metodo.value==='QR'?0:parseMoney(document.getElementById('ev31_cash').value);document.getElementById('ev31_pago_resumen').textContent='Efectivo: Bs '+(Number.isFinite(cash)?cash:0).toFixed(2)+' | QR: Bs '+(Number.isFinite(cash)?Math.max(0,total-cash):0).toFixed(2);};
+      metodo.addEventListener('change',actualizarPago);document.getElementById('ev31_cash').addEventListener('input',actualizarPago);document.getElementById('ev31_lista').addEventListener('input',()=>{capturarFilas();actualizarPago();});actualizarPago();
+    },
     preConfirm:()=>{
       const data=Object.fromEntries(campos.map(([k])=>[k,document.getElementById('ev31_'+k).value.trim()]));
       const motivo=document.getElementById('ev31_motivo').value.trim();
@@ -3994,10 +4006,24 @@ async function editarVentaSeguraV2631(index){
       }
       data.productos=activas.map(l=>l.descripcion).join(' | ');
       data.montos=activas.map(l=>Number(l.monto).toFixed(2)).join(' | ');
+      const claveEditor=document.getElementById('ev31_clave').value;
+      if(!claveEditor){Swal.showValidationMessage('Ingresa tu contraseña para autorizar la edición');return false;}
+      data.autorizacion_editor={usuario:currentUser.username,password:claveEditor};
       data.motivo=motivo;
       const nuevoTotal=activas.reduce((a,l)=>a+Number(l.monto),0);
       const original=Number(venta.total_venta||0);
-      if (nuevoTotal > original + 0.011) {Swal.showValidationMessage('No se puede aumentar una venta histórica desde este editor.');return false;}
+      const metodo=document.getElementById('ev31_metodo').value;
+      const montoCash=metodo==='Efectivo'?nuevoTotal:metodo==='QR'?0:parseMoney(document.getElementById('ev31_cash').value);
+      if(!Number.isFinite(montoCash)||montoCash<0||montoCash>nuevoTotal||(metodo==='Mixto'&&(montoCash<=0||montoCash>=nuevoTotal))){Swal.showValidationMessage('Revisa la distribución de efectivo y QR; debe sumar exactamente el total.');return false;}
+      data.metodo_pago=metodo;data.monto_efectivo=Number(montoCash.toFixed(2));data.monto_qr=Number((nuevoTotal-montoCash).toFixed(2));
+      data.metodo_pago_anterior=venta.metodo_pago||'';data.monto_efectivo_anterior=venta.monto_efectivo||0;data.monto_qr_anterior=venta.monto_qr||0;
+      const originalDetalle=String(venta.productos||'').trim()+'|'+String(venta.montos||'').trim();
+      const cambiaProductos=(data.productos+'|'+data.montos)!==originalDetalle;
+      if(cambiaProductos && (agregadoSeq>0 || nuevoTotal>original+0.011)){
+        data.requiere_conciliacion_stock=true;
+        data.stock_sin_cambio_no_autorizado=true;
+      }
+      if(nuevoTotal>original+0.011 && metodo!==mOriginal && !data.requiere_conciliacion_stock){Swal.showValidationMessage('No es seguro aumentar el total sin una conciliación de caja y stock.');return false;}
       data.total_nuevo=Number(nuevoTotal.toFixed(2));
       data.total_original=Number(original.toFixed(2));
       if (nuevoTotal < original - 0.011) {
@@ -4014,7 +4040,16 @@ async function editarVentaSeguraV2631(index){
     const res=await backendV26('editar_venta',{id_venta:id,huella_legacy:huellaLegada,sucursal:sucursalSeleccionada,usuario:currentUser.username,rol:currentUser.rol,...r.value});
     if(!res.ok)throw Error(res.error||'No confirmado');
     await cargarVentasDiaDesdeSheet({notificar:false,forzar:true});
-    Notificaciones.mostrar('Venta corregida en Sheets; total y devolución registrados en historial.','success');
+    const hallada=ventasDelDia.find(v=>id?String(v.id_venta||'').trim()===id:(String(v.fecha||'')===huellaLegada.fecha&&String(v.hora||'')===huellaLegada.hora&&String(v.id||'')===huellaLegada.cliente));
+    if(!hallada){Notificaciones.mostrar('El servidor respondió, pero no se pudo verificar la venta actualizada. Consulta la hoja antes de reintentar.','warning',10000);return;}
+    const nueva=r.value, efectivoLeido=parseMoney(hallada.monto_efectivo||0), qrLeido=parseMoney(hallada.monto_qr||0);
+    const metodoLeido=String(hallada.metodo_pago||'').toLowerCase();
+    const coincideMetodo=metodoLeido===String(nueva.metodo_pago).toLowerCase() && Math.abs(efectivoLeido-Number(nueva.monto_efectivo))<0.02 && Math.abs(qrLeido-Number(nueva.monto_qr))<0.02;
+    const coincideDetalle=String(hallada.productos||'').trim()===String(nueva.productos||'').trim() && Math.abs(parseMoney(hallada.total_venta)-Number(nueva.total_nuevo))<0.02;
+    if(!coincideMetodo||!coincideDetalle){
+      Notificaciones.mostrar('La corrección no quedó confirmada por Google Sheets ('+[!coincideMetodo?'pago':'','detalle'].filter((x,i)=>i===0?!coincideMetodo:!coincideDetalle).join(', ')+'). No vuelvas a guardar sin revisar Code.gs.', 'warning',12000);return;
+    }
+    Notificaciones.mostrar('Corrección verificada en Google Sheets. Revisa el historial de caja y Stock si cambiaste productos.','success');
   }catch(e){Notificaciones.mostrar('No se pudo editar: '+e.message,'error',9000);}
 }
 
@@ -4274,7 +4309,7 @@ function actualizarVentasDelDia() {
         const claseFila = esAperturaCierre ? 'fila-apertura-cierre' : '';
         let botonesVentasDia = (registrosTablaV2621!==todasVentasHoy && !esVistaHistoricaV2664)
             ? (!esAperturaCierre ? `<button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : '')
-            : `${!esAperturaCierre ? `<button class="accion-btn editar-venta-v2631" data-index="${ventasDelDia.indexOf(venta)}" style="background:#2476b5"><i class="fas fa-edit"></i> Editar</button>${!consultandoOtroDiaV2664 ? `<button class="accion-btn ajustar-cambio-v2635" data-index="${ventasDelDia.indexOf(venta)}" title="Corregir cómo se devolvió el cambio"><i class="fas fa-coins"></i> Ajustar cambio</button>` : ''}<button class="accion-btn observacion-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-sticky-note"></i> Obs</button><button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : ''}<button class="accion-btn eliminar-btn-tabla" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-trash"></i> Eliminar</button>`;
+            : `${!esAperturaCierre ? `<button class="accion-btn editar-venta-v2631" data-index="${ventasDelDia.indexOf(venta)}" style="background:#2476b5"><i class="fas fa-edit"></i> Editar</button>${!consultandoOtroDiaV2664 ? `<button class="accion-btn ajustar-cambio-v2635" data-index="${ventasDelDia.indexOf(venta)}" title="Corregir cómo se devolvió el cambio"><i class="fas fa-coins"></i> Ajustar cambio</button>` : ''}<button class="accion-btn observacion-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-sticky-note"></i> Obs</button><button class="accion-btn imprimir-btn" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-print"></i> Imprimir</button>` : ''}${esAdministrador()?`<button class="accion-btn eliminar-btn-tabla" data-index="${ventasDelDia.indexOf(venta)}"><i class="fas fa-trash"></i> Eliminar</button>`:''}`;
         const estadoGuardado=venta.sincronizada===false
           ? `<span class="estado-venta-nube estado-local" title="${String(venta.errorSincronizacion||'No confirmado en Google Sheets').replace(/&/g,'&amp;').replace(/"/g,'&quot;').replace(/</g,'&lt;')}">⚠ Solo local</span><button class="accion-btn reintentar-fila-v2638" data-index="${ventasDelDia.indexOf(venta)}" style="background:#b66a11;margin-top:5px">↻ Subir esta</button>`
           : `<span class="estado-venta-nube estado-cloud" title="Registro leído o confirmado en Google Sheets">✓ En la nube</span>`;
