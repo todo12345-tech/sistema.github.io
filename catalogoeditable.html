@@ -1886,6 +1886,14 @@ body.admin-mode .admin-editor .adm-precio-entero{font-variant-numeric:tabular-nu
 body.admin-mode .admin-editor-title .admin-status{max-width:100%;white-space:normal;}
 body.admin-mode #categoriesGrid .admin-home-status .warn{background:#ffdf84;color:#503c00;}
 </style>
+<style id="teus-v50-guardado-local">
+.admin-editor .admin-save-state{margin:8px 0;font-size:12px;font-weight:700;line-height:1.4;min-height:0}
+.admin-editor .admin-save-state.guardando{color:#1d4ed8}
+.admin-editor .admin-save-state.guardado{color:#15803d}
+.admin-editor .admin-save-state.error{color:#b91c1c}
+.admin-editor[data-guardando="si"]{border-color:#60a5fa}
+.admin-editor[data-guardando="si"] .admin-save{opacity:.65;cursor:progress}
+</style>
 </head>
 <body>
 
@@ -2841,6 +2849,7 @@ function adminEditorHtml(prod,i){
         <label><input type="checkbox" class="adm-oferta-semana" ${prod.ofertaSemana?'checked':''}> ⚡ Oferta de la semana</label>
       </div>
       ${prod.imagenOriginalRaw?`<div class="admin-photo-link"><strong>Original:</strong> ${escapeHtml(prod.imagenOriginalRaw)}</div>`:''}
+      <div class="admin-save-state" role="status" aria-live="polite"></div>
       <div class="admin-actions" style="margin-top:11px">
         <button class="admin-save" data-idx="${i}"><i class="fas fa-save"></i> Guardar cambios</button>
         ${adminActual.rol==='administrador'?`<button class="admin-delete" data-idx="${i}"><i class="fas fa-trash"></i> Eliminar solo item</button>
@@ -2856,8 +2865,71 @@ async function archivoAdminABase64(file){
         reader.readAsDataURL(file);
     });
 }
+// V50: el guardado es por producto. Nunca recargar todo el catálogo al terminar.
+function teusComercioTarjetaV50(p,i,esGrid){
+    const disponible=p.dispPaquete && p.precioPaquete>0;
+    if(!disponible)return '<div class="agotado-mensaje">❌ Producto agotado</div>';
+    const visual=getVisualPrice(p.precioPaquete);
+    const oferta=!!(browsingOfferMode && offerIsActive(p));
+    if(esGrid){
+        const precio=oferta && offerHasSpecialPrice(p)
+          ? `<div class="category-price-before">Antes: Bs ${visual.before.toFixed(2)}</div><div class="category-price-now"><span style="color:#cc0c39;font-weight:500;margin-right:7px">-${offerDiscountPercent(p)}%</span> Bs ${Number(p.precioOferta).toFixed(2)}</div><span class="category-save">⚡ OFERTA POR TIEMPO LIMITADO</span>`
+          : `<div class="category-price-before">Antes: Bs ${visual.before.toFixed(2)}</div><div class="category-price-now">Ahora: Bs ${visual.now.toFixed(2)}</div><span class="category-save">${oferta?offerLabel(p):'💰 Ahorras Bs '+visual.save.toFixed(2)}</span>`;
+        return precio+`<div class="category-pack">📦 Cantidad: ${escapeHtml(p.unidadesTexto)} por paquete<br>🚚 Entrega rápida a toda Bolivia</div><div class="category-inline-cart" data-idx="${i}"><button class="category-add" data-idx="${i}" type="button">Agregar al carrito</button><button class="category-desc" data-idx="${i}" type="button">Ver descripción</button></div>`;
+    }
+    return `<div class="price-container"><del>Antes: Bs ${visual.before.toFixed(2)}</del>${oferta?publicOfferPriceHtml(p):`<div class="price-now">Ahora: Bs ${visual.now.toFixed(2)}</div><div class="savings-badge">💰 Ahorras Bs ${visual.save.toFixed(2)}</div>`}</div><div class="delivery-info">📦 Cantidad: ${escapeHtml(p.unidadesTexto)} por paquete<br>🚚 Entrega rápida a toda Bolivia</div><div><button class="add-btn" data-idx="${i}">Agregar al carrito</button><button class="desc-btn" data-idx="${i}">Ver descripción</button></div>`;
+}
+function teusActualizarTarjetaV50(p,box,i){
+    if(!box || !box.isConnected)return;
+    const tarjeta=box.closest('.category-product-card,.product-row');
+    if(!tarjeta)return;
+    const esGrid=tarjeta.classList.contains('category-product-card');
+    const nombreEl=tarjeta.querySelector(esGrid?'.category-product-name':'.product-title');
+    if(nombreEl){nombreEl.textContent=p.nombre;nombreEl.title=p.nombre;}
+    const comercio=tarjeta.querySelector('.teus-local-commerce');
+    if(comercio){
+        comercio.innerHTML=teusComercioTarjetaV50(p,i,esGrid);
+        if(esGrid){
+            const sumar=comercio.querySelector('.category-add');
+            if(sumar)sumar.onclick=e=>{e.stopPropagation();setCategoryCartQty(p,1);renderInlineCategoryQty(sumar.closest('.category-inline-cart'),i,1)};
+            const desc=comercio.querySelector('.category-desc');
+            if(desc)desc.onclick=e=>{e.stopPropagation();showDescription(p)};
+        }else{
+            const sumar=comercio.querySelector('.add-btn');
+            if(sumar)sumar.onclick=e=>{e.stopPropagation();openProductModal(p)};
+            const desc=comercio.querySelector('.desc-btn');
+            if(desc)desc.onclick=e=>{e.stopPropagation();showDescription(p)};
+        }
+    }
+    const sinEditada=!p.imagenEditada && !!p.imagenOriginal;
+    tarjeta.classList.toggle('admin-foto-original',esGrid&&sinEditada);
+    tarjeta.classList.toggle('admin-foto-original-row',!esGrid&&sinEditada);
+    tarjeta.classList.toggle('admin-sin-stock',esGrid&&!(p.dispPaquete||p.dispMayor)&&!sinEditada);
+    tarjeta.classList.toggle('admin-falta-editada',esGrid&&!p.imagenEditada&&!sinEditada);
+    const imagen=tarjeta.querySelector(esGrid?'.category-product-image':'.image-col');
+    if(imagen){
+        const imagenUrl=p.imagenEditada||p.imagenOriginal||'';
+        imagen.classList.toggle('admin-foto-original-preview',esGrid&&sinEditada);
+        imagen.classList.toggle('admin-photo-pending',esGrid&&!imagenUrl);
+        if(imagenUrl){
+            imagen.dataset.img=imagenUrl;
+            let img=imagen.querySelector('img');
+            if(!img){imagen.textContent='';img=document.createElement('img');imagen.appendChild(img);}
+            img.src=imagenUrl;img.alt=p.nombre;
+            let etiqueta=imagen.querySelector('.admin-foto-original-etiqueta');
+            if(sinEditada&&esGrid){if(!etiqueta){etiqueta=document.createElement('span');etiqueta.className='admin-foto-original-etiqueta';imagen.appendChild(etiqueta)}etiqueta.textContent='FOTO ORIGINAL · PENDIENTE EDICIÓN';}
+            else if(etiqueta)etiqueta.remove();
+        }else if(esGrid){imagen.removeAttribute('data-img');imagen.innerHTML='<div><i class="fas fa-image"></i>Sin ninguna fotografía<br><small>Falta imagen editada</small></div>';}
+    }
+    const estados=box.querySelectorAll('.admin-editor-title .admin-status');
+    for(const [idx,info] of [[0,[p.publicado?'PUBLICADO':'NO PUBLICADO',p.publicado]],[1,[p.dispPaquete?'DISPONIBLE':'SIN DISPONIBILIDAD',p.dispPaquete]],[2,[p.precioMayor>0?'✓ PRECIO UNITARIO':'⚠ SIN PRECIO UNITARIO',p.precioMayor>0]]]){
+        if(estados[idx]){estados[idx].textContent=info[0];estados[idx].classList.toggle('on',!!info[1]);estados[idx].classList.toggle('off',!info[1]);}
+    }
+}
 async function guardarAdminItem(i,box){
-    const p=currentResults[i]; if(!p)return;
+    if(!box||box.dataset.guardando==='si')return;
+    // Captura la referencia del artículo antes de cualquier await: otra búsqueda puede cambiar currentResults.
+    const p=currentResults[i];if(!p)return;
     const nombre=box.querySelector('.adm-nombre').value.trim();
     const precio=box.querySelector('.adm-precio').value.trim();
     const precioUnidad=box.querySelector('.adm-precio-unidad').value.trim();
@@ -2867,87 +2939,67 @@ async function guardarAdminItem(i,box){
     const imagenInput=box.querySelector('.adm-imagen');
     const fileInput=box.querySelector('.admin-photo-picker');
     let imagen=imagenInput.value.trim();
-
+    const publicado=box.querySelector('.adm-publicar').checked;
+    const dispPaquete=box.querySelector('.adm-disponible').checked;
+    const dispMayor=box.querySelector('.adm-disponible-unidad').checked;
+    const ofertaDia=box.querySelector('.adm-oferta-dia').checked;
+    const ofertaSemana=box.querySelector('.adm-oferta-semana').checked;
+    const hastaFecha=box.querySelector('.adm-hasta').value;
     if(!nombre){alert('El nombre no puede quedar vacío.');return;}
     for(const [etiqueta,valor] of [['precio por paquete',precio],['precio por unidad',precioUnidad],['precio de oferta',precioOferta]]){
-      if(valor!=='' && !/^\d+$/.test(valor)){
-        alert('El '+etiqueta+' debe ser un número entero positivo, sin decimales ni símbolos.');return;
-      }
+      if(valor!==''&&!/^\d+$/.test(valor)){alert('El '+etiqueta+' debe ser un número entero positivo, sin decimales ni símbolos.');return;}
     }
     if(precio===''){alert('Indica el precio por paquete (puede ser 0 si no vendes por paquete).');return;}
-    if(box.querySelector('.adm-disponible-unidad').checked && (!precioUnidad || Number(precioUnidad)<=0)){
-      alert('Si marcas Disponible por unidad, primero debes ingresar un precio unitario mayor a 0.');return;
-    }
-
-
+    if(dispMayor&&(!precioUnidad||Number(precioUnidad)<=0)){alert('Si marcas Disponible por unidad, primero debes ingresar un precio unitario mayor a 0.');return;}
     const btn=box.querySelector('.admin-save');
-    const old=btn.innerHTML;
-    btn.disabled=true;
-
+    const estado=box.querySelector('.admin-save-state');
+    const controles=[...box.querySelectorAll('input,button')];
+    const habilitados=controles.map(el=>!el.disabled);
+    const estadoTexto=(texto,clase)=>{if(estado){estado.textContent=texto;estado.className='admin-save-state '+clase;}};
+    box.dataset.guardando='si';
+    controles.forEach(el=>el.disabled=true);
+    estadoTexto('⏳ Aplicando cambios a '+p.nombre+'…','guardando');
+    showNotif('⏳ Aplicando cambios a '+p.nombre+'…');
+    const foto=fileInput&&fileInput.files&&fileInput.files[0] ? fileInput.files[0]:null;
     try{
-      // Si el ADMIN seleccionó una foto nueva, primero subirla a Drive
-      // y escribirla en imagen_editada mediante Code.gs V16.
-      const archivo=fileInput && fileInput.files && fileInput.files[0] ? fileInput.files[0] : null;
-      if(archivo){
-        if(!/^image\/(jpeg|png|webp)$/i.test(archivo.type||'')){
-          throw new Error('La foto debe ser JPG, PNG o WEBP.');
-        }
-        if(archivo.size>12*1024*1024){
-          throw new Error('La foto supera 12 MB.');
-        }
-
-        btn.textContent='Subiendo foto...';
-        const base64=await archivoAdminABase64(archivo);
-        const subida=await adminPost({
-          accion:'actualizarImagenEditada',
-          seccionOriginal:p.seccion,
-          nombreOriginal:p.nombre,
-          seccion:p.seccion,
-          nombre:p.nombre,
-          fileName:archivo.name,
-          mimeType:archivo.type,
-          base64:base64
-        });
-
-        imagen=subida.imagen_editada || subida.url || '';
-        if(!imagen) throw new Error('La foto se subió pero no recibí su enlace de Drive.');
-        imagenInput.value=imagen;
+      if(foto){
+        if(!/^image\/(jpeg|png|webp)$/i.test(foto.type||''))throw new Error('La foto debe ser JPG, PNG o WEBP.');
+        if(foto.size>12*1024*1024)throw new Error('La foto supera 12 MB.');
+        estadoTexto('⏳ Subiendo foto de '+p.nombre+'…','guardando');
+        const base64=await archivoAdminABase64(foto);
+        const subida=await adminPost({accion:'actualizarImagenEditada',seccionOriginal:p.seccion,nombreOriginal:p.nombre,seccion:p.seccion,nombre:p.nombre,fileName:foto.name,mimeType:foto.type,base64});
+        imagen=subida.imagen_editada||subida.url||'';
+        if(!imagen)throw new Error('La foto se subió pero no recibí su enlace de Drive.');
+        imagenInput.value=imagen; // Mantener referencia para reintentar si falla el guardado del item.
       }
-
-      btn.textContent='Guardando...';
-      await adminPost({
-        accion:'editarCatalogoMayorista',
-        seccionOriginal:p.seccion,
-        nombreOriginal:p.nombre,
-        seccion:p.seccion,
-        nombre:p.nombre,
-        nombreNuevo:nombre,
-        precioPaquete:precio,
-        cantidadPaquete:cantidad,
-        precioUnidad:precioUnidad || '0',
-        cantidadUnidad:cantidadUnidad,
-        dispUnidad:box.querySelector('.adm-disponible-unidad').checked?'si':'no',
-        dispPaquete:box.querySelector('.adm-disponible').checked?'si':'no',
-        publicar:box.querySelector('.adm-publicar').checked?'si':'no',
-        imagenEditada:imagen,
-        ofertaDia:box.querySelector('.adm-oferta-dia').checked?'si':'no',
-        ofertaSemana:box.querySelector('.adm-oferta-semana').checked?'si':'no',
-        hastaFecha:box.querySelector('.adm-hasta').value,
-        precioOferta:precioOferta
+      estadoTexto('⏳ Guardando '+p.nombre+' en Google Sheets…','guardando');
+      const resultado=await adminPost({
+        accion:'editarCatalogoMayorista',seccionOriginal:p.seccion,nombreOriginal:p.nombre,seccion:p.seccion,nombre:p.nombre,
+        nombreNuevo:nombre,precioPaquete:precio,cantidadPaquete:cantidad,
+        precioUnidad:precioUnidad||'0',cantidadUnidad:cantidadUnidad,dispUnidad:dispMayor?'si':'no',
+        dispPaquete:dispPaquete?'si':'no',publicar:publicado?'si':'no',imagenEditada:imagen,
+        ofertaDia:ofertaDia?'si':'no',ofertaSemana:ofertaSemana?'si':'no',hastaFecha,precioOferta
       });
-
-      if(fileInput) fileInput.value='';
-      const nombreFoto=box.querySelector('.admin-photo-picker-name');
-      if(nombreFoto) nombreFoto.textContent='';
-
-      await loadProducts();
-      showNotif(archivo?'✅ Foto e item actualizados':'✅ Item actualizado');
-      showResultsByCategory(p.seccion,false,window.scrollY);
+      if(resultado.id_item&&p.id_item&&String(resultado.id_item)!==String(p.id_item))throw new Error('El servidor devolvió un ID de producto diferente; actualiza el catálogo antes de continuar.');
+      // El servidor confirmó el producto: actualizar SOLO su objeto y su tarjeta.
+      Object.assign(p,{
+        nombre,precioPaquete:Number(precio)||0,unidadesTexto:cantidad,unidadesNumero:parseInt(cantidad,10)||1,
+        precioMayor:Number(precioUnidad)||0,cantidadMayorTexto:cantidadUnidad,dispPaquete,dispMayor,publicado,
+        imagenEditadaRaw:imagen,imagenEditada:getImageUrl(imagen),imagen:getImageUrl(imagen||p.imagenOriginalRaw),
+        ofertaDia,ofertaSemana,oferta:ofertaDia||ofertaSemana,hastaFecha,precioOferta:Number(precioOferta)||0
+      });
+      if(foto&&fileInput){fileInput.value='';const nombreFoto=box.querySelector('.admin-photo-picker-name');if(nombreFoto)nombreFoto.textContent='';}
+      // Si el usuario cambió de página durante la petición, NO tocar la página actual.
+      if(box.isConnected)teusActualizarTarjetaV50(p,box,i);
+      estadoTexto('✅ Guardado: '+nombre,'guardado');
+      showNotif('✅ Cambios guardados: '+nombre);
     }catch(e){
-      alert(e.message);
+      estadoTexto('❌ No se pudo guardar '+p.nombre+': '+(e.message||e),'error');
+      showNotif('❌ Error al guardar '+p.nombre);
+      console.error('Error al guardar producto individual',p.id_item||p.nombre,e);
     }finally{
-      btn.disabled=false;
-      btn.innerHTML=old;
+      box.dataset.guardando='no';
+      controles.forEach((el,j)=>{el.disabled=!habilitados[j]});
     }
 }
 async function eliminarAdminItem(i,conFoto){
@@ -2988,7 +3040,7 @@ function renderCategoryProducts(products) {
         cards += `<article class="category-product-card${adminState}">
           ${imageHtml}
           <div class="category-product-body">
-            <div class="category-product-name" title="${escapeHtml(prod.nombre)}">${escapeHtml(prod.nombre)}</div>`;
+            <div class="category-product-name" title="${escapeHtml(prod.nombre)}">${escapeHtml(prod.nombre)}</div><div class="teus-local-commerce">`;
         if (disponible) {
           const enOferta = !!(browsingOfferMode && offerIsActive(prod));
           if (enOferta && offerHasSpecialPrice(prod)) {
@@ -3009,6 +3061,7 @@ function renderCategoryProducts(products) {
         } else {
           cards += `<div class="agotado-mensaje">❌ Producto agotado</div>`;
         }
+        cards += `</div>`; // Solo este bloque comercial se actualiza al guardar.
         // En modo ADMIN, cada tarjeta debe incluir su editor real.
         // En público no se genera absolutamente nada administrativo.
         if (adminActual) {
@@ -3098,7 +3151,7 @@ function renderResultsList(products) {
                         <img src="${escapeHtml(prod.imagen)}" loading="lazy" alt="${escapeHtml(prod.nombre)}">
                     </div>
                     <div class="info-col">
-                        <h2 class="product-title" data-idx="${i}">${escapeHtml(prod.nombre)}</h2>`;
+                        <h2 class="product-title" data-idx="${i}">${escapeHtml(prod.nombre)}</h2><div class="teus-local-commerce">`;
         if (disponible) {
             html += `<div class="price-container"><del>Antes: Bs ${visual.before.toFixed(2)}</del>
                      ${(browsingOfferMode && offerIsActive(prod))
@@ -3112,6 +3165,7 @@ function renderResultsList(products) {
         } else {
             html += `<div class="agotado-mensaje">❌ Producto agotado</div>`;
         }
+        html += `</div>`; // Mantiene el editor y los demás productos intactos.
         if(adminActual) html += adminEditorHtml(prod,i);
         html += `</div></div>`;
     });
