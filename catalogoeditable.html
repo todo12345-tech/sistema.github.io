@@ -1969,6 +1969,22 @@ body.admin-mode #results-view #resultsList .admin-photo-link{
  font-size:9px!important;overflow-wrap:anywhere;max-height:50px;overflow:auto;
 }
 </style>
+<style id="teus-v54-filtros-css">
+/* Únicamente administración: no altera el catálogo público. */
+#teusAdminFilterNav{display:none;align-items:center;gap:7px;border:1px solid #60a5fa;background:#194c80;color:#fff;border-radius:17px;padding:6px 12px;cursor:pointer;font-weight:700;font-size:12px;white-space:nowrap}
+#teusAdminFilterPanel{display:none;background:#eff6ff;border:1px solid #93c5fd;padding:14px 15px;border-radius:13px;margin:12px 0 18px;color:#17324d}
+#teusAdminFilterPanel.is-open{display:block}
+.teus-filtros-head{display:flex;justify-content:space-between;align-items:center;gap:8px;margin-bottom:12px;flex-wrap:wrap}
+.teus-filtros-head strong{font-size:15px}
+.teus-filtros-fields{display:grid;grid-template-columns:minmax(170px,1.3fr) minmax(140px,1fr) minmax(160px,1fr) auto auto;align-items:end;gap:9px}
+.teus-filtros-field label{display:block;font-size:11px;font-weight:700;margin-bottom:5px}
+.teus-filtros-field input,.teus-filtros-field select{display:block;width:100%;min-width:0;border:1px solid #bfd5ec;border-radius:8px;background:white;padding:9px 10px;font-size:13px;height:38px}
+.teus-filtros-action{height:38px;border:0;border-radius:9px;padding:0 13px;background:#1d4ed8;color:#fff;cursor:pointer;font-weight:700;white-space:nowrap}
+.teus-filtros-action.alt{background:#e0e7ef;color:#18324c}
+#teusAdminFilterCount{font-size:12px;color:#365b7d;margin-top:10px}
+@media(max-width:950px){.teus-filtros-fields{grid-template-columns:repeat(2,minmax(0,1fr))}.teus-filtros-action{width:100%}}
+@media(max-width:480px){.teus-filtros-fields{grid-template-columns:1fr}#teusAdminFilterNav{font-size:11px;padding:6px 8px}}
+</style>
 </head>
 <body>
 
@@ -1983,6 +1999,7 @@ body.admin-mode #results-view #resultsList .admin-photo-link{
         </div>
         <button class="signin-btn" id="signInBtn" type="button"><i class="fas fa-user-shield"></i> Login</button>
         <span class="admin-badge" id="adminBadge">ADMIN</span>
+        <button id="teusAdminFilterNav" type="button" title="Buscar productos pendientes de completar"><i class="fas fa-filter"></i> Filtrar pendientes</button>
         <div class="cart-header" id="cartIconHeader" aria-label="Carrito">
             <i class="fas fa-shopping-cart fa-lg"></i>
             <span class="cart-count-badge" id="cartCountBadge">0</span>
@@ -2032,6 +2049,27 @@ body.admin-mode #results-view #resultsList .admin-photo-link{
                 <i class="fas fa-link"></i> <span id="shareBtnLabel">Copiar enlace</span>
             </button>
         </div>
+        <section id="teusAdminFilterPanel" aria-label="Filtros administrativos de productos">
+            <div class="teus-filtros-head"><strong><i class="fas fa-filter"></i> Filtrar productos pendientes</strong><span style="font-size:11px;color:#365b7d">Solo visible para administrador y encargado</span></div>
+            <div class="teus-filtros-fields">
+                <div class="teus-filtros-field"><label for="teusFilterTipo">Mostrar productos</label><select id="teusFilterTipo">
+                    <option value="sin-editada">Sin foto editada (J)</option>
+                    <option value="sin-original">Sin foto original (K)</option>
+                    <option value="solo-original">Con original, pero sin editada</option>
+                    <option value="sin-ambas">Sin ninguna fotografía</option>
+                    <option value="sin-unitario">Sin precio unitario</option>
+                    <option value="sin-paquete">Sin precio de paquete</option>
+                    <option value="no-publicados">No publicados</option>
+                    <option value="sin-disponibilidad">Sin disponibilidad</option>
+                    <option value="todos">Todos los productos</option>
+                </select></div>
+                <div class="teus-filtros-field"><label for="teusFilterCategoria">Categoría</label><select id="teusFilterCategoria"><option value="">Todas las categorías</option></select></div>
+                <div class="teus-filtros-field"><label for="teusFilterTexto">Buscar dentro del filtro</label><input id="teusFilterTexto" type="search" placeholder="Nombre del producto..."></div>
+                <button id="teusFilterAplicar" class="teus-filtros-action" type="button"><i class="fas fa-search"></i> Aplicar</button>
+                <button id="teusFilterLimpiar" class="teus-filtros-action alt" type="button">Limpiar</button>
+            </div>
+            <div id="teusAdminFilterCount" role="status" aria-live="polite">Selecciona un filtro para revisar los productos.</div>
+        </section>
         <div id="resultsList"></div>
     </div>
 </div>
@@ -2376,6 +2414,7 @@ function restoreView(state) {
         case 'category': showResultsByCategory(state.data, false, state.scrollPos || 0); break;
         case 'search': showResultsBySearch(state.data, false, state.scrollPos || 0); break;
         case 'offers': showOfertasView(false, state.scrollPos || 0, state.data || 'dia'); break;
+        case 'admin-filter': if(adminActual)teusMostrarFiltroV54(false,state.scrollPos||0);else showHomeView(false);break;
         default: showHomeView(false);
     }
 }
@@ -2457,8 +2496,60 @@ function buildShareableUrl() {
     return base + param;
 }
 
+// ===== V54: FILTROS DE PENDIENTES (solo lectura, exclusivamente cliente ADMIN) =====
+let teusFiltroActivo=false;
+function teusFiltroCumpleV54(p,tipo){
+ const fotoEditada=String(p.imagenEditadaRaw||'').trim();
+ const fotoOriginal=String(p.imagenOriginalRaw||'').trim();
+ switch(tipo){
+  case 'sin-editada':return !fotoEditada;
+  case 'sin-original':return !fotoOriginal;
+  case 'solo-original':return !!fotoOriginal&&!fotoEditada;
+  case 'sin-ambas':return !fotoOriginal&&!fotoEditada;
+  case 'sin-unitario':return !(Number(p.precioMayor)>0);
+  case 'sin-paquete':return !(Number(p.precioPaquete)>0);
+  case 'no-publicados':return !p.publicado;
+  case 'sin-disponibilidad':return !p.dispPaquete&&!p.dispMayor;
+  default:return true;
+ }
+}
+function teusRellenarCategoriasFiltroV54(){
+ const select=document.getElementById('teusFilterCategoria');if(!select)return;
+ const anterior=select.value;
+ const categorias=[...new Set(allProducts.map(p=>p.seccion).filter(Boolean))].sort((a,b)=>a.localeCompare(b,'es',{sensitivity:'base'}));
+ select.replaceChildren(new Option('Todas las categorías',''));
+ categorias.forEach(cat=>select.add(new Option(cat,cat)));
+ if(categorias.includes(anterior))select.value=anterior;
+}
+function teusMostrarFiltroV54(push=true,restoreScroll=0){
+ if(!adminActual)return;
+ teusFiltroActivo=true;browsingOfferMode=null;
+ teusRellenarCategoriasFiltroV54();
+ const tipo=document.getElementById('teusFilterTipo').value;
+ const categoria=document.getElementById('teusFilterCategoria').value;
+ const q=normalizeSearchText(document.getElementById('teusFilterTexto').value);
+ const filtrados=allProducts.filter(p=>teusFiltroCumpleV54(p,tipo)&&(!categoria||p.seccion===categoria)&&(!q||normalizeSearchText(p.nombre+' '+p.seccion).includes(q)));
+ const etiqueta=document.getElementById('teusFilterTipo').selectedOptions[0].text;
+ document.getElementById('resultsTitle').textContent='Filtrado: '+etiqueta;
+ document.getElementById('teusAdminFilterCount').textContent=filtrados.length+' de '+allProducts.length+' productos coinciden. Puedes editarlos y guardarlos uno por uno sin salir del filtro.';
+ document.getElementById('teusAdminFilterPanel').classList.add('is-open');
+ renderCategoryProducts(filtrados);
+ document.getElementById('home-view').style.display='none';
+ document.getElementById('results-view').style.display='block';
+ window.scrollTo(0,restoreScroll||0);
+ if(push)pushToHistory('admin-filter',null,window.scrollY);
+}
+function teusLimpiarFiltroV54(){
+ if(!adminActual)return;
+ document.getElementById('teusFilterTipo').value='todos';
+ document.getElementById('teusFilterCategoria').value='';
+ document.getElementById('teusFilterTexto').value='';
+ teusMostrarFiltroV54(false,window.scrollY);
+}
+
 // ========== NAVEGACIÓN ==========
 function showHomeView(push = true) {
+    teusFiltroActivo=false;document.getElementById('teusAdminFilterPanel').classList.remove('is-open');
     browsingOfferMode = null;
     document.getElementById('results-view').style.display = 'none';
     document.getElementById('home-view').style.display = 'block';
@@ -2467,6 +2558,7 @@ function showHomeView(push = true) {
     window.scrollTo(0, 0);
 }
 function showResultsByCategory(category, push = true, restoreScroll = 0) {
+    teusFiltroActivo=false;document.getElementById('teusAdminFilterPanel').classList.remove('is-open');
     browsingOfferMode = null;
     const filtered = allProducts.filter(p => p.seccion === category);
     document.getElementById('resultsTitle').innerHTML = escapeHtml(category.toUpperCase());
@@ -2477,6 +2569,7 @@ function showResultsByCategory(category, push = true, restoreScroll = 0) {
     if (push) pushToHistory('category', category, window.scrollY);
 }
 function showOfertasView(push = true, restoreScroll = 0, tipo = 'dia') {
+    teusFiltroActivo=false;document.getElementById('teusAdminFilterPanel').classList.remove('is-open');
     browsingOfferMode = tipo;
     const ofertas = allProducts.filter(p => offerIsActive(p) && (tipo==='semana'?p.ofertaSemana:p.ofertaDia));
     document.getElementById('resultsTitle').innerHTML = tipo==='semana' ? '⚡ OFERTAS DE LA SEMANA' : '🔥 OFERTAS DEL DÍA';
@@ -2516,6 +2609,7 @@ function getMatchingCategories(term){
     return cats.map(cat=>{const c=normalizeSearchText(cat);let score=-1;if(c===q)score=1000;else if(c.startsWith(q))score=600;else if(c.includes(q))score=400;else {const toks=searchTokens(term), words=c.split(' ');if(toks.length&&toks.every(t=>words.some(w=>w.startsWith(t)||w.includes(t))))score=220;}return {cat,score};}).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.cat.localeCompare(b.cat,'es'));
 }
 function showResultsBySearch(term, push = true, restoreScroll = 0) {
+    teusFiltroActivo=false;document.getElementById('teusAdminFilterPanel').classList.remove('is-open');
     browsingOfferMode = null;
     closeSearchSuggestions();
     const q=String(term||'').trim();
@@ -2692,8 +2786,8 @@ async function loginAdmin(){
 }
 function applyAdminUI(){
  const btn=document.getElementById('signInBtn'),badge=document.getElementById('adminBadge');
- if(adminActual){btn.innerHTML='<i class="fas fa-sign-out-alt"></i> Salir';badge.style.display='inline-block';badge.textContent=(adminActual.rol==='administrador'?'ADMIN':'ENCARGADO')+' · '+(adminActual.nombre||adminActual.usuario)}
- else{btn.innerHTML='<i class="fas fa-user-shield"></i> Login';badge.style.display='none'}
+ if(adminActual){btn.innerHTML='<i class="fas fa-sign-out-alt"></i> Salir';badge.style.display='inline-block';badge.textContent=(adminActual.rol==='administrador'?'ADMIN':'ENCARGADO')+' · '+(adminActual.nombre||adminActual.usuario);document.getElementById('teusAdminFilterNav').style.display='inline-flex'}
+ else{btn.innerHTML='<i class="fas fa-user-shield"></i> Login';badge.style.display='none';document.getElementById('teusAdminFilterNav').style.display='none';document.getElementById('teusAdminFilterPanel').classList.remove('is-open')}
 }
 async function toggleLogin(){
  if(adminActual){adminActual=null;masterProducts=[];allProducts=[];applyAdminUI();await loadProducts();showHomeView(false);return}
@@ -3581,6 +3675,10 @@ smartSearchInput.addEventListener('keydown',e=>{
     if(e.key==='Enter'){e.preventDefault();if(searchSuggestionIndex>=0&&opts[searchSuggestionIndex])selectSearchSuggestion(opts[searchSuggestionIndex]);else{const t=e.target.value.trim();closeSearchSuggestions();if(t)navigateToSearch(t);else navigateToHome();}}
 });
 document.addEventListener('mousedown',e=>{if(!e.target.closest('.search-bar'))closeSearchSuggestions();});
+document.getElementById('teusAdminFilterNav').onclick=()=>teusMostrarFiltroV54(true);
+document.getElementById('teusFilterAplicar').onclick=()=>teusMostrarFiltroV54(false,window.scrollY);
+document.getElementById('teusFilterLimpiar').onclick=teusLimpiarFiltroV54;
+document.getElementById('teusFilterTexto').addEventListener('keydown',e=>{if(e.key==='Enter'){e.preventDefault();teusMostrarFiltroV54(false,window.scrollY)}});
 document.getElementById('filterAll').onclick = navigateToHome;
 document.getElementById('closeProductModal').onclick = () => closeModal('productModal');
 document.getElementById('closeDescModal').onclick = () => closeModal('descModal');
