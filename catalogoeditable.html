@@ -1855,6 +1855,37 @@ body.admin-mode .admin-original-reference::before{
 .offers-card .teus-offer-pending,.category-product-card .teus-offer-pending{background:#fff3df!important;color:#8c4a00!important;border:1px dashed #e6a047!important}
 .offers-card .teus-offer-saving-mini{display:flex!important;justify-content:center;align-items:center;min-height:38px;font-size:12px!important}
 </style>
+
+<style id="teus-v49-editor-unitario-foto-original">
+/* Azul = hay foto original pero todavía falta foto editada. Sólo gestión. */
+body.admin-mode .category-product-card.admin-foto-original,
+body.admin-mode #results-view .category-product-card.admin-foto-original{
+ background:#e0f2fe!important;border:2px solid #2563eb!important;border-radius:10px!important;
+ box-shadow:inset 0 0 0 1px #60a5fa!important;
+}
+body.admin-mode .category-product-card.admin-foto-original::before{
+ content:"📷 FOTO ORIGINAL · FALTA EDITADA";display:block;background:#2563eb;color:white;
+ padding:6px 8px;margin-bottom:7px;border-radius:5px;font-size:10px;font-weight:800;
+}
+body.admin-mode #categoriesGrid .grid-item.admin-home-foto-original{
+ background:#dbeafe!important;border:3px solid #2563eb!important;border-radius:8px;padding:5px!important;
+ box-shadow:0 0 0 2px rgba(37,99,235,.14)!important;
+}
+body.admin-mode #categoriesGrid .grid-item.admin-home-foto-original::before{
+ content:"FOTO ORIGINAL";display:block;background:#2563eb!important;color:#fff!important;
+ border-radius:3px;padding:3px 5px;font-size:8px;font-weight:900;
+}
+body.admin-mode .admin-foto-original-preview{position:relative;background:#dbeafe!important;min-height:175px;}
+body.admin-mode .admin-foto-original-preview img{object-fit:contain!important;}
+body.admin-mode .admin-foto-original-etiqueta{
+ position:absolute;left:3px;right:3px;bottom:3px;background:rgba(29,78,216,.94);color:#fff;
+ padding:4px 5px;border-radius:4px;text-align:center;font-size:9px;font-weight:900;
+}
+body.admin-mode .admin-foto-original-row .image-col{background:#dbeafe!important;border:2px solid #2563eb!important;}
+body.admin-mode .admin-editor .adm-precio-entero{font-variant-numeric:tabular-nums;}
+body.admin-mode .admin-editor-title .admin-status{max-width:100%;white-space:normal;}
+body.admin-mode #categoriesGrid .admin-home-status .warn{background:#ffdf84;color:#503c00;}
+</style>
 </head>
 <body>
 
@@ -2635,7 +2666,7 @@ function renderHomeCards() {
 
         const edited = String(p.imagenEditada || '').trim();
         const original = String(p.imagenOriginal || '').trim();
-        const available = !!p.dispPaquete;
+        const available = !!(p.dispPaquete || p.dispMayor);
         const published = !!p.publicado;
 
         let cls = '';
@@ -2647,10 +2678,10 @@ function renderHomeCards() {
            NARANJA = tiene foto editada + stock, pero NO está publicado.
            NORMAL = publicado + stock + foto editada. */
         if (!available) {
-            cls = ' admin-home-sin-stock';
+            cls = !edited && original ? ' admin-home-foto-original' : ' admin-home-sin-stock';
             label = published ? 'PUBLICADO · SIN STOCK' : 'NO PUBLICADO · SIN STOCK';
         } else if (!edited) {
-            cls = ' admin-home-falta-editada';
+            cls = original ? ' admin-home-foto-original' : ' admin-home-falta-editada';
             label = published ? 'PUBLICADO · FALTA FOTO EDITADA' : 'NO PUBLICADO · FALTA FOTO EDITADA';
         } else if (!published) {
             cls = ' admin-home-no-publicado';
@@ -2680,6 +2711,7 @@ function renderHomeCards() {
             <span class="${st.published ? 'ok' : 'off'}">${st.published ? '✓ PUBLICADO' : '○ NO PUBLICADO'}</span>
             <span class="${st.available ? 'ok' : 'bad'}">${st.available ? '✓ CON STOCK' : '✕ SIN STOCK'}</span>
             <span class="${st.hasEdited ? 'ok' : 'warn'}">${st.hasEdited ? '✓ FOTO EDITADA' : '⚠ FALTA FOTO EDITADA'}</span>
+            <span class="${p.precioMayor>0?'ok':'warn'}">${p.precioMayor>0?'✓ PRECIO UNITARIO: Bs '+p.precioMayor:'⚠ SIN PRECIO UNITARIO'}</span>
           </div>` : '';
 
         return `<div class="grid-item${st.cls}${originalClass}" title="${escapeHtml(p.nombre)}">
@@ -2781,11 +2813,14 @@ function adminEditorHtml(prod,i){
       <div class="admin-editor-title"><i class="fas fa-user-shield"></i> EDITAR ITEM
         <span class="admin-status ${prod.publicado?'on':'off'}">${prod.publicado?'PUBLICADO':'NO PUBLICADO'}</span>
         <span class="admin-status ${prod.dispPaquete?'on':'off'}">${prod.dispPaquete?'DISPONIBLE':'SIN DISPONIBILIDAD'}</span>
+        <span class="admin-status ${prod.precioMayor>0?'on':'off'}">${prod.precioMayor>0?'✓ PRECIO UNITARIO':'⚠ SIN PRECIO UNITARIO'}</span>
       </div>
       <div class="admin-grid">
         <div class="admin-field"><label>Nombre</label><input class="adm-nombre" value="${escapeHtml(prod.nombre)}"></div>
-        <div class="admin-field"><label>Precio paquete (Bs)</label><input class="adm-precio" type="number" step="0.01" value="${escapeHtml(prod.precioPaquete)}"></div>
+        <div class="admin-field"><label>Precio paquete (Bs)</label><input class="adm-precio adm-precio-entero" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${escapeHtml(prod.precioPaquete)}"></div>
         <div class="admin-field"><label>Cantidad / presentación del paquete</label><input class="adm-cantidad" value="${escapeHtml(prod.unidadesTexto)}"></div>
+        <div class="admin-field"><label>Precio por unidad (Bs) · ${prod.precioMayor>0?'CON PRECIO':'SIN PRECIO'}</label><input class="adm-precio-unidad adm-precio-entero" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${prod.precioMayor>0?escapeHtml(prod.precioMayor):''}" placeholder="Sin precio unitario"></div>
+        <div class="admin-field"><label>Cantidad / presentación por unidad</label><input class="adm-cantidad-unidad" value="${escapeHtml(prod.cantidadMayorTexto||'')}"></div>
         <div class="admin-field admin-edited-photo-field">
 <label>Imagen editada / actualizar foto pública (URL Drive)</label>
 <input class="adm-imagen" value="${escapeHtml(prod.imagenEditadaRaw||'')}">
@@ -2796,11 +2831,12 @@ function adminEditorHtml(prod,i){
 <div class="admin-photo-picker-name"></div>
 </div>
         <div class="admin-field"><label>Hasta qué fecha</label><input class="adm-hasta" type="date" value="${escapeHtml((prod.hastaFecha||'').match(/^\d{4}-\d{2}-\d{2}$/)?prod.hastaFecha:'')}"></div>
-        <div class="admin-field"><label>Precio especial de oferta (Bs)</label><input class="adm-precio-oferta" type="number" step="0.01" value="${prod.precioOferta||''}"></div>
+        <div class="admin-field"><label>Precio especial de oferta (Bs)</label><input class="adm-precio-oferta adm-precio-entero" type="text" inputmode="numeric" pattern="[0-9]*" autocomplete="off" value="${prod.precioOferta||''}"></div>
       </div>
       <div class="admin-checks">
         <label><input type="checkbox" class="adm-publicar" ${prod.publicado?'checked':''}> Publicar en catálogo</label>
         <label><input type="checkbox" class="adm-disponible" ${prod.dispPaquete?'checked':''}> Disponible por paquete</label>
+        <label><input type="checkbox" class="adm-disponible-unidad" ${prod.dispMayor?'checked':''}> Disponible por unidad</label>
         <label><input type="checkbox" class="adm-oferta-dia" ${prod.ofertaDia?'checked':''}> 🔥 Oferta del día</label>
         <label><input type="checkbox" class="adm-oferta-semana" ${prod.ofertaSemana?'checked':''}> ⚡ Oferta de la semana</label>
       </div>
@@ -2824,12 +2860,25 @@ async function guardarAdminItem(i,box){
     const p=currentResults[i]; if(!p)return;
     const nombre=box.querySelector('.adm-nombre').value.trim();
     const precio=box.querySelector('.adm-precio').value.trim();
+    const precioUnidad=box.querySelector('.adm-precio-unidad').value.trim();
+    const cantidadUnidad=box.querySelector('.adm-cantidad-unidad').value.trim();
+    const precioOferta=box.querySelector('.adm-precio-oferta').value.trim();
     const cantidad=box.querySelector('.adm-cantidad').value.trim();
     const imagenInput=box.querySelector('.adm-imagen');
     const fileInput=box.querySelector('.admin-photo-picker');
     let imagen=imagenInput.value.trim();
 
     if(!nombre){alert('El nombre no puede quedar vacío.');return;}
+    for(const [etiqueta,valor] of [['precio por paquete',precio],['precio por unidad',precioUnidad],['precio de oferta',precioOferta]]){
+      if(valor!=='' && !/^\d+$/.test(valor)){
+        alert('El '+etiqueta+' debe ser un número entero positivo, sin decimales ni símbolos.');return;
+      }
+    }
+    if(precio===''){alert('Indica el precio por paquete (puede ser 0 si no vendes por paquete).');return;}
+    if(box.querySelector('.adm-disponible-unidad').checked && (!precioUnidad || Number(precioUnidad)<=0)){
+      alert('Si marcas Disponible por unidad, primero debes ingresar un precio unitario mayor a 0.');return;
+    }
+
 
     const btn=box.querySelector('.admin-save');
     const old=btn.innerHTML;
@@ -2875,13 +2924,16 @@ async function guardarAdminItem(i,box){
         nombreNuevo:nombre,
         precioPaquete:precio,
         cantidadPaquete:cantidad,
+        precioUnidad:precioUnidad || '0',
+        cantidadUnidad:cantidadUnidad,
+        dispUnidad:box.querySelector('.adm-disponible-unidad').checked?'si':'no',
         dispPaquete:box.querySelector('.adm-disponible').checked?'si':'no',
         publicar:box.querySelector('.adm-publicar').checked?'si':'no',
         imagenEditada:imagen,
         ofertaDia:box.querySelector('.adm-oferta-dia').checked?'si':'no',
         ofertaSemana:box.querySelector('.adm-oferta-semana').checked?'si':'no',
         hastaFecha:box.querySelector('.adm-hasta').value,
-        precioOferta:box.querySelector('.adm-precio-oferta').value
+        precioOferta:precioOferta
       });
 
       if(fileInput) fileInput.value='';
@@ -2925,11 +2977,13 @@ function renderCategoryProducts(products) {
     sortedProducts.forEach((prod, i) => {
         const disponible = prod.dispPaquete && prod.precioPaquete > 0;
         const visual = disponible ? getVisualPrice(prod.precioPaquete) : null;
-        const adminState = adminActual ? (!prod.dispPaquete ? ' admin-sin-stock' : (!prod.imagenEditada ? ' admin-falta-editada' : '')) : '';
+        const adminState = adminActual ? (!prod.imagenEditada && prod.imagenOriginal ? ' admin-foto-original' : (!(prod.dispPaquete||prod.dispMayor) ? ' admin-sin-stock' : (!prod.imagenEditada ? ' admin-falta-editada' : ''))) : '';
         const imageHtml = prod.imagenEditada
           ? `<div class="category-product-image" data-img="${escapeHtml(prod.imagenEditada)}"><img src="${escapeHtml(prod.imagenEditada)}" loading="lazy" alt="${escapeHtml(prod.nombre)}"></div>`
           : (adminActual
-              ? `<div class="category-product-image admin-photo-pending"><div><i class="fas fa-image"></i>Falta imagen editada<br><small>No aparece en el catálogo público</small></div></div>`
+              ? (prod.imagenOriginal
+                ? `<div class="category-product-image admin-foto-original-preview" data-img="${escapeHtml(prod.imagenOriginal)}"><img src="${escapeHtml(prod.imagenOriginal)}" loading="lazy" alt="Foto original de ${escapeHtml(prod.nombre)}"><span class="admin-foto-original-etiqueta">FOTO ORIGINAL · PENDIENTE EDICIÓN</span></div>`
+                : `<div class="category-product-image admin-photo-pending"><div><i class="fas fa-image"></i>Sin ninguna fotografía<br><small>Falta imagen editada</small></div></div>`)
               : '');
         cards += `<article class="category-product-card${adminState}">
           ${imageHtml}
@@ -3039,7 +3093,7 @@ function renderResultsList(products) {
     sortedProducts.forEach((prod, i) => {
         const disponible = (prod.dispPaquete && prod.precioPaquete > 0);
         const visual = disponible ? getVisualPrice(prod.precioPaquete) : null;
-        html += `<div class="product-row">
+        html += `<div class="product-row${adminActual && !prod.imagenEditada && prod.imagenOriginal?' admin-foto-original-row':''}">
                     <div class="image-col" data-img="${escapeHtml(prod.imagen)}">
                         <img src="${escapeHtml(prod.imagen)}" loading="lazy" alt="${escapeHtml(prod.nombre)}">
                     </div>
@@ -3888,7 +3942,7 @@ function teusAdminMiniState(prod){
 
   const edited=String(prod.imagenEditada || prod.imagen_editada || '').trim();
   const original=String(prod.imagenOriginal || prod.imagen_original || '').trim();
-  const available=!!prod.dispPaquete;
+  const available=!!(prod.dispPaquete || prod.dispMayor);
 
   if(!available){
     return {
@@ -4110,6 +4164,23 @@ document.addEventListener('DOMContentLoaded',function(){
  if(!modal||!close)return;
  modal.addEventListener('click',function(e){if(e.target===modal)close.click();});
 });
+</script>
+
+<script id="teus-v49-precios-enteros-seguros">
+(function(){
+ document.addEventListener('wheel',function(e){
+  const el=document.activeElement;
+  if(el && el.matches && el.matches('.admin-editor input[type="number"],.admin-editor .adm-precio-entero') && el===e.target){el.blur();}
+ },{passive:true,capture:true});
+ document.addEventListener('input',function(e){
+  const el=e.target;
+  if(el && el.matches && el.matches('.admin-editor .adm-precio-entero')){
+    const before=el.value;
+    const clean=before.replace(/[^0-9]/g,'');
+    if(before!==clean){el.value=clean;el.setCustomValidity('');}
+  }
+ },true);
+})();
 </script>
 </body>
 </html>
