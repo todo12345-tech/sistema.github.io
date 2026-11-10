@@ -1745,6 +1745,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     function bloquearSesionMayor(){
         usuarioMayorActual = null; window.usuarioMayorActual = null;
+        try{window.__teusCambiarSesionMonitor?.()}catch(e){}
         document.getElementById('usuarioMayorBar').style.display='none';
         document.getElementById('loginMayorClave').value='';
         document.getElementById('loginMayorOverlay').style.display='flex';
@@ -1796,6 +1797,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
     function mostrarSesionMayor(u){
         usuarioMayorActual=u; window.usuarioMayorActual=u;
+        try{window.__teusCambiarSesionMonitor?.()}catch(e){}
         document.getElementById('loginMayorOverlay').style.display='none';
         document.getElementById('usuarioMayorBar').style.display='flex';
         document.getElementById('usuarioMayorNombre').textContent=u.nombre||u.usuario;
@@ -4297,7 +4299,7 @@ document.addEventListener('DOMContentLoaded', function() {
  setInterval(()=>{
    const state=window.__teusPaymentState;
    const mon=window.__teusMonitorWindow;
-   if(!state?.open || !mon || mon.closed)return;
+   if(!state?.open || !mon || mon.closed || mon.__teusMonitorOwnerId!==window.__teusMonitorPrincipalId)return;
    try{
      const layer=mon.document?.getElementById('payLayer');
      if(layer && !layer.classList.contains('active'))mon.__teusSetPayVisibleLocal?.(true,state.qr);
@@ -4311,9 +4313,20 @@ document.addEventListener('DOMContentLoaded', function() {
  document.addEventListener('fullscreenchange',()=>{if(overlay)overlay.style.display='none'});
 })();
 </script>
-<script id="teus-monitor-ventana-v51">
+<script id="teus-monitor-ventana-v421">
 (function(){
 'use strict';
+// V4.21: identificador NUEVO para cada carga del HTML, sin compartirlo con
+// otras pestañas ni conservar la sesión anterior del monitor.
+const TEUS_MONITOR_BUILD='4.21';
+let teusMonitorEpoch=0;
+const TEUS_MONITOR_PAGE_ID=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
+window.__teusMonitorPrincipalId=TEUS_MONITOR_PAGE_ID+'-'+teusMonitorEpoch;
+window.__teusMonitorVersion=TEUS_MONITOR_BUILD;
+window.__teusCambiarSesionMonitor=function(){
+  window.__teusMonitorPrincipalId=TEUS_MONITOR_PAGE_ID+'-'+(++teusMonitorEpoch);
+  try{window.__teusSetPayVisible?.(false)}catch(e){}
+};
 const monitorHtml = String.raw`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TodoenUno | Alistar pedido · Monitor</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:#23394e;background:#eef2f6}header{position:sticky;top:0;background:#fff;padding:11px 18px;box-shadow:0 2px 8px #0001;z-index:10}h1{font-size:21px;margin:0 0 6px}.sub{font-size:12px;color:#66798b}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}input[type=search]{font:inherit;min-width:210px;flex:1;padding:11px;border-radius:9px;border:1px solid #cbd5e1}.status{font-weight:700;font-size:14px}.track{height:7px;border-radius:9px;background:#e4e7eb;overflow:hidden;margin-top:8px}#fill{height:100%;width:0;background:#1ea66b}button{cursor:pointer;border:0;border-radius:8px;padding:10px 12px;color:white;background:#344e68;font-weight:700}button.green{background:#129b63}button.grey{background:#687582}main{padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-content:start}.item{background:#fff;border:1px solid #dce4ec;border-radius:12px;display:flex;align-items:center;gap:10px;padding:11px;min-height:102px}.item.done{background:#e4f8ed;border:2px solid #32b67e}.item input[type=checkbox]{width:26px;height:26px;flex:none;accent-color:#16a66a;cursor:pointer}.item img{width:92px;height:92px;object-fit:contain;border-radius:9px;background:#fff;cursor:zoom-in;flex:none}.info{min-width:0;flex:1}.title{font-size:14px;font-weight:650;overflow-wrap:anywhere}.number{font-size:11px;font-weight:800;color:#5d7290}.cost{color:#c45637;font-weight:750;font-size:12px;margin-top:5px}#empty{display:none;text-align:center;padding:30px;color:#6c7885}#light{display:none;position:fixed;inset:0;background:#000d;z-index:30;align-items:center;justify-content:center;padding:25px;cursor:zoom-out}#light.active{display:flex}#light img{max-width:97vw;max-height:94vh;object-fit:contain;border-radius:8px}#closeLight{position:absolute;right:16px;top:12px;background:#343a40}#payLayer{display:none;position:fixed;inset:0;background:rgba(5,16,26,.96);z-index:150;align-items:center;justify-content:center;padding:16px}#payLayer.active{display:flex}#payCard{background:#fff;text-align:center;border-radius:18px;padding:15px;width:min(96vw,900px);max-height:96vh;overflow-y:auto;position:relative}#payCard h2{font-size:clamp(18px,2.2vw,28px);margin:7px 40px 12px}#payImage{display:block;object-fit:contain;width:min(46vh,410px);max-width:78vw;max-height:46vh;margin:auto}#closePay{position:absolute;top:8px;right:9px;background:#334155;font-size:18px}#payCard p{font-size:12px;color:#64748b;margin:8px 0 0}footer{position:fixed;bottom:0;right:0;left:0;padding:8px 15px;background:#fff;display:flex;justify-content:flex-end;gap:8px;box-shadow:0 -2px 9px #0001}main{padding-bottom:75px}
@@ -4353,8 +4366,50 @@ footer{position:static;grid-row:3;z-index:12}
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);const parent=window.opener || (window.parent!==window ? window.parent : null);
+const monitorBuild='4.21';
+let monitorOwnerId='';
+window.__teusMonitorBuild=monitorBuild;
+window.__teusMonitorOwnerId='';
+let ultimoIntentoAdopcion='', ultimaRevisionAdopcion=0, conexionEnEspera=false;
+function mostrarEstadoDesconexion(mensaje){
+  let aviso=$('teusMonitorReconexion');
+  if(!aviso){
+    aviso=document.createElement('div');aviso.id='teusMonitorReconexion';
+    aviso.setAttribute('role','status');
+    aviso.style.cssText='position:fixed;inset:0;z-index:2147483640;background:rgba(18,34,54,.95);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:25px;font:700 23px Segoe UI,Arial,sans-serif';
+    document.body.appendChild(aviso);
+  }
+  aviso.textContent=mensaje||'Esperando conexión con Ventas por Mayor…';
+  if(!conexionEnEspera){conexionEnEspera=true;try{window.__teusSetPayVisibleLocal?.(false)}catch(e){}try{salirStandby()}catch(e){}}
+}
+function verificarSesionMonitor(){
+  if(!esMonitorIndependiente)return true;
+  let id='',version='',autorizado=false;
+  try{
+    id=String(parent?.__teusMonitorPrincipalId||'');
+    version=String(parent?.__teusMonitorVersion||'');
+    autorizado=!!parent?.usuarioMayorActual && typeof parent?.__teusGetMonitorData==='function';
+  }catch(e){}
+  if(!id || !autorizado){
+    mostrarEstadoDesconexion('La sesión de Ventas por Mayor no está activa. Inicia sesión en la ventana principal para reconectar.');
+    $('status').textContent='Sin sesión · esperando reconexión';
+    return false;
+  }
+  if(id!==monitorOwnerId || version!==monitorBuild){
+    mostrarEstadoDesconexion('Reconectando con la sesión actual de Ventas por Mayor…');
+    if(Date.now()-ultimaRevisionAdopcion>1800 || ultimoIntentoAdopcion!==id){
+      ultimoIntentoAdopcion=id;ultimaRevisionAdopcion=Date.now();
+      try{parent.__teusAdoptarMonitorExistente?.(window)}catch(e){console.info('Esperando recuperación del monitor',e)}
+    }
+    return false;
+  }
+  conexionEnEspera=false;
+  $('teusMonitorReconexion')?.remove();
+  return true;
+}
 let previous='';let current=[];let lastSummary='';let lastConnectionGood=false;
 const esMonitorIndependiente=!!window.opener && !window.frameElement;
+try{if(parent?.__teusMonitorPrincipalId){monitorOwnerId=String(parent.__teusMonitorPrincipalId);window.__teusMonitorOwnerId=monitorOwnerId}}catch(e){}
 let ultimaActividad=Date.now(), ultimaFirmaPedido='', ofertaPos=0, ultCambio=0;
 let versionStandby=0; // cancela activaciones y transiciones anteriores
 let cargaStandby=false;
@@ -4396,14 +4451,14 @@ const token=versionStandby;const pintar=()=>{if(token!==versionStandby)return;co
 if(!$('teusStandby').classList.contains('active'))pintar();else setTimeout(pintar,300);
 $('teusStandby').classList.add('active');ultCambio=Date.now()}
 function cicloStandby(){
- if(!esMonitorIndependiente || cargaStandby)return;
+ if(!esMonitorIndependiente || cargaStandby || !verificarSesionMonitor())return;
  if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active')||$('light').classList.contains('active'))return;
  if(!$('teusStandby').classList.contains('active')){
    if(current.length && Date.now()>=suspenderStandbyHasta && Date.now()-ultimaActividad>=TIEMPO_STANDBY && ofertasReales().length)mostrarOferta();
  }
 else if(Date.now()-ultCambio>=ROTACION){ofertaPos++;mostrarOferta()}}
 async function activarStandbyManual(){
- if(!esMonitorIndependiente)return false;
+ if(!esMonitorIndependiente || !verificarSesionMonitor())return false;
  // SEGUNDA PULSACIÓN: cancelar también si las ofertas aún estaban cargando.
  if($('teusStandby').classList.contains('active')||cargaStandby){salirStandby();return true;}
  if($('light').classList.contains('active'))return false;
@@ -4433,10 +4488,11 @@ const t=document.createElement('div');t.textContent='Detalle del pedido';t.style
 const list=document.createElement('div');list.style='max-height:21vh;overflow:auto;border:1px solid #e5eaf1;border-radius:10px';r.detalle.forEach(x=>{const row=document.createElement('div');row.style='display:flex;justify-content:space-between;gap:14px;padding:8px 10px;border-bottom:1px solid #e8edf2;font-size:13px';const name=document.createElement('span');name.textContent=x.n;const cost=document.createElement('strong');cost.style.whiteSpace='nowrap';cost.textContent=money(x.precio);row.append(name,cost);list.append(row)});if(!r.detalle.length)list.textContent='Sin productos';root.append(list);
 const total=document.createElement('div');total.style='display:flex;justify-content:space-between;gap:10px;margin-top:10px;font-weight:900;color:#087247;font-size:clamp(19px,2.4vw,27px)';const lab=document.createElement('span');lab.textContent='TOTAL A PAGAR';const value=document.createElement('span');value.textContent=money(r.total);total.append(lab,value);root.append(total)}
 function rows(){try{if(!parent||parent.closed)return null;return parent.__teusGetMonitorData?parent.__teusGetMonitorData():null}catch(e){return null}}
-function mark(i,checked){salirStandby();try{if(parent&&!parent.closed&&parent.__teusChecklistSync){parent.__teusChecklistSync(i,checked);refresh(false)}}catch(e){console.error(e)}}
+function mark(i,checked){if(!verificarSesionMonitor())return;salirStandby();try{if(parent&&!parent.closed&&parent.__teusChecklistSync){parent.__teusChecklistSync(i,checked);refresh(false)}}catch(e){console.error(e)}}
 function hq(u,size){const s=String(u||'').trim();if(!s)return '';const m=s.match(/\/d\/([^/?]+)/)||s.match(/[?&]id=([^&]+)/)||s.match(/thumbnail\?id=([^&]+)/)||s.match(/uc\?(?:export=view&)?id=([^&]+)/);if(m)return 'https://drive.google.com/thumbnail?id='+encodeURIComponent(m[1])+'&sz=w'+Math.max(600,Number(size)||1600);return /^https:\/\//i.test(s)?s:''}
 function render(arr){const list=$('list');list.replaceChildren();const query=$('search').value.normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase();let count=0;arr.forEach((p,i)=>{if(!String(p.n||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').toLowerCase().includes(query))return;count++;const c=document.createElement('article');c.className='item'+(p.c?' done':'');c.dataset.mayorIndex=String(i);const check=document.createElement('input');check.type='checkbox';check.checked=!!p.c;check.title='Marcar preparado';check.addEventListener('change',()=>mark(i,check.checked));c.append(check);const thumb=hq(p.i,900);const zoom=hq(p.i,1800);if(thumb){const img=document.createElement('img');img.src=thumb;img.alt=p.n;img.referrerPolicy='no-referrer';img.loading='eager';img.addEventListener('click',()=>{$('big').src=zoom||thumb;$('light').classList.add('active')});c.append(img)}else{const ph=document.createElement('span');ph.textContent='📦';ph.style.fontSize='30px';c.append(ph)}const info=document.createElement('div');info.className='info';const num=document.createElement('div');num.className='number';num.textContent='#'+String(i+1).padStart(2,'0');const title=document.createElement('div');title.className='title';title.textContent=p.n||'Producto';info.append(num,title);if(p.precio!=null){const cost=document.createElement('div');cost.className='cost';cost.textContent='Costo: '+Number(p.precio||0).toLocaleString('es-BO',{maximumFractionDigits:2})+' Bs';info.append(cost)}c.append(info);list.append(c)});$('empty').style.display=count?'none':'block';$('empty').textContent=arr.length?'Sin coincidencias':'No hay productos en el pedido. Agrégalos desde la pantalla principal.';}
 function refresh(force){
+ if(!verificarSesionMonitor())return;
  // Recuperación de sincronización: pago y cierre nacen siempre en el principal.
  try{
    const payment=parent?.__teusGetPaymentState?.();
@@ -4466,7 +4522,7 @@ function refresh(force){
    });
  }
  const done=next.filter(x=>x.c).length;$('status').textContent=done+' / '+next.length+' listos · '+(next.length?Math.round(done*100/next.length):0)+'%';$('fill').style.width=(next.length?done*100/next.length:0)+'%'}
-$('search').addEventListener('input',()=>render(current));$('all').addEventListener('click',()=>{current.forEach((p,i)=>{if(!p.c)parent?.__teusChecklistSync?.(i,true)});refresh(false)});$('none').addEventListener('click',()=>{current.forEach((p,i)=>{if(p.c)parent?.__teusChecklistSync?.(i,false)});refresh(false)});$('expand').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})});$('closeLight').addEventListener('click',()=>{$('light').classList.remove('active')});$('light').addEventListener('click',e=>{if(e.target===$('light'))$('light').classList.remove('active')});window.addEventListener('keydown',e=>{if(e.key==='Escape'){$('light').classList.remove('active');changePayment(false)}});
+$('search').addEventListener('input',()=>render(current));$('all').addEventListener('click',()=>{if(!verificarSesionMonitor())return;current.forEach((p,i)=>{if(!p.c)parent?.__teusChecklistSync?.(i,true)});refresh(false)});$('none').addEventListener('click',()=>{if(!verificarSesionMonitor())return;current.forEach((p,i)=>{if(p.c)parent?.__teusChecklistSync?.(i,false)});refresh(false)});$('expand').addEventListener('click',()=>{if(document.fullscreenElement)document.exitFullscreen();else document.documentElement.requestFullscreen().catch(()=>{})});$('closeLight').addEventListener('click',()=>{$('light').classList.remove('active')});$('light').addEventListener('click',e=>{if(e.target===$('light'))$('light').classList.remove('active')});window.addEventListener('keydown',e=>{if(e.key==='Escape'){$('light').classList.remove('active');changePayment(false)}});
 // Función pública invocada desde el sistema de ventas (sin rebote).
 window.__teusSetPayVisibleLocal=function(visible,data){
  if(visible){
@@ -4482,6 +4538,7 @@ window.__teusSetPayVisibleLocal=function(visible,data){
  return true;
 };
 function changePayment(visible){
+ if(!verificarSesionMonitor())return;
  try{
    if(parent&&!parent.closed&&typeof parent.__teusSetPayVisible==='function'){
       parent.__teusSetPayVisible(!!visible);
@@ -4502,6 +4559,7 @@ window.addEventListener('keydown',e=>{if($('teusStandby').classList.contains('ac
 document.addEventListener('pointerdown',e=>{if(!e.target.closest('#teusStandby'))ultimaActividad=Date.now()},true);
 }
 window.__teusGetLivePreviewState=function(){
+ if(!verificarSesionMonitor())return null;
  const pay=$('payLayer').classList.contains('active');
  const standby=$('teusStandby').classList.contains('active');
  const list=$('list'),summary=$('monitorSummary');
@@ -4535,13 +4593,41 @@ refresh(true);setInterval(()=>refresh(false),1100);setInterval(cicloStandby,1000
 })();
 ${'</scr'+'ipt>'}</body></html>`;
 let monitorWindow=null;
+let reparandoMonitor=false;
+function monitorListoActual(w){
+  try{return !!w&&!w.closed&&w.__teusMonitorBuild===TEUS_MONITOR_BUILD&&w.__teusMonitorOwnerId===window.__teusMonitorPrincipalId}catch(e){return false}
+}
+function repararMonitor(w){
+  if(!w||w.closed||reparandoMonitor)return false;
+  if(!window.usuarioMayorActual||typeof window.__teusGetMonitorData!=='function')return false;
+  monitorWindow=w;window.__teusMonitorWindow=w;
+  if(monitorListoActual(w))return true;
+  reparandoMonitor=true;
+  try{
+    // La ventana anterior se reutiliza: no abrir otra ni depender de popup.
+    // Crear documento nuevo solo para sesiones/versiones realmente diferentes.
+    w.document.open();w.document.write(monitorHtml);w.document.close();
+    return true;
+  }catch(e){console.error('No se pudo recuperar el segundo monitor',e);return false}
+  finally{reparandoMonitor=false}
+}
+window.__teusAdoptarMonitorExistente=function(w){
+  // El monitor sobrevivió a un reload o a un nuevo login en la ventana principal.
+  try{if(!w||w.closed||w.opener!==window)return false}catch(e){return false}
+  return repararMonitor(w);
+};
 function launch(){
-  if(typeof window.__teusGetMonitorData!=='function'){alert('Inicia sesión y abre el pedido antes de mostrarlo.');return;}
-  if(monitorWindow&&!monitorWindow.closed){monitorWindow.focus();return;}
-  monitorWindow=window.open('','teus_alistar_monitor','width=1250,height=820,resizable=yes,scrollbars=yes');
-  if(!monitorWindow){alert('El navegador bloqueó la ventana. Permite ventanas emergentes para esta página y vuelve a pulsar el botón.');return;}
-  window.__teusMonitorWindow=monitorWindow;
-  monitorWindow.document.open();monitorWindow.document.write(monitorHtml);monitorWindow.document.close();monitorWindow.focus();
+  if(!window.usuarioMayorActual||typeof window.__teusGetMonitorData!=='function'){
+    alert('Inicia sesión y abre el pedido antes de mostrarlo.');return;
+  }
+  if(monitorWindow&&!monitorWindow.closed){
+    repararMonitor(monitorWindow);monitorWindow.focus();return;
+  }
+  // Abrir por nombre permite REUTILIZAR la ventana que quedó abierta ayer.
+  const w=window.open('','teus_alistar_monitor','width=1250,height=820,resizable=yes,scrollbars=yes');
+  if(!w){alert('El navegador bloqueó la ventana. Permite ventanas emergentes para esta página.');return}
+  if(!repararMonitor(w))alert('No se pudo vincular el monitor. Comprueba que ambas ventanas tengan el mismo origen.');
+  else w.focus();
 }
 
 // V5.9: El alistado de la laptop es la misma aplicación que la ventana del monitor.
@@ -4715,7 +4801,7 @@ window.__teusPedidoModificado=function(){
  }
  function tick(){
   let state=null;
-  try{if(monitorWindow&&!monitorWindow.closed&&typeof monitorWindow.__teusGetLivePreviewState==='function')state=monitorWindow.__teusGetLivePreviewState()}catch(e){}
+  try{if(monitorListoActual(monitorWindow)&&typeof monitorWindow.__teusGetLivePreviewState==='function')state=monitorWindow.__teusGetLivePreviewState()}catch(e){}
   if(!state){screen.classList.remove('teus-wakeup-ready');if(lastMode!=='off'){lastMode='off';showMode('',false);lastSignature='';lastStructure='';lastOffer='';lastQr='';}return;}
   const mode=state.mode||'alistar';
   screen.classList.toggle('teus-wakeup-ready',mode==='ofertas');
