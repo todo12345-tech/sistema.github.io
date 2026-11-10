@@ -1894,6 +1894,81 @@ body.admin-mode #categoriesGrid .admin-home-status .warn{background:#ffdf84;colo
 .admin-editor[data-guardando="si"]{border-color:#60a5fa}
 .admin-editor[data-guardando="si"] .admin-save{opacity:.65;cursor:progress}
 </style>
+
+<style id="teus-v51-admin-seis-columnas">
+/* V51 · El modo editable se ve en cuadrícula, tanto al buscar como al entrar a una sección.
+   Estas reglas NO afectan al catálogo público. */
+@media (min-width: 1250px) {
+ body.admin-mode #results-view #resultsList .category-horizontal-track,
+ body.admin-mode #results-view .category-horizontal-track:has(.admin-editor) {
+    display:grid!important;
+    grid-template-columns:repeat(6,minmax(0,1fr))!important;
+    gap:16px!important;
+    align-items:start!important;
+ }
+}
+@media (min-width: 990px) and (max-width:1249px) {
+ body.admin-mode #results-view #resultsList .category-horizontal-track,
+ body.admin-mode #results-view .category-horizontal-track:has(.admin-editor) {
+    grid-template-columns:repeat(4,minmax(0,1fr))!important;
+    gap:14px!important;
+ }
+}
+@media (min-width: 680px) and (max-width:989px) {
+ body.admin-mode #results-view #resultsList .category-horizontal-track,
+ body.admin-mode #results-view .category-horizontal-track:has(.admin-editor) {
+    grid-template-columns:repeat(3,minmax(0,1fr))!important;
+    gap:12px!important;
+ }
+}
+@media (min-width: 420px) and (max-width:679px) {
+ body.admin-mode #results-view #resultsList .category-horizontal-track,
+ body.admin-mode #results-view .category-horizontal-track:has(.admin-editor) {
+    grid-template-columns:repeat(2,minmax(0,1fr))!important;
+    gap:10px!important;
+ }
+}
+@media (max-width:419px) {
+ body.admin-mode #results-view #resultsList .category-horizontal-track,
+ body.admin-mode #results-view .category-horizontal-track:has(.admin-editor) {
+    grid-template-columns:minmax(0,1fr)!important;
+ }
+}
+body.admin-mode #results-view #resultsList .category-product-card:has(.admin-editor) {
+ display:flex!important;flex-direction:column!important;min-width:0!important;
+ width:100%!important;gap:0!important;padding:0!important;
+ border:1px solid #e2e8f0;border-radius:10px;overflow:hidden!important;
+ background:white;
+}
+body.admin-mode #results-view #resultsList .category-product-card .category-product-image {
+ width:100%!important;max-width:100%!important;flex:none!important;
+ height:125px!important;min-height:125px!important;padding:5px!important;
+ margin:0!important;
+}
+body.admin-mode #results-view #resultsList .category-product-body {width:100%!important;min-width:0!important;padding:8px 9px 0!important}
+body.admin-mode #results-view #resultsList .category-product-name {
+ font-size:12px!important;font-weight:700!important;margin:5px 0!important;
+ line-height:1.25!important;min-height:30px!important;
+}
+body.admin-mode #results-view #resultsList .category-price-now{font-size:16px!important}
+body.admin-mode #results-view #resultsList .category-pack{font-size:10px!important}
+body.admin-mode #results-view #resultsList .category-save{font-size:10px!important}
+body.admin-mode #results-view #resultsList .admin-editor {
+ margin:8px!important;width:calc(100% - 16px)!important;
+ padding:8px!important;max-width:none!important;min-width:0!important;
+}
+body.admin-mode #results-view #resultsList .admin-editor-title{font-size:11px!important;gap:4px!important}
+body.admin-mode #results-view #resultsList .admin-editor .admin-status {font-size:9px!important;padding:3px 5px!important}
+body.admin-mode #results-view #resultsList .admin-field input{
+ font-size:12px!important;padding:7px 6px!important;
+}
+body.admin-mode #results-view #resultsList .admin-field label {font-size:10px!important;line-height:1.3!important;overflow-wrap:anywhere}
+body.admin-mode #results-view #resultsList .admin-checks label {font-size:10px!important}
+body.admin-mode #results-view #resultsList .admin-actions button {font-size:11px!important;padding:8px 6px!important}
+body.admin-mode #results-view #resultsList .admin-photo-link{
+ font-size:9px!important;overflow-wrap:anywhere;max-height:50px;overflow:auto;
+}
+</style>
 </head>
 <body>
 
@@ -2449,7 +2524,10 @@ function showResultsBySearch(term, push = true, restoreScroll = 0) {
     const scored=allProducts.map(p=>({p,score:productSearchScore(p,q)})).filter(x=>x.score>0).sort((a,b)=>b.score-a.score||a.p.nombre.localeCompare(b.p.nombre,'es'));
     const filtered=scored.map(x=>x.p);
     document.getElementById('resultsTitle').innerHTML = `Resultados para "${escapeHtml(q)}"`;
-    renderResultsList(filtered);
+    // V51: en administración, los resultados de búsqueda usan la misma cuadrícula
+    // editable de las categorías. La vista pública conserva su lista habitual.
+    if (adminActual) renderCategoryProducts(filtered);
+    else renderResultsList(filtered);
     document.getElementById('home-view').style.display = 'none';
     document.getElementById('results-view').style.display = 'block';
     window.scrollTo(0, restoreScroll || 0);
