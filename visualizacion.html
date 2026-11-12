@@ -13,7 +13,7 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <meta name="apple-mobile-web-app-title" content="Visualización">
 <meta name="application-name" content="Visualización Ventas">
-<title>Todoenuno_store - Visualización V3.4 · Mixto y Apertura</title>
+<title>Todoenuno_store - Visualización V4.1 · Filtros de cobro</title>
 <style>
 * {
 margin: 0;
@@ -1125,6 +1125,36 @@ body{padding:0;background:#eef2f8} .app-container{max-width:1600px;margin:auto}.
   .logout-btn{padding:7px 8px;font-size:11px}
 }
 </style>
+<style id="teus-visualizacion-v41-filtros-movil">
+/* V4.1: cuatro indicadores de pagos + filtros y vista cómoda desde 320 px. */
+.te41-payment-summary{min-width:0;}
+.te41-payment-grid{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px;margin-top:9px}
+.te41-payment-box{background:#f1f6fb;border:1px solid #dbe6f2;border-radius:10px;min-width:0;padding:11px 8px;display:flex;flex-direction:column;gap:6px}
+.te41-payment-box span{font-size:11px;font-weight:800;color:#405a72;line-height:1.3}
+.te41-payment-box strong{font-size:clamp(12px,1.3vw,18px);color:#18405b;overflow-wrap:anywhere;font-variant-numeric:tabular-nums}
+.te41-payment-box:nth-child(2){background:#eef7ff}.te41-payment-box:nth-child(3){background:#f3edff}.te41-payment-box:nth-child(4){background:#ebfbf3}
+.te41-note{font-size:11px;color:#64748b;line-height:1.5;margin-top:9px}
+.te41-filter-area{margin:10px 14px 0;background:white;border:1px solid #dde7ef;border-radius:12px;padding:13px}
+.te41-filter-head{display:flex;align-items:center;justify-content:space-between;gap:10px;flex-wrap:wrap;color:#23445b;font-size:14px;margin-bottom:10px}
+.te41-filter-head span{color:#627789;font-size:11px;font-weight:600}
+.te41-filter-buttons{display:grid;grid-template-columns:repeat(6,minmax(0,1fr));gap:7px}
+.te41-filter-btn{min-width:0;width:100%;padding:11px 5px;border:1px solid #bfd1df;background:#f6f9fd;border-radius:9px;color:#29475e;font-size:12px;line-height:1.3;font-weight:750;cursor:pointer}
+.te41-filter-btn.active{color:#fff;background:#215c96;border-color:#215c96}
+.te41-filter-btn:focus-visible{outline:3px solid #ffbf47;outline-offset:1px}
+.te41-filter-hint{display:block;margin-top:9px;font-size:11px;line-height:1.45;color:#607489}
+.te41-mobile-lines{margin-top:9px;min-width:0}
+.te41-mobile-lines .v32-lines{margin:0}
+.te41-mobile-lines .v32-line{min-width:0}
+.te41-show-more{margin-top:7px;padding:8px 11px;border:1px solid #b8d0e8;border-radius:8px;background:#edf6ff;color:#195689;font-size:12px;font-weight:800;cursor:pointer;max-width:100%}
+.te41-mobile-total{display:flex;align-items:center;justify-content:space-between;gap:8px;margin-top:8px;background:#eaf6ef;border:1px solid #c3ead1;border-radius:9px;padding:10px 9px;font-size:12px;font-weight:700;color:#145c3c}
+.te41-mobile-total strong{font-size:15px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.te41-mobile-extra{margin-top:7px}
+.te41-mobile-extra summary{cursor:pointer;font-size:12px;color:#195689;font-weight:700;padding:7px 0}
+.te41-mobile-extra[open] summary{margin-bottom:5px}
+@media(max-width:950px){.te41-filter-buttons{grid-template-columns:repeat(3,minmax(0,1fr))}.te41-payment-grid{grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:480px){.te41-filter-area{margin:8px 6px 0;padding:9px}.te41-filter-buttons{grid-template-columns:repeat(3,minmax(0,1fr));gap:5px}.te41-filter-btn{padding:10px 3px;font-size:11px}.te41-payment-grid{gap:6px}.te41-payment-box{padding:8px 6px}.te41-payment-box strong{font-size:13px}.te41-payment-box span{font-size:10px}.te41-mobile-total{padding:8px 6px}.te41-mobile-total strong{font-size:13px}}
+@media(max-width:340px){.te41-filter-btn{font-size:10px;padding:9px 2px}.te41-filter-area{margin:7px 4px 0}.te41-mobile-lines .v32-line{grid-template-columns:minmax(0,1fr) 66px;gap:5px;padding:7px 4px}.te41-mobile-lines .v32-prod,.te41-mobile-lines .v32-amount{font-size:11px;overflow-wrap:anywhere}.te41-mobile-total{font-size:11px}.te41-mobile-total strong{font-size:12px}}
+</style>
 </head>
 <body>
 <!-- PANTALLA DE LOGIN -->
@@ -1300,7 +1330,13 @@ body{padding:0;background:#eef2f8} .app-container{max-width:1600px;margin:auto}.
 <div class="dynamic-card"><div class="k">Comparación por sucursal</div><div class="branch-comparison"><div class="branch-box"><span>Comercial</span><strong id="dashComercial">Bs. 0.00</strong><small id="dashComercialCount">0 ventas</small></div><div class="branch-box feria"><span>Feria</span><strong id="dashFeria">Bs. 0.00</strong><small id="dashFeriaCount">0 ventas</small></div></div></div>
 <div class="dynamic-card"><div class="k">Vendedores</div><div class="rank-list" id="dashVendedores"></div></div>
 <div class="dynamic-card"><div class="k">Productos con mayor movimiento</div><div class="rank-list" id="dashProductos"></div></div>
-<div class="dynamic-card"><div class="k">Fuente de datos</div><div style="font-size:13px;line-height:1.6;color:#34495e">Google Sheets directo<br><strong id="dashFuente">Comercial</strong><br><span style="color:#7f8c8d">Visualización no edita ventas.</span></div></div>
+<div class="dynamic-card te41-payment-summary"><div class="k">Control de cobros por método</div>
+<div class="te41-payment-grid">
+<div class="te41-payment-box"><span>Efectivo</span><strong id="te41Cash">Bs. 0.00</strong></div>
+<div class="te41-payment-box"><span>QR</span><strong id="te41Qr">Bs. 0.00</strong></div>
+<div class="te41-payment-box"><span>QR por mayor</span><strong id="te41QrMayor">Bs. 0.00</strong></div>
+<div class="te41-payment-box"><span>Efectivo por mayor</span><strong id="te41CashMayor">Bs. 0.00</strong></div>
+</div><div id="te41ClassificationNotice" class="te41-note">Se utiliza la clasificación registrada en la hoja; no se adivina por cantidad ni precio.</div></div>
 </div></div>
 <div class="nav-buttons" id="navButtons">
 <button class="nav-btn" id="btnAtras" onclick="changeDay(-1)">
@@ -1324,7 +1360,16 @@ Adelante <i class="fas fa-chevron-right"></i>
 <button class="liquidity-btn" id="btnLiquidezSemanal"><i class="fas fa-calendar-week"></i> Liquidez Semanal</button>
 <button class="liquidity-btn" id="btnLiquidezMensual"><i class="fas fa-calendar-alt"></i> Liquidez Mensual</button>
 </div>
-<div class="v3-section-heading"><h3>Detalle de operaciones</h3><span>Solo lectura · desliza la tabla o consulta las tarjetas en móvil</span></div><div class="table-container" id="normalTableContainer">
+<div class="v3-section-heading"><h3>Detalle de operaciones</h3><span>Solo lectura · tarjetas adaptadas a celulares pequeños</span></div>
+<div class="te41-filter-area" id="te41FilterArea"><div class="te41-filter-head"><strong><i class="fas fa-filter"></i> Filtrar por cobro</strong><span id="te41FilterCount">Todas las operaciones</span></div>
+<div class="te41-filter-buttons" role="group" aria-label="Filtrar por método de pago">
+<button type="button" class="te41-filter-btn active" data-te41-filter="todos" aria-pressed="true">Todos</button>
+<button type="button" class="te41-filter-btn" data-te41-filter="efectivo" aria-pressed="false">Efectivo</button>
+<button type="button" class="te41-filter-btn" data-te41-filter="qr" aria-pressed="false">QR</button>
+<button type="button" class="te41-filter-btn" data-te41-filter="mixto" aria-pressed="false">Mixto</button>
+<button type="button" class="te41-filter-btn" data-te41-filter="qr_mayor" aria-pressed="false">QR por mayor</button>
+<button type="button" class="te41-filter-btn" data-te41-filter="efectivo_mayor" aria-pressed="false">Efectivo por mayor</button>
+</div><small class="te41-filter-hint">Los movimientos de caja aparecen en «Todos». Las ventas por mayor solo se identifican si la hoja tiene un campo que lo indique.</small></div><div class="table-container" id="normalTableContainer">
 <div class="data-message" id="dataError">
 <i class="fas fa-exclamation-triangle"></i>
 <p>Error al cargar datos</p>
@@ -1367,7 +1412,7 @@ Adelante <i class="fas fa-chevron-right"></i>
 <div id="liquiditySummary" class="liquidity-summary"></div>
 </div>
 <div class="total-final-box" id="totalFinalBox">
-<div class="total-final-label"><i class="fas fa-shopping-cart"></i> Total de Ventas Registradas</div>
+<div class="total-final-label" id="te41TotalLabel"><i class="fas fa-shopping-cart"></i> Total de Ventas Registradas</div>
 <div class="total-final-amount" id="totalFinalAmount">Bs. 0.00</div>
 </div>
 <div class="final-space"></div>
@@ -1833,8 +1878,8 @@ function parseCSV(csvText) {
 function moneyV3(v){const z=String(v??'').replace(/\s/g,'').replace(/Bs\.?/ig,'');if(!z)return 0;const n=Number(z.includes(',')&&!z.includes('.')?z.replace(',','.'):z.replace(/,/g,''));return Number.isFinite(n)?n:0;}
 function isSaleV3(x){return x.tipo==='venta'&&!/ANULAD|ELIMINAD/i.test(x.estado_venta||'');}
 function paymentV3(v){const m=normalize(v.metodo_pago||''),t=Number(v.total)||0,e=Number(v.monto_efectivo)||0,q=Number(v.monto_qr)||0,has=e!==0||q!==0;if(has){if(e+q>t+.011){return {ef:Math.max(0,e),qr:Math.max(0,q),warning:true};}return {ef:Math.max(0,e),qr:Math.max(0,q),warning:false};}if(m.includes('mixto'))return {ef:0,qr:0,warning:true};if(m.includes('qr'))return {ef:0,qr:t};if(m.includes('efectivo'))return {ef:t,qr:0};return {ef:0,qr:0,warning:true};}
-function openingV3(){return filteredData.filter(x=>x.tipo==='apertura').sort((a,b)=>a.hora.localeCompare(b.hora));}
-function closingV3(){return filteredData.filter(x=>x.tipo==='cierre').sort((a,b)=>a.hora.localeCompare(b.hora));}
+function openingV3(){return te41DateBase.filter(x=>x.tipo==='apertura').sort((a,b)=>a.hora.localeCompare(b.hora));}
+function closingV3(){return te41DateBase.filter(x=>x.tipo==='cierre').sort((a,b)=>a.hora.localeCompare(b.hora));}
 function cashMoveV3(x){return Number(x.ingreso_efectivo)||Number(x.monto_efectivo)||0;}
 function processData(rawData, sheetType) {
 return rawData.map(item => {
@@ -1885,6 +1930,7 @@ usuario: usuarioField ? item[usuarioField] || '' : '', sucursal: tipoSucursalFie
 tipo, monto_efectivo:montoEfectivo, monto_qr:montoQr, hoja_origen:sheetType, apertura_caja:aperturaCajaValor, cierre_caja:cierreCajaValor,
 montos: montosField ? (item[montosField] || '') : '',
 direccion: direccionField ? String(item[direccionField] || '').trim() : '', departamento: departamentoField ? String(item[departamentoField] || '').trim() : '',
+ canal_mayor: String(item['tipo_venta']||item['canal_venta']||item['origen_venta']||item['tipo_pedido']||item['canal']||item['mayorista']||item['es_mayor']||''),
  efectivo_recibido:moneyV3(item['efectivo_recibido']),cambio_efectivo:moneyV3(item['cambio_efectivo']),devuelto_qr:moneyV3(item['devuelto_qr']||item['cambio_qr']),
  ingreso_efectivo:moneyV3(item['ingreso_efectivo']), moneda_monto_registrado:[item['ingreso_efectivo'],item['monto_efectivo']].some(v=>String(v??'').trim()!=='' && moneyV3(v)!==0), estado_venta:String(item['estado_venta']||''), observaciones:String(item['observaciones']||''), id_venta:String(item['id_venta']||'')
 };
@@ -1912,7 +1958,7 @@ const l={comercial:'Comercial',feria:'Feria',ambas:'Ambas'};sheetIndicator.textC
 }
 
 function updateSheetSourceIndicator() {
-const l={comercial:'Comercial',feria:'Feria',ambas:'Comercial + Feria'};currentSheetName.textContent=l[currentSheet]||'Comercial';const d=document.getElementById('dashFuente');if(d)d.textContent=currentSheetName.textContent;
+const l={comercial:'Comercial',feria:'Feria',ambas:'Comercial + Feria'};currentSheetName.textContent=l[currentSheet]||'Comercial';
 }
 
 function updateSyncBadge(type, message) {
@@ -2041,21 +2087,40 @@ ventasElements.currentDate.textContent = date.toLocaleDateString('es-ES');
 
 function fechaEnRangoRapido(fecha,range){if(!fecha)return false;const d=new Date(fecha+'T12:00:00'),h=new Date();h.setHours(12,0,0,0);if(range==='ayer'){const a=new Date(h);a.setDate(a.getDate()-1);return d.toDateString()===a.toDateString();}if(range==='semana'){const ini=new Date(h),dow=(ini.getDay()+6)%7;ini.setDate(ini.getDate()-dow);const fin=new Date(ini);fin.setDate(fin.getDate()+6);return d>=ini&&d<=fin;}if(range==='mes')return d.getFullYear()===h.getFullYear()&&d.getMonth()===h.getMonth();return d.toDateString()===h.toDateString();}
 function aplicarFechaRapida(range){const d=new Date();if(range==='ayer')d.setDate(d.getDate()-1);const ds=`${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;ventasElements.dateFilter.value=ds;updateDayPanel(ds);filterData();}
+// V4.1. El filtro monetario se aplica después de fecha/búsqueda y no toca los registros originales.
+let te41PaymentFilter='todos';
+let te41DateBase=[];
+function te41IsMayor(v){const raw=teNorm(v.canal_mayor||'')+' '+teNorm(v.metodo_pago||'');return /(?:^|\b)(mayor|mayorista|wholesale|por mayor|true|si|yes)(?:\b|$)/.test(raw)&&!/minor|menor/.test(raw);}
+function te41PaymentKind(v){const m=teNorm(v.metodo_pago||'');const p=paymentV3(v);if(m.includes('mixto')||(p.ef>0.01&&p.qr>0.01))return 'mixto';if(m.includes('qr')||p.qr>0.01)return 'qr';if(m.includes('efectivo')||p.ef>0.01)return 'efectivo';return 'otro';}
+function te41Matches(v,f){if(f==='todos')return true;if(!isSaleV3(v))return false;const kind=te41PaymentKind(v),may=te41IsMayor(v);if(f==='qr_mayor')return may&&kind==='qr';if(f==='efectivo_mayor')return may&&kind==='efectivo';if(f==='qr'||f==='efectivo')return kind===f&&!may;return f===kind;}
+function te41UpdatePaymentSummary(){
+ const ventas=te41DateBase.filter(isSaleV3),normal=ventas.filter(v=>!te41IsMayor(v)),mayor=ventas.filter(te41IsMayor);
+ const sum=(list,key)=>list.reduce((acc,v)=>acc+paymentV3(v)[key],0);
+ const put=(id,n)=>{const el=document.getElementById(id);if(el)el.textContent='Bs. '+n.toFixed(2)};
+ put('te41Cash',sum(normal,'ef'));put('te41Qr',sum(normal,'qr'));put('te41CashMayor',sum(mayor,'ef'));put('te41QrMayor',sum(mayor,'qr'));
+ const missing=ventas.filter(v=>!String(v.canal_mayor||'').trim()).length;
+ const info=document.getElementById('te41ClassificationNotice');if(info)info.textContent=missing?`${missing} venta(s) sin clasificación explícita de canal: se presentan junto a las generales. «Por mayor» solo usa una marca registrada en Sheets. Los importes incluyen los componentes de pagos mixtos.`:'Importes separados por canal registrado. Los pagos mixtos aportan su parte de efectivo y QR a cada total.';
+ const count=document.getElementById('te41FilterCount');if(count)count.textContent=te41PaymentFilter==='todos'?`${filteredData.length} operaciones`:`${filteredData.length} ventas coincidentes`;
+ document.querySelectorAll('[data-te41-filter]').forEach(btn=>{const on=btn.dataset.te41Filter===te41PaymentFilter;btn.classList.toggle('active',on);btn.setAttribute('aria-pressed',on?'true':'false');});
+}
+function te41SetFilter(f){te41PaymentFilter=f;filterData();}
+document.addEventListener('click',e=>{const btn=e.target.closest('[data-te41-filter]');if(btn)te41SetFilter(btn.dataset.te41Filter);});
 function filterData() {
 const selectedDate=ventasElements.dateFilter.value,searchTerm=ventasElements.searchInput.value.trim();let dataSource=allData;
 if(searchTerm)dataSource=dataSource.filter(i=>matchesSearch(i,searchTerm));else if(quickRange==='semana'||quickRange==='mes')dataSource=dataSource.filter(i=>fechaEnRangoRapido(i.fechaFiltro,quickRange));else if(selectedDate)dataSource=dataSource.filter(i=>i.fechaFiltro===selectedDate);
-filteredData=[...dataSource].sort((a,b)=>{
+te41DateBase=[...dataSource];
+filteredData=dataSource.filter(v=>te41Matches(v,te41PaymentFilter)).sort((a,b)=>{
  const ak=String(a.fechaFiltro||'')+'T'+String(a.hora||'').padStart(8,'0');
  const bk=String(b.fechaFiltro||'')+'T'+String(b.hora||'').padStart(8,'0');
  return bk.localeCompare(ak);
 });allUsers.clear();filteredData.forEach(i=>{if(i.usuario&&i.tipo==='venta')allUsers.add(i.usuario);});
-if(selectedDate)updateDayPanel(selectedDate);findAttendanceHours(selectedDate);findCashControl(selectedDate);if(quickRange==='hoy'||quickRange==='ayer')checkMultipleOpenClose(selectedDate);calculateTotalVentasDia();calculateStatistics();updateMobileSummary(selectedDate);updateDynamicDashboard();currentPage=1;displayData();updateNavButtons();
+if(selectedDate)updateDayPanel(selectedDate);findAttendanceHours(selectedDate);findCashControl(selectedDate);if(quickRange==='hoy'||quickRange==='ayer')checkMultipleOpenClose(selectedDate);calculateTotalVentasDia();calculateStatistics();updateMobileSummary(selectedDate);updateDynamicDashboard();te41UpdatePaymentSummary();currentPage=1;displayData();updateNavButtons();
 }
 function findAttendanceHours(date){const a=openingV3(),c=closingV3(),lastA=a[a.length-1],lastC=c[c.length-1];ventasElements.horaApertura.textContent=lastA?lastA.hora.slice(0,5):'Sin abrir';ventasElements.usuarioOperando.textContent=lastA?(lastA.usuario||'—'):'—';const status=lastC&&(!lastA||lastC.hora>=lastA.hora)?'Cerrado':lastA?'Operando':'Sin abrir';ventasElements.horaCierre.textContent=status==='Cerrado'?lastC.hora.slice(0,5):status;ventasElements.horaCierre.classList.remove('operando','operando-alert','cierre-alert');if(status==='Operando')ventasElements.horaCierre.classList.add('operando');const st=document.getElementById('estadoOperativoV3');if(st)st.textContent=status;}
 
 function checkMultipleOpenClose(date) {
-const aperturas = filteredData.filter(i => i.tipo === 'apertura');
-const cierres = filteredData.filter(i => i.tipo === 'cierre');
+const aperturas = te41DateBase.filter(i => i.tipo === 'apertura');
+const cierres = te41DateBase.filter(i => i.tipo === 'cierre');
 if (aperturas.length > 1 && !notificationsShown.has(`multiApertura_${date}`)) {
 showNotification('warning', '⚠️ Múltiples Aperturas', `Hay ${aperturas.length} aperturas en el día ${date}.`, 8000);
 notificationsShown.add(`multiApertura_${date}`);
@@ -2069,14 +2134,14 @@ notificationsShown.add(`multiCierre_${date}`);
 function findCashControl(){const a=openingV3(),c=closingV3(),lastA=a[a.length-1],lastC=c[c.length-1];ventasElements.aperturaEfectivoDisplay.textContent=lastA?lastA.monto_efectivo.toFixed(2):'Sin abrir';ventasElements.cierreEfectivoDisplay.textContent=lastC?lastC.monto_efectivo.toFixed(2):'Pendiente';ventasElements.cierreEfectivoDisplay.classList.remove('cierre-alert');}
 
 function calculateTotalVentasDia() {
-const total = filteredData.filter(isSaleV3).reduce((s,i) => s + i.total, 0);
+const total = te41DateBase.filter(isSaleV3).reduce((s,i) => s + i.total, 0);
 ventasElements.totalVentasDia.textContent = 'Bs. ' + total.toFixed(2);
 }
 
-function calculateStatistics(){const ventas=filteredData.filter(isSaleV3),total=ventas.reduce((n,x)=>n+x.total,0),ef=ventas.reduce((n,x)=>n+paymentV3(x).ef,0),a=openingV3(),c=closingV3(),ini=a[a.length-1],fin=c[c.length-1],monedas=filteredData.filter(x=>x.tipo==='monedas').reduce((n,x)=>n+cashMoveV3(x),0),efCambio=ventas.reduce((n,x)=>n+x.cambio_efectivo,0),recibido=ventas.reduce((n,x)=>n+(x.efectivo_recibido||paymentV3(x).ef+x.cambio_efectivo),0);ventasElements.aperturaEfectivoValue.textContent=ini?ini.monto_efectivo.toFixed(2):'Sin abrir';ventasElements.ventasDiaValue.textContent=total.toFixed(2);ventasElements.ventasEfectivoValue.textContent=ef.toFixed(2);const dineroSinMonedas=ini?(ini.monto_efectivo+recibido-efCambio):null;ventasElements.totalSalesValue.textContent=ini?(dineroSinMonedas+monedas).toFixed(2):'Sin abrir';const desgloseTarjeta=document.getElementById('desgloseCajaTarjeta');if(desgloseTarjeta)desgloseTarjeta.textContent=ini?'Dinero en caja '+dineroSinMonedas.toFixed(2)+' Bs + Monedas '+monedas.toFixed(2)+' Bs':'Sin apertura registrada';ventasElements.cierreEfectivoValue.textContent=fin?fin.monto_efectivo.toFixed(2):'Pendiente';const extra=document.getElementById('cashBreakdownV3');if(extra)extra.textContent='Monedas +'+monedas.toFixed(2)+' Bs · Cambio efectivo −'+efCambio.toFixed(2)+' Bs · Cambio QR '+ventas.reduce((n,x)=>n+x.devuelto_qr,0).toFixed(2)+' Bs';}
+function calculateStatistics(){const ventas=te41DateBase.filter(isSaleV3),total=ventas.reduce((n,x)=>n+x.total,0),ef=ventas.reduce((n,x)=>n+paymentV3(x).ef,0),a=openingV3(),c=closingV3(),ini=a[a.length-1],fin=c[c.length-1],monedas=te41DateBase.filter(x=>x.tipo==='monedas').reduce((n,x)=>n+cashMoveV3(x),0),efCambio=ventas.reduce((n,x)=>n+x.cambio_efectivo,0),recibido=ventas.reduce((n,x)=>n+(x.efectivo_recibido||paymentV3(x).ef+x.cambio_efectivo),0);ventasElements.aperturaEfectivoValue.textContent=ini?ini.monto_efectivo.toFixed(2):'Sin abrir';ventasElements.ventasDiaValue.textContent=total.toFixed(2);ventasElements.ventasEfectivoValue.textContent=ef.toFixed(2);const dineroSinMonedas=ini?(ini.monto_efectivo+recibido-efCambio):null;ventasElements.totalSalesValue.textContent=ini?(dineroSinMonedas+monedas).toFixed(2):'Sin abrir';const desgloseTarjeta=document.getElementById('desgloseCajaTarjeta');if(desgloseTarjeta)desgloseTarjeta.textContent=ini?'Dinero en caja '+dineroSinMonedas.toFixed(2)+' Bs + Monedas '+monedas.toFixed(2)+' Bs':'Sin apertura registrada';ventasElements.cierreEfectivoValue.textContent=fin?fin.monto_efectivo.toFixed(2):'Pendiente';const extra=document.getElementById('cashBreakdownV3');if(extra)extra.textContent='Monedas +'+monedas.toFixed(2)+' Bs · Cambio efectivo −'+efCambio.toFixed(2)+' Bs · Cambio QR '+ventas.reduce((n,x)=>n+x.devuelto_qr,0).toFixed(2)+' Bs';}
 
 function escV2(v){return String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#039;'}[c]));}
-function updateDynamicDashboard(){const ventas=filteredData.filter(isSaleV3),total=ventas.reduce((n,v)=>n+v.total,0),qr=ventas.reduce((n,v)=>n+paymentV3(v).qr,0),ef=ventas.reduce((n,v)=>n+paymentV3(v).ef,0);const set=(id,x)=>{const e=document.getElementById(id);if(e)e.textContent=x};set('dashQR','Bs. '+qr.toFixed(2));set('dashEfectivo','Bs. '+ef.toFixed(2));set('dashCantidad',ventas.length);set('dashPromedio','Bs. '+(ventas.length?total/ventas.length:0).toFixed(2));for(const [k,id,ic] of [['comercial','dashComercial','dashComercialCount'],['feria','dashFeria','dashFeriaCount']]){const v=ventas.filter(x=>x.hoja_origen===k);set(id,'Bs. '+v.reduce((n,x)=>n+x.total,0).toFixed(2));set(ic,v.length+' ventas');}const vm=new Map();ventas.forEach(v=>{const k=v.usuario||'Sin usuario',o=vm.get(k)||{t:0,n:0};o.t+=v.total;o.n++;vm.set(k,o);});document.getElementById('dashVendedores').innerHTML=[...vm].sort((a,b)=>b[1].t-a[1].t).slice(0,5).map(([k,v])=>'<div class="rank-row"><span class="rank-name">'+escV2(k)+' · '+v.n+'</span><span class="rank-value">Bs. '+v.t.toFixed(2)+'</span></div>').join('')||'Sin ventas';const pm=new Map();ventas.forEach(v=>String(v.productos||'').split('|').map(x=>x.trim()).filter(Boolean).forEach(p=>{const k=p.replace(/^\d+\s*(unidad(?:es)?|paquete(?:s)?|caja(?:s)?|dc|docena(?:s)?)?\s*[-–:]?\s*/i,'').trim()||p;pm.set(k,(pm.get(k)||0)+1)}));document.getElementById('dashProductos').innerHTML=[...pm].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,n])=>'<div class="rank-row"><span class="rank-name">'+escV2(k)+'</span><span class="rank-value">'+n+' apariciones</span></div>').join('')||'Sin productos';const alert=ventas.filter(v=>paymentV3(v).warning).length;set('dashDataQualityV3',alert?alert+' pago(s) requieren revisión':'Pagos conciliados según campos disponibles');}
+function updateDynamicDashboard(){const ventas=te41DateBase.filter(isSaleV3),total=ventas.reduce((n,v)=>n+v.total,0),qr=ventas.reduce((n,v)=>n+paymentV3(v).qr,0),ef=ventas.reduce((n,v)=>n+paymentV3(v).ef,0);const set=(id,x)=>{const e=document.getElementById(id);if(e)e.textContent=x};set('dashQR','Bs. '+qr.toFixed(2));set('dashEfectivo','Bs. '+ef.toFixed(2));set('dashCantidad',ventas.length);set('dashPromedio','Bs. '+(ventas.length?total/ventas.length:0).toFixed(2));for(const [k,id,ic] of [['comercial','dashComercial','dashComercialCount'],['feria','dashFeria','dashFeriaCount']]){const v=ventas.filter(x=>x.hoja_origen===k);set(id,'Bs. '+v.reduce((n,x)=>n+x.total,0).toFixed(2));set(ic,v.length+' ventas');}const vm=new Map();ventas.forEach(v=>{const k=v.usuario||'Sin usuario',o=vm.get(k)||{t:0,n:0};o.t+=v.total;o.n++;vm.set(k,o);});document.getElementById('dashVendedores').innerHTML=[...vm].sort((a,b)=>b[1].t-a[1].t).slice(0,5).map(([k,v])=>'<div class="rank-row"><span class="rank-name">'+escV2(k)+' · '+v.n+'</span><span class="rank-value">Bs. '+v.t.toFixed(2)+'</span></div>').join('')||'Sin ventas';const pm=new Map();ventas.forEach(v=>String(v.productos||'').split('|').map(x=>x.trim()).filter(Boolean).forEach(p=>{const k=p.replace(/^\d+\s*(unidad(?:es)?|paquete(?:s)?|caja(?:s)?|dc|docena(?:s)?)?\s*[-–:]?\s*/i,'').trim()||p;pm.set(k,(pm.get(k)||0)+1)}));document.getElementById('dashProductos').innerHTML=[...pm].sort((a,b)=>b[1]-a[1]).slice(0,5).map(([k,n])=>'<div class="rank-row"><span class="rank-name">'+escV2(k)+'</span><span class="rank-value">'+n+' apariciones</span></div>').join('')||'Sin productos';const alert=ventas.filter(v=>paymentV3(v).warning).length;set('dashDataQualityV3',alert?alert+' pago(s) requieren revisión':'Pagos conciliados según campos disponibles');}
 
 function updateMobileSummary(date) {
 const formattedDate = date ? date.split('-').reverse().join('/') : '--/--/----';
@@ -2163,7 +2228,7 @@ ventasElements.noDataMessage.style.display = 'none';
 if (filteredData.length === 0) {
 ventasElements.noDataMessage.style.display = 'block';
 ventasElements.tableWrapper.style.display = 'none';
-totalFinalAmount.textContent = 'Bs. 0.00';
+totalFinalAmount.textContent = 'Bs. 0.00';const label=document.getElementById('te41TotalLabel');if(label)label.textContent=te41PaymentFilter==='todos'?'Total de Ventas Registradas':'Total de Ventas Filtradas';
 return;
 }
 let html = '';
@@ -2214,23 +2279,31 @@ if(mobileCards) mobileCards.innerHTML=filteredData.map(v=>{
   const breakdown=v34Split(v);
   const movement=special?v34Movement(v):'';
   const lines=isCoins?'<div class="v32-line"><span class="v32-prod">Monedas agregadas a caja</span><span class="v32-amount">'+escV2(headerAmount)+'</span></div>':special?'<div class="v32-line"><span class="v32-prod">Movimiento de caja</span><span class="v32-amount">'+movement+'</span></div>':(rows||'<div class="v32-line"><span class="v32-prod">Sin productos registrados</span><span class="v32-amount unmatched">—</span></div>');
-  return '<article class="v3-sale-card'+(v.tipo==='apertura'?' v34-card-open':v.tipo==='cierre'?' v34-card-close':'')+'">'
-   +'<div class="v3-sale-top"><strong>'+escV2(caption)+'</strong><strong class="v32-sale-card-header-amount">'+escV2(headerAmount)+'</strong></div>'
-   +'<div class="v3-sale-meta">'+escV2(v.hoja_origen||'')+' · '+escV2(v.fecha||'')+' · '+escV2(v.hora||'')+' · '+escV2(v.metodo_pago||'')+'</div>'
-   +'<div class="v3-sale-meta">Destino: '+(v.direccion||v.departamento?(escV2(v.direccion||'')+(v.direccion&&v.departamento?' · ':'')+escV2(v.departamento||'')):'No registrado')+'</div>'
-   +(special?'<div class="v34-card-breakdown">'+movement+' <span class="v34-card-note">(No cuenta como venta)</span></div>':'')
-   +(breakdown?'<div class="v34-card-breakdown">'+breakdown+'</div>':'')
-   +'<details><summary>'+(special?'Ver movimiento de caja':isCoins?'Ver monedas':'Ver productos y precios ('+rawProducts.length+')')+'</summary>'
-   +'<div class="v32-lines">'+lines+'</div>'
-   +(special?'<div class="v34-card-note">Monto informativo. No se suma al total de ventas.</div>':'')
-   +(mismatch?'<div class="v32-notice">⚠ La cantidad de productos y montos no coincide en el registro original. Revisa los datos; no se asignaron precios faltantes.</div>':'')
-   +(isSale?'<div class="v32-sale-total"><span>TOTAL DE ESTA VENTA</span><strong>Bs. '+Number(v.total||0).toFixed(2)+'</strong></div>':'')
-   +'<div class="v3-sale-meta">Usuario: '+escV2(v.usuario||'—')+'</div>'
-   +'</details></article>';
+   // Cuatro productos inmediatamente visibles; restantes expandibles sin desplazamiento lateral.
+   const visibleLines=isSale?Array.from({length:Math.min(4,count)},(_,i)=>{
+     const product=rawProducts[i]||'Producto sin descripción';const amt=rawAmounts[i];
+     return '<div class="v32-line"><span class="v32-prod">'+escV2(product)+'</span><span class="v32-amount'+(amt?'':' unmatched')+'">'+(amt?'Bs. '+escV2(amt):'Sin monto individual')+'</span></div>';
+   }).join(''):lines;
+   const extraLines=isSale&&count>4?Array.from({length:count-4},(_,i)=>{
+     const pos=i+4;const product=rawProducts[pos]||'Producto sin descripción';const amt=rawAmounts[pos];
+     return '<div class="v32-line"><span class="v32-prod">'+escV2(product)+'</span><span class="v32-amount'+(amt?'':' unmatched')+'">'+(amt?'Bs. '+escV2(amt):'Sin monto individual')+'</span></div>';
+   }).join(''):'';
+   const extraSection=extraLines?'<details class="te41-mobile-extra"><summary>Ver más ('+(count-4)+' productos)</summary><div class="v32-lines">'+extraLines+'</div></details>':'';
+   return '<article class="v3-sale-card'+(v.tipo==='apertura'?' v34-card-open':v.tipo==='cierre'?' v34-card-close':'')+'">'
+    +'<div class="v3-sale-top"><strong>'+escV2(caption)+'</strong><strong class="v32-sale-card-header-amount">'+escV2(headerAmount)+'</strong></div>'
+    +'<div class="v3-sale-meta">'+escV2(v.hoja_origen||'')+' · '+escV2(v.fecha||'')+' · '+escV2(v.hora||'')+' · '+escV2(v.metodo_pago||'')+'</div>'
+    +'<div class="v3-sale-meta">Destino: '+(v.direccion||v.departamento?(escV2(v.direccion||'')+(v.direccion&&v.departamento?' · ':'')+escV2(v.departamento||'')):'No registrado')+'</div>'
+    +(special?'<div class="v34-card-breakdown">'+movement+' <span class="v34-card-note">(No cuenta como venta)</span></div>':'')
+    +(breakdown?'<div class="v34-card-breakdown">'+breakdown+'</div>':'')
+    +'<div class="te41-mobile-lines"><div class="v32-lines">'+(visibleLines||'<div class="v32-line"><span class="v32-prod">Sin productos registrados</span><span class="v32-amount unmatched">—</span></div>')+'</div>'+extraSection+'</div>'
+    +(mismatch?'<div class="v32-notice">⚠ Los productos y montos registrados no coinciden; no se inventaron precios faltantes.</div>':'')
+    +(isSale?'<div class="te41-mobile-total"><span>TOTAL DE ESTA VENTA</span><strong>Bs. '+Number(v.total||0).toFixed(2)+'</strong></div>':'')
+    +'<div class="v3-sale-meta">Usuario: '+escV2(v.usuario||'—')+'</div>'
+    +'</article>';
 }).join('');
 ventasElements.tableWrapper.style.display = 'block';
 const total = filteredData.filter(isSaleV3).reduce((s,i) => s + i.total, 0);
-totalFinalAmount.textContent = 'Bs. ' + total.toFixed(2);
+totalFinalAmount.textContent = 'Bs. ' + total.toFixed(2);const label=document.getElementById('te41TotalLabel');if(label)label.innerHTML='<i class="fas fa-shopping-cart"></i> '+(te41PaymentFilter==='todos'?'Total de Ventas Registradas':'Total de Ventas Filtradas');
 }
 
 function showToday() {
