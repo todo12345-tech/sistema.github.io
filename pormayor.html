@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Ventas al Por Mayor · V4.19 · Excepciones de feria y venta por unidad</title>
+<title>Todoenuno_store - Pedidos por Mayor · V4.30</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -1466,6 +1466,7 @@ body.mayor-solo-alistar #loginMayorOverlay{display:none!important}
                     </button>
                     <button type="button" id="teusActivarSalvapantallas" class="btn-warning" title="Mostrar las ofertas inmediatamente en el segundo monitor"><i class="fas fa-bolt"></i> Activar salvapantallas</button>
                     <button type="button" id="teusMostrarListaMonitor" class="btn-info" title="Quitar QR y ofertas y volver a la lista del pedido en el segundo monitor"><i class="fas fa-list-check"></i> Mostrar lista</button>
+                    <button type="button" id="teusMostrarWifiMonitor" class="btn-info" style="background:linear-gradient(110deg,#0d9488,#2563eb)" title="Mostrar u ocultar el QR de Wi-Fi en el segundo monitor; vuelve a la lista tras 60 segundos"><i class="fas fa-wifi"></i> Mostrar Wi-Fi</button>
                 </div>
             </form>
             <div class="preview-container" id="previewContainer">
@@ -4357,6 +4358,24 @@ document.addEventListener('DOMContentLoaded', function() {
  'use strict';
  const $=id=>document.getElementById(id);const KEY='teus_wifi_qr_local_v1';
  let image='';let open=false;
+ // V4.30: un solo temporizador en la ventana principal (no se muestra al cliente).
+ const WIFI_DURACION_MS=60000;
+ let wifiTimer=null;
+ function stopWifiTimer(){if(wifiTimer!==null){clearTimeout(wifiTimer);wifiTimer=null;}}
+ function reflectWifiButton(){
+  for(const id of ['teusMostrarWifiMonitor','teusWifiMostrar']){
+   const btn=$(id);if(!btn)continue;
+   if(id==='teusMostrarWifiMonitor')btn.innerHTML=open?'<i class="fas fa-wifi"></i> Ocultar Wi-Fi':'<i class="fas fa-wifi"></i> Mostrar Wi-Fi';
+   else btn.innerHTML=open?'<i class="fas fa-eye-slash"></i> Ocultar al cliente':'<i class="fas fa-tv"></i> Mostrar al cliente';
+   btn.setAttribute('aria-pressed',String(open));
+  }
+ }
+ function returnToListAfterWifi(){
+  // El QR se oculta primero y luego se muestra la lista sin reiniciar el monitor.
+  window.__teusSetWifiVisible(false);
+  try{const mon=window.__teusMonitorWindow;if(mon&&!mon.closed)mon.__teusMostrarListaLocal?.()}catch(e){console.warn('Wi-Fi: no se pudo regresar a la lista',e)}
+ }
+
  const valid=s=>/^data:image\/(png|jpeg|webp);base64,/i.test(s||'');
  function setImage(src){image=src||'';const pic=$('teusWifiVista');pic.style.display=image?'block':'none';if(image)pic.src=image;
   $('teusWifiInfo').textContent=image?'QR Wi-Fi cargado. Guarda la imagen y pulsa «Mostrar al cliente».':'Carga un QR de Wi-Fi para mostrarlo al cliente.';
@@ -4381,14 +4400,27 @@ document.addEventListener('DOMContentLoaded', function() {
   if(visible&&!valid(image)){alert('Carga primero el QR Wi-Fi.');return false;}
   const mon=window.__teusMonitorWindow;
   if(visible&&(!mon||mon.closed||typeof mon.__teusSetWifiVisibleLocal!=='function')){alert('Abre primero «Ventana para segundo monitor».');return false;}
+  stopWifiTimer();
   open=!!visible;
   if(open){try{window.__teusSetPayVisible?.(false)}catch(e){}}
-  try{mon?.__teusSetWifiVisibleLocal?.(open,image)}catch(e){}
-  $('teusWifiInfo').textContent=open?'QR Wi-Fi visible en la pantalla del cliente.':'Wi-Fi oculto. Puedes volver a mostrarlo.';
+  let accepted=true;
+  try{if(mon&&!mon.closed){accepted=mon.__teusSetWifiVisibleLocal?.(open,image)!==false;}}catch(e){accepted=false;}
+  if(open&&!accepted){open=false;reflectWifiButton();alert('El segundo monitor no pudo mostrar el QR. Vuelve a abrir el monitor.');return false;}
+  reflectWifiButton();
+  if(open)wifiTimer=setTimeout(returnToListAfterWifi,WIFI_DURACION_MS);
+  $('teusWifiInfo').textContent=open?'QR Wi-Fi visible en la pantalla del cliente (vuelve a la lista automáticamente).':'Wi-Fi oculto. Puedes volver a mostrarlo.';
   return true;
  };
- $('teusWifiMostrar')?.addEventListener('click',()=>window.__teusSetWifiVisible(true));
- $('teusWifiCerrar')?.addEventListener('click',()=>{window.__teusSetWifiVisible(false);window.__teusMonitorWindow?.__teusMostrarListaLocal?.()});
+ $('teusMostrarWifiMonitor')?.addEventListener('click',()=>{
+  if(open){returnToListAfterWifi();return;}
+  window.__teusSetWifiVisible(true);
+ });
+ $('teusWifiMostrar')?.addEventListener('click',()=>{
+  if(open){returnToListAfterWifi();return;}
+  window.__teusSetWifiVisible(true);
+ });
+ $('teusWifiCerrar')?.addEventListener('click',returnToListAfterWifi);
+ reflectWifiButton();
 })();
 </script>
 <script id="teus-monitor-ventana-v421">
@@ -4396,7 +4428,7 @@ document.addEventListener('DOMContentLoaded', function() {
 'use strict';
 // V4.21: identificador NUEVO para cada carga del HTML, sin compartirlo con
 // otras pestañas ni conservar la sesión anterior del monitor.
-const TEUS_MONITOR_BUILD='4.29';
+const TEUS_MONITOR_BUILD='4.30';
 window.__teusDiagnosticoMonitor='V4.23 — monitor por versión';
 let teusMonitorEpoch=0;
 const TEUS_MONITOR_PAGE_ID=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
@@ -4440,7 +4472,7 @@ footer{position:static;grid-row:3;z-index:12}
 #teusStandbySave{display:inline-block;align-self:flex-start;background:#f6b900;color:#1d2c3b;padding:9px 17px;border-radius:40px;font-size:clamp(16px,1.8vw,26px);font-weight:900}
 #teusStandbyFoot{position:absolute;bottom:12px;left:0;right:0;text-align:center;color:#c4cede;font-size:14px;letter-spacing:.5px}
 @media(max-width:720px){#teusStandbySlide{height:91vh;grid-template-columns:1fr;grid-template-rows:48% auto;gap:10px;padding:20px}#teusStandbyPhoto{height:100%}#teusStandbyInfo{gap:8px;padding:0}#teusStandbyNow{font-size:36px}}
-</style></head><body><header><h1>✓ Alistar pedido <small style="font-size:12px;font-weight:400;color:#63758a">· Segundo monitor V4.29</small></h1><div class="sub">Haz clic en la fotografía para ampliarla. Marca cada casilla cuando el producto esté preparado.</div><div class="toolbar"><input type="search" id="search" placeholder="Buscar producto en el pedido…"><span class="status" id="status">0 / 0 listos</span><span class="status" id="monitorTotal" style="color:#087247">Total: 0,00 Bs</span><button id="expand">⛶ Pantalla completa</button></div><div class="track"><div id="fill"></div></div></header><div id="monitorWorkspace"><main id="list"></main><section id="monitorSummary" style="background:#f8fbff;border:1px solid #dce9f7;border-radius:16px;padding:12px 14px;margin-top:10px"></section></div><div id="empty"></div><footer><button class="green" id="all">✓ Marcar todos</button><button class="grey" id="none">↶ Desmarcar todos</button><button id="pay" style="background:#1477c5">▦ Pagar</button><button id="wifiButton" style="background:#7154b8">⌁ Wi-Fi</button><button id="showList" style="background:#2563a5">☷ Mostrar lista</button></footer><div id="payLayer" role="dialog" aria-modal="true"><div id="payCard"><button id="closePay">✕</button><h2>Escanea para pagar</h2><img id="payImage" alt="QR de pago"><div id="payDetails" style="text-align:left;max-width:750px;margin:10px auto;color:#20354c"></div><p>Verifica el pago antes de entregar el pedido.</p></div></div><div id="light"><button id="closeLight">✕</button><img id="big" alt="Imagen del producto ampliada"></div><div id="wifiLayer" role="dialog" aria-label="QR de Wi-Fi para clientes" style="display:none;position:fixed;inset:0;background:#101827;z-index:145;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#fff;padding:16px"><button id="closeWifi" style="position:absolute;right:15px;top:12px;background:#334155;font-size:19px">✕ Cerrar</button><h2 style="font-size:clamp(22px,3vw,40px);margin:4px 0;color:white">Conéctate a nuestro Wi-Fi</h2><img id="wifiBig" alt="Código QR de Wi-Fi" style="background:white;border-radius:15px;padding:12px;object-fit:contain;max-height:73vh;max-width:90vw"><p style="font-size:17px">Escanea el código con la cámara de tu celular.</p></div><div id="teusStandby" aria-label="Ofertas del catálogo"><div id="teusStandbySlide"><img id="teusStandbyPhoto" alt="Producto en oferta"><div id="teusStandbyInfo"><div class="teus-label">TODOENUNO_STORE · OFERTAS</div><div id="teusStandbyName"></div><div id="teusStandbyBefore"></div><div id="teusStandbyNow"></div><div id="teusStandbySave"></div></div></div><div id="teusStandbyFoot">Calidad y soluciones prácticas para todos · Toca la pantalla para volver al pedido</div></div>
+</style></head><body><header><h1>✓ Alistar pedido <small style="font-size:12px;font-weight:400;color:#63758a">· Segundo monitor V4.30</small></h1><div class="sub">Haz clic en la fotografía para ampliarla. Marca cada casilla cuando el producto esté preparado.</div><div class="toolbar"><input type="search" id="search" placeholder="Buscar producto en el pedido…"><span class="status" id="status">0 / 0 listos</span><span class="status" id="monitorTotal" style="color:#087247">Total: 0,00 Bs</span><button id="expand">⛶ Pantalla completa</button></div><div class="track"><div id="fill"></div></div></header><div id="monitorWorkspace"><main id="list"></main><section id="monitorSummary" style="background:#f8fbff;border:1px solid #dce9f7;border-radius:16px;padding:12px 14px;margin-top:10px"></section></div><div id="empty"></div><footer><button class="green" id="all">✓ Marcar todos</button><button class="grey" id="none">↶ Desmarcar todos</button><button id="pay" style="background:#1477c5">▦ Pagar</button><button id="wifiButton" style="background:#7154b8">⌁ Wi-Fi</button><button id="showList" style="background:#2563a5">☷ Mostrar lista</button></footer><div id="payLayer" role="dialog" aria-modal="true"><div id="payCard"><button id="closePay">✕</button><h2>Escanea para pagar</h2><img id="payImage" alt="QR de pago"><div id="payDetails" style="text-align:left;max-width:750px;margin:10px auto;color:#20354c"></div><p>Verifica el pago antes de entregar el pedido.</p></div></div><div id="light"><button id="closeLight">✕</button><img id="big" alt="Imagen del producto ampliada"></div><div id="wifiLayer" role="dialog" aria-label="QR de Wi-Fi para clientes" style="display:none;position:fixed;inset:0;background:#101827;z-index:145;align-items:center;justify-content:center;flex-direction:column;gap:12px;color:#fff;padding:16px"><button id="closeWifi" style="position:absolute;right:15px;top:12px;background:#334155;font-size:19px">✕ Cerrar</button><h2 style="font-size:clamp(22px,3vw,40px);margin:4px 0;color:white">Conéctate a nuestro Wi-Fi</h2><img id="wifiBig" alt="Código QR de Wi-Fi" style="background:white;border-radius:15px;padding:12px;object-fit:contain;max-height:73vh;max-width:90vw"><p style="font-size:17px">Escanea el código con la cámara de tu celular.</p></div><div id="teusStandby" aria-label="Ofertas del catálogo"><div id="teusStandbySlide"><img id="teusStandbyPhoto" alt="Producto en oferta"><div id="teusStandbyInfo"><div class="teus-label">TODOENUNO_STORE · OFERTAS</div><div id="teusStandbyName"></div><div id="teusStandbyBefore"></div><div id="teusStandbyNow"></div><div id="teusStandbySave"></div></div></div><div id="teusStandbyFoot">Calidad y soluciones prácticas para todos · Toca la pantalla para volver al pedido</div></div>
 <script>
 (function(){
 'use strict';
@@ -4777,7 +4809,7 @@ function launch(){
   // Abrir por nombre permite REUTILIZAR la ventana que quedó abierta ayer.
   // Nombre específico por versión: nunca reutilizar silenciosamente un monitor antiguo
   // con JavaScript guardado desde una publicación anterior de GitHub.
-  const w=window.open('','teus_alistar_monitor_v429','width=1250,height=820,resizable=yes,scrollbars=yes');
+  const w=window.open('','teus_alistar_monitor_v430','width=1250,height=820,resizable=yes,scrollbars=yes');
   if(!w){alert('El navegador bloqueó la ventana. Permite ventanas emergentes para esta página.');return}
   if(!repararMonitor(w))alert('No se pudo vincular el monitor. Comprueba que ambas ventanas tengan el mismo origen.');
   else w.focus();
