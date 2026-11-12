@@ -830,6 +830,78 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 @media(max-width:700px){#teusHistQuick{padding:5px;}#teusHistQuick .th-card{padding:12px;max-height:calc(100dvh - 10px);}#teusHistQuick .th-grid{grid-template-columns:repeat(2,minmax(0,1fr));}#teusHistQuick .th-product{grid-template-columns:minmax(0,1fr) 83px 30px;gap:4px;}#teusHistQuick .th-product button{min-width:30px;width:30px;}#teusHistQuick .th-actions{bottom:-12px;} }
 @media(max-width:350px){#teusHistQuick .th-head h2{font-size:17px;}#teusHistQuick .th-grid{gap:7px;}#teusHistQuick input,#teusHistQuick select{font-size:14px;padding:8px;}#teusHistQuick .th-product{grid-template-columns:minmax(0,1fr) 74px 28px;}}
 </style>
+
+<style id="teus-v2674-responsive-ipad-mini-iphone5">
+/* V26.74 — iPad mini 5: 768px vertical / 1024px horizontal; teléfono mínimo 320px. */
+.teus-tools-toggle-v2674{display:none;background:#eaf3ff!important;color:#24547e!important;border:1px solid #bcd9f5!important;border-radius:9px;width:auto!important;min-height:42px;padding:9px 12px!important;align-items:center;gap:7px;white-space:nowrap;font-size:12px!important}
+@media(max-width:1199px){
+ html,body{max-width:100%;overflow-x:hidden;-webkit-text-size-adjust:100%}
+ body{display:block!important;min-width:0}
+ .main-content,.main-content.sidebar-collapsed,.main-content.right-sidebar-collapsed,.main-content.sidebar-collapsed.right-sidebar-collapsed{margin:0!important;width:100%!important;max-width:100%!important;min-width:0!important}
+ .content-area{min-width:0!important;max-width:100%;padding:12px!important;overflow-x:hidden}
+ .container{min-width:0;width:100%;max-width:100%;padding:15px!important}
+ .sidebar,.sidebar.collapsed{position:fixed!important;left:0;top:0;height:100vh!important;height:100dvh!important;overflow-y:auto;width:min(310px,86vw)!important;max-width:86vw!important;transform:translateX(-105%)!important;transition:transform .22s ease!important;z-index:11001!important}
+ .sidebar.active,.sidebar.active.collapsed{transform:translateX(0)!important}
+ .sidebar.active .menu-text,.sidebar.active.collapsed .menu-text,.sidebar.active.collapsed .store-logo span{display:inline!important}
+ .right-sidebar,.right-sidebar.collapsed{position:fixed!important;right:0;left:auto;top:0;height:100vh!important;height:100dvh!important;width:min(360px,91vw)!important;max-width:91vw!important;overflow-y:auto;transform:translateX(105%)!important;transition:transform .22s ease!important;z-index:11001!important}
+ .right-sidebar.active,.right-sidebar.active.collapsed{transform:translateX(0)!important}
+ .right-sidebar.active .right-sidebar-content,.right-sidebar.active.collapsed .right-sidebar-content{display:block!important}
+ .right-sidebar.active .right-sidebar-header,.right-sidebar.active.collapsed .right-sidebar-header{display:flex!important}
+ #mobileSidebarBackdrop{position:fixed;inset:0;background:rgba(10,21,33,.48);z-index:11000;display:none}
+ #mobileSidebarBackdrop.active{display:block!important}
+ .teus-tools-toggle-v2674{display:inline-flex!important}
+ .top-bar{gap:8px;flex-wrap:wrap;min-width:0}
+ .top-bar>div:first-child{min-width:0;width:100%;display:flex;flex-wrap:wrap;gap:8px;align-items:center}
+ .top-bar-title{min-width:0;flex:1;font-size:16px;overflow-wrap:anywhere}
+ .mobile-menu-toggle{display:inline-flex!important;width:42px!important;height:42px!important;min-width:42px;align-items:center;justify-content:center;padding:8px!important}
+ .user-info{min-width:0;flex-wrap:wrap}
+ .right-sidebar-toggle{width:38px!important;min-width:38px;min-height:38px}
+ #seccionVentasDia .compacto.ventas-table-container{max-height:none!important;overflow:visible!important;padding:0!important;border:0!important;box-shadow:none!important}
+ #seccionVentasDia .tabla-ventas-dia{display:block!important;min-width:0!important;width:100%!important;max-width:100%!important;table-layout:auto!important}
+ #seccionVentasDia .tabla-ventas-dia thead{display:none!important}
+ #tablaVentasDia{display:grid!important;grid-template-columns:1fr;gap:12px;width:100%;min-width:0}
+ #tablaVentasDia tr{display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));gap:8px 12px;width:100%;max-width:100%;padding:13px!important;border:1px solid #dce5ed!important;border-left:4px solid #2982bf!important;border-radius:12px;background:#fff!important;box-shadow:0 3px 12px rgba(33,55,77,.07)}
+ #tablaVentasDia tr.fila-apertura-cierre{border-left-color:#1e9668!important;background:#f3fcf7!important}
+ #tablaVentasDia td,#tablaVentasDia td:nth-child(n){display:block!important;width:auto!important;min-width:0!important;max-width:100%!important;white-space:normal!important;overflow:visible!important;word-break:break-word!important;text-overflow:clip!important;border:0!important;padding:4px 2px!important;font-size:12px!important;line-height:1.4!important}
+ #tablaVentasDia td:before{content:attr(data-teus-label);display:block;font-size:10px!important;color:#637589;font-weight:750;text-transform:uppercase;letter-spacing:.025em;margin-bottom:3px}
+ #tablaVentasDia td:first-child{grid-column:1/-1;font-size:15px!important;font-weight:800;color:#1d354b;border-bottom:1px solid #e5edf3!important;padding-bottom:7px!important}
+ #tablaVentasDia td.teus-v2674-productos{grid-column:1/-1!important;padding:8px!important;background:#f7fafd;border:1px solid #e0eaf3!important;border-radius:8px}
+ #tablaVentasDia .v268-product-list{min-width:0;width:100%;max-width:100%}
+ #tablaVentasDia .v268-product-line{grid-template-columns:minmax(0,1fr) minmax(65px,92px)!important;gap:6px!important;padding:7px 6px!important}
+ #tablaVentasDia .v268-product-name{white-space:normal!important;overflow-wrap:anywhere!important;font-size:12px}
+ #tablaVentasDia .v268-product-price{white-space:normal!important;overflow-wrap:anywhere;font-size:12px}
+ #tablaVentasDia .v268-total{gap:6px;flex-wrap:wrap}
+ #tablaVentasDia td:last-child{grid-column:1/-1!important;border-top:1px solid #e5edf3!important;padding-top:8px!important}
+ #tablaVentasDia td:last-child .acciones{display:flex!important;flex-wrap:wrap!important;gap:6px!important;align-items:center}
+ #tablaVentasDia td:last-child .accion-btn{width:auto!important;min-height:36px;min-width:72px;padding:8px!important;flex:0 1 auto;font-size:11px!important}
+ #seccionVentasDia .resumen-ventas-dia{min-width:0;max-width:100%;padding:12px}
+ #seccionVentasDia .resumen-fila{display:grid!important;grid-template-columns:minmax(0,1fr) auto;gap:8px;align-items:start}
+ #seccionVentasDia .resumen-fila strong{min-width:0;overflow-wrap:anywhere}
+ #seccionVentasDia .resumen-valor-dia{text-align:right;white-space:normal!important;overflow-wrap:anywhere}
+ #seccionVentasDia .historial-admin-v2664-controls{max-width:100%;flex-wrap:wrap}
+ .top-bar .teus-tools-toggle-v2674{transform:none!important}
+}
+@media(min-width:800px) and (max-width:1199px){
+ #tablaVentasDia{grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+ #seccionVentasDia .resumen-ventas-dia{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:6px 14px}
+ #seccionVentasDia .resumen-ventas-dia h3{grid-column:1/-1}
+ .content-area{padding:16px!important}
+}
+@media(max-width:799px){
+ #tablaVentasDia{grid-template-columns:1fr}
+}
+@media(max-width:375px){
+ .top-bar,.content-area{padding:7px!important}
+ .container{padding:9px!important}
+ .top-bar-title{font-size:13px!important}
+ .teus-tools-toggle-v2674{font-size:11px!important;padding:7px 8px!important}
+ #tablaVentasDia tr{padding:9px!important;gap:6px!important}
+ #tablaVentasDia .v268-product-line{grid-template-columns:minmax(0,1fr) 64px!important}
+ #tablaVentasDia td{font-size:11px!important}
+ #seccionVentasDia .resumen-fila{font-size:12px!important}
+ .acciones{max-width:100%;flex-wrap:wrap}
+}
+</style>
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -889,6 +961,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
             <div style="display: flex; align-items: center; gap: 12px;">
                 <button class="mobile-menu-toggle" id="mobileMenuToggle"><i class="fas fa-bars"></i></button>
                 <div class="top-bar-title">Sistema de Gestión de Ventas</div>
+                <button type="button" id="teusToolsToggleV2674" class="teus-tools-toggle-v2674" aria-label="Mostrar herramientas" aria-expanded="false"><i class="fas fa-sliders-h"></i><span>Herramientas</span></button>
             </div>
             <div class="user-info">
                 <div class="user-details">
@@ -3526,7 +3599,7 @@ function configurarEventListeners() {
     document.getElementById('cambiarSucursalBtn').addEventListener('click', cambiarSucursalSeguroV2631);
     document.getElementById('menuSucursal').addEventListener('click', e=>{e.preventDefault();cambiarSucursalSeguroV2631();});
     sidebarToggle.addEventListener('click', function() {
-        if(window.matchMedia('(max-width:819px)').matches){sidebar.classList.remove('active'); document.getElementById('mobileSidebarBackdrop')?.classList.remove('active'); return;}
+        if(window.matchMedia('(max-width:1199px)').matches){sidebar.classList.remove('active'); document.getElementById('mobileSidebarBackdrop')?.classList.remove('active'); return;}
         sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('sidebar-collapsed');
     });
     rightSidebarToggle.addEventListener('click', function() { rightSidebar.classList.toggle('collapsed'); rightSidebarToggle.classList.toggle('collapsed'); mainContent.classList.toggle('right-sidebar-collapsed'); });
@@ -3543,9 +3616,31 @@ function configurarEventListeners() {
         mobileSidebarBackdrop.classList.toggle('active',open);
         mobileMenuToggle.setAttribute('aria-expanded',String(open));
     });
+    const toolsToggleV2674=document.getElementById('teusToolsToggleV2674');
+    function closeRightDrawerV2674(){
+        rightSidebar.classList.remove('active');
+        mobileSidebarBackdrop.classList.remove('teus-right-backdrop-v2674');
+        if(!sidebar.classList.contains('active'))mobileSidebarBackdrop.classList.remove('active');
+        if(toolsToggleV2674)toolsToggleV2674.setAttribute('aria-expanded','false');
+    }
+    if(toolsToggleV2674){toolsToggleV2674.addEventListener('click',function(){
+        if(!window.matchMedia('(max-width:1199px)').matches)return;
+        const abrir=!rightSidebar.classList.contains('active');
+        closeMobileSidebar();
+        rightSidebar.classList.toggle('active',abrir);
+        mobileSidebarBackdrop.classList.toggle('active',abrir);
+        mobileSidebarBackdrop.classList.toggle('teus-right-backdrop-v2674',abrir);
+        toolsToggleV2674.setAttribute('aria-expanded',String(abrir));
+        if(abrir){rightSidebar.classList.remove('collapsed');rightSidebarToggle.classList.remove('collapsed');mainContent.classList.remove('right-sidebar-collapsed');}
+    });}
+    rightSidebarToggle.addEventListener('click',function(){if(window.matchMedia('(max-width:1199px)').matches)closeRightDrawerV2674();});
+    mobileSidebarBackdrop.addEventListener('click',closeRightDrawerV2674);
+    mobileMenuToggle.addEventListener('click',function(){closeRightDrawerV2674();mobileSidebarBackdrop.classList.toggle('active',sidebar.classList.contains('active'));});
+    document.addEventListener('keydown',function(e){if(e.key==='Escape')closeRightDrawerV2674();});
+    document.querySelectorAll('.sidebar-menu a').forEach(function(a){a.addEventListener('click',closeRightDrawerV2674);});
     mobileSidebarBackdrop.addEventListener('click',closeMobileSidebar);
     document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileSidebar();});
-    if(window.matchMedia('(max-width:819px)').matches){ document.querySelectorAll('.sidebar-menu a').forEach(a=>a.addEventListener('click',closeMobileSidebar)); }
+    if(window.matchMedia('(max-width:1199px)').matches){ document.querySelectorAll('.sidebar-menu a').forEach(a=>a.addEventListener('click',closeMobileSidebar)); }
 
 
     ['datosCliente', 'cargarPedido', 'sync', 'backup'].forEach(id => {
@@ -4076,6 +4171,12 @@ async function ajustarCambioVentaV2635(index){
 }
 
 function cambiarSeccion(seccion) {
+    if(window.matchMedia('(max-width:1199px)').matches){
+        document.getElementById('sidebar')?.classList.remove('active');
+        document.getElementById('rightSidebar')?.classList.remove('active');
+        document.getElementById('mobileSidebarBackdrop')?.classList.remove('active','teus-right-backdrop-v2674');
+        document.getElementById('teusToolsToggleV2674')?.setAttribute('aria-expanded','false');
+    }
     document.querySelectorAll('.seccion-contenido').forEach(s => s.classList.remove('activa'));
     document.querySelectorAll('.sidebar-menu a').forEach(a => a.classList.remove('active'));
     detenerAutoGoogleVentas();
@@ -4326,6 +4427,22 @@ function actualizarVentasDelDia() {
         tablaHTML += `<tr class="${claseFila}"><td>${nombreCliente}</td><td>${telefonoCliente}</td><td>${direccionCliente}</td><td>${departamentoCliente}</td><td class="v268-mini-cell">${cumpleCompactoV268}</td><td>${registrosTablaV2621===todasVentasHoy && !esVistaHistoricaV2664 ? '' : String(venta.fecha||'')+' · '}${venta.hora}</td>${detalleProductosV268}<td>${metodoPagoDisplay}</td><td class="v268-mini-cell">${obsCompactaV268}</td><td>${estadoGuardado}</td><td><div class="acciones">${botonesVentasDia}</div></td></tr>`;
     });
     tablaVentasDia.innerHTML = tablaHTML;
+    // V26.74: etiquetas por columna REAL (respeta colspan=2 en productos).
+    // Solo presentación. Mantiene el HTML, los importes y los manejadores originales.
+    Array.from(tablaVentasDia.querySelectorAll('tr')).forEach(function(tr){
+        const titulos=['Nombre','Teléfono','Dirección','Departamento','Cumpleaños','Hora','Productos e importes','Método de pago','Observaciones','Guardado','Acciones'];
+        let col=0;
+        Array.from(tr.children).forEach(function(td){
+            if(td.tagName!=='TD')return;
+            let etiqueta=titulos[col]||'Detalle';
+            if(col===6 && td.colSpan===1 && tr.classList.contains('fila-apertura-cierre'))etiqueta='Movimiento de caja';
+            if(col===7 && tr.classList.contains('fila-apertura-cierre'))etiqueta='Importe del movimiento';
+            td.setAttribute('data-teus-label',etiqueta);
+            td.classList.toggle('teus-v2674-productos',col===6);
+            td.classList.toggle('teus-v2674-acciones',col>=10 || (col===9 && !tr.classList.contains('fila-apertura-cierre') && false));
+            col+=Math.max(1,td.colSpan||1);
+        });
+    });
     // V26.44: el botón despliega productos e importes de la MISMA fila.
     document.querySelectorAll('#tablaVentasDia .v2644-ver-mas').forEach(btn => btn.addEventListener('click', () => {
         const fila=btn.closest('tr'); if(!fila)return;
