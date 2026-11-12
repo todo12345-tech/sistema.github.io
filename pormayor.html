@@ -1,6 +1,55 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
+<!-- V4.24: ícono de pestaña desde Sheets «encabezados» (A=icon, B=imagen). -->
+<link id="teusMayorFavicon" rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2213%22%20fill%3D%22%23131921%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%223.7%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%2211%22%20y%3D%2230%22%20width%3D%2223%22%20height%3D%2220%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M11%2037h23M22.5%2030v20%22%2F%3E%3Crect%20x%3D%2233%22%20y%3D%2212%22%20width%3D%2221%22%20height%3D%2237%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22m37%2023%203%203%204-5m-7%2012%203%203%204-5M46%2025h4m-4%209h4%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E">
+<link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1PSOwBju-mlIGmB8AXCgw2h0mTmpO94uz&sz=w180">
+<script id="teus-mayor-favicon-sheet">
+(function(){
+ 'use strict';
+ const SHEET_ID='10uvdPqDuSLnCi_iYZHmMXwMn6_U42c6QQzw50HLSdNs';
+ const DRIVE_RESPALDO='1PSOwBju-mlIGmB8AXCgw2h0mTmpO94uz';
+ const FALLBACK='data:image/svg+xml,%3Csvg%20xmlns%3D%22http%3A%2F%2Fwww.w3.org%2F2000%2Fsvg%22%20viewBox%3D%220%200%2064%2064%22%3E%3Crect%20width%3D%2264%22%20height%3D%2264%22%20rx%3D%2213%22%20fill%3D%22%23131921%22%2F%3E%3Cg%20fill%3D%22none%22%20stroke%3D%22white%22%20stroke-width%3D%223.7%22%20stroke-linecap%3D%22round%22%20stroke-linejoin%3D%22round%22%3E%3Crect%20x%3D%2211%22%20y%3D%2230%22%20width%3D%2223%22%20height%3D%2220%22%20rx%3D%222%22%2F%3E%3Cpath%20d%3D%22M11%2037h23M22.5%2030v20%22%2F%3E%3Crect%20x%3D%2233%22%20y%3D%2212%22%20width%3D%2221%22%20height%3D%2237%22%20rx%3D%223%22%2F%3E%3Cpath%20d%3D%22m37%2023%203%203%204-5m-7%2012%203%203%204-5M46%2025h4m-4%209h4%22%2F%3E%3C%2Fg%3E%3C%2Fsvg%3E';
+ const iconLink=document.getElementById('teusMayorFavicon');
+ function idDrive(v){
+  v=String(v||'').trim();
+  const a=v.match(/drive\.google\.com\/file\/d\/([a-zA-Z0-9_-]+)/);
+  const b=v.match(/[?&]id=([a-zA-Z0-9_-]+)/);
+  return a?a[1]:b?b[1]:/^[a-zA-Z0-9_-]{20,}$/.test(v)?v:'';
+ }
+ function usarImagen(id){
+  if(!id)return;
+  const src='https://drive.google.com/thumbnail?id='+encodeURIComponent(id)+'&sz=w128';
+  const img=new Image();
+  img.onload=function(){iconLink.type='image/png';iconLink.href=src;};
+  img.onerror=function(){iconLink.type='image/svg+xml';iconLink.href=FALLBACK;};
+  img.src=src;
+ }
+ function filasCsv(csv){
+  const result=[];let row=[],value='',quoted=false;
+  for(let i=0;i<csv.length;i++){
+    const c=csv[i];
+    if(c==='"'){if(quoted&&csv[i+1]==='"'){value+='"';i++;}else quoted=!quoted;}
+    else if(c===','&&!quoted){row.push(value);value='';}
+    else if((c==='\n'||c==='\r')&&!quoted){
+      if(c==='\r'&&csv[i+1]==='\n')i++;
+      row.push(value);result.push(row);row=[];value='';
+    }else value+=c;
+  }
+  if(value||row.length){row.push(value);result.push(row);}
+  return result;
+ }
+ usarImagen(DRIVE_RESPALDO);
+ // Se actualiza desde el Sheet si el documento permite lectura pública CSV.
+ const url='https://docs.google.com/spreadsheets/d/'+SHEET_ID+'/gviz/tq?tqx=out:csv&range=A1:B100&_='+Date.now();
+ fetch(url,{cache:'no-store'}).then(r=>{if(!r.ok)throw Error('Sheet no público');return r.text();})
+ .then(csv=>{
+  const match=filasCsv(csv).find(r=>String(r[0]||'').trim().toLowerCase()==='pormayor');
+  if(match)usarImagen(idDrive(match[1]));
+ }).catch(()=>{/* Drive y el icono local mantienen la pestaña identificada. */});
+})();
+</script>
+
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Todoenuno_store - Ventas al Por Mayor · V4.19 · Excepciones de feria y venta por unidad</title>
@@ -4335,7 +4384,7 @@ window.__teusCambiarSesionMonitor=function(){
   window.__teusMonitorPrincipalId=TEUS_MONITOR_PAGE_ID+'-'+(++teusMonitorEpoch);
   try{window.__teusSetPayVisible?.(false)}catch(e){}
 };
-const monitorHtml = String.raw`<!doctype html><html lang="es"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TodoenUno | Alistar pedido · Monitor V4.23</title>
+const monitorHtml = String.raw`<!doctype html><html lang="es"><head><link rel="icon" type="image/png" href="https://drive.google.com/thumbnail?id=1PSOwBju-mlIGmB8AXCgw2h0mTmpO94uz&sz=w128"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TodoenUno | Alistar pedido · Monitor V4.23</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:#23394e;background:#eef2f6}header{position:sticky;top:0;background:#fff;padding:11px 18px;box-shadow:0 2px 8px #0001;z-index:10}h1{font-size:21px;margin:0 0 6px}.sub{font-size:12px;color:#66798b}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}input[type=search]{font:inherit;min-width:210px;flex:1;padding:11px;border-radius:9px;border:1px solid #cbd5e1}.status{font-weight:700;font-size:14px}.track{height:7px;border-radius:9px;background:#e4e7eb;overflow:hidden;margin-top:8px}#fill{height:100%;width:0;background:#1ea66b}button{cursor:pointer;border:0;border-radius:8px;padding:10px 12px;color:white;background:#344e68;font-weight:700}button.green{background:#129b63}button.grey{background:#687582}main{padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-content:start}.item{background:#fff;border:1px solid #dce4ec;border-radius:12px;display:flex;align-items:center;gap:10px;padding:11px;min-height:102px}.item.done{background:#e4f8ed;border:2px solid #32b67e}.item input[type=checkbox]{width:26px;height:26px;flex:none;accent-color:#16a66a;cursor:pointer}.item img{width:92px;height:92px;object-fit:contain;border-radius:9px;background:#fff;cursor:zoom-in;flex:none}.info{min-width:0;flex:1}.title{font-size:14px;font-weight:650;overflow-wrap:anywhere}.number{font-size:11px;font-weight:800;color:#5d7290}.cost{color:#c45637;font-weight:750;font-size:12px;margin-top:5px}#empty{display:none;text-align:center;padding:30px;color:#6c7885}#light{display:none;position:fixed;inset:0;background:#000d;z-index:30;align-items:center;justify-content:center;padding:25px;cursor:zoom-out}#light.active{display:flex}#light img{max-width:97vw;max-height:94vh;object-fit:contain;border-radius:8px}#closeLight{position:absolute;right:16px;top:12px;background:#343a40}#payLayer{display:none;position:fixed;inset:0;background:rgba(5,16,26,.96);z-index:150;align-items:center;justify-content:center;padding:16px}#payLayer.active{display:flex}#payCard{background:#fff;text-align:center;border-radius:18px;padding:15px;width:min(96vw,900px);max-height:96vh;overflow-y:auto;position:relative}#payCard h2{font-size:clamp(18px,2.2vw,28px);margin:7px 40px 12px}#payImage{display:block;object-fit:contain;width:min(46vh,410px);max-width:78vw;max-height:46vh;margin:auto}#closePay{position:absolute;top:8px;right:9px;background:#334155;font-size:18px}#payCard p{font-size:12px;color:#64748b;margin:8px 0 0}footer{position:fixed;bottom:0;right:0;left:0;padding:8px 15px;background:#fff;display:flex;justify-content:flex-end;gap:8px;box-shadow:0 -2px 9px #0001}main{padding-bottom:75px}
 /* V5.8: panel lateral fijo, no ocupar toda la altura sobre las fotografías */
