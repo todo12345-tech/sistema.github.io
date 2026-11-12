@@ -1831,6 +1831,12 @@ document.addEventListener('DOMContentLoaded', function() {
             } else guardarSesionMayor(usuarioMayorActual);
         }
     });
+    // Actividad real en segundo monitor también mantiene viva la sesión, sin
+    // considerarlo un cierre al mover el foco entre las dos pantallas.
+    window.__teusRegistrarActividadMonitor=function(){
+        if(!usuarioMayorActual)return;
+        guardarSesionMayor(usuarioMayorActual);
+    };
     window.addEventListener('pagehide',registrarSalidaMayor);
     window.addEventListener('pageshow',()=>{
         if (!esChecklistCompartido && !usuarioMayorActual) restaurarSesionMayor();
@@ -4318,7 +4324,7 @@ document.addEventListener('DOMContentLoaded', function() {
 'use strict';
 // V4.21: identificador NUEVO para cada carga del HTML, sin compartirlo con
 // otras pestañas ni conservar la sesión anterior del monitor.
-const TEUS_MONITOR_BUILD='4.21';
+const TEUS_MONITOR_BUILD='4.22';
 let teusMonitorEpoch=0;
 const TEUS_MONITOR_PAGE_ID=Date.now().toString(36)+'-'+Math.random().toString(36).slice(2);
 window.__teusMonitorPrincipalId=TEUS_MONITOR_PAGE_ID+'-'+teusMonitorEpoch;
@@ -4366,45 +4372,73 @@ footer{position:static;grid-row:3;z-index:12}
 (function(){
 'use strict';
 const $=id=>document.getElementById(id);const parent=window.opener || (window.parent!==window ? window.parent : null);
-const monitorBuild='4.21';
+const monitorBuild='4.22';
 let monitorOwnerId='';
 window.__teusMonitorBuild=monitorBuild;
 window.__teusMonitorOwnerId='';
-let ultimoIntentoAdopcion='', ultimaRevisionAdopcion=0, conexionEnEspera=false;
-function mostrarEstadoDesconexion(mensaje){
-  let aviso=$('teusMonitorReconexion');
-  if(!aviso){
-    aviso=document.createElement('div');aviso.id='teusMonitorReconexion';
-    aviso.setAttribute('role','status');
-    aviso.style.cssText='position:fixed;inset:0;z-index:2147483640;background:rgba(18,34,54,.95);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:25px;font:700 23px Segoe UI,Arial,sans-serif';
-    document.body.appendChild(aviso);
-  }
-  aviso.textContent=mensaje||'Esperando conexión con Ventas por Mayor…';
-  if(!conexionEnEspera){conexionEnEspera=true;try{window.__teusSetPayVisibleLocal?.(false)}catch(e){}try{salirStandby()}catch(e){}}
+// V4.22: reconexión sin document.write ni recarga de fotos.
+let conexionEnEspera=false, inicioDesconexion=0, avisoSesionTimer=null;
+function ocultarDesconexion(){
+  conexionEnEspera=false;inicioDesconexion=0;
+  if(avisoSesionTimer){clearTimeout(avisoSesionTimer);avisoSesionTimer=null;}
+  $('teusMonitorReconexion')?.remove();
 }
+function mostrarEstadoDesconexion(mensaje,inmediato){
+  if(!conexionEnEspera){inicioDesconexion=Date.now();conexionEnEspera=true;}
+  // Una pérdida transitoria de 1-2 sondeos no debe tapar y destapar toda la pantalla.
+  const pintar=()=>{
+    if(!conexionEnEspera)return;
+    let aviso=$('teusMonitorReconexion');
+    if(!aviso){
+      aviso=document.createElement('div');aviso.id='teusMonitorReconexion';
+      aviso.setAttribute('role','status');
+      aviso.style.cssText='position:fixed;inset:0;z-index:2147483640;background:rgba(18,34,54,.95);color:#fff;display:flex;align-items:center;justify-content:center;text-align:center;padding:25px;font:700 23px Segoe UI,Arial,sans-serif';
+      document.body.appendChild(aviso);
+      try{window.__teusSetPayVisibleLocal?.(false)}catch(e){}
+      try{salirStandby()}catch(e){}
+    }
+    aviso.textContent=mensaje||'Esperando conexión con Ventas por Mayor…';
+  };
+  if(inmediato||Date.now()-inicioDesconexion>4000)pintar();
+  else if(!avisoSesionTimer)avisoSesionTimer=setTimeout(()=>{avisoSesionTimer=null;pintar()},4000);
+}
+function monitorPrincipalValido(){
+  try{return !!parent&&!parent.closed&&!!parent.usuarioMayorActual&&
+    typeof parent.__teusGetMonitorData==='function'&&
+    typeof parent.__teusMonitorPrincipalId==='string'&&!!parent.__teusMonitorPrincipalId}catch(e){return false}
+}
+// La propia pantalla puede adoptar una sesión nueva SIN rehacer su DOM.
+window.__teusAdoptarSesionSinRecargar=function(id,version){
+  if(!monitorPrincipalValido())return false;
+  try{
+    const actual=String(parent.__teusMonitorPrincipalId||'');
+    if(!id||String(id)!==actual||String(version)!==monitorBuild)return false;
+    monitorOwnerId=actual;
+    window.__teusMonitorOwnerId=actual;
+    previous='';lastSummary=''; // Solo se regeneran datos si cambió de sesión.
+    ocultarDesconexion();
+    return true;
+  }catch(e){return false}
+};
 function verificarSesionMonitor(){
   if(!esMonitorIndependiente)return true;
-  let id='',version='',autorizado=false;
-  try{
-    id=String(parent?.__teusMonitorPrincipalId||'');
-    version=String(parent?.__teusMonitorVersion||'');
-    autorizado=!!parent?.usuarioMayorActual && typeof parent?.__teusGetMonitorData==='function';
-  }catch(e){}
-  if(!id || !autorizado){
+  if(!monitorPrincipalValido()){
     mostrarEstadoDesconexion('La sesión de Ventas por Mayor no está activa. Inicia sesión en la ventana principal para reconectar.');
-    $('status').textContent='Sin sesión · esperando reconexión';
+    $('status').textContent='Esperando sesión activa';
     return false;
   }
-  if(id!==monitorOwnerId || version!==monitorBuild){
-    mostrarEstadoDesconexion('Reconectando con la sesión actual de Ventas por Mayor…');
-    if(Date.now()-ultimaRevisionAdopcion>1800 || ultimoIntentoAdopcion!==id){
-      ultimoIntentoAdopcion=id;ultimaRevisionAdopcion=Date.now();
-      try{parent.__teusAdoptarMonitorExistente?.(window)}catch(e){console.info('Esperando recuperación del monitor',e)}
+  try{
+    const id=String(parent.__teusMonitorPrincipalId);
+    const version=String(parent.__teusMonitorVersion||'');
+    if(version!==monitorBuild){
+      mostrarEstadoDesconexion('El segundo monitor usa una versión anterior. Abre el monitor desde Ventas por Mayor para actualizarlo.',true);
+      return false;
     }
-    return false;
-  }
-  conexionEnEspera=false;
-  $('teusMonitorReconexion')?.remove();
+    if(id!==monitorOwnerId){
+      if(!window.__teusAdoptarSesionSinRecargar(id,version))return false;
+    }
+  }catch(e){return false}
+  ocultarDesconexion();
   return true;
 }
 let previous='';let current=[];let lastSummary='';let lastConnectionGood=false;
@@ -4556,7 +4590,7 @@ $('teusStandby').addEventListener('pointerdown',salirStandby);
 $('teusStandby').addEventListener('click',salirStandby);
 window.addEventListener('keydown',e=>{if($('teusStandby').classList.contains('active')){salirStandby();e.preventDefault()}},true);
 // Registrar actividad real, sin que los refrescos automáticos reinicien el reloj.
-document.addEventListener('pointerdown',e=>{if(!e.target.closest('#teusStandby'))ultimaActividad=Date.now()},true);
+document.addEventListener('pointerdown',e=>{if(!e.target.closest('#teusStandby')){ultimaActividad=Date.now();try{parent?.__teusRegistrarActividadMonitor?.()}catch(_){}}},true);
 }
 window.__teusGetLivePreviewState=function(){
  if(!verificarSesionMonitor())return null;
@@ -4602,6 +4636,12 @@ function repararMonitor(w){
   if(!window.usuarioMayorActual||typeof window.__teusGetMonitorData!=='function')return false;
   monitorWindow=w;window.__teusMonitorWindow=w;
   if(monitorListoActual(w))return true;
+  // Monitor abierto ayer, pero aún con código V4.22: solo actualizar su sesión.
+  try{
+    if(w.__teusMonitorBuild===TEUS_MONITOR_BUILD &&
+       typeof w.__teusAdoptarSesionSinRecargar==='function' &&
+       w.__teusAdoptarSesionSinRecargar(window.__teusMonitorPrincipalId,TEUS_MONITOR_BUILD))return true;
+  }catch(e){}
   reparandoMonitor=true;
   try{
     // La ventana anterior se reutiliza: no abrir otra ni depender de popup.
