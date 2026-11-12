@@ -1,15 +1,16 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Pedidos por Mayor V4.27: favicon + acceso directo Android/iOS, archivos en GitHub Pages -->
-<link rel="icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=427">
-<link rel="shortcut icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=427">
-<link rel="apple-touch-icon" sizes="180x180" href="./teus-pedidos-mayor-app-180.png?v=427">
-<link rel="manifest" href="./teus-pedidos-mayor-app.webmanifest?v=427">
+<!-- Pedidos por Mayor V4.28: un solo PNG en GitHub para navegador y acceso directo movil -->
+<link rel="icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
+<link rel="shortcut icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
+<link rel="apple-touch-icon" href="./teus-pedidos-mayor-icono2.png?v=428">
+<link rel="manifest" href="./teus-pedidos-mayor.webmanifest?v=428">
 <meta name="theme-color" content="#ffcf19">
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-title" content="Pedidos Mayor">
 <meta name="application-name" content="Pedidos Mayor">
+<meta name="mobile-web-app-capable" content="yes">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title>Todoenuno_store - Ventas al Por Mayor · V4.19 · Excepciones de feria y venta por unidad</title>
@@ -4344,7 +4345,7 @@ window.__teusCambiarSesionMonitor=function(){
   window.__teusMonitorPrincipalId=TEUS_MONITOR_PAGE_ID+'-'+(++teusMonitorEpoch);
   try{window.__teusSetPayVisible?.(false)}catch(e){}
 };
-const monitorHtml = String.raw`<!doctype html><html lang="es"><head><link rel="icon" type="image/png" href="${new URL('./teus-pedidos-mayor-icono2.png?v=427', document.baseURI).href}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TodoenUno | Alistar pedido · Monitor V4.23</title>
+const monitorHtml = String.raw`<!doctype html><html lang="es"><head><link rel="icon" type="image/png" href="${new URL('./teus-pedidos-mayor-icono2.png?v=428', document.baseURI).href}"><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>TodoenUno | Alistar pedido · Monitor V4.23</title>
 <style>
 *{box-sizing:border-box}body{margin:0;font-family:Segoe UI,Arial,sans-serif;color:#23394e;background:#eef2f6}header{position:sticky;top:0;background:#fff;padding:11px 18px;box-shadow:0 2px 8px #0001;z-index:10}h1{font-size:21px;margin:0 0 6px}.sub{font-size:12px;color:#66798b}.toolbar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:10px}input[type=search]{font:inherit;min-width:210px;flex:1;padding:11px;border-radius:9px;border:1px solid #cbd5e1}.status{font-weight:700;font-size:14px}.track{height:7px;border-radius:9px;background:#e4e7eb;overflow:hidden;margin-top:8px}#fill{height:100%;width:0;background:#1ea66b}button{cursor:pointer;border:0;border-radius:8px;padding:10px 12px;color:white;background:#344e68;font-weight:700}button.green{background:#129b63}button.grey{background:#687582}main{padding:14px;display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;align-content:start}.item{background:#fff;border:1px solid #dce4ec;border-radius:12px;display:flex;align-items:center;gap:10px;padding:11px;min-height:102px}.item.done{background:#e4f8ed;border:2px solid #32b67e}.item input[type=checkbox]{width:26px;height:26px;flex:none;accent-color:#16a66a;cursor:pointer}.item img{width:92px;height:92px;object-fit:contain;border-radius:9px;background:#fff;cursor:zoom-in;flex:none}.info{min-width:0;flex:1}.title{font-size:14px;font-weight:650;overflow-wrap:anywhere}.number{font-size:11px;font-weight:800;color:#5d7290}.cost{color:#c45637;font-weight:750;font-size:12px;margin-top:5px}#empty{display:none;text-align:center;padding:30px;color:#6c7885}#light{display:none;position:fixed;inset:0;background:#000d;z-index:30;align-items:center;justify-content:center;padding:25px;cursor:zoom-out}#light.active{display:flex}#light img{max-width:97vw;max-height:94vh;object-fit:contain;border-radius:8px}#closeLight{position:absolute;right:16px;top:12px;background:#343a40}#payLayer{display:none;position:fixed;inset:0;background:rgba(5,16,26,.96);z-index:150;align-items:center;justify-content:center;padding:16px}#payLayer.active{display:flex}#payCard{background:#fff;text-align:center;border-radius:18px;padding:15px;width:min(96vw,900px);max-height:96vh;overflow-y:auto;position:relative}#payCard h2{font-size:clamp(18px,2.2vw,28px);margin:7px 40px 12px}#payImage{display:block;object-fit:contain;width:min(46vh,410px);max-width:78vw;max-height:46vh;margin:auto}#closePay{position:absolute;top:8px;right:9px;background:#334155;font-size:18px}#payCard p{font-size:12px;color:#64748b;margin:8px 0 0}footer{position:fixed;bottom:0;right:0;left:0;padding:8px 15px;background:#fff;display:flex;justify-content:flex-end;gap:8px;box-shadow:0 -2px 9px #0001}main{padding-bottom:75px}
 /* V5.8: panel lateral fijo, no ocupar toda la altura sobre las fotografías */
