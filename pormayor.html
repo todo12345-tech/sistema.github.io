@@ -4402,6 +4402,9 @@ document.addEventListener('DOMContentLoaded', function() {
  // V4.30: un solo temporizador en la ventana principal (no se muestra al cliente).
  const WIFI_DURACION_MS=60000;
  let wifiTimer=null;
+ // V4.33: la primera pulsación también puede iniciar el monitor, igual que QR y salvapantallas.
+ let wifiLaunchToken=0;
+ let wifiEsperandoMonitor=false;
  function stopWifiTimer(){if(wifiTimer!==null){clearTimeout(wifiTimer);wifiTimer=null;}}
  function reflectWifiButton(){
   for(const id of ['teusMostrarWifiMonitor','teusWifiMostrar']){
@@ -4452,14 +4455,50 @@ document.addEventListener('DOMContentLoaded', function() {
   $('teusWifiInfo').textContent=open?'QR Wi-Fi visible en la pantalla del cliente (vuelve a la lista automáticamente).':'Wi-Fi oculto. Puedes volver a mostrarlo.';
   return true;
  };
- $('teusMostrarWifiMonitor')?.addEventListener('click',()=>{
-  if(open){returnToListAfterWifi();return;}
-  window.__teusSetWifiVisible(true);
- });
- $('teusWifiMostrar')?.addEventListener('click',()=>{
-  if(open){returnToListAfterWifi();return;}
-  window.__teusSetWifiVisible(true);
- });
+ // Abrir/reparar el monitor dentro del clic real del usuario evita bloqueos de ventanas emergentes.
+ // Tras un refresh, el documento del segundo monitor puede tardar unos instantes en inicializarse.
+ function alternarWifiDesdeBoton(){
+  const token=++wifiLaunchToken;
+  if(open){wifiEsperandoMonitor=false;returnToListAfterWifi();return;}
+  // Si el usuario vuelve a pulsar mientras se inicia el monitor, cancela la solicitud.
+  if(wifiEsperandoMonitor){
+   wifiEsperandoMonitor=false;
+   $('teusWifiInfo').textContent='Se canceló la apertura del QR Wi-Fi.';
+   return;
+  }
+  if(!valid(image)){alert('Primero carga el QR de Wi-Fi.');return;}
+  // Misma función que utilizan Mostrar QR y Activar salvapantallas.
+  let mon=window.__teusMonitorWindow;
+  if(!mon||mon.closed||typeof mon.__teusSetWifiVisibleLocal!=='function'){
+   if(typeof window.__teusEnsureMonitor!=='function'){
+    alert('No se pudo iniciar el monitor. Actualiza la página e inténtalo de nuevo.');return;
+   }
+   window.__teusEnsureMonitor();
+  }
+  mon=window.__teusMonitorWindow;
+  if(!mon||mon.closed)return; // La función de apertura muestra su propia explicación (login/popup).
+  wifiEsperandoMonitor=true;
+  $('teusWifiInfo').textContent='Conectando el QR de Wi-Fi con el segundo monitor…';
+  let intentos=0;
+  function mostrarCuandoListo(){
+   if(token!==wifiLaunchToken||!wifiEsperandoMonitor)return;
+   if(mon.closed){wifiEsperandoMonitor=false;alert('Se cerró el segundo monitor.');return;}
+   try{
+    if(typeof mon.__teusSetWifiVisibleLocal==='function' && mon.__teusMonitorOwnerId===window.__teusMonitorPrincipalId){
+     wifiEsperandoMonitor=false;
+     window.__teusSetWifiVisible(true);
+     return;
+    }
+   }catch(err){console.warn('Wi-Fi: esperando al segundo monitor',err)}
+   if(++intentos<40){setTimeout(mostrarCuandoListo,125);return;}
+   wifiEsperandoMonitor=false;
+   $('teusWifiInfo').textContent='El monitor no respondió. Comprueba la ventana secundaria.';
+   alert('El segundo monitor no respondió al mostrar Wi-Fi. Comprueba si el navegador bloqueó la ventana.');
+  }
+  mostrarCuandoListo();
+ }
+ $('teusMostrarWifiMonitor')?.addEventListener('click',alternarWifiDesdeBoton);
+ $('teusWifiMostrar')?.addEventListener('click',alternarWifiDesdeBoton);
  $('teusWifiCerrar')?.addEventListener('click',returnToListAfterWifi);
  reflectWifiButton();
 })();
@@ -4855,6 +4894,9 @@ function launch(){
   if(!repararMonitor(w))alert('No se pudo vincular el monitor. Comprueba que ambas ventanas tengan el mismo origen.');
   else w.focus();
 }
+
+// V4.33: API compartida por el botón de Wi-Fi, QR y salvapantallas.
+window.__teusEnsureMonitor=launch;
 
 // V5.9: El alistado de la laptop es la misma aplicación que la ventana del monitor.
 // iframe srcdoc conserva el mismo origen y consulta el pedido vivo del formulario principal.
