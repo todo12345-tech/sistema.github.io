@@ -1,4 +1,4 @@
-<!-- TEUS · Stock V35 · Corrección icono favicon GitHub Pages -->
+<!-- TEUS · Stock V36 · Corrección icono favicon GitHub Pages -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -550,6 +550,45 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
   .modal-footer { padding-bottom:calc(10px + env(safe-area-inset-bottom)); }
   .login-card { margin-bottom:env(safe-area-inset-bottom); }
  }
+}
+
+
+/* ===== STOCK V36 · LOGIN CENTRADO EN iPHONE / iPAD =====
+   Evita que la regla de iPhone 5 de V34 lleve el formulario arriba/abajo.
+   En pantallas pequeñas permite desplazarse sin cortar campos. */
+#loginScreen {
+  display: flex;
+  align-items: center !important;
+  justify-content: center !important;
+  box-sizing: border-box;
+  min-height: 0;
+  height: 100vh;
+  height: 100dvh;
+  padding: 12px !important;
+  overflow-x: hidden;
+  overflow-y: auto;
+  -webkit-overflow-scrolling: touch;
+}
+#loginScreen .login-card {
+  flex: 0 0 auto;
+  width: 100%;
+  max-width: 420px;
+  margin: auto !important;
+}
+@media (max-width: 360px) {
+  #loginScreen {
+    align-items: center !important;
+    justify-content: center !important;
+    padding: 9px !important;
+  }
+  #loginScreen .login-card {
+    max-width: 100%;
+    margin: auto !important;
+  }
+}
+@media (max-height: 440px) and (orientation: landscape) {
+  #loginScreen { align-items: flex-start !important; }
+  #loginScreen .login-card { margin: 8px auto !important; }
 }
 
 </style>
