@@ -1,9 +1,17 @@
+<!-- TEUS · Stock V34 · Adaptación responsive para iPhone 5 e iPad mini 5 -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>V32 · STOCK · Roles y móvil iPhone 5 - Todoenuno_store</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+    <meta name="theme-color" content="#142743">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <meta name="apple-mobile-web-app-title" content="TEUS Stock">
+    <meta name="mobile-web-app-capable" content="yes">
+    <link rel="icon" type="image/png" href="teus.stock.png">
+    <link rel="apple-touch-icon" href="teus.stock.png">
+    <title>Stock V34 · Todoenuno Store · iPhone y iPad</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -448,7 +456,7 @@
  .ubicaciones-acciones button{width:100%;justify-content:center;min-width:0}
  .tabla-scroll,.tabla-container{max-width:100%;overflow-x:auto;-webkit-overflow-scrolling:touch}
  .modal-overlay{padding:5px!important}
- .modal-card{max-height:calc(100dvh - 10px)!important;width:100%;border-radius:12px!important}
+ .modal-card{max-height:calc(100vh - 10px)!important;max-height:calc(100dvh - 10px)!important;width:100%;border-radius:12px!important}
  .modal-header{padding:10px!important}.modal-body{padding:10px!important}
  .modal-footer{padding:9px!important}
  .fotos-candidatas-grid{grid-template-columns:repeat(2,minmax(0,1fr))!important}
@@ -457,6 +465,89 @@
 }
 /* V33: ajuste seguro para pantalla de 320px */
 @media(max-width:360px){body{padding:5px!important}.container{padding:10px 8px!important}.user-bar{padding:9px!important}.ubicaciones-acciones{display:grid;grid-template-columns:1fr 1fr;gap:6px}.ubicaciones-acciones button{font-size:11px!important;padding:9px 5px!important;min-width:0;overflow-wrap:anywhere}.mov-row{grid-template-columns:1fr!important;gap:5px;padding:11px}.modal-card{max-height:96dvh}.modal-body{padding:11px}.modal-footer{padding:9px}.ajuste-resumen{grid-template-columns:repeat(3,minmax(0,1fr));gap:4px}.ajuste-box{padding:5px}.ajuste-box strong{font-size:12px}.user-bar-info{min-width:0;flex-wrap:wrap}}
+
+/* ================= STOCK V34: iPhone 5, iPad mini y otros dispositivos ================= */
+html { -webkit-text-size-adjust: 100%; }
+html, body { max-width:100%; }
+body { overflow-x:hidden; }
+.container,.user-bar,.login-card,.modal-card,.modal-content,.form-grid,.filtros-bar,.item-action-card { min-width:0; }
+input,select,textarea,button { max-width:100%; }
+input,select,textarea { -webkit-appearance: none; appearance:none; }
+input[type="checkbox"],input[type="radio"] { -webkit-appearance: checkbox; appearance: auto; }
+select { -webkit-appearance: menulist; appearance: auto; }
+input,select,textarea { font-size:16px; }
+button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
+.tabla-scroll,.mov-resultados,.ubicaciones-slider { -webkit-overflow-scrolling:touch; }
+.tabla-scroll { overflow-x:auto; width:100%; }
+.tabla-scroll table { min-width:720px; }
+.modal-card,.modal-content { overscroll-behavior:contain; }
+#loginScreen { overflow-y:auto; -webkit-overflow-scrolling:touch; }
+.login-card { margin:auto; }
+.login-card input { min-height:46px; font-size:16px!important; }
+.login-card button { width:100%; min-height:48px; }
+#lightbox img { object-fit:contain; }
+@media (min-width:700px) and (max-width:1050px) {
+ body { padding:14px; }
+ .container { padding:18px; }
+ .form-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .form-group.full { grid-column:1/-1; }
+ .filtros-bar { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .stats-grid { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .guia-pasos { grid-template-columns:repeat(3,minmax(0,1fr)); }
+ .item-main-actions { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .modal-card { max-width:min(94vw,800px); }
+}
+@media (max-width:699px) {
+ body { padding:8px; }
+ .container { width:100%; padding:12px; margin-bottom:12px; }
+ .form-grid,.filtros-bar { grid-template-columns:minmax(0,1fr)!important; }
+ .form-group.full { grid-column:1/-1; }
+ .user-bar { gap:10px; }
+ .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }
+ .stat-card { min-width:0; }
+ .modal-overlay { padding:8px; }
+ .modal-card,.modal-content { width:100%; max-width:100%; max-height:calc(100vh - 16px); overflow-y:auto; }
+ .modal-footer { display:flex; flex-wrap:wrap; }
+ .modal-footer .modal-btn { flex:1 1 140px; }
+ .autocomplete-list { max-height:42vh; }
+ .item-main-actions { grid-template-columns:minmax(0,1fr); }
+}
+@media (max-width:360px) {
+ body { padding:5px!important; }
+ #loginScreen { padding:8px; align-items:flex-start; }
+ .login-card { width:100%; padding:18px 13px!important; border-radius:12px; }
+ .login-card h1 { font-size:20px; }
+ .login-icon { width:54px;height:54px;margin-bottom:12px; }
+ .login-card .subtitulo { margin-bottom:16px; }
+ .login-card .form-group { margin-bottom:12px; }
+ .container { padding:9px 7px!important; }
+ .user-bar { padding:8px!important; }
+ .user-bar-info { flex:1 1 100%; }
+ .btn-logout { width:100%; }
+ .stats-grid { grid-template-columns:repeat(2,minmax(0,1fr))!important;gap:6px; }
+ .stat-card { padding:8px!important; }
+ .stat-value { font-size:18px!important; }
+ .form-grid,.filtros-bar { padding:8px!important; }
+ .item-main-actions { gap:8px; }
+ .item-action-card { padding:10px!important; }
+ .ubicaciones-acciones { display:grid; grid-template-columns:minmax(0,1fr)!important; gap:7px; }
+ .ubicaciones-acciones button { width:100%; padding:10px 6px!important; font-size:12px!important; }
+ .tabla-header-botones { width:100%; }
+ .recargar-btn,.pdf-btn { flex:1 1 auto; }
+ .modal-overlay { padding:5px!important; }
+ .modal-card,.modal-content { max-height:calc(100vh - 10px)!important; }
+ .modal-body { padding:10px!important; }
+ .modal-header h3 { font-size:14px; }
+ .notification-container { left:6px;right:6px; }
+ .notification { max-width:calc(100vw - 12px)!important; }
+}
+@supports (padding: env(safe-area-inset-bottom)) {
+ @media(max-width:699px) {
+  .modal-footer { padding-bottom:calc(10px + env(safe-area-inset-bottom)); }
+  .login-card { margin-bottom:env(safe-area-inset-bottom); }
+ }
+}
+
 </style>
 </head>
 <body>
@@ -512,7 +603,7 @@
     </div>
 
     <div class="container">
-        <h1><i class="fas fa-boxes"></i> Todoenuno_store - Inventario V32</h1>
+        <h1><i class="fas fa-boxes"></i> Todoenuno_store - Inventario V34</h1>
         <p class="subtitulo">Stock por ubicación · Inventario físico · Traspasos</p>
 
         <div class="stats-grid" id="statsGrid">
