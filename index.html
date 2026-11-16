@@ -1,4 +1,4 @@
-<!-- Todoenuno Store · Ventas V26.77 · diseño original adaptable sin zoom -->
+<!-- Todoenuno Store · Ventas V26.78 · búsqueda inteligente de productos -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1983,10 +1983,41 @@ function mostrarSugerencias(query) {
         return;
     }
 
-    sugerenciasActuales = fuentes.filter(p => {
-        const textoBusqueda = p._busqueda || normalizarTextoCatalogo(`${p.nombre || ''} ${p.seccion || ''}`);
-        return textoBusqueda.includes(q);
-    }).slice(0, 30);
+    // V26.78: búsqueda flexible por palabras, sin depender del orden.
+    // Coincidencias con TODAS las palabras van primero; después se muestran
+    // productos relacionados con una o más palabras (como el catálogo público).
+    // Esto solo ordena sugerencias: NO modifica precios, stock ni disponibilidad.
+    const palabras = normalizarTextoCatalogo(q).split(/[^a-z0-9]+/).filter(Boolean);
+    const normalizarBusqueda = texto => normalizarTextoCatalogo(texto).replace(/[^a-z0-9]+/g, ' ').trim();
+    const resultados = [];
+    fuentes.forEach((p, posicion) => {
+        const nombre = normalizarBusqueda(p.nombre || '');
+        const seccion = normalizarBusqueda(p.seccion || '');
+        const completo = normalizarBusqueda(p._busqueda || `${p.nombre || ''} ${p.seccion || ''}`);
+        const tokensNombre = nombre.split(' ').filter(Boolean);
+        const tokensSeccion = seccion.split(' ').filter(Boolean);
+        let coincidencias = 0, puntos = 0;
+        palabras.forEach(palabra => {
+            const nombreExacto = tokensNombre.includes(palabra);
+            const nombreParcial = !nombreExacto && tokensNombre.some(t => t.startsWith(palabra));
+            const nombreDentro = !nombreExacto && !nombreParcial && nombre.includes(palabra);
+            const seccionExacta = tokensSeccion.includes(palabra);
+            const seccionParcial = !seccionExacta && seccion.includes(palabra);
+            if (nombreExacto) { coincidencias++; puntos += 16; }
+            else if (nombreParcial) { coincidencias++; puntos += 12; }
+            else if (nombreDentro) { coincidencias++; puntos += 8; }
+            else if (seccionExacta) { coincidencias++; puntos += 4; }
+            else if (seccionParcial || completo.includes(palabra)) { coincidencias++; puntos += 2; }
+        });
+        if (!coincidencias) return;
+        if (coincidencias === palabras.length) puntos += 100;
+        if (nombre.includes(q)) puntos += 70;
+        if (nombre.startsWith(q)) puntos += 25;
+        if (palabras.length > 1 && coincidencias < palabras.length) puntos -= 5;
+        resultados.push({ producto: p, puntos, coincidencias, posicion });
+    });
+    resultados.sort((a, b) => b.coincidencias - a.coincidencias || b.puntos - a.puntos || a.posicion - b.posicion);
+    sugerenciasActuales = resultados.slice(0, 30).map(r => r.producto);
 
     if (sugerenciasActuales.length === 0) {
         autocompleteList.innerHTML = '<div class="autocomplete-sin-resultados">No está en Catálogo, Productos Agregados ni Stock. Puedes venderlo manualmente escribiendo el nombre y precio.</div>';
