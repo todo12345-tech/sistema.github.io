@@ -5,7 +5,7 @@
   <meta content="width=device-width,initial-scale=1" name="viewport"/>
   <meta content="#152b43" name="theme-color"/>
   <title>
-   Todoenuno Store · Visualizador de reposición V2
+   Todoenuno Store · Visualizador de reposición V3
   </title>
   <style>
    :root {
@@ -400,6 +400,35 @@ header {
     grid-template-columns:1fr
 }
 }
+/* V4 — Lista visual y PDF carta, con pedidos exclusivamente por cajas */
+.reposicion-pdf { display:none; }
+@media print {
+  @page { size:letter portrait; margin:11mm 11mm; }
+  html,body { background:#fff!important; width:auto!important; overflow:visible!important; -webkit-print-color-adjust:exact!important; print-color-adjust:exact!important; }
+  header,.toolbar,.stats,.products-panel,.footer,.no-print,#orderPanel { display:none!important; }
+  main { display:block!important; width:100%!important; max-width:none!important; padding:0!important; margin:0!important; }
+  .reposicion-pdf { display:block!important; border:0!important; padding:0!important; margin:0!important; }
+  .reposicion-pdf-head { display:flex; justify-content:space-between; gap:12px; align-items:flex-end; padding-bottom:9px; border-bottom:2px solid #152b43; margin-bottom:12px; }
+  .reposicion-pdf-head h1 { margin:0 0 5px; color:#152b43; font-size:19px; }
+  .reposicion-pdf-head p { margin:0; color:#526477; font-size:10px; }
+  .reposicion-pdf-count { text-align:right; font-size:12px; font-weight:700; color:#152b43; }
+  .reposicion-pdf-list { display:block; }
+  .reposicion-pdf-item { display:grid; grid-template-columns:88mm minmax(0,1fr) 28mm; gap:3mm; min-height:91mm; padding:3mm 0; border-bottom:1px solid #dbe3eb; break-inside:avoid; page-break-inside:avoid; align-items:center; }
+  .reposicion-pdf-photo { width:86mm; height:86mm; border:1px solid #dce4ed; border-radius:7px; display:flex; justify-content:center; align-items:center; overflow:hidden; background:#f7f9fb; }
+  .reposicion-pdf-photo img { display:block; width:100%; height:100%; object-fit:contain; }
+  .reposicion-pdf-placeholder { display:none; font-size:10px; color:#6b7786; text-align:center; padding:6px; }
+  .reposicion-pdf-photo.missing img { display:none!important; }
+  .reposicion-pdf-photo.missing .reposicion-pdf-placeholder { display:block; }
+  .reposicion-pdf-name { font-size:13px; font-weight:800; line-height:1.3; overflow-wrap:break-word; color:#142b3d; }
+  .reposicion-pdf-meta { font-size:10px; color:#546779; line-height:1.4; margin-top:5px; }
+  .reposicion-pdf-quantity { border:1px solid #d9e3eb; border-radius:7px; padding:8px 5px; background:#f5f8fb; text-align:center; }
+  .reposicion-pdf-quantity strong { display:block; font-size:22px; line-height:1.05; color:#152b43; }
+  .reposicion-pdf-quantity span { display:block; font-size:11px; text-transform:uppercase; font-weight:800; margin-top:4px; }
+  .reposicion-pdf-foot { margin-top:12px; display:flex; justify-content:space-between; gap:15px; font-size:10px; color:#536778; }
+  .reposicion-pdf-summary { font-size:11px; font-weight:700; margin-top:11px; padding:9px 12px; background:#eff4f9; border-radius:7px; }
+  .reposicion-pdf-notes { margin-top:15px; font-size:11px; color:#536778; }
+  .reposicion-pdf-notes span { display:block; height:22px; border-bottom:1px solid #b7c1cc; }
+}
 @media print {
     body {
     background:white;
@@ -419,7 +448,7 @@ main {
     padding:0
 }
 #orderPanel {
-    display:block!important
+    display:none!important
 }
 .print-only {
     display:block!important
@@ -509,7 +538,35 @@ body.reposicion-autorizado .login-screen  {
      gap: 8px;
      flex-wrap: wrap;
 }
-  </style>
+  
+/* V4: pedido rápido de cajas sin controles innecesarios */
+.buyrow {display:block; margin-top:auto; padding-top:9px; border-top:1px solid #e6edf3;}
+.caja-selector {display:flex; gap:9px; align-items:center; flex-wrap:wrap;}
+.caja-selector button,.pedido-cantidad button {flex:0 0 38px; width:38px; height:38px; border:1px solid #c7d6e3; background:#fff; color:#1b4969; border-radius:10px; font-size:23px; line-height:1; font-weight:800; padding:0;}
+.caja-selector button:hover,.pedido-cantidad button:hover {background:#eaf5ff;}
+.caja-selector strong {min-width:30px; text-align:center; font-size:19px; color:#143a53;}
+.caja-selector .pedido-unidad {font-size:12px; font-weight:800; color:#536c7d;}
+.caja-selector .caja-mas {background:#176ba7;color:#fff;border-color:#176ba7;}
+.caja-selector .caja-mas:hover {background:#125b91;}
+.caja-selector .caja-reset {font-size:11px; width:auto; flex:0 0 auto; padding:0 9px; color:#bb263d;}
+.orderline {display:grid; grid-template-columns:88px minmax(0,1fr) auto; align-items:center; justify-content:initial; gap:12px;}
+.order-photo {width:88px;height:92px;border-radius:10px;object-fit:contain;background:#f4f6f8;border:1px solid #e2e8ee;}
+.order-photo-empty {display:flex;align-items:center;justify-content:center;font-size:13px;color:#68798b;text-align:center;}
+.order-info {min-width:0;}
+.order-info b {display:block;line-height:1.3; font-size:13px;}
+.order-info .sub {margin-top:5px;line-height:1.35;}
+.order-photo-change {display:inline-flex; align-items:center; margin-top:7px; cursor:pointer; font-size:11px; color:#176ba7;font-weight:800;}
+.order-photo-change input {display:none;}
+.pedido-cantidad {display:flex; align-items:center;gap:7px;}
+.pedido-cantidad strong {display:flex;flex-direction:column;align-items:center;min-width:44px;font-size:21px;line-height:1.1;color:#17364d;}
+.pedido-cantidad small {font-size:10px;text-transform:uppercase;color:#536879;}
+.pedido-remove {display:block;margin:7px 0 0 auto;background:none;border:0;color:#bf3044;font-size:11px;cursor:pointer;text-decoration:underline;}
+.pedido-resumen {display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;padding:12px;background:#eef6ff;border-radius:10px;margin:10px 0;font-size:13px;}
+.pedido-resumen strong {font-size:17px;color:#135c89;}
+.filtro-guia {font-size:12px;line-height:1.5;padding:10px 12px;background:#fff8e7;border:1px solid #efd99f;border-radius:9px;margin-bottom:12px;color:#634b1e;}
+@media(max-width:580px){.orderline {grid-template-columns:74px minmax(0,1fr);gap:8px}.order-photo{width:74px;height:82px}.pedido-side{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between}.pedido-remove{margin:0}.pedido-cantidad button {height:42px;width:42px;flex-basis:42px}}
+@media print { .filtro-guia,.pedido-resumen {display:none!important;} .reposicion-pdf * {-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} }
+</style>
  </head>
  <body>
   <div class="login-screen" id="loginScreen">
@@ -686,12 +743,13 @@ body.reposicion-autorizado .login-screen  {
       Ver no disponibles
      </button>
     </div>
+    <div class="filtro-guia"><b>¿Qué significan los contadores?</b> <b>NO disponibles en catálogo</b>: incluye productos no publicados, sin disponibilidad por paquete o sin precio de paquete válido. <b>Sin paquete ni unidad</b>: ambos tipos de venta figuran agotados; puede ser un subconjunto del primero. <b>Stock físico</b> es independiente de la disponibilidad de venta en catálogo. Haz clic en cada contador para ver los artículos correspondientes.</div>
     <div class="grid" id="products">
     </div>
    </section>
    <section class="panel" id="orderPanel">
     <h2>
-     📝 Lista para pedir mercadería
+     📝 Pedido de cajas para reposición
      <small class="sub no-print" id="orderCounter">
      </small>
     </h2>
@@ -703,14 +761,15 @@ body.reposicion-autorizado .login-screen  {
      </p>
     </div>
     <p class="no-print">
-     Marca los productos que deseas reponer, indica cantidad y presentación. La lista es independiente de tus ventas y no cambia ninguna hoja.
+     Pulsa + para agregar cajas. En tu pedido podrás aumentar, disminuir, quitar o añadir una fotografía si falta. La lista no modifica ninguna hoja.
     </p>
+    <div class="pedido-resumen" id="pedidoResumen"><span>Pedido para proveedor</span><strong id="pedidoTotalCajas">0 cajas</strong></div>
     <div class="orderlist" id="orderList">
     </div>
     <div class="rowhead" id="orderButtons" style="margin-top:13px">
      <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn yellow" id="printPdf">
-       ⬇ Descargar / guardar PDF
+       ⬇ PDF carta con fotos a color
       </button>
       <button class="btn" id="exportCsv">
        Exportar CSV
@@ -724,15 +783,25 @@ body.reposicion-autorizado .login-screen  {
      </button>
     </div>
     <p class="feedback no-print">
-     Al pulsar PDF se abre la impresión del navegador: selecciona
+     El PDF tendrá fotos al doble de tamaño y el nombre Pedido Milan a pedir + fecha + número. El consecutivo empieza en 1 cada día y se guarda en este navegador. Para PDF en color y hoja carta, al pulsar descargar selecciona
      <b>
       Guardar como PDF
      </b>
      . No necesitas instalar librerías.
     </p>
    </section>
-  </main>
-  <div class="footer">
+    <section id="reposicionPdf" class="reposicion-pdf" aria-label="Lista de reposición para imprimir">
+      <div class="reposicion-pdf-head">
+        <div><h1 id="reposicionPdfTitle">PEDIDO MILAN A PEDIR</h1><p id="reposicionPdfDate"></p></div>
+        <div class="reposicion-pdf-count" id="reposicionPdfCount"></div>
+      </div>
+      <div class="reposicion-pdf-list" id="reposicionPdfList"></div>
+      <div class="reposicion-pdf-summary" id="reposicionPdfSummary"></div>
+      <div class="reposicion-pdf-notes">Notas para el proveedor:<span></span><span></span></div>
+      <div class="reposicion-pdf-foot"><span>Lista de compra, sin modificar inventario ni ventas</span><span>Comprobar cantidades antes de confirmar pedido</span></div>
+    </section>
+   </main>
+   <div class="footer">
    Panel independiente de solo lectura · ITEMS + stock todoenuno · Ninguna actualización de inventario ni de ventas
   </div>
   <script>
@@ -806,7 +875,7 @@ function getCol(headers, ...names) { for (const name of names) {
         return at;
 } return -1; }
 function c(row, i) { return i < 0 ? '' : String(row[i] ?? '').trim(); }
-function imageUrl(x) { let v = String(x || '').trim(), m = v.match(/\/d\/([^/?]+)/) || v.match(/[?&]id=([^&]+)/); return m ? 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(m[1]) + '&sz=w180' : v; }
+function imageUrl(x) { let v = String(x || '').trim(), m = v.match(/\/d\/([^/?]+)/) || v.match(/[?&]id=([^&]+)/); return m ? 'https://drive.google.com/thumbnail?id=' + encodeURIComponent(m[1]) + '&sz=w750' : v; }
 function itemRows(rows) { const h = rows[0].map(norm), get = (r, ...names) => c(r, getCol(h, ...names)); const arr = []; for (const r of rows.slice(1)) {
     let name = get(r, 'nombre');
     if (!name)
@@ -859,17 +928,23 @@ function render() { refreshStats(); let q = norm($('search').value), f = $('stat
     div.className = 'product ' + s;
     let badges = `<span class="chip ${it.noDisponibleCatalogo ? 'red' : 'green'}">${it.noDisponibleCatalogo ? '🔴 NO DISPONIBLE EN CATÁLOGO' : 'Disponible en catálogo'}</span>${!it.publicado ? '<span class="chip red">No publicado</span>' : ''}<span class="chip ${it.paqueteAgotado ? 'red' : 'green'}">Paquete: ${it.paqueteAgotado ? 'Agotado' : 'Disponible'}</span><span class="chip ${it.unidadAgotada ? 'red' : 'green'}">Unidad: ${it.unidadAgotada ? 'Agotada' : 'Disponible'}</span><span class="chip ${!it.stocks ? 'orange' : it.sum > 0 ? 'green' : 'red'}">${!it.stocks ? 'Stock: no registrado' : it.sum > 0 ? 'Stock: con existencias' : 'Stock: cero'}</span>${low(it) ? '<span class="chip orange">⚠ Stock bajo</span>' : ''}`;
     let loc = it.stock.length ? it.stock.map(x => esc(x.where) + ': ' + x.ca + ' caj. · ' + x.pa + ' paq. · ' + x.un + ' un.').join('<br>') : 'Sin ubicaciones físicas registradas';
-    div.innerHTML = `<div class="prodtop">${it.photo ? `<img class="thumb" alt="" loading="lazy" src="${esc(it.photo)}" onerror="this.style.display='none'">` : '<div class="emptythumb">📦</div>'}<div><div class="name">${esc(it.name)}</div><div class="category">${esc(it.section)}</div></div></div><div class="chips">${badges}</div><div class="metric"><b>${esc(labelStock(it))}</b><span class="sub">${it.variation ? '⚠ Equivalencias distintas entre registros: revisar antes de pedir.' : 'Paquete de catálogo: ' + esc(it.packText || it.packFactor + ' unidades')}</span></div><div class="locations">${loc}</div><div class="buyrow"><input type="checkbox" aria-label="Incluir en lista" ${selected ? 'checked' : ''}><label>Agregar a lista</label><input type="number" aria-label="Cantidad a pedir" min="1" step="1" value="${selected ? selected.qty : 1}"><select aria-label="Presentación a pedir"><option value="paquetes">Paquetes</option><option value="cajas">Cajas</option><option value="unidades">Unidades</option></select></div>`;
-    let check = div.querySelector('input[type=checkbox]'), qty = div.querySelector('input[type=number]'), type = div.querySelector('select');
-    if (selected)
-        type.value = selected.type;
-    function update() { if (check.checked)
-        cart.set(key, { name: it.name, section: it.section, qty: Math.max(1, Math.floor(n(qty.value) || 1)), type: type.value, why: it.noDisponibleCatalogo ? 'No disponible en catálogo' : low(it) ? 'Stock bajo' : it.sum === 0 ? 'Sin existencias físicas' : 'Reposición' });
-    else
-        cart.delete(key); renderOrder(); }
-    check.onchange = update;
-    qty.onchange = update;
-    type.onchange = update;
+    div.innerHTML = `<div class="prodtop">${it.photo ? `<img class="thumb" alt="" loading="lazy" src="${esc(it.photo)}" onerror="this.style.display='none'">` : '<div class="emptythumb">📦</div>'}<div><div class="name">${esc(it.name)}</div><div class="category">${esc(it.section)}</div></div></div><div class="chips">${badges}</div><div class="metric"><b>${esc(labelStock(it))}</b><span class="sub">${it.variation ? '⚠ Equivalencias distintas entre registros: revisar antes de pedir.' : 'Paquete de catálogo: ' + esc(it.packText || it.packFactor + ' unidades')}</span></div><div class="locations">${loc}</div><div class="buyrow"><div class="caja-selector"><button type="button" class="caja-menos" aria-label="Quitar una caja">−</button><strong class="caja-num">${selected ? selected.qty : 0}</strong><span class="pedido-unidad">cajas a pedir</span><button type="button" class="caja-mas" aria-label="Agregar una caja">+</button>${selected ? '<button type="button" class="caja-reset" aria-label="Quitar del pedido">Quitar</button>' : ''}</div></div>`;
+    function setCantidad(cantidad){
+        cantidad = Math.max(0, Math.min(99999, Math.floor(Number(cantidad)||0)));
+        if(cantidad === 0){ cart.delete(key); }
+        else {
+            const previous = cart.get(key);
+            cart.set(key,{name:it.name,section:it.section,photo:previous && previous.photo ? previous.photo : it.photo,qty:cantidad,type:'cajas',why:it.noDisponibleCatalogo?'No disponible en catálogo':low(it)?'Stock bajo':it.sum===0?'Sin existencias físicas':'Reposición'});
+        }
+        div.querySelector('.caja-num').textContent=String(cantidad);
+        const reset = div.querySelector('.caja-reset');
+        if(reset) reset.style.display=cantidad?'':'none';
+        else if(cantidad){const b=document.createElement('button');b.type='button';b.className='caja-reset';b.textContent='Quitar';b.onclick=function(){setCantidad(0)};div.querySelector('.caja-selector').appendChild(b)}
+        renderOrder();
+    }
+    div.querySelector('.caja-menos').onclick=function(){setCantidad((cart.get(key)?.qty||0)-1)};
+    div.querySelector('.caja-mas').onclick=function(){setCantidad((cart.get(key)?.qty||0)+1)};
+    const reset=div.querySelector('.caja-reset'); if(reset) reset.onclick=function(){setCantidad(0)};
     root.appendChild(div);
 } if (!list.length) {
     let t = document.createElement('p');
@@ -877,13 +952,101 @@ function render() { refreshStats(); let q = norm($('search').value), f = $('stat
     t.textContent = ready ? 'No hay artículos que coincidan con los filtros.' : 'Todavía no se cargaron datos.';
     root.appendChild(t);
 } }
-function orderText() { return 'TODOENUNO STORE — LISTA PARA PEDIR\nGenerado: ' + new Date().toLocaleString('es-BO') + '\n\n' + [...cart.values()].map((x, i) => `${i + 1}. ${x.name}\n   ${x.qty} ${x.type} | ${x.why} | ${x.section}`).join('\n\n'); }
-function renderOrder() { const list = $('orderList'); list.replaceChildren(); let all = [...cart.values()]; $('orderCounter').textContent = '(' + all.length + ' productos)'; $('printDate').textContent = 'Fecha de generación: ' + new Date().toLocaleString('es-BO') + ' · ' + all.length + ' productos'; if (!all.length) {
-    let d = document.createElement('p');
-    d.className = 'muted';
-    d.textContent = 'Aún no agregaste productos. Marca los que necesitas comprar en el panel superior.';
-    list.appendChild(d);
-} all.forEach((it, i) => { const row = document.createElement('div'); row.className = 'orderline'; row.innerHTML = `<div><b>${i + 1}. ${esc(it.name)}</b><div class="sub">${esc(it.section)} · ${esc(it.why)}</div></div><strong style="white-space:nowrap">${it.qty} ${esc(it.type)}</strong>`; list.appendChild(row); }); $('printPdf').disabled = $('exportCsv').disabled = $('copyList').disabled = !all.length; }
+// V3: informe imprimible con fotos de tamaño grande, nombres y cantidades.
+function renderReposicionPdf() {
+    const entries = [...cart.values()];
+    const root = $('reposicionPdfList');
+    root.replaceChildren();
+    if (!window.pedidoMilanActual) window.pedidoMilanActual = prepararNombrePedidoMilan(false);
+    $('reposicionPdfTitle').textContent = window.pedidoMilanActual.nombreVisible;
+    $('reposicionPdfDate').textContent = 'Fecha: ' + window.pedidoMilanActual.fechaVisible + ' · ' + entries.length + ' productos';
+    $('reposicionPdfCount').textContent = entries.length + ' producto(s)';
+    const totals = { cajas:0 };
+    entries.forEach((it, index) => {
+        if (Object.prototype.hasOwnProperty.call(totals, it.type)) totals[it.type] += Number(it.qty) || 0;
+        const row = document.createElement('article');
+        row.className = 'reposicion-pdf-item';
+        // No insertar enlaces de fotos ni texto de usuarios sin escapar.
+        row.innerHTML = '<div class="reposicion-pdf-photo ' + (it.photo ? '' : 'missing') + '">' +
+           (it.photo ? '<img alt="Foto del producto" src="' + esc(String(it.photo).replace(/([?&]sz=)w\d+/,'$1w800')) + '">' : '') +
+           '<span class="reposicion-pdf-placeholder">SIN FOTO</span></div>' +
+           '<div><div class="reposicion-pdf-name">' + (index+1) + '. ' + esc(it.name) + '</div>' +
+           '<div class="reposicion-pdf-meta">' + esc(it.section) + '</div>' +
+           '<div class="reposicion-pdf-meta">Motivo: ' + esc(it.why) + '</div></div>' +
+           '<div class="reposicion-pdf-quantity"><strong>' + esc(it.qty) + '</strong><span>' + esc(it.type) + '</span></div>';
+        const img = row.querySelector('img');
+        if (img) img.addEventListener('error', function(){ this.parentNode.classList.add('missing'); });
+        root.appendChild(row);
+    });
+    $('reposicionPdfSummary').textContent = 'TOTAL SOLICITADO: ' + totals.cajas + ' cajas';
+}
+function esperarFotosPdf(maxMs) {
+    const photos = Array.from(document.querySelectorAll('#reposicionPdfList img'));
+    return Promise.all(photos.map(function(img) {
+        if (img.complete) {
+            if (!img.naturalWidth) img.parentNode.classList.add('missing');
+            return Promise.resolve();
+        }
+        return new Promise(function(resolve){
+            let finished = false;
+            function done() { if(finished) return; finished=true; img.removeEventListener('load',done); img.removeEventListener('error',fail); resolve(); }
+            function fail() { img.parentNode.classList.add('missing'); done(); }
+            img.addEventListener('load', done);
+            img.addEventListener('error', fail);
+            setTimeout(function(){ if(!img.complete) img.parentNode.classList.add('missing'); done(); }, maxMs);
+        });
+    }));
+}
+// El botón de PDF crea el informe y espera las fotos antes de imprimir.
+function orderText() { return 'TODOENUNO STORE — PEDIDO DE REPOSICIÓN\nGenerado: ' + new Date().toLocaleString('es-BO') + '\nTotal: '+[...cart.values()].reduce((v,x)=>v+x.qty,0)+' cajas\n\n' + [...cart.values()].map((x, i) => `${i + 1}. ${x.name}\n   ${x.qty} cajas | ${x.why} | ${x.section}`).join('\n\n'); }
+function cambiarCantidadPedido(key,delta){
+    const existing=cart.get(key);if(!existing)return;
+    const next=existing.qty+delta;
+    if(next<=0)cart.delete(key);else existing.qty=Math.min(99999,next);
+    render(); renderOrder();
+}
+function cargarFotoPedido(file,key){
+    if(!file)return;
+    if(!/^image\//.test(file.type)){alert('Selecciona una fotografía PNG, JPG o WEBP.');return;}
+    const reader=new FileReader();
+    reader.onerror=function(){alert('No fue posible leer la fotografía.');};
+    reader.onload=function(){
+      const photo=new Image();
+      photo.onload=function(){
+        try {
+          const canvas=document.createElement('canvas'); const factor=Math.min(1,850/Math.max(photo.width,photo.height));
+          canvas.width=Math.max(1,Math.round(photo.width*factor)); canvas.height=Math.max(1,Math.round(photo.height*factor));
+          const ctx=canvas.getContext('2d'); ctx.fillStyle='#fff';ctx.fillRect(0,0,canvas.width,canvas.height);ctx.drawImage(photo,0,0,canvas.width,canvas.height);
+          const chosen=cart.get(key);if(!chosen)return;
+          chosen.photo=canvas.toDataURL('image/jpeg',.86);
+          renderOrder();
+        }catch(e){alert('La imagen no pudo prepararse para el PDF.');}
+      };
+      photo.onerror=function(){alert('Formato de imagen no compatible.');};
+      photo.src=reader.result;
+    };
+    reader.readAsDataURL(file);
+}
+function renderOrder(){
+    const list=$('orderList');list.replaceChildren(); const all=[...cart.entries()];
+    const boxes=all.reduce((sum,entry)=>sum+entry[1].qty,0);
+    $('orderCounter').textContent='('+all.length+' productos)';
+    $('pedidoTotalCajas').textContent=boxes+' cajas';
+    $('printDate').textContent='Fecha de generación: '+new Date().toLocaleString('es-BO')+' · '+all.length+' productos';
+    if(!all.length){const empty=document.createElement('p');empty.className='muted';empty.textContent='Todavía no hay cajas en el pedido. Pulsa + en cualquier producto para agregarlo.';list.appendChild(empty);}
+    all.forEach(([key,it],i)=>{
+        const row=document.createElement('div');row.className='orderline';
+        const photo=it.photo?'<img class="order-photo" loading="lazy" alt="Foto del producto" src="'+esc(it.photo)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">':'';
+        const empty='<div class="order-photo order-photo-empty" style="'+(it.photo?'display:none':'')+'">SIN FOTO</div>';
+        row.innerHTML='<div>'+photo+empty+'</div><div class="order-info"><b>'+(i+1)+'. '+esc(it.name)+'</b><div class="sub">'+esc(it.section)+' · '+esc(it.why)+'</div><label class="order-photo-change">📷 '+(it.photo?'Cambiar foto':'Añadir foto')+'<input type="file" accept="image/png,image/jpeg,image/webp"></label></div><div class="pedido-side"><div class="pedido-cantidad"><button type="button" class="menos" aria-label="Quitar una caja">−</button><strong>'+it.qty+'<small>cajas</small></strong><button type="button" class="mas" aria-label="Agregar una caja">+</button></div><button type="button" class="pedido-remove">Quitar</button></div>';
+        row.querySelector('.menos').onclick=function(){cambiarCantidadPedido(key,-1)};
+        row.querySelector('.mas').onclick=function(){cambiarCantidadPedido(key,1)};
+        row.querySelector('.pedido-remove').onclick=function(){cart.delete(key);render();renderOrder();};
+        row.querySelector('input[type=file]').onchange=function(){cargarFotoPedido(this.files[0],key)};
+        list.appendChild(row);
+    });
+    $('printPdf').disabled=$('exportCsv').disabled=$('copyList').disabled=!all.length;
+}
 async function reload() { const bt = $('refresh'); bt.disabled = true; $('loadStatus').textContent = 'Consultando ITEMS y Stock…'; $('feedback').textContent = 'Leyendo hojas de Google Sheets (sin modificar ningún registro)…'; try {
     const [i, s] = await Promise.allSettled([readSheet(ITEMS_ID, 'item'), readSheet(STOCK_ID, 'stock')]);
     if (i.status !== 'fulfilled')
@@ -919,13 +1082,65 @@ $('refresh').onclick = reload;
 $('catalogoQuick').onclick = () => { $('statusFilter').value = 'catalogo'; render(); document.querySelector('.products-panel').scrollIntoView({ behavior: 'smooth', block: 'start' }); };
 ['search', 'statusFilter', 'sectionFilter', 'lowLimit'].forEach(id => $(id).addEventListener(id === 'search' ? 'input' : 'change', render));
 document.querySelectorAll('.stat').forEach(b => b.onclick = () => { $('statusFilter').value = b.dataset.filter; render(); });
-$('printPdf').onclick = () => { if (!cart.size)
-    return; window.print(); };
+// V5: un número correlativo por fecha en ESTE navegador.
+// Ejemplo: Pedido Milan a pedir - 2026-11-16 - Pedido 3
+// La fecha local y el número figuran en la hoja y en el nombre sugerido al Guardar como PDF.
+// Aviso: como se usa el diálogo de impresión del navegador, no es posible saber
+// si el usuario guardó el PDF o canceló. Se numera al pulsar el botón Imprimir.
+function prepararNombrePedidoMilan(reservar) {
+    var now = new Date();
+    var dd = String(now.getDate()).padStart(2,'0');
+    var mm = String(now.getMonth()+1).padStart(2,'0');
+    var yy = String(now.getFullYear());
+    var fecha = yy + '-' + mm + '-' + dd;
+    var clave = 'teus_pedido_milan_a_pedir_' + fecha;
+    var numero = 1;
+    try {
+        var actual = parseInt(localStorage.getItem(clave) || '0',10) || 0;
+        numero = actual + 1;
+        if (reservar) localStorage.setItem(clave, String(numero));
+    } catch (e) {
+        if (!window.pedidoMilanFallback || window.pedidoMilanFallback.fecha !== fecha) {
+            window.pedidoMilanFallback = {fecha:fecha, numero:0};
+        }
+        numero = window.pedidoMilanFallback.numero + 1;
+        if (reservar) window.pedidoMilanFallback.numero = numero;
+    }
+    return {
+       fecha: fecha,
+       fechaVisible: dd + '/' + mm + '/' + yy,
+       numero: numero,
+       nombreVisible: 'PEDIDO MILAN A PEDIR · PEDIDO ' + numero,
+       archivo: 'Pedido Milan a pedir - ' + fecha + ' - Pedido ' + numero
+    };
+}
+var tituloOriginalReposicion = document.title;
+window.addEventListener('afterprint', function(){
+    document.title = tituloOriginalReposicion;
+    window.pedidoMilanActual = null;
+});
+$('printPdf').onclick = async function () {
+    if (!cart.size || this.disabled) return;
+    var btn = this;
+    btn.disabled = true;
+    try {
+        window.pedidoMilanActual = prepararNombrePedidoMilan(false);
+        renderReposicionPdf();
+        await esperarFotosPdf(6000);
+        // Reservar número después de que las fotos hayan sido preparadas.
+        window.pedidoMilanActual = prepararNombrePedidoMilan(true);
+        renderReposicionPdf();
+        document.title = window.pedidoMilanActual.archivo;
+        window.print();
+    } finally {
+        btn.disabled = false;
+    }
+};
 $('copyList').onclick = () => { if (navigator.clipboard)
     navigator.clipboard.writeText(orderText()).then(() => alert('Lista copiada')).catch(() => alert('No se pudo copiar; abre el sitio mediante HTTPS'));
 else
     alert('Copiar requiere HTTPS'); };
-$('exportCsv').onclick = () => { let rows = [['Producto', 'Sección', 'Cantidad a pedir', 'Presentación', 'Motivo'], ...[...cart.values()].map(x => [x.name, x.section, x.qty, x.type, x.why])]; let csv = '\uFEFF' + rows.map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n'); let url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); let a = document.createElement('a'); a.href = url; a.download = 'Lista_reposicion_Todoenuno.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); };
+$('exportCsv').onclick = () => { let rows = [['Producto', 'Sección', 'Cajas a pedir', 'Motivo'], ...[...cart.values()].map(x => [x.name, x.section, x.qty, x.why])]; let csv = '\uFEFF' + rows.map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n'); let url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); let a = document.createElement('a'); a.href = url; a.download = 'Lista_reposicion_Todoenuno.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); };
 $('clearOrder').onclick = () => { if (!cart.size)
     return; if (confirm('¿Vaciar la lista para pedir?')) {
     cart.clear();
