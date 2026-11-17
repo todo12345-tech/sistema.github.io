@@ -1,4 +1,4 @@
-<!-- Todoenuno Store · Ventas V26.79 · ajustes de espacio laptop/tablet -->
+<!-- Todoenuno Store · Ventas V26.80 · iPad cabecera completa e impresión histórica -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1013,6 +1013,69 @@ body { max-width:100%; overflow-x:clip; }
 /* Preferir motion reducido si está habilitado. */
 @media(prefers-reduced-motion:reduce){.sidebar,.right-sidebar,.main-content{transition:none!important;}}
 </style>
+<style id="teus-v2680-ipad-cabecera-historico">
+/* Distribución V26.80: para iPads y portátiles compactos, utilizar todo el viewport.
+   El menú y Herramientas son cajones accesibles; nunca cortar la página para simular zoom. */
+@media (min-width: 768px) and (max-width:1199px) {
+ html,body{width:100%!important;max-width:100%!important;overflow-x:hidden!important;}
+ body{display:block!important;}
+ #mainContent.main-content,#mainContent.main-content.sidebar-collapsed,
+ #mainContent.main-content.right-sidebar-collapsed,
+ #mainContent.main-content.sidebar-collapsed.right-sidebar-collapsed{
+   width:100%!important;max-width:100%!important;margin:0!important;min-width:0!important;
+ }
+ #sidebar.sidebar,#sidebar.sidebar.collapsed{
+   position:fixed!important;top:0!important;left:0!important;
+   width:min(290px,85vw)!important;height:100vh!important;
+   transform:translateX(-105%)!important;z-index:11002!important;
+   transition:transform .22s ease!important;
+ }
+ #sidebar.sidebar.active,#sidebar.sidebar.active.collapsed{transform:translateX(0)!important;}
+ #sidebar.sidebar.active.collapsed .menu-text,
+ #sidebar.sidebar.active.collapsed .store-logo span{display:inline!important;}
+ #sidebar.sidebar .sidebar-header{min-height:62px;}
+ #rightSidebar.right-sidebar,#rightSidebar.right-sidebar.collapsed{
+   position:fixed!important;top:0!important;right:0!important;left:auto!important;
+   width:min(340px,90vw)!important;height:100vh!important;
+   transform:translateX(105%)!important;z-index:11002!important;
+ }
+ #rightSidebar.right-sidebar.active,#rightSidebar.right-sidebar.active.collapsed{transform:translateX(0)!important;}
+ #rightSidebar.right-sidebar.active .right-sidebar-header,
+ #rightSidebar.right-sidebar.active.collapsed .right-sidebar-header,
+ #rightSidebar.right-sidebar.active .right-sidebar-content,
+ #rightSidebar.right-sidebar.active.collapsed .right-sidebar-content{display:block!important;}
+ #mobileMenuToggle.mobile-menu-toggle{display:inline-flex!important;flex:0 0 42px!important;
+   width:42px!important;min-width:42px!important;height:42px!important;align-items:center;justify-content:center;}
+ #teusToolsToggleV2674{display:inline-flex!important;flex-shrink:0!important;}
+ .top-bar{display:flex!important;flex-wrap:wrap!important;align-items:center!important;
+  gap:8px!important;padding:10px 12px!important;width:100%!important;}
+ .top-bar>div:first-child{display:flex!important;align-items:center!important;gap:8px!important;
+   flex:1 1 345px!important;min-width:0!important;width:auto!important;max-width:100%!important;}
+ .top-bar-title{font-size:clamp(14px,1.55vw,18px)!important;line-height:1.2!important;
+   white-space:normal!important;overflow:visible!important;}
+ .top-bar .user-info{display:flex!important;align-items:center!important;justify-content:flex-end!important;
+   flex:1 1 440px!important;width:auto!important;max-width:100%!important;
+   flex-wrap:wrap!important;gap:7px!important;}
+ .top-bar .user-info button{width:auto!important;min-width:0!important;max-width:100%!important;
+   padding:8px 10px!important;margin-right:0!important;font-size:12px!important;white-space:normal!important;}
+ .content-area{max-width:100%!important;min-width:0!important;padding:11px!important;overflow-x:hidden!important;}
+ .content-area .container{max-width:100%!important;min-width:0!important;padding:14px!important;}
+ #seccionVentasDia .ventas-table-container{display:block!important;width:100%!important;
+   max-width:100%!important;overflow-x:auto!important;overscroll-behavior-x:contain;}
+ #seccionVentasDia .tabla-ventas-dia{min-width:900px!important;width:max-content!important;
+   table-layout:auto!important;max-width:none!important;}
+}
+/* Adaptación de cabecera a portátiles hasta 1599px: no ocultar acciones. */
+@media (min-width:1200px) and (max-width:1599px){
+ .top-bar{display:flex!important;flex-wrap:wrap!important;gap:9px!important;}
+ .top-bar>div:first-child{flex:1 1 300px!important;min-width:0!important;}
+ .top-bar .user-info{display:flex!important;justify-content:flex-end!important;
+  flex:1 1 370px!important;min-width:0!important;flex-wrap:wrap!important;gap:6px!important;}
+ .top-bar .user-info button{width:auto!important;margin-right:0!important;}
+}
+#navegadorHistoricoAdminV2664 .historial-admin-v2664-controls{max-width:100%;flex-wrap:wrap;}
+#navegadorHistoricoAdminV2664 input[type=date]{min-width:0;max-width:260px;}
+</style>
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -1222,16 +1285,16 @@ body { max-width:100%; overflow-x:clip; }
                         <span><i class="fas fa-cloud"></i> <strong>Fuente:</strong> <span id="ventasDiaFuenteTexto">Consultando Sheet...</span></span>
                         <button type="button" id="recargarVentasDiaBtn" style="width:auto;padding:7px 12px;background:#3498db;font-size:11px;"><i class="fas fa-sync-alt"></i> Actualizar desde Sheet</button>
                     </div>
-                    <!-- V26.64: navegación histórica exclusiva para ADMIN. No altera el cierre actual. -->
+                    <!-- V26.80: ADMIN y ENCARGADO consultan e imprimen históricos. No altera la caja actual. -->
                     <div id="navegadorHistoricoAdminV2664" class="historial-admin-v2664" hidden>
-                        <div class="historial-admin-v2664-head"><i class="fas fa-calendar-alt"></i> Consultar ventas de otros días <span>Solo administrador</span></div>
+                        <div class="historial-admin-v2664-head"><i class="fas fa-calendar-alt"></i> Consultar ventas de otros días <span>Administrador y Encargado</span></div>
                         <div class="historial-admin-v2664-controls">
                             <button type="button" id="historialDiaAnteriorV2664" title="Día anterior"><i class="fas fa-chevron-left"></i></button>
                             <input type="date" id="historialFechaV2664" aria-label="Fecha que deseas consultar">
                             <button type="button" id="historialDiaSiguienteV2664" title="Día siguiente"><i class="fas fa-chevron-right"></i></button>
                             <button type="button" id="historialVolverHoyV2664" class="historial-hoy-v2664"><i class="fas fa-calendar-day"></i> Hoy</button>
                         </div>
-                        <div id="historialEstadoV2664" class="historial-admin-v2664-status"></div>
+                        <div id="historialEstadoV2664" class="historial-admin-v2664-status"></div><small style="display:block;font-size:11px;color:#6b5e41;margin-top:6px">Los botones de impresión usan la fecha seleccionada. El resumen de caja sigue siendo solo de hoy.</small>
                     </div>
                     <div id="avisoSincronizacionV2619" style="display:none;padding:9px 12px;margin:7px 0;background:#fff8e8;border:1px solid #f2ddb0;border-radius:7px;font-size:12px"></div>
                     <button type="button" id="reintentarPendientesV2619" style="width:auto;background:#226e9e;padding:8px 12px;font-size:12px;margin:5px 0 8px;"><i class="fas fa-cloud-upload-alt"></i> Subir pendientes a Sheets</button>
@@ -1245,8 +1308,8 @@ body { max-width:100%; overflow-x:clip; }
                         <div class="resumen-fila"><strong><i class="fas fa-lock"></i> Cierre Efectivo:</strong><span class="resumen-valor-dia"><span id="cierreEfectivoDia">0.00</span> Bs</span></div>
                         <div class="resumen-fila" style="margin-top: 8px; padding-top: 8px; border-top: 2px solid #dee2e6;"><strong><i class="fas fa-shopping-cart"></i> Total de Ventas:</strong><span class="resumen-valor-dia"><span id="totalVentasDia">0</span></span></div>
                         <div class="resumen-fila"><strong><i class="fas fa-calculator"></i> Promedio por Venta:</strong><span class="resumen-valor-dia"><span id="promedioVentaDia">0.00</span> Bs</span></div>
-                        <button id="imprimirResumenDiaBtn" class="imprimir-resumen-dia-btn"><i class="fas fa-print"></i> Imprimir Resumen del Día</button>
-                        <button id="imprimirTodasVentasDiaBtn" class="imprimir-resumen-dia-btn"><i class="fas fa-print"></i> Imprimir Todas las Ventas del Día</button>
+                        <button id="imprimirResumenDiaBtn" class="imprimir-resumen-dia-btn"><i class="fas fa-print"></i> Imprimir Resumen de la Fecha Seleccionada</button>
+                        <button id="imprimirTodasVentasDiaBtn" class="imprimir-resumen-dia-btn"><i class="fas fa-print"></i> Imprimir Ventas de la Fecha Seleccionada</button>
                     </div>
                     <div id="avisoHistorialV2621" role="status" style="display:none;margin:10px 0;padding:10px 12px;border:1px solid #d5e3f3;background:#f4f8fd;color:#294967;border-radius:7px;font-size:12px;"></div>
                     <div class="compacto ventas-table-container">
@@ -3741,7 +3804,7 @@ function configurarEventListeners() {
     document.getElementById('cambiarSucursalBtn').addEventListener('click', cambiarSucursalSeguroV2631);
     document.getElementById('menuSucursal').addEventListener('click', e=>{e.preventDefault();cambiarSucursalSeguroV2631();});
     sidebarToggle.addEventListener('click', function() {
-        if(window.matchMedia('(max-width:899px)').matches){sidebar.classList.remove('active'); document.getElementById('mobileSidebarBackdrop')?.classList.remove('active'); return;}
+        if(window.matchMedia('(max-width:1199px)').matches){sidebar.classList.remove('active'); document.getElementById('mobileSidebarBackdrop')?.classList.remove('active'); return;}
         sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('sidebar-collapsed');
     });
     rightSidebarToggle.addEventListener('click', function() { rightSidebar.classList.toggle('collapsed'); rightSidebarToggle.classList.toggle('collapsed'); mainContent.classList.toggle('right-sidebar-collapsed'); });
@@ -3782,7 +3845,7 @@ function configurarEventListeners() {
     document.querySelectorAll('.sidebar-menu a').forEach(function(a){a.addEventListener('click',closeRightDrawerV2674);});
     mobileSidebarBackdrop.addEventListener('click',closeMobileSidebar);
     document.addEventListener('keydown',e=>{if(e.key==='Escape')closeMobileSidebar();});
-    if(window.matchMedia('(max-width:899px)').matches){ document.querySelectorAll('.sidebar-menu a').forEach(a=>a.addEventListener('click',closeMobileSidebar)); }
+    if(window.matchMedia('(max-width:1199px)').matches){ document.querySelectorAll('.sidebar-menu a').forEach(a=>a.addEventListener('click',closeMobileSidebar)); }
 
 
     ['datosCliente', 'cargarPedido', 'sync', 'backup'].forEach(id => {
@@ -4389,6 +4452,8 @@ function obtenerMontosVenta(venta, cantidadProductos) {
     return valores.slice(0, cantidadProductos);
 }
 
+// V26.80: permiso de consulta e impresión histórica sin conceder permisos de edición.
+function puedeConsultarHistoricoV2680(){return !!currentUser && ['admin','encargado'].includes(normalizarRolSistema(currentUser.rol));}
 // V26.64: la fecha de consulta solo modifica la tabla, nunca el resumen de caja de hoy.
 let fechaHistoricaAdminV2664 = null;
 function fechaISOHoyV2664(){
@@ -4403,7 +4468,7 @@ function refrescarNavegadorHistoricoV2664(){
     const box=document.getElementById('navegadorHistoricoAdminV2664');
     const fecha=document.getElementById('historialFechaV2664');
     if(!box||!fecha)return;
-    const admin=esAdministrador();
+    const admin=puedeConsultarHistoricoV2680();
     box.hidden=!admin;
     if(!admin){fechaHistoricaAdminV2664=null;return;}
     const hoy=fechaISOHoyV2664();
@@ -4412,7 +4477,7 @@ function refrescarNavegadorHistoricoV2664(){
     fecha.value=fechaHistoricaAdminV2664;
 }
 function cambiarFechaHistoricaV2664(iso){
-    if(!esAdministrador())return;
+    if(!puedeConsultarHistoricoV2680())return;
     const hoy=fechaISOHoyV2664();
     if(!/^\d{4}-\d{2}-\d{2}$/.test(String(iso)) || iso>hoy)return;
     fechaHistoricaAdminV2664=iso;
@@ -4427,7 +4492,7 @@ function configurarNavegadorHistoricoV2664(){
     document.getElementById('historialVolverHoyV2664')?.addEventListener('click',()=>cambiarFechaHistoricaV2664(fechaISOHoyV2664()));
     [['historialDiaAnteriorV2664',-1],['historialDiaSiguienteV2664',1]].forEach(([id,dir])=>{
         document.getElementById(id)?.addEventListener('click',()=>{
-            if(!esAdministrador())return;
+            if(!puedeConsultarHistoricoV2680())return;
             const actual=fechaHistoricaAdminV2664||fechaISOHoyV2664();
             const [y,m,d]=actual.split('-').map(Number);
             const fecha=new Date(y,m-1,d+dir);
@@ -4483,8 +4548,8 @@ function actualizarVentasDelDia() {
     let registrosTablaV2621 = todasVentasHoy;
     configurarNavegadorHistoricoV2664();
     refrescarNavegadorHistoricoV2664();
-    const fechaElegidaV2664 = esAdministrador() ? (fechaHistoricaAdminV2664 || fechaISOHoyV2664()) : fechaISOHoyV2664();
-    const consultandoOtroDiaV2664 = esAdministrador() && fechaElegidaV2664 !== fechaISOHoyV2664();
+    const fechaElegidaV2664 = puedeConsultarHistoricoV2680() ? (fechaHistoricaAdminV2664 || fechaISOHoyV2664()) : fechaISOHoyV2664();
+    const consultandoOtroDiaV2664 = puedeConsultarHistoricoV2680() && fechaElegidaV2664 !== fechaISOHoyV2664();
     const esVistaHistoricaV2664 = consultandoOtroDiaV2664;
     if (consultandoOtroDiaV2664) {
         const fechaBuscadaV2664=fechaComparableISO_V2664(fechaElegidaV2664);
@@ -4827,9 +4892,30 @@ function imprimirNotaVentaGuardada(venta) {
     setTimeout(() => { try { iframe.contentWindow.focus(); iframe.contentWindow.print(); } catch (e) {} setTimeout(() => { if (document.body.contains(iframe)) document.body.removeChild(iframe); }, 1000); }, 500);
 }
 
+// V26.80: impresiones de ventas de una fecha verificada, SIN incluir otras sucursales.
+function fechaParaImpresionV2680(){
+    const hoy=fechaISOHoyV2664();
+    const elegida=puedeConsultarHistoricoV2680() ? (fechaHistoricaAdminV2664 || hoy) : hoy;
+    return (/^\d{4}-\d{2}-\d{2}$/.test(elegida) && elegida<=hoy) ? elegida : hoy;
+}
+function ventasParaImpresionV2680(){
+    const iso=fechaParaImpresionV2680();
+    const cmp=fechaComparableISO_V2664(iso);
+    return (Array.isArray(ventasDelDia)?ventasDelDia:[]).filter(perteneceVentaASucursal)
+       .filter(v=>fechaComparableVentas(v.fecha)===cmp)
+       .filter(v=>!esAperturaV2617(v)&&!esCierreV2617(v)&&!esMonedasV2620(v)&&!esAnuladaV2620(v));
+}
+function fechaLegibleImpresionV2680(){
+    const [a,m,d]=fechaParaImpresionV2680().split('-');
+    return d+'/'+m+'/'+a;
+}
+function impresionFechaEsHoyV2680(){return fechaParaImpresionV2680()===fechaISOHoyV2664();}
+
 async function consultarCierreAntesDeImprimirV2667(){
     if(!currentUser) return;
     const h=obtenerHoraDecimal();
+    // Una consulta histórica nunca inicia un cierre de caja de hoy.
+    if(!impresionFechaEsHoyV2680()){imprimirTodasVentasDia();return;}
     // No interrumpir la impresión fuera del horario de recordatorio.
     if(h<17.5 || h>=20 || sinCajaV2666() || !cajaAbierta || estadoCajaHoyV2620!=='OPERANDO'){
         imprimirTodasVentasDia();
@@ -4854,14 +4940,9 @@ async function consultarCierreAntesDeImprimirV2667(){
 }
 
 function imprimirTodasVentasDia() {
-    const hoy = new Date().toLocaleDateString('es-ES');
-    const hoyCmp = fechaComparableVentas(hoy);
-    const ventasHoy = ventasDelDia.filter(v =>
-        fechaComparableVentas(v.fecha) === hoyCmp &&
-        v.productos !== 'APERTURA DE CAJA' &&
-        v.productos !== 'CIERRE DE CAJA'
-    );
-    if (ventasHoy.length === 0) { Notificaciones.mostrar('No hay ventas hoy', 'warning'); return; }
+    const hoy = fechaLegibleImpresionV2680();
+    const ventasHoy = ventasParaImpresionV2680();
+    if (ventasHoy.length === 0) { Notificaciones.mostrar('No hay ventas para la fecha seleccionada', 'warning'); return; }
 
     const iframe = document.createElement('iframe');
     iframe.style.position = 'absolute'; iframe.style.left = '-9999px';
@@ -4879,7 +4960,7 @@ function imprimirTodasVentasDia() {
         .resumen{margin-top:20px;border:2px solid #000;padding:15px;background:#f9f9f9}
         @media print{.venta{break-inside:avoid}}
     </style></head><body>
-    <div class="header"><h1>TODOENUNO_STORE</h1><h2>Ventas del Día: ${hoy}</h2><p>Sucursal: ${sucursalSeleccionada}</p></div>`;
+    <div class="header"><h1>TODOENUNO_STORE</h1><h2>Ventas del ${hoy}</h2><p>Sucursal: ${sucursalSeleccionada}</p></div>`;
 
     let totalGeneral=0, totalEfectivoImp=0, totalQRImp=0, totalTarjetaImp=0, totalMixtoImp=0;
 
@@ -5423,11 +5504,11 @@ function limpiarBackupsAntiguos() {
 }
 
 function imprimirResumenVentasDia() {
-    const hoy = new Date().toLocaleDateString('es-ES');
-    const ventasHoy = ventasDelDia.filter(v => v.fecha === hoy && v.productos !== 'APERTURA DE CAJA' && v.productos !== 'CIERRE DE CAJA' && v.productos !== 'INGRESO DE MONEDAS');
-    if (ventasHoy.length === 0) { Notificaciones.mostrar('No hay ventas hoy', 'warning'); return; }
+    const hoy = fechaLegibleImpresionV2680();
+    const ventasHoy = ventasParaImpresionV2680();
+    if (ventasHoy.length === 0) { Notificaciones.mostrar('No hay ventas para la fecha seleccionada', 'warning'); return; }
     let resumen = { efectivo: 0, qr: 0, mixto: 0, total: 0, numeroVentas: ventasHoy.length };
-    ventasHoy.forEach(venta => { const monto = parseFloat(venta.total_venta); resumen.total += monto; if (venta.metodo_pago === 'Efectivo') resumen.efectivo += monto; else if (venta.metodo_pago === 'QR') resumen.qr += monto; else if (String(venta.metodo_pago || '').toLowerCase() === 'mixto') { resumen.mixto += monto; resumen.efectivo += venta.monto_efectivo || 0; resumen.qr += venta.monto_qr || 0; } });
+    ventasHoy.forEach(venta => { const monto = Number(String(venta.total_venta || '0').replace(',','.')) || 0; const tipo=String(venta.metodo_pago||'').trim().toLowerCase(); resumen.total += monto; if(tipo==='efectivo') resumen.efectivo+=monto; else if(tipo==='qr') resumen.qr+=monto; else if(tipo==='mixto'){resumen.mixto+=monto; resumen.efectivo+=Number(String(venta.monto_efectivo||'0').replace(',','.'))||0; resumen.qr+=Number(String(venta.monto_qr||'0').replace(',','.'))||0;}  });
     const iframe = document.createElement('iframe');
     iframe.style.position = 'absolute'; iframe.style.left = '-9999px';
     document.body.appendChild(iframe);
