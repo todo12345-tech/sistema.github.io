@@ -5,7 +5,7 @@
   <meta content="width=device-width,initial-scale=1" name="viewport"/>
   <meta content="#152b43" name="theme-color"/>
   <title>
-   Todoenuno Store · Visualizador de reposición V3
+   Todoenuno Store · Visualizador de reposición V6
   </title>
   <style>
    :root {
@@ -567,6 +567,21 @@ body.reposicion-autorizado .login-screen  {
 @media(max-width:580px){.orderline {grid-template-columns:74px minmax(0,1fr);gap:8px}.order-photo{width:74px;height:82px}.pedido-side{grid-column:1/-1;display:flex;align-items:center;justify-content:space-between}.pedido-remove{margin:0}.pedido-cantidad button {height:42px;width:42px;flex-basis:42px}}
 @media print { .filtro-guia,.pedido-resumen {display:none!important;} .reposicion-pdf * {-webkit-print-color-adjust:exact!important;print-color-adjust:exact!important;} }
 </style>
+ <script defer src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.2/jspdf.umd.min.js"></script>
+ <style id="reposicion-v6-styles">
+ #sharePdf[hidden]{display:none!important}
+ .nuevo-producto-form{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:12px}
+ .nuevo-producto-form label{min-width:0;display:flex;flex-direction:column;gap:5px;font-size:12px;font-weight:700;color:#345064}
+ .nuevo-producto-form input,.nuevo-producto-form textarea{box-sizing:border-box;width:100%;min-width:0;border:1px solid #cbd7e3;border-radius:9px;padding:11px;font:inherit;font-size:14px;background:#fff}
+ .nuevo-producto-form input[type=file]{max-width:100%;overflow:hidden;font-size:12px;padding:8px}
+ .nuevo-producto-form textarea{min-height:76px;resize:vertical}
+ .nuevo-producto-form .wide{grid-column:1/-1}
+ .nuevo-preview{display:flex;gap:10px;align-items:center;border:1px dashed #bdd0df;border-radius:10px;padding:10px;background:#f7fafc}
+ .nuevo-preview img{width:74px;height:86px;object-fit:contain;background:white;border-radius:7px}
+ .nuevo-producto-form .btn{width:max-content;max-width:100%}
+ .order-description{margin-top:5px;color:#466074;font-size:12px;white-space:pre-wrap;overflow-wrap:anywhere}
+ @media(max-width:580px){.nuevo-producto-form{grid-template-columns:minmax(0,1fr)}.nuevo-producto-form .wide{grid-column:auto}.nuevo-producto-form .btn{width:100%}}
+ </style>
  </head>
  <body>
   <div class="login-screen" id="loginScreen">
@@ -747,6 +762,19 @@ body.reposicion-autorizado .login-screen  {
     <div class="grid" id="products">
     </div>
    </section>
+    <section class="panel no-print" id="nuevoProductoPanel">
+      <h2>➕ Añadir producto nuevo al pedido</h2>
+      <p>Para productos que todavía no figuran en ITEMS. Solo se agregan a esta lista y al PDF; no se guardan en Google Sheets.</p>
+      <form id="nuevoProductoForm" class="nuevo-producto-form">
+        <label>Nombre del producto *<input id="nuevoNombre" required maxlength="180" placeholder="Ej.: ENVASE DISPENSADOR 100 ML"></label>
+        <label>Categoría o sección<input id="nuevoSeccion" maxlength="100" placeholder="Ej.: ENVASES"></label>
+        <label class="wide">Descripción o detalles<textarea id="nuevoDescripcion" maxlength="1200" placeholder="Modelo, color, tamaño o indicaciones para el proveedor..."></textarea></label>
+        <label>Cantidad de cajas a pedir *<input id="nuevoCajas" type="number" min="1" max="99999" step="1" value="1" required></label>
+        <label>Fotografía (JPG, PNG o WEBP)<input id="nuevoFoto" type="file" accept="image/png,image/jpeg,image/webp,image/*"></label>
+        <div class="nuevo-preview wide"><img id="nuevoFotoVista" alt="Vista previa" hidden><span id="nuevoFotoAyuda" class="sub">Puedes tomar una foto desde tu celular o elegirla de la galería.</span></div>
+        <div class="wide"><button class="btn primary" type="submit">＋ Añadir producto a mi lista</button></div>
+      </form>
+    </section>
    <section class="panel" id="orderPanel">
     <h2>
      📝 Pedido de cajas para reposición
@@ -769,9 +797,11 @@ body.reposicion-autorizado .login-screen  {
     <div class="rowhead" id="orderButtons" style="margin-top:13px">
      <div style="display:flex;gap:8px;flex-wrap:wrap">
       <button class="btn yellow" id="printPdf">
-       ⬇ PDF carta con fotos a color
+       ⬇ Descargar PDF carta con fotos
       </button>
-      <button class="btn" id="exportCsv">
+      <button class="btn primary" id="sharePdf" type="button" hidden>📤 Compartir / guardar PDF</button>
+      <button class="btn" id="printBrowser" type="button">🖨 Imprimir (alternativa)</button>
+       <button class="btn" id="exportCsv">
        Exportar CSV
       </button>
       <button class="btn dark" id="copyList">
@@ -972,7 +1002,7 @@ function renderReposicionPdf() {
            '<span class="reposicion-pdf-placeholder">SIN FOTO</span></div>' +
            '<div><div class="reposicion-pdf-name">' + (index+1) + '. ' + esc(it.name) + '</div>' +
            '<div class="reposicion-pdf-meta">' + esc(it.section) + '</div>' +
-           '<div class="reposicion-pdf-meta">Motivo: ' + esc(it.why) + '</div></div>' +
+           '<div class="reposicion-pdf-meta">Motivo: ' + esc(it.why) + '</div>' + (it.description ? '<div class="reposicion-pdf-meta">Descripción: ' + esc(it.description) + '</div>' : '') + '</div>' +
            '<div class="reposicion-pdf-quantity"><strong>' + esc(it.qty) + '</strong><span>' + esc(it.type) + '</span></div>';
         const img = row.querySelector('img');
         if (img) img.addEventListener('error', function(){ this.parentNode.classList.add('missing'); });
@@ -998,7 +1028,7 @@ function esperarFotosPdf(maxMs) {
     }));
 }
 // El botón de PDF crea el informe y espera las fotos antes de imprimir.
-function orderText() { return 'TODOENUNO STORE — PEDIDO DE REPOSICIÓN\nGenerado: ' + new Date().toLocaleString('es-BO') + '\nTotal: '+[...cart.values()].reduce((v,x)=>v+x.qty,0)+' cajas\n\n' + [...cart.values()].map((x, i) => `${i + 1}. ${x.name}\n   ${x.qty} cajas | ${x.why} | ${x.section}`).join('\n\n'); }
+function orderText() { return 'TODOENUNO STORE — PEDIDO DE REPOSICIÓN\nGenerado: ' + new Date().toLocaleString('es-BO') + '\nTotal: '+[...cart.values()].reduce((v,x)=>v+x.qty,0)+' cajas\n\n' + [...cart.values()].map((x, i) => `${i + 1}. ${x.name}\n   ${x.qty} cajas | ${x.why} | ${x.section}${x.description ? '\n   Descripción: '+x.description : ''}`).join('\n\n'); }
 function cambiarCantidadPedido(key,delta){
     const existing=cart.get(key);if(!existing)return;
     const next=existing.qty+delta;
@@ -1038,7 +1068,7 @@ function renderOrder(){
         const row=document.createElement('div');row.className='orderline';
         const photo=it.photo?'<img class="order-photo" loading="lazy" alt="Foto del producto" src="'+esc(it.photo)+'" onerror="this.style.display=\'none\';this.nextElementSibling.style.display=\'flex\'">':'';
         const empty='<div class="order-photo order-photo-empty" style="'+(it.photo?'display:none':'')+'">SIN FOTO</div>';
-        row.innerHTML='<div>'+photo+empty+'</div><div class="order-info"><b>'+(i+1)+'. '+esc(it.name)+'</b><div class="sub">'+esc(it.section)+' · '+esc(it.why)+'</div><label class="order-photo-change">📷 '+(it.photo?'Cambiar foto':'Añadir foto')+'<input type="file" accept="image/png,image/jpeg,image/webp"></label></div><div class="pedido-side"><div class="pedido-cantidad"><button type="button" class="menos" aria-label="Quitar una caja">−</button><strong>'+it.qty+'<small>cajas</small></strong><button type="button" class="mas" aria-label="Agregar una caja">+</button></div><button type="button" class="pedido-remove">Quitar</button></div>';
+        row.innerHTML='<div>'+photo+empty+'</div><div class="order-info"><b>'+(i+1)+'. '+esc(it.name)+'</b><div class="sub">'+esc(it.section)+' · '+esc(it.why)+'</div>'+(it.description?'<div class="order-description">'+esc(it.description)+'</div>':'')+'<label class="order-photo-change">📷 '+(it.photo?'Cambiar foto':'Añadir foto')+'<input type="file" accept="image/png,image/jpeg,image/webp"></label></div><div class="pedido-side"><div class="pedido-cantidad"><button type="button" class="menos" aria-label="Quitar una caja">−</button><strong>'+it.qty+'<small>cajas</small></strong><button type="button" class="mas" aria-label="Agregar una caja">+</button></div><button type="button" class="pedido-remove">Quitar</button></div>';
         row.querySelector('.menos').onclick=function(){cambiarCantidadPedido(key,-1)};
         row.querySelector('.mas').onclick=function(){cambiarCantidadPedido(key,1)};
         row.querySelector('.pedido-remove').onclick=function(){cart.delete(key);render();renderOrder();};
@@ -1119,28 +1149,153 @@ window.addEventListener('afterprint', function(){
     document.title = tituloOriginalReposicion;
     window.pedidoMilanActual = null;
 });
-$('printPdf').onclick = async function () {
-    if (!cart.size || this.disabled) return;
-    var btn = this;
-    btn.disabled = true;
-    try {
-        window.pedidoMilanActual = prepararNombrePedidoMilan(false);
-        renderReposicionPdf();
-        await esperarFotosPdf(6000);
-        // Reservar número después de que las fotos hayan sido preparadas.
-        window.pedidoMilanActual = prepararNombrePedidoMilan(true);
-        renderReposicionPdf();
-        document.title = window.pedidoMilanActual.archivo;
-        window.print();
-    } finally {
-        btn.disabled = false;
+// V6: PDF verdadero con jsPDF, no depende de window.print() en iPhone.
+// Las imágenes cargadas manualmente se convierten a JPEG localmente; imágenes
+// remotas requieren permiso CORS de su servidor para incrustarse en un PDF.
+function convertirImagenParaPdf(url) {
+    return new Promise(function(resolve){
+        if(!url){resolve(null);return;}
+        var img=new Image(); var terminado=false;
+        function acabar(data){if(terminado)return;terminado=true;clearTimeout(reloj);resolve(data);}
+        var reloj=setTimeout(function(){acabar(null);},8000);
+        img.crossOrigin='anonymous';
+        img.onload=function(){
+          try {
+            var cv=document.createElement('canvas');
+            var ratio=Math.min(1,1000/Math.max(img.naturalWidth,img.naturalHeight));
+            cv.width=Math.max(1,Math.round(img.naturalWidth*ratio));cv.height=Math.max(1,Math.round(img.naturalHeight*ratio));
+            var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);cx.drawImage(img,0,0,cv.width,cv.height);
+            acabar({data:cv.toDataURL('image/jpeg',.86),w:cv.width,h:cv.height});
+          }catch(e){acabar(null);}
+        };
+        img.onerror=function(){acabar(null);};
+        img.src=url;
+    });
+}
+function pdfTextoSeguro(texto){return String(texto||'').normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[\u2013\u2014]/g,'-').replace(/[\u2018\u2019]/g,"'").replace(/[\u201c\u201d]/g,'"');}
+async function crearPdfReposicion() {
+    if(!window.jspdf || !window.jspdf.jsPDF)throw Error('La librería PDF no cargó. Comprueba tu conexión a Internet.');
+    var PDF=window.jspdf.jsPDF,doc=new PDF({orientation:'portrait',unit:'pt',format:'letter',compress:true});
+    var pagina=0,ancho=612,alto=792,izq=36,der=576,y=0;
+    var entradas=Array.from(cart.values());
+    var pedido=window.pedidoMilanActual;
+    function nuevaPagina(){
+      if(pagina)doc.addPage();pagina++;y=38;
+      doc.setTextColor(21,43,67);doc.setFont('helvetica','bold');doc.setFontSize(16);
+      doc.text('TODOENUNO STORE - PEDIDO DE REPOSICION',izq,y);y+=19;
+      doc.setFont('helvetica','normal');doc.setFontSize(10);
+      doc.text(pdfTextoSeguro(pedido.nombreVisible+' | '+pedido.fechaVisible),izq,y);y+=14;
+      doc.setDrawColor(45,77,102);doc.line(izq,y,der,y);y+=17;
     }
+    nuevaPagina();
+    var sinFoto=0;
+    for(var i=0;i<entradas.length;i++){
+      var it=entradas[i];
+      if(y+247>alto-58)nuevaPagina();
+      var x=izq,top=y,photoW=214,photoH=214;
+      doc.setFillColor(246,249,252);doc.roundedRect(x,top,photoW,photoH,6,6,'F');
+      var foto=await convertirImagenParaPdf(it.photo);
+      if(foto){
+        var k=Math.min((photoW-10)/foto.w,(photoH-10)/foto.h),w=foto.w*k,h=foto.h*k;
+        doc.addImage(foto.data,'JPEG',x+(photoW-w)/2,top+(photoH-h)/2,w,h,undefined,'FAST');
+      } else {
+        sinFoto++;doc.setTextColor(100,113,128);doc.setFontSize(13);doc.text('SIN FOTO',x+photoW/2,top+photoH/2,{align:'center'});
+      }
+      var infoX=264,textW=215;doc.setTextColor(25,43,62);doc.setFont('helvetica','bold');doc.setFontSize(12);
+      var nombre=doc.splitTextToSize(pdfTextoSeguro((i+1)+'. '+it.name),textW);doc.text(nombre,infoX,top+15);
+      var yy=top+18+nombre.length*14;doc.setFont('helvetica','normal');doc.setFontSize(9);doc.setTextColor(80,99,119);
+      var metadatos=[it.section || 'SIN CATEGORIA',it.why || 'Producto nuevo'];
+      metadatos.forEach(function(t){var ls=doc.splitTextToSize(pdfTextoSeguro(t),textW);doc.text(ls,infoX,yy);yy+=ls.length*12+5;});
+      if(it.description){
+        doc.setTextColor(40,65,85);doc.setFontSize(9);var d=doc.splitTextToSize(pdfTextoSeguro('Descripcion: '+it.description),textW);
+        var permitidas=Math.max(1,Math.floor((top+175-yy)/11));doc.text(d.slice(0,permitidas),infoX,yy);yy+=d.slice(0,permitidas).length*11;
+      }
+      doc.setFont('helvetica','bold');doc.setFontSize(16);doc.setTextColor(22,77,115);
+      doc.text(String(it.qty)+' CAJAS',infoX,top+204);
+      y=top+230;doc.setDrawColor(224,232,240);doc.line(izq,y,der,y);y+=14;
+    }
+    if(y+68>alto-38)nuevaPagina();
+    doc.setFont('helvetica','bold');doc.setTextColor(22,65,95);doc.setFontSize(12);
+    doc.text('TOTAL: '+entradas.reduce(function(sum,it){return sum+Number(it.qty||0);},0)+' CAJAS',izq,y+5);
+    doc.setFont('helvetica','normal');doc.setFontSize(8);doc.setTextColor(95,111,126);
+    doc.text('Lista de compra. No modifica el inventario ni las ventas.',izq,y+22);
+    if(sinFoto)doc.text(sinFoto+' foto(s) no se pudieron incrustar. Carga fotografias propias para incluirlas.',izq,y+35);
+    for(var pi=1;pi<=doc.internal.getNumberOfPages();pi++){
+      doc.setPage(pi);doc.setFontSize(8);doc.text('Pagina '+pi+' de '+doc.internal.getNumberOfPages(),der,765,{align:'right'});
+    }
+    return {blob:doc.output('blob'),fileName:pedido.archivo+'.pdf',sinFoto:sinFoto};
+}
+$('printPdf').onclick=async function(){
+    if(!cart.size||this.disabled)return;
+    var bt=this;bt.disabled=true;var original=bt.textContent;bt.textContent='Generando PDF...';
+    var esIOS=/iPad|iPhone|iPod/.test(navigator.userAgent)||(/Macintosh/.test(navigator.userAgent)&&navigator.maxTouchPoints>1);
+    // Abrir la pestaña en el gesto de usuario: Safari bloquea ventanas abiertas después de await.
+    var vista=esIOS?window.open('','_blank'):null;
+    if(vista){try{vista.document.write('<!doctype html><html><head><meta name="viewport" content="width=device-width,initial-scale=1"></head><body style="font-family:sans-serif;padding:22px">Preparando PDF de tu pedido...</body></html>');}catch(e){}}
+    try{
+      window.pedidoMilanActual=prepararNombrePedidoMilan(false);
+      var resultado=await crearPdfReposicion();
+      window.pedidoMilanActual=prepararNombrePedidoMilan(true);
+      resultado.fileName=window.pedidoMilanActual.archivo+'.pdf';
+      var enlace=URL.createObjectURL(resultado.blob);
+      window.__ultimoPdfReposicion={blob:resultado.blob,nombre:resultado.fileName,url:enlace};
+      $('sharePdf').hidden=false;
+      if(vista&&!vista.closed){vista.location.href=enlace;}
+      else {var a=document.createElement('a');a.href=enlace;a.download=resultado.fileName;document.body.appendChild(a);a.click();a.remove();}
+      if(resultado.sinFoto){alert('PDF generado. '+resultado.sinFoto+' fotografía(s) externas no permitieron incorporarse; si las necesitas, usa Cambiar foto y vuelve a descargar.');}
+      setTimeout(function(){if(window.__ultimoPdfReposicion && window.__ultimoPdfReposicion.url===enlace){window.__ultimoPdfReposicion=null;$('sharePdf').hidden=true;}URL.revokeObjectURL(enlace);},600000);
+    }catch(e){if(vista&&!vista.closed)vista.close();alert('No se pudo generar el PDF: '+e.message+'\nUsa el botón Imprimir como alternativa.');}
+    finally{bt.disabled=false;bt.textContent=original;}
 };
+$('sharePdf').onclick=async function(){
+  var ultimo=window.__ultimoPdfReposicion;if(!ultimo){alert('Primero genera el PDF.');return;}
+  try{
+    var archivo=new File([ultimo.blob],ultimo.nombre,{type:'application/pdf'});
+    if(navigator.share && navigator.canShare && navigator.canShare({files:[archivo]})){
+      await navigator.share({files:[archivo],title:ultimo.nombre});return;
+    }
+  }catch(e){if(e && e.name==='AbortError')return;}
+  var a=document.createElement('a');a.href=ultimo.url;a.download=ultimo.nombre;document.body.appendChild(a);a.click();a.remove();
+};
+$('printBrowser').onclick=async function(){
+  if(!cart.size)return;
+  window.pedidoMilanActual=prepararNombrePedidoMilan(false);
+  renderReposicionPdf();await esperarFotosPdf(6000);
+  window.pedidoMilanActual=prepararNombrePedidoMilan(true);renderReposicionPdf();
+  document.title=window.pedidoMilanActual.archivo;window.print();
+};
+
+// El formulario permite agregar productos nuevos SOLO al pedido local actual.
+var fotoNuevaLista='';
+$('nuevoFoto').addEventListener('change',function(){
+  var archivo=this.files&&this.files[0];fotoNuevaLista='';$('nuevoFotoVista').hidden=true;
+  if(!archivo){$('nuevoFotoAyuda').textContent='Puedes tomar una foto desde tu celular o elegirla de la galería.';return;}
+  if(!/^image\//.test(archivo.type)){alert('Selecciona una imagen JPG, PNG o WEBP.');return;}
+  var lector=new FileReader();lector.onload=function(){
+    var im=new Image();im.onload=function(){
+      var cv=document.createElement('canvas'),r=Math.min(1,1000/Math.max(im.width,im.height));
+      cv.width=Math.max(1,Math.round(im.width*r));cv.height=Math.max(1,Math.round(im.height*r));
+      var cx=cv.getContext('2d');cx.fillStyle='#fff';cx.fillRect(0,0,cv.width,cv.height);cx.drawImage(im,0,0,cv.width,cv.height);
+      fotoNuevaLista=cv.toDataURL('image/jpeg',.85);$('nuevoFotoVista').src=fotoNuevaLista;$('nuevoFotoVista').hidden=false;
+      $('nuevoFotoAyuda').textContent='Fotografía preparada para la lista y el PDF.';
+    };im.onerror=function(){alert('No se pudo abrir la imagen.');};im.src=lector.result;
+  };lector.readAsDataURL(archivo);
+});
+$('nuevoProductoForm').addEventListener('submit',function(ev){
+  ev.preventDefault();var nombre=$('nuevoNombre').value.trim(),seccion=$('nuevoSeccion').value.trim()||'PRODUCTOS NUEVOS';
+  var descripcion=$('nuevoDescripcion').value.trim(),cantidad=Number($('nuevoCajas').value);
+  if(!nombre||!Number.isSafeInteger(cantidad)||cantidad<1||cantidad>99999){alert('Escribe el nombre y una cantidad válida de cajas.');return;}
+  var key='NUEVO_MANUAL_'+Date.now()+'_'+Math.floor(Math.random()*100000);
+  cart.set(key,{name:nombre,section:seccion,description:descripcion,photo:fotoNuevaLista,qty:cantidad,type:'cajas',why:'Producto nuevo agregado manualmente'});
+  renderOrder();this.reset();fotoNuevaLista='';$('nuevoFotoVista').hidden=true;
+  $('nuevoFotoAyuda').textContent='Puedes tomar una foto desde tu celular o elegirla de la galería.';
+  $('orderPanel').scrollIntoView({behavior:'smooth',block:'start'});
+});
 $('copyList').onclick = () => { if (navigator.clipboard)
     navigator.clipboard.writeText(orderText()).then(() => alert('Lista copiada')).catch(() => alert('No se pudo copiar; abre el sitio mediante HTTPS'));
 else
     alert('Copiar requiere HTTPS'); };
-$('exportCsv').onclick = () => { let rows = [['Producto', 'Sección', 'Cajas a pedir', 'Motivo'], ...[...cart.values()].map(x => [x.name, x.section, x.qty, x.why])]; let csv = '\uFEFF' + rows.map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n'); let url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); let a = document.createElement('a'); a.href = url; a.download = 'Lista_reposicion_Todoenuno.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); };
+$('exportCsv').onclick = () => { let rows = [['Producto', 'Sección', 'Cajas a pedir', 'Motivo', 'Descripción'], ...[...cart.values()].map(x => [x.name, x.section, x.qty, x.why, x.description || ''])]; let csv = '\uFEFF' + rows.map(row => row.map(v => '"' + String(v).replace(/"/g, '""') + '"').join(',')).join('\r\n'); let url = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8' })); let a = document.createElement('a'); a.href = url; a.download = 'Lista_reposicion_Todoenuno.csv'; a.click(); setTimeout(() => URL.revokeObjectURL(url), 2000); };
 $('clearOrder').onclick = () => { if (!cart.size)
     return; if (confirm('¿Vaciar la lista para pedir?')) {
     cart.clear();
