@@ -1,4 +1,4 @@
-<!-- Todoenuno Store · Ventas V26.80 · iPad cabecera completa e impresión histórica -->
+<!-- Todoenuno Store · Ventas V26.81 · menú iPad incrustado y minimizable · impresión histórica -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1075,6 +1075,73 @@ body { max-width:100%; overflow-x:clip; }
 }
 #navegadorHistoricoAdminV2664 .historial-admin-v2664-controls{max-width:100%;flex-wrap:wrap;}
 #navegadorHistoricoAdminV2664 input[type=date]{min-width:0;max-width:260px;}
+</style>
+<style id="teus-v2681-sidebar-incrustado-ipad">
+/* V26.81 — iPad/tablet horizontal: menú izquierdo fijo dentro de la distribución,
+   expandido por defecto y reducible con sus tres rayitas. Herramientas sigue en cajón.
+   La página nunca se corre debajo del menú. */
+@media (min-width:768px) and (max-width:1199px) {
+  #sidebar.sidebar, #sidebar.sidebar.active {
+    position:fixed!important;
+    inset:0 auto 0 0!important;
+    top:0!important;
+    width:190px!important;
+    max-width:190px!important;
+    height:100vh!important;
+    transform:none!important;
+    z-index:1000!important;
+    transition:width .25s ease!important;
+  }
+  #sidebar.sidebar.collapsed, #sidebar.sidebar.active.collapsed {
+    width:60px!important;
+    max-width:60px!important;
+    transform:none!important;
+  }
+  #mainContent.main-content,
+  #mainContent.main-content.right-sidebar-collapsed {
+    width:calc(100% - 190px)!important;
+    max-width:calc(100% - 190px)!important;
+    margin-left:190px!important;
+    margin-right:0!important;
+    min-width:0!important;
+    transition:margin-left .25s ease,width .25s ease!important;
+  }
+  #mainContent.main-content.sidebar-collapsed,
+  #mainContent.main-content.sidebar-collapsed.right-sidebar-collapsed {
+    width:calc(100% - 60px)!important;
+    max-width:calc(100% - 60px)!important;
+    margin-left:60px!important;
+    margin-right:0!important;
+  }
+  #mobileMenuToggle.mobile-menu-toggle {display:none!important;}
+  #sidebar .sidebar-header { min-height:58px!important; gap:5px; padding:12px 10px!important; }
+  #sidebar .store-logo {min-width:0!important;gap:7px!important;font-size:14px!important;}
+  #sidebar .store-logo span {white-space:nowrap;}
+  #sidebar .sidebar-toggle {display:flex!important;flex:0 0 35px!important;width:35px!important;
+    min-width:35px!important;min-height:36px!important;padding:7px!important;
+    align-items:center!important;justify-content:center!important;background:transparent!important;}
+  #sidebar.collapsed .sidebar-header {justify-content:center!important;flex-direction:column!important;gap:5px!important;padding:9px 4px!important;}
+  #sidebar.collapsed .sidebar-toggle {flex:0 0 34px!important;}
+  #sidebar.collapsed .store-logo {justify-content:center!important;}
+  #sidebar.collapsed .sidebar-menu a {justify-content:center!important;padding:11px 6px!important;}
+  #sidebar.collapsed .sidebar-menu .menu-text {display:none!important;}
+  #sidebar.collapsed .store-logo span {display:none!important;}
+  #sidebar .sidebar-menu a {gap:8px!important;padding:11px 9px!important;font-size:12px!important;}
+  #sidebar .sidebar-menu a .menu-text {min-width:0;overflow-wrap:break-word;}
+  #mobileSidebarBackdrop:not(.teus-right-backdrop-v2674) {display:none!important;}
+  #mainContent .top-bar {max-width:100%!important;min-width:0!important;}
+  #mainContent .content-area {max-width:100%!important;min-width:0!important;}
+}
+/* iPad vertical de 768–899 px: misma disposición incrustada, más compacta. */
+@media (min-width:768px) and (max-width:899px) {
+  #sidebar.sidebar, #sidebar.sidebar.active {width:155px!important;max-width:155px!important;}
+  #mainContent.main-content,#mainContent.main-content.right-sidebar-collapsed {
+    width:calc(100% - 155px)!important;max-width:calc(100% - 155px)!important;margin-left:155px!important;
+  }
+  #sidebar .sidebar-header {padding:10px 5px!important;}
+  #sidebar .store-logo {font-size:12px!important;}
+  #sidebar .sidebar-menu a {font-size:11px!important;padding:10px 6px!important;gap:6px!important;}
+}
 </style>
 </head>
 <body>
@@ -3804,7 +3871,7 @@ function configurarEventListeners() {
     document.getElementById('cambiarSucursalBtn').addEventListener('click', cambiarSucursalSeguroV2631);
     document.getElementById('menuSucursal').addEventListener('click', e=>{e.preventDefault();cambiarSucursalSeguroV2631();});
     sidebarToggle.addEventListener('click', function() {
-        if(window.matchMedia('(max-width:1199px)').matches){sidebar.classList.remove('active'); document.getElementById('mobileSidebarBackdrop')?.classList.remove('active'); return;}
+        if(window.matchMedia('(max-width:767px)').matches){sidebar.classList.remove('active'); document.getElementById('mobileSidebarBackdrop')?.classList.remove('active'); return;}
         sidebar.classList.toggle('collapsed'); mainContent.classList.toggle('sidebar-collapsed');
     });
     rightSidebarToggle.addEventListener('click', function() { rightSidebar.classList.toggle('collapsed'); rightSidebarToggle.classList.toggle('collapsed'); mainContent.classList.toggle('right-sidebar-collapsed'); });
