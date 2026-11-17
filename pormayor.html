@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Pedidos por Mayor V4.28: un solo PNG en GitHub para navegador y acceso directo movil -->
+<!-- Pedidos por Mayor V4.29: un solo PNG en GitHub para navegador y acceso directo movil -->
 <link rel="icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
 <link rel="shortcut icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
 <link rel="apple-touch-icon" href="./teus-pedidos-mayor-icono2.png?v=428">
@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Pedidos por Mayor · Adaptado iPhone 5</title>
+<title>Todoenuno_store - Pedidos por Mayor · Búsqueda inteligente · iPhone 5</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -1412,6 +1412,16 @@ input,select,textarea {min-width:0;max-width:100%;}
   #mayorPickerList{flex-direction:column!important;}
 }
 </style>
+<style id="busqueda-inteligente-v429">
+/* V4.29 — búsqueda inteligente y resultados organizados */
+#autocompleteList .mayor-grupo-resultados{background:#f0f5fa;color:#213a53;font-size:12px;font-weight:800;padding:10px 13px;border-bottom:1px solid #dce6f0;position:sticky;top:0;z-index:2}
+#autocompleteList .mayor-grupo-relacionados{background:#fff8e8;color:#87520c;position:static}
+#autocompleteList .autocomplete-item{min-height:65px;min-width:0}
+#autocompleteList .autocomplete-item-nombre{white-space:normal!important;overflow:visible!important;text-overflow:clip!important;overflow-wrap:anywhere;line-height:1.3}
+#autocompleteList .autocomplete-item-info{min-width:0}
+#autocompleteList .autocomplete-item-precio{font-size:13px;flex-shrink:0}
+@media(max-width:390px){#autocompleteList .autocomplete-item{gap:7px;padding:9px 7px}#autocompleteList .autocomplete-item-img{width:42px;height:42px}#autocompleteList .autocomplete-item-precio{font-size:11px;padding-left:3px}}
+</style>
 </head>
 <body>
 <div id="loginMayorOverlay">
@@ -2495,19 +2505,100 @@ document.addEventListener('DOMContentLoaded', function() {
     let sugerenciasActuales = [];
     let indiceHighlight = -1;
 
+    // V4.29: búsqueda por relevancia. Coincidencias reales primero; relacionados al final.
+    function mayorNormalizarBusqueda(texto) {
+        return String(texto || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '')
+            .toLowerCase().replace(/[^a-z0-9]+/g, ' ').replace(/\s+/g, ' ').trim();
+    }
+    const mayorSinonimosBusqueda = {
+        'pulverizador':['atomizador','spray','rociador'],
+        'atomizador':['pulverizador','spray','rociador'],
+        'rociador':['atomizador','pulverizador'],
+        'decant':['decants','perfume','envase'],
+        'decants':['decant','perfume','envase'],
+        'rizador':['encrespador','ondulador'],
+        'encrespador':['rizador'],
+        'cotonete':['hisopo','algodon'],
+        'hisopo':['cotonete'],
+        'peine':['peines','cepillo'],
+        'peines':['peine','cepillos'],
+        'cepillo':['cepillos','peine'],
+        'cepillos':['cepillo','peines'],
+        'cinta':['cintas'],
+        'cintas':['cinta'],
+        'bolsa':['bolsas'],
+        'bolsas':['bolsa'],
+        'esponja':['esponjas'],
+        'esponjas':['esponja']
+    };
+    function mayorDistanciaCorta(a,b) {
+        if (Math.abs(a.length-b.length)>1 || a.length<4 || b.length<4) return 99;
+        if (a===b) return 0;
+        // Permite una letra omitida, cambiada o sobrante; evita resultados arbitrarios.
+        let i=0,j=0,errores=0;
+        while (i<a.length && j<b.length) {
+            if (a[i]===b[j]) {i++;j++;continue;}
+            if (++errores>1) return 99;
+            if (a.length>b.length) i++;
+            else if (b.length>a.length) j++;
+            else {i++;j++;}
+        }
+        return errores + ((i<a.length || j<b.length)?1:0);
+    }
+    function mayorPuntuarConsulta(p, qNorm, palabras) {
+        const nombre=mayorNormalizarBusqueda(p.nombre), seccion=mayorNormalizarBusqueda(p.seccion);
+        if (!nombre) return {score:0, tipo:0};
+        const tokensNombre=nombre.split(' '), tokensSeccion=seccion.split(' ');
+        const contenido=nombre+' '+seccion;
+        let score=0, cubiertos=0, equivalencias=0;
+        for (const token of palabras) {
+            const exacto=tokensNombre.includes(token);
+            const prefijo=token.length>=2 && tokensNombre.some(t=>t.startsWith(token));
+            const aparece=false; // Evita coincidencias engañosas dentro de otras palabras (rizador/texturizador).
+            const enCategoria=tokensSeccion.includes(token)|| (token.length>=3 && tokensSeccion.some(t=>t.startsWith(token)));
+            const tipografia=token.length>=4 && tokensNombre.some(t=>mayorDistanciaCorta(token,t)<=1);
+            if(exacto){score+=38;cubiertos++;}
+            else if(prefijo){score+=27;cubiertos++;}
+            else if(aparece){score+=17;cubiertos++;}
+            else if(enCategoria){score+=13;cubiertos++;}
+            else if(tipografia){score+=12;cubiertos++;}
+            else {
+                const similares=mayorSinonimosBusqueda[token]||[];
+                if(similares.some(t=>tokensNombre.includes(t)||tokensNombre.some(n=>n.startsWith(t)))) {
+                    score+=7;equivalencias++;
+                }
+            }
+        }
+        if(cubiertos===palabras.length){
+            score+=65;
+            if(nombre===qNorm) score+=100;
+            else if(nombre.startsWith(qNorm)) score+=45;
+            else if(nombre.includes(qNorm)) score+=30;
+        } else if(cubiertos>0 && palabras.length>1) {
+            score -= (palabras.length-cubiertos)*28;
+        }
+        // La relación por sinónimos es secundaria y solo se muestra si no hay falsos positivos.
+        const tipo=(cubiertos===palabras.length && score>0)?2:
+            (cubiertos>0 && score>=16)?1:(equivalencias>0 && palabras.length===1)?0: -1;
+        return {score,tipo};
+    }
     function mostrarSugerencias(query) {
-        if (query.length < 2) {
+        const qNorm=mayorNormalizarBusqueda(query);
+        if (qNorm.length < 2) {
             autocompleteList.classList.remove('active');
             autocompleteList.innerHTML = '';
             return;
         }
-        const q = query.toLowerCase();
-        sugerenciasActuales = productosData.filter(p => {
-            const nombre = (p.nombre || '').toLowerCase();
-            const seccion = (p.seccion || '').toLowerCase();
-            return nombre.includes(q) || seccion.includes(q);
-        }).slice(0, 30);
-
+        const palabras=qNorm.split(' ').filter(Boolean);
+        const evaluados=productosData.map((p,i)=>({p,i,...mayorPuntuarConsulta(p,qNorm,palabras)}))
+            .filter(x=>x.tipo>=0);
+        evaluados.sort((a,b)=>b.tipo-a.tipo||b.score-a.score||a.i-b.i);
+        const directos=evaluados.filter(x=>x.tipo>0).slice(0,30);
+        const relacionados=evaluados.filter(x=>x.tipo===0).slice(0,6);
+        // Los relacionados no desplazan resultados directos; tampoco se completan con artículos aleatorios.
+        const seleccionados=directos.concat(relacionados.slice(0,Math.max(0,30-directos.length)));
+        sugerenciasActuales=seleccionados.map(x=>x.p);
+        const cantidadDirectos=directos.length;
         if (sugerenciasActuales.length === 0) {
             const mensaje = mayorCatalogoEstado==='cargando' ? 'Cargando catálogo ITEMS…' :
                 mayorCatalogoEstado==='error' ? 'No se pudo cargar ITEMS. Revisa que el nuevo Google Sheets permita lectura. ' + mayorEscapar(mayorCatalogoDetalle) :
@@ -2519,6 +2610,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         let html = '';
         sugerenciasActuales.forEach((p, i) => {
+            if(i===0) html += '<div class="mayor-grupo-resultados">'+(cantidadDirectos?'Resultados de tu búsqueda':'Productos relacionados')+'</div>';
+            if(i===cantidadDirectos && cantidadDirectos>0) html += '<div class="mayor-grupo-resultados mayor-grupo-relacionados">También podría interesarte · Relacionados</div>';
             const imgHtml = p.imagen
                 ? `<img src="${p.imagen}" class="autocomplete-item-img" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"><div class="autocomplete-item-img" style="display:none;">S/F</div>`
                 : `<div class="autocomplete-item-img">S/F</div>`;
