@@ -1,4 +1,4 @@
-<!-- Todoenuno Store · Ventas V26.78 · búsqueda inteligente de productos -->
+<!-- Todoenuno Store · Ventas V26.79 · ajustes de espacio laptop/tablet -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -952,6 +952,66 @@ body{min-width:0;overflow-x:hidden;}
 .teus-tools-toggle-v2674{display:none;background:#eaf3ff!important;color:#24547e!important;border:1px solid #bcd9f5!important;border-radius:9px;width:auto!important;min-height:38px;padding:7px 10px!important;align-items:center;gap:7px;font-size:12px!important;}
 @media(min-width:900px) and (max-width:1199px), (max-width:899px){.teus-tools-toggle-v2674{display:inline-flex!important;}}
 @media(max-width:899px){.right-sidebar.active.collapsed .right-sidebar-header{display:flex!important;}}
+</style>
+
+<style id="teus-v2679-laptop-tablet-responsive">
+/* V26.79 — Ajuste de espacio real para laptops compactas y tablets.
+   No escala el sitio ni cambia cálculos, caja, ventas o permisos. */
+html { max-width:100%; overflow-x:clip; }
+body { max-width:100%; overflow-x:clip; }
+.main-content { min-width:0!important; box-sizing:border-box; }
+.content-area,.container,.seccion-contenido { min-width:0; max-width:100%; box-sizing:border-box; }
+.top-bar,.top-bar > div,.top-bar .user-info { min-width:0; }
+/* Las barras de la tabla deben pertenecer a la tabla y no a toda la página. */
+#seccionVentasDia .ventas-table-container {
+ width:100%!important; max-width:100%!important; min-width:0!important;
+ overflow-x:auto!important; overflow-y:auto!important;
+ -webkit-overflow-scrolling:touch; overscroll-behavior-x:contain;
+ scrollbar-width:thin; scrollbar-color:#91a9bc #e9eef3;
+}
+#seccionVentasDia .ventas-table-container::-webkit-scrollbar { height:9px; }
+#seccionVentasDia .ventas-table-container::-webkit-scrollbar-thumb { background:#91a9bc; border-radius:8px; }
+#seccionVentasDia .ventas-table-container::-webkit-scrollbar-track { background:#e9eef3; }
+#seccionVentasDia .resumen-ventas-dia,.resumen-ventas-dia .resumen-fila { min-width:0; }
+#seccionVentasDia .resumen-fila > :first-child { min-width:0; overflow-wrap:break-word; }
+#seccionVentasDia .resumen-valor-dia { flex-shrink:0; text-align:right; }
+/* Laptop entre 1200 y 1399: flexibilidad en cabecera, sin perder controles. */
+@media(min-width:1200px) and (max-width:1399px) {
+ .top-bar { flex-wrap:wrap!important; gap:8px!important; }
+ .top-bar .user-info { flex:1 1 auto!important; flex-wrap:wrap!important; justify-content:flex-end; }
+ .top-bar .user-info button { min-width:0!important; white-space:normal!important; }
+ .content-area { padding:10px!important; }
+ #seccionVentasDia .tabla-ventas-dia { min-width:870px!important; }
+}
+/* Laptop compacta horizontal: mantener el menú, ahorrar margen lateral. */
+@media(min-width:900px) and (max-width:1199px) {
+ .sidebar:not(.collapsed){ width:160px!important; }
+ .sidebar.collapsed { width:60px!important; }
+ .main-content:not(.sidebar-collapsed){ margin-left:160px!important; }
+ .main-content.sidebar-collapsed { margin-left:60px!important; }
+ .main-content,.main-content.right-sidebar-collapsed,
+ .main-content.sidebar-collapsed.right-sidebar-collapsed { margin-right:0!important; }
+ .sidebar-menu a { padding:9px 7px!important; gap:7px!important; font-size:11px!important; }
+ .top-bar { flex-wrap:wrap!important; gap:7px!important; padding:9px 11px!important; }
+ .top-bar>div:first-child { flex:1 1 auto!important; min-width:0!important; }
+ .top-bar .user-info { flex:1 1 auto!important; justify-content:flex-end; flex-wrap:wrap!important; }
+ .top-bar .user-info button{ width:auto!important; max-width:100%; padding:8px 9px!important; font-size:11px!important; }
+ .content-area { padding:9px!important; }
+ .container { padding:12px!important; }
+ #seccionVentasDia .tabla-ventas-dia { min-width:850px!important; }
+}
+/* En tablets no forzar la anchura de escritorio sobre toda la página. */
+@media(max-width:899px) {
+ .main-content,.main-content.sidebar-collapsed,.main-content.right-sidebar-collapsed,
+ .main-content.sidebar-collapsed.right-sidebar-collapsed {
+  width:100%!important; max-width:100%!important; margin-left:0!important; margin-right:0!important;
+ }
+ .content-area { overflow-x:clip!important; }
+ .top-bar .user-info { min-width:0; }
+ #seccionVentasDia .tabla-ventas-dia{ min-width:820px!important; }
+}
+/* Preferir motion reducido si está habilitado. */
+@media(prefers-reduced-motion:reduce){.sidebar,.right-sidebar,.main-content{transition:none!important;}}
 </style>
 </head>
 <body>
