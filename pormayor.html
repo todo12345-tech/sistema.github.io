@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Pedidos por Mayor V4.29: un solo PNG en GitHub para navegador y acceso directo movil -->
+<!-- Pedidos por Mayor V4.30: controles de paquetes 1 o mas siempre visibles -->
 <link rel="icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
 <link rel="shortcut icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
 <link rel="apple-touch-icon" href="./teus-pedidos-mayor-icono2.png?v=428">
@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Pedidos por Mayor · Búsqueda inteligente · iPhone 5</title>
+<title>Todoenuno_store - Pedidos por Mayor V4.30 · Cantidades corregidas</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -3280,12 +3280,16 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     }
 
-    // Solo cambiar una presentación sencilla; no modificar cajas/unidades mixtas.
+    // V4.30: el formato plural lleva "c/u (N unidades)". Reconocer ambos
+    // formatos sin confundir una presentación mixta con un paquete sencillo.
     function presentacionSimpleMayor(descripcion) {
         const d=String(descripcion||'').trim();
-        let m=d.match(/^(\d+)\s+paquete(?:s|\(s\))?\s+de\s+(\d+)\s+unidades\s*[-–]\s*(.+)$/i);
+        // 1 paquete de 12 unidades - PRODUCTO
+        // 2 paquetes de 100 unidades c/u (200 unidades) - PRODUCTO
+        // 2 paquetes de 12 unidades - PRODUCTO (pedidos importados)
+        let m=d.match(/^(\d+)\s+paquete(?:s|\(s\))?\s+de\s+(\d+)\s+unidades(?:\s+c\s*\/\s*u\s*\(\s*\d+\s+unidades\s*\))?\s*[-–—]\s*(.+)$/i);
         if(m) return {cantidad:Number(m[1]),unidades:Number(m[2]),nombre:m[3],forma:'paquete'};
-        m=d.match(/^(\d+)\s+paquete(?:s|\(s\))?\s*[-–]\s*(.+)$/i);
+        m=d.match(/^(\d+)\s+paquete(?:s|\(s\))?\s*[-–—]\s*(.+)$/i);
         if(m) return {cantidad:Number(m[1]),unidades:0,nombre:m[2],forma:'paquete'};
         return null;
     }
@@ -3295,9 +3299,19 @@ document.addEventListener('DOMContentLoaded', function() {
         if(!p||!Number.isInteger(p.cantidad)||p.cantidad<1)return;
         const siguiente=p.cantidad+direccion;
         if(siguiente<1||siguiente>999)return;
-        const precioUnitario=Number(it.monto)/p.cantidad;
-        it.monto=Math.round(precioUnitario*siguiente*100)/100;
-        it.descripcion=`${siguiente} ${siguiente===1?'paquete':'paquetes'}${p.unidades?' de '+p.unidades+' unidades':''} - ${p.nombre}`;
+        const anterior=Number(it.monto)||0;
+        const nuevoMonto=Math.round(anterior/p.cantidad*siguiente*100)/100;
+        it.monto=nuevoMonto;
+        const nombrePresentacion=siguiente===1?'1 paquete':siguiente+' paquetes';
+        const detalle=p.unidades ? (' de '+p.unidades+' unidades'+(siguiente>1?' c/u ('+(siguiente*p.unidades)+' unidades)':'')) : '';
+        it.descripcion=nombrePresentacion+detalle+' - '+p.nombre;
+        // Mantener sincronizadas las cantidades estructuradas utilizadas por
+        // alistamiento y futuras consultas, sin alterar otras presentaciones.
+        if(it.salidaPedido && Number(it.salidaPedido.cajas||0)===0 && Number(it.salidaPedido.unidades||0)===0){
+            it.salidaPedido.paquetes=siguiente;
+            const factor=Number(it.salidaPedido.unidades_por_paquete)||p.unidades;
+            it.salidaPedido.unidades_equivalentes=factor>0?siguiente*factor:0;
+        }
         it.alistado=false;
         actualizarListaItems();
     }
