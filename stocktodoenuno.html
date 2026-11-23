@@ -1,4 +1,4 @@
-<!-- TEUS · Stock V42 · renombre de categorías, ITEMS y Stock · teus.stock.png -->
+<!-- TEUS · Stock V46 · renombre de categorías, ITEMS y Stock · teus.stock.png -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -14,7 +14,7 @@
     <link rel="icon" type="image/png" href="./teus.stock.png?v=40">
     <link rel="shortcut icon" type="image/png" href="./teus.stock.png?v=40">
     <link rel="apple-touch-icon" href="./teus.stock.png?v=40">
-    <title>Stock · Todoenuno Store · V43</title>
+    <title>Stock · Todoenuno Store · V46</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -1443,6 +1443,16 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     <div class="modal-body">
       <div style="background:#fff8e1;border:1px solid #ffe082;border-radius:9px;padding:11px 13px;font-size:12px;line-height:1.5;margin-bottom:14px"><strong>Primero verificaremos que no exista.</strong> Este formulario crea el producto maestro. Después volverás automáticamente a Stock para registrar su primera cantidad física.</div>
       <form id="formCrearItem" class="form-grid" novalidate>
+        <div class="item-form-section">0 · ¿Es un producto nuevo o una nueva presentación?</div>
+        <div class="form-group full"><label>Tipo de ITEM</label>
+          <select id="itemTipoMaestroV46"><option value="nuevo">Producto físico completamente nuevo</option><option value="presentacion">Otra presentación / cantidad de un producto existente</option></select>
+        </div>
+        <div class="form-group full" id="itemMaestroSeleccionBoxV46" hidden>
+          <label>Buscar el producto maestro existente *</label>
+          <input id="itemMaestroBuscarV46" placeholder="Escribe nombre o ITM-000227" autocomplete="off">
+          <select id="itemMaestroIdV46" size="5" style="min-height:135px" aria-label="Seleccionar producto maestro"><option value="">Busca y selecciona el ITEM maestro</option></select>
+          <div id="itemMaestroEstadoV46" class="item-file-note">Esta presentación tendrá su propio ID, pero apuntará al maestro que elijas.</div>
+        </div>
         <div class="item-form-section">1 · Identidad del producto</div>
         <div class="form-group"><label>Sección <span class="req">*</span></label><div class="item-seccion-combo"><input id="itemSeccion" required autocomplete="off" placeholder="Ej: PILAS" style="text-transform:uppercase"><div id="itemSeccionesSugerencias" class="item-secciones-sugerencias"></div></div><span class="item-file-note">Escribe la sección. Te mostraremos pocas coincidencias debajo; si ninguna corresponde, puedes continuar creando una nueva.</span></div>
         <div class="form-group"><label>Nombre <span class="req">*</span></label><input id="itemNombre" required placeholder="Nombre único del producto" style="text-transform:uppercase"></div>
@@ -2018,6 +2028,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
 
             if(typeof refrescarSeccionesCrearItem==='function') refrescarSeccionesCrearItem();
             if(typeof renderOrganizacionV40==='function') renderOrganizacionV40();
+            if(typeof stockV46Render==='function') stockV46Render();
         } catch (e) {
             console.error('❌ Error catálogo:', e);
         }
@@ -3345,6 +3356,8 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
     }
     function abrirCrearItem(){
         document.getElementById('formCrearItem').reset();
+        if(typeof stockV46Render==='function') stockV46Render();
+        document.getElementById('itemMaestroSeleccionBoxV46').hidden=true;
         refrescarSeccionesCrearItem();
         document.getElementById('itemDuplicadoAviso').style.display='none';
         document.getElementById('itemParecidosAcciones').style.display='none';
@@ -3575,6 +3588,11 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
         if(revision?.tipo==='exacto'){Notificaciones.mostrar('Ese item ya existe exactamente. Usa el producto existente.','warning',6500);return;}
         if(revision?.tipo==='parecido'&&!confirmadoAntes){Notificaciones.mostrar('Encontramos un item parecido. Confirma si realmente es diferente antes de crearlo.','warning',8000);return;}
         if(revision?.tipo==='parecido'&&confirmadoAntes)itemDiferenteConfirmado=true;
+        const tipoV46=document.getElementById('itemTipoMaestroV46').value;
+        const maestroV46=tipoV46==='presentacion'?document.getElementById('itemMaestroIdV46').value:'';
+        if(tipoV46==='presentacion'&&!/^ITM-\d{6}$/i.test(maestroV46)){
+            Notificaciones.mostrar('Selecciona primero el ITEM maestro de esta presentación.','warning',6500);return;
+        }
         btn.disabled=true;btn.innerHTML='<i class="fas fa-spinner fa-spin"></i> Creando item...';
         try{
             const file=document.getElementById('itemImagenOriginal').files[0]||null; let imagenOriginal='';
@@ -3590,7 +3608,7 @@ button { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
               precioPaquete:document.getElementById('itemPrecioPaquete').value.trim(), cantidadPaquete:document.getElementById('itemCantidadPaquete').value.trim(),
               disponibilidadPaquete:document.getElementById('itemDispPaquete').value, precioUnidad:document.getElementById('itemPrecioUnidad').value.trim(),
               cantidadUnidad:document.getElementById('itemCantidadUnidad').value.trim(), disponibilidadUnidad:document.getElementById('itemDispUnidad').value,
-              imagenOriginal};
+              imagenOriginal,id_item_maestro:maestroV46};
             // No enviamos una restricción de rol: la vendedora puede crear una sección NUEVA después de la advertencia guiada V29.
             const resp=await postItemsJSON(payload);
             if(resp && resp.codigo==='SECCION_PARECIDA' && Array.isArray(resp.secciones) && resp.secciones.length){
@@ -4505,5 +4523,95 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
 })();
 </script>
 
+<style id="stock-v46-estilos">
+#itemMaestroSeleccionBoxV46[hidden]{display:none!important}
+#stockV46Panel{margin:15px auto;max-width:1400px;background:#fff;border-radius:14px;border:1px solid #dce6f0;padding:18px;box-shadow:0 5px 18px #0000000d;color:#23394e}
+#stockV46Panel h2{margin:0 0 12px;font-size:19px}#stockV46Panel p{font-size:13px;line-height:1.5;margin-bottom:12px}
+.stock-v46-grid{display:grid;grid-template-columns:1fr 1fr;gap:14px}.stock-v46-grid>*{min-width:0}
+#stockV46Panel input,#stockV46Panel select{min-width:0;width:100%;min-height:44px;font-size:15px;padding:10px}
+#stockV46Panel button{margin:0;grid-column:auto;min-height:44px;width:auto;padding:10px 14px;font-size:13px}
+#stockV46Panel .stock-v46-row{display:flex;align-items:center;gap:9px;border-bottom:1px solid #e8eef4;padding:9px 2px;font-size:12px;line-height:1.35}
+#stockV46Panel .stock-v46-row input{min-height:unset;width:20px;height:20px;flex:0 0 20px}
+#stockV46Resultados{max-height:300px;overflow:auto}#stockV46Estado{padding:10px;background:#eff6ff;border-radius:8px;font-size:12px;margin-top:10px}
+@media(max-width:600px){#stockV46Panel{padding:12px;margin:10px 0}.stock-v46-grid{grid-template-columns:1fr}}
+</style>
+<section id="stockV46Panel" hidden>
+ <h2>🔗 Unificar ITEMS existentes · ID maestro físico</h2>
+ <p>Selecciona un ITEM maestro y después marca las otras presentaciones del mismo producto físico. Se modifica solo <b>id_item_maestro</b> en ITEMS. No cambia ningún precio, fotografía ni existencia.</p>
+ <div class="stock-v46-grid">
+  <div><label for="stockV46BuscarMaestro">Buscar ITEM maestro</label><input id="stockV46BuscarMaestro" placeholder="Ej. DECANTS REDONDO 5 ML" autocomplete="off"><select id="stockV46Maestro" size="6"><option value="">Selecciona un ITEM existente</option></select></div>
+  <div><label for="stockV46BuscarHijos">Buscar presentaciones para vincular</label><input id="stockV46BuscarHijos" placeholder="Ej. DECANTS" autocomplete="off"><div id="stockV46Resultados"></div></div>
+ </div>
+ <div id="stockV46Estado">Selecciona un maestro y las presentaciones.</div>
+ <div style="display:flex;gap:9px;flex-wrap:wrap;margin-top:12px"><button type="button" id="stockV46Guardar" style="background:#137b54">✓ Guardar vínculos en ITEMS</button><button type="button" id="stockV46Refrescar" style="background:#365a78">↻ Actualizar ITEMS</button></div>
+</section>
+<script>
+(function(){
+ 'use strict';
+ var $v=function(id){return document.getElementById(id);};
+ var chosen={};
+ function texto(x){return String(x==null?'':x).trim();}
+ function normal(x){return texto(x).toUpperCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');}
+ function datos(){return typeof itemsMaestroReales!=='undefined'&&Array.isArray(itemsMaestroReales)?itemsMaestroReales.filter(function(p){return /^ITM-\d{6}$/i.test(texto(p.id_item))&&texto(p.nombre);}):[];}
+ function realMaster(p){return texto(p.id_item_maestro||p.id_item).toUpperCase();}
+ function renderSelect(id,q,previous){
+   var sel=$v(id),arr=datos().filter(function(p){return !q||normal(p.nombre+' '+p.seccion+' '+p.id_item).indexOf(normal(q))!==-1;}).slice(0,100);
+   sel.replaceChildren();var z=document.createElement('option');z.value='';z.textContent=arr.length?'Selecciona un ITEM':'Sin coincidencias';sel.appendChild(z);
+   arr.forEach(function(p){var o=document.createElement('option');o.value=p.id_item;o.textContent=p.id_item+' · '+p.nombre+' [maestro: '+realMaster(p)+']';sel.appendChild(o);});
+   if(arr.some(function(p){return p.id_item===previous;}))sel.value=previous;
+ }
+ function refreshCreate(){
+   var box=$v('itemMaestroSeleccionBoxV46'),isPresent=$v('itemTipoMaestroV46').value==='presentacion';
+   box.hidden=!isPresent;
+   if(isPresent)renderSelect('itemMaestroIdV46',$v('itemMaestroBuscarV46').value,$v('itemMaestroIdV46').value);
+ }
+ function createSelected(){var p=datos().find(function(x){return x.id_item===$v('itemMaestroIdV46').value;});
+   $v('itemMaestroEstadoV46').textContent=p?'Maestro físico elegido: '+realMaster(p)+' · '+p.nombre:'Debes seleccionar un ITEM maestro válido.';
+ }
+ function renderUnificar(){
+   var box=$v('stockV46Panel');box.hidden=!(typeof esAdmin==='function'&&esAdmin());
+   if(box.hidden)return;
+   renderSelect('stockV46Maestro',$v('stockV46BuscarMaestro').value,$v('stockV46Maestro').value);
+   var q=normal($v('stockV46BuscarHijos').value),items=datos().filter(function(p){return !q||normal(p.nombre+' '+p.seccion+' '+p.id_item).includes(q);}).slice(0,120),list=$v('stockV46Resultados');list.replaceChildren();
+   items.forEach(function(p){var label=document.createElement('label');label.className='stock-v46-row';var check=document.createElement('input');check.type='checkbox';check.checked=!!chosen[p.id_item];check.onchange=function(){if(check.checked)chosen[p.id_item]=true;else delete chosen[p.id_item];actualizarEstado();};
+     var txt=document.createElement('span');txt.textContent=p.id_item+' · '+p.nombre+' · actual: '+realMaster(p);label.appendChild(check);label.appendChild(txt);list.appendChild(label);
+   });actualizarEstado();
+ }
+ function actualizarEstado(){var n=Object.keys(chosen).length;var master=$v('stockV46Maestro').value;
+   $v('stockV46Estado').textContent=n+' ITEM(s) seleccionados. '+(master?'Maestro seleccionado: '+master+'.':'Elige primero el maestro.');
+ }
+ async function guardar(){
+   if(!(typeof esAdmin==='function'&&esAdmin())){alert('Solo Administrador');return;}
+   var master=$v('stockV46Maestro').value,ids=Object.keys(chosen);
+   if(!master||!ids.length){alert('Selecciona un maestro y al menos una presentación.');return;}
+   var root=datos().find(function(p){return p.id_item===master;});
+   if(!root){alert('Vuelve a cargar ITEMS.');return;}
+   var raiz=realMaster(root);
+   if(!confirm('¿Vincular '+ids.length+' ITEM(s) al maestro '+raiz+'?\n\nNo cambiará precios, fotos ni Stock físico.'))return;
+   var btn=$v('stockV46Guardar');btn.disabled=true;
+   try{
+     var r=await postItemsJSON({accion:'vincularItemsMaestro',id_item_maestro:raiz,id_items:ids});
+     if(!r||r.ok===false)throw Error((r&&r.error)||'No se confirmó el guardado.');
+     chosen={};await cargarCatalogo();renderUnificar();
+     $v('stockV46Estado').textContent='Guardado: '+r.actualizados+' vínculos actualizados. Respaldo: '+(r.respaldo_hoja||'sin cambios');
+     if(typeof Notificaciones!=='undefined')Notificaciones.mostrar('Vínculos maestros guardados en ITEMS. Stock intacto.','success',6500);
+   }catch(e){$v('stockV46Estado').textContent='Error: '+e.message;alert('No se pudo guardar: '+e.message);}finally{btn.disabled=false;}
+ }
+ $v('itemTipoMaestroV46').addEventListener('change',refreshCreate);
+ $v('itemMaestroBuscarV46').addEventListener('input',refreshCreate);
+ $v('itemMaestroIdV46').addEventListener('change',createSelected);
+ $v('stockV46BuscarMaestro').addEventListener('input',renderUnificar);
+ $v('stockV46BuscarHijos').addEventListener('input',renderUnificar);
+ $v('stockV46Maestro').addEventListener('change',actualizarEstado);
+ $v('stockV46Guardar').addEventListener('click',guardar);
+ $v('stockV46Refrescar').addEventListener('click',async function(){await cargarCatalogo();renderUnificar();});
+ // Controles en organización; no exponer UI a roles distintos de Admin.
+ var observer=new MutationObserver(function(){var visible=typeof esAdmin==='function'&&esAdmin();if($v('stockV46Panel').hidden===visible)renderUnificar();});
+ observer.observe(document.getElementById('appContainer'),{attributes:true,attributeFilter:['style','class']});
+ document.addEventListener('click',function(e){if(e.target&&e.target.closest&&e.target.closest('[data-view="organizacion"]'))setTimeout(renderUnificar,100);});
+ setTimeout(renderUnificar,400);
+ window.stockV46Render=renderUnificar;
+})();
+</script>
 </body>
 </html>
