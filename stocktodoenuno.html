@@ -4564,7 +4564,7 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
 #stockV46Estado{margin-top:11px;padding:12px;border-radius:9px;background:#eef5fb;color:#294b65;font-size:12px;line-height:1.5}
 .stock-v47-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
 .stock-v47-note{background:#fff9ed;border:1px solid #f0d6a4;border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.5;margin-top:12px}
-/* V49: sugerencias visuales y estados de operaciones verificables */
+/* V50: sugerencias ampliadas y estados de operaciones verificables */
 .stock-v49-suggestions{margin:13px 0;border:1px solid #d8e6f3;border-radius:11px;padding:12px;background:#f8fbfe}
 .stock-v49-suggestions h4{font-size:14px;color:#264966;margin:0 0 5px}
 .stock-v49-suggestions p{font-size:11px!important;color:#647889;margin:0 0 9px!important}
@@ -4582,9 +4582,10 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
 .stock-v49-spinner{display:inline-block;width:14px;height:14px;border:2px solid #b7d3ea;border-top-color:#1c648f;border-radius:50%;animation:stockV49Spin .7s linear infinite;vertical-align:middle;margin-right:7px}
 @keyframes stockV49Spin{to{transform:rotate(360deg)}}
 @media(max-width:480px){#stockV46Panel{padding:10px}.stock-v47-actions button{width:100%!important}.stock-v47-search{flex-wrap:wrap}.stock-v47-search button{width:100%!important}}
+.stock-v50-more{grid-column:1/-1!important;background:#edf5ff!important;color:#1e587e!important;border:1px solid #bed8eb!important}
 </style>
 <script>
-/* Stock V48: UI de búsqueda, selección y maestro; backend ITEMS V22 intacto. */
+/* Stock V50: UI de búsqueda, selección y sugerencias ampliadas; backend ITEMS V22 intacto. */
 (function(){
  'use strict';
  var $=function(id){return document.getElementById(id);}, selected={}, maestro='', loading=false;
@@ -4620,29 +4621,71 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
    return img;
  }
 
- // V49: sugerencias prudentes, por MISMO nombre físico tras retirar solo la presentación.
- // No se unen automáticamente nombres parecidos: el administrador revisa las fotos.
+ // V50: descubrir candidatos por modelo físico, no por igualdad literal del nombre.
+ // Retirar PRESENTACIÓN comercial; conservar medidas, capacidad, color y variantes.
  function physicalName(name){
-   return norm(name).replace(/\b\d+\s*(?:DOCENAS?|UNIDADES?|PAQUETES?|PZAS?|PIEZAS?)\b/g,' ').replace(/\b(?:X|POR)\s*\d+\s*(?:DOCENAS?|UNIDADES?|PAQUETES?)\b/g,' ').replace(/\s+/g,' ').trim();
+   var s=norm(name);
+   s=s.replace(/\b(\d+)\s*(?:DOCENAS?|DOC|DOCS|PAQUETES?|PAQ|PQS|UNIDADES?|UND|UNDS|PZAS?|PIEZAS?|PZS|PCS)\b/g,' ');
+   s=s.replace(/\b(?:PACK|PAQUETE|LOTE|BULTO|DISPLAY|CAJA|CJ)\s*(?:DE|X|POR)?\s*\d+\b/g,' ');
+   s=s.replace(/\b(?:X|POR)\s*\d+\s*(?:DOCENAS?|DOC|PAQUETES?|PAQ|UNIDADES?|UND|PZAS?|PIEZAS?|PCS)\b/g,' ');
+   // Sólo eliminar números simples que estén al FINAL e indiquen cantidad;
+   // conservar medidas 5 ML, 8 X 10, 20 CM, cantidades dentro del modelo.
+   return s.replace(/\s+/g,' ').trim();
+ }
+ function modelTokens(v){
+   var synonyms={BOLSAS:'BOLSA',AUTOADHESIVAS:'AUTOADHESIVA',AUTOADHESIVOS:'AUTOADHESIVO',ADHESIVAS:'ADHESIVA',ADHESIVOS:'ADHESIVO',ENVASES:'ENVASE',DECANTS:'DECANT',REDONDOS:'REDONDO',CUADRADOS:'CUADRADO',PEINES:'PEINE',FRASCOS:'FRASCO',FRASQUITOS:'FRASCO',FRASQUITO:'FRASCO',TRANSPARENTES:'TRANSPARENTE',TRANSP:'TRANSPARENTE',PLASTICOS:'PLASTICO',PLASTICAS:'PLASTICA',ML:'ML',MILILITROS:'ML',CM:'CM',CENTIMETROS:'CM'};
+   return tokens(physicalName(v)).map(function(w){return synonyms[w]||w;}).filter(function(w){return ['DE','DEL','LA','EL','LOS','LAS','PARA','CON','POR'].indexOf(w)<0;});
+ }
+ function modelKey(p){return norm(p.seccion)+'|'+modelTokens(p.nombre).join(' ');}
+ function modelSimilarity(a,b){
+   if(a===b)return 1;
+   var x=a.split(' ').filter(Boolean),y=b.split(' ').filter(Boolean);
+   if(!x.length||!y.length)return 0;
+   // Diferencias numéricas pueden identificar otro modelo físico: 5 ML != 10 ML,
+   // medidas 8 X 10 != 10 X 15. No sugerir fusiones.
+   var nx=x.filter(function(t){return /^\d+(?:[.,]\d+)?$/.test(t);}).sort().join('|');
+   var ny=y.filter(function(t){return /^\d+(?:[.,]\d+)?$/.test(t);}).sort().join('|');
+   if(nx!==ny)return 0;
+   var same=0,used={};x.forEach(function(t){for(var j=0;j<y.length;j++){if(!used[j]&&(t===y[j]||(t.length>5&&y[j].length>5&&distance(t,y[j])===1))){same++;used[j]=true;break;}}});
+   return 2*same/(x.length+y.length);
  }
  function suggestions(){
-   var groups={},arr=items();arr.forEach(function(p){var k=norm(p.seccion)+'|'+physicalName(p.nombre);if(k.split('|')[1].length<6)return;(groups[k]||(groups[k]=[])).push(p);});
-   return Object.keys(groups).map(function(key){var g=groups[key];return {key:key,group:g,roots:g.map(root).filter(function(v,i,a){return a.indexOf(v)===i;})};})
-    .filter(function(x){return x.group.length>=2&&x.roots.length>1;})
-    .sort(function(a,b){return b.group.length-a.group.length||a.key.localeCompare(b.key);});
+   var arr=items(),buckets={},groups=[],byId={};
+   arr.forEach(function(p){
+     var key=modelKey(p),name=key.split('|')[1];if(!name||name.length<5)return;
+     (buckets[norm(p.seccion)]||(buckets[norm(p.seccion)]=[])).push({p:p,key:key,model:name});
+   });
+   Object.keys(buckets).forEach(function(section){
+     var rows=buckets[section],keys={};rows.forEach(function(r){(keys[r.model]||(keys[r.model]=[])).push(r.p);});
+     var names=Object.keys(keys).sort(),parent=names.map(function(_,i){return i;});
+     function get(i){while(parent[i]!==i){parent[i]=parent[parent[i]];i=parent[i];}return i;}
+     // Limit comparisons to nearby token prefixes: fuzzy spelling variants,
+     // not arbitrary unrelated products in the same section.
+     var prefixBuckets={};names.forEach(function(n,i){var t=n.split(' ').filter(Boolean),pfx=t.slice(0,2).join(' ').slice(0,13);(prefixBuckets[pfx]||(prefixBuckets[pfx]=[])).push(i);});
+     Object.keys(prefixBuckets).forEach(function(key){var ids=prefixBuckets[key];for(var i=0;i<ids.length;i++)for(var j=i+1;j<ids.length;j++){
+       if(modelSimilarity(names[ids[i]],names[ids[j]])>=.87){var a=get(ids[i]),b=get(ids[j]);if(a!==b)parent[b]=a;}
+     }});
+     var merged={};names.forEach(function(n,i){var k=get(i);(merged[k]||(merged[k]=[])).push.apply(merged[k],keys[n]);});
+     Object.keys(merged).forEach(function(k){var group=merged[k],roots=group.map(root).filter(function(v,i,a){return a.indexOf(v)===i;});
+       if(group.length>=2&&roots.length>1)groups.push({key:section+'|'+names[Number(k)] ,group:group,roots:roots});
+     });
+   });
+   return groups.sort(function(a,b){return b.group.length-a.group.length||a.key.localeCompare(b.key);});
  }
+ var suggestedLimit=8;
  function setStatus(kind,msg){var el=$('stockV46Estado');if(!el)return;el.dataset.status=kind||'info';el.replaceChildren();if(kind==='working')el.appendChild($node('span','stock-v49-spinner'));el.appendChild(document.createTextNode(msg));}
  function setBusy(flag){loading=flag;['stockV46Guardar','stockV46Refrescar','stockV46Limpiar'].forEach(function(id){if($(id))$(id).disabled=flag;});if($('stockV46Buscar'))$('stockV46Buscar').disabled=flag;}
  function renderSuggestions(){
    var out=$('stockV49Sugerencias');if(!out)return;out.replaceChildren();var q=str($('stockV46Buscar').value),matched=suggestions();
    if(q.length>=2){var ts=tokens(q);matched=matched.filter(function(x){return x.group.some(function(p){return score(q,p)>0;})||ts.every(function(t){return x.key.indexOf(t)>=0;});});}
-   var label=$('stockV49SugerenciasConteo');label.textContent=matched.length?'Hay '+matched.length+' posible(s) grupo(s) de presentaciones aún sin vincular.':'Sin sugerencias pendientes para esta búsqueda.';
-   matched.slice(0,8).forEach(function(x){var card=$node('div','stock-v49-suggest'),title=$node('strong','',physicalName(x.group[0].nombre)),sub=$node('small','',x.group.length+' ITEMS · '+x.roots.length+' maestros distintos'),photos=$node('div','stock-v49-thumb');
+   var label=$('stockV49SugerenciasConteo');label.textContent=matched.length?'Detectados '+matched.length+' posible(s) grupo(s). Revisa tamaño, modelo y fotografías: son sugerencias, no fusiones confirmadas.':'No hay grupos sugeridos con esta búsqueda. Esto no significa que no existan otros productos similares.';
+   matched.slice(0,suggestedLimit).forEach(function(x){var card=$node('div','stock-v49-suggest'),title=$node('strong','',physicalName(x.group[0].nombre)),sub=$node('small','',x.group.length+' ITEMS · '+x.roots.length+' maestros distintos'),photos=$node('div','stock-v49-thumb');
      x.group.slice(0,3).forEach(function(p){photos.appendChild(photo(p));});
      var button=$node('button','','Revisar y seleccionar');button.type='button';button.disabled=loading;
-     button.onclick=function(){selected={};x.group.forEach(function(p){selected[p.id_item]=true;});var roots=x.group.filter(function(p){return root(p)===p.id_item;});maestro=(roots[0]||x.group[0]).id_item;$('stockV46Buscar').value=physicalName(x.group[0].nombre);render();setStatus('info','Sugerencia cargada: '+x.group.length+' ITEMS. Verifica fotos y elige el código maestro antes de guardar.');$('stockV47Elegidos').scrollIntoView({behavior:'smooth',block:'nearest'});};
+     button.onclick=function(){selected={};x.group.forEach(function(p){selected[p.id_item]=true;});var roots=x.group.filter(function(p){return root(p)===p.id_item;});maestro=(roots[0]||x.group[0]).id_item;$('stockV46Buscar').value=physicalName(x.group[0].nombre);render();setStatus('info','Sugerencia cargada: '+x.group.length+' ITEMS. Verifica fotos, tamaño y elige el código maestro antes de guardar.');$('stockV47Elegidos').scrollIntoView({behavior:'smooth',block:'nearest'});};
      card.appendChild(title);card.appendChild(sub);card.appendChild(photos);card.appendChild(button);out.appendChild(card);
    });
+   if(matched.length>suggestedLimit){var more=$node('button','stock-v50-more','Mostrar más sugerencias ('+(matched.length-suggestedLimit)+' restantes)');more.type='button';more.onclick=function(){suggestedLimit+=12;renderSuggestions();};out.appendChild(more);}
  }
  function addItem(p){selected[p.id_item]=true;if(!maestro)maestro=p.id_item;render();}
  function removeItem(id){delete selected[id];if(maestro===id)maestro=Object.keys(selected)[0]||'';render();}
@@ -4730,8 +4773,8 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
  <label for="stockV46Buscar">Buscar productos y similares</label>
  <div class="stock-v47-search"><input id="stockV46Buscar" placeholder="Ej. decants redondo 5 ml, peine x4, ITM-000227" autocomplete="off"><button type="button" id="stockV46Refrescar" style="background:#365a78"><i class="fas fa-sync"></i> Actualizar</button></div>
  <div id="stockV47Conteo" class="stock-v40-count">Escribe para buscar</div>
- <div class="stock-v49-suggestions"><h4><i class="fas fa-lightbulb"></i> Sugerencias: ¿Estos ITEMS son el mismo producto?</h4>
- <p>Detectamos nombres físicos iguales con distintas presentaciones y maestros separados. Revisa las fotos antes de unir; nada se vincula automáticamente.</p>
+ <div class="stock-v49-suggestions"><h4><i class="fas fa-lightbulb"></i> Sugerencias inteligentes: posibles presentaciones del mismo producto</h4>
+ <p>Buscamos nombres iguales o muy parecidos, incluyendo singular/plural y distintas formas de escribir las cantidades. Comprueba las medidas y fotos antes de unir: nada se vincula automáticamente.</p>
  <div id="stockV49SugerenciasConteo" style="font-size:11px;color:#536777;margin-bottom:8px"></div><div class="stock-v49-suggestions-list" id="stockV49Sugerencias"></div></div>
  <div id="stockV46Resultados" aria-label="Resultados de búsqueda"></div>
  <div class="stock-v47-selected"><header>ITEMS seleccionados · Marca el círculo del código que será el maestro</header><div id="stockV47Elegidos"></div></div>
