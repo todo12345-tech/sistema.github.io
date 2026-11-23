@@ -14,7 +14,7 @@
     <link rel="icon" type="image/png" href="./teus.stock.png?v=40">
     <link rel="shortcut icon" type="image/png" href="./teus.stock.png?v=40">
     <link rel="apple-touch-icon" href="./teus.stock.png?v=40">
-    <title>Stock · Todoenuno Store · V48</title>
+    <title>Stock · Todoenuno Store · V49</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf-autotable/3.5.31/jspdf.plugin.autotable.min.js"></script>
@@ -4564,6 +4564,23 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
 #stockV46Estado{margin-top:11px;padding:12px;border-radius:9px;background:#eef5fb;color:#294b65;font-size:12px;line-height:1.5}
 .stock-v47-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:12px}
 .stock-v47-note{background:#fff9ed;border:1px solid #f0d6a4;border-radius:8px;padding:10px 12px;font-size:11px;line-height:1.5;margin-top:12px}
+/* V49: sugerencias visuales y estados de operaciones verificables */
+.stock-v49-suggestions{margin:13px 0;border:1px solid #d8e6f3;border-radius:11px;padding:12px;background:#f8fbfe}
+.stock-v49-suggestions h4{font-size:14px;color:#264966;margin:0 0 5px}
+.stock-v49-suggestions p{font-size:11px!important;color:#647889;margin:0 0 9px!important}
+.stock-v49-suggestions-list{display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:8px}
+.stock-v49-suggest{border:1px solid #dbe4ed;border-radius:9px;background:white;padding:10px;min-width:0}
+.stock-v49-suggest strong{display:block;font-size:12px;color:#29445c;overflow-wrap:anywhere}
+.stock-v49-suggest small{display:block;font-size:11px;color:#60768a;margin:4px 0 8px}
+.stock-v49-thumb{display:flex;gap:6px;align-items:center;margin:7px 0}
+.stock-v49-thumb .stock-v48-photo,.stock-v49-thumb .stock-v48-no-photo{width:47px;height:47px;flex-basis:47px}
+.stock-v49-suggest button{background:#246d9e!important;color:white!important;width:100%!important;min-height:38px!important}
+#stockV46Estado[data-status="working"]{background:#eaf4ff;color:#165387;border:1px solid #a8cbed}
+#stockV46Estado[data-status="success"]{background:#e7f7ed;color:#155b37;border:1px solid #a2d7b6}
+#stockV46Estado[data-status="error"]{background:#fff0f0;color:#903433;border:1px solid #e8afaf}
+#stockV46Estado[data-status="warning"]{background:#fff9e7;color:#795812;border:1px solid #eedb9a}
+.stock-v49-spinner{display:inline-block;width:14px;height:14px;border:2px solid #b7d3ea;border-top-color:#1c648f;border-radius:50%;animation:stockV49Spin .7s linear infinite;vertical-align:middle;margin-right:7px}
+@keyframes stockV49Spin{to{transform:rotate(360deg)}}
 @media(max-width:480px){#stockV46Panel{padding:10px}.stock-v47-actions button{width:100%!important}.stock-v47-search{flex-wrap:wrap}.stock-v47-search button{width:100%!important}}
 </style>
 <script>
@@ -4603,6 +4620,30 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
    return img;
  }
 
+ // V49: sugerencias prudentes, por MISMO nombre físico tras retirar solo la presentación.
+ // No se unen automáticamente nombres parecidos: el administrador revisa las fotos.
+ function physicalName(name){
+   return norm(name).replace(/\b\d+\s*(?:DOCENAS?|UNIDADES?|PAQUETES?|PZAS?|PIEZAS?)\b/g,' ').replace(/\b(?:X|POR)\s*\d+\s*(?:DOCENAS?|UNIDADES?|PAQUETES?)\b/g,' ').replace(/\s+/g,' ').trim();
+ }
+ function suggestions(){
+   var groups={},arr=items();arr.forEach(function(p){var k=norm(p.seccion)+'|'+physicalName(p.nombre);if(k.split('|')[1].length<6)return;(groups[k]||(groups[k]=[])).push(p);});
+   return Object.keys(groups).map(function(key){var g=groups[key];return {key:key,group:g,roots:g.map(root).filter(function(v,i,a){return a.indexOf(v)===i;})};})
+    .filter(function(x){return x.group.length>=2&&x.roots.length>1;})
+    .sort(function(a,b){return b.group.length-a.group.length||a.key.localeCompare(b.key);});
+ }
+ function setStatus(kind,msg){var el=$('stockV46Estado');if(!el)return;el.dataset.status=kind||'info';el.replaceChildren();if(kind==='working')el.appendChild($node('span','stock-v49-spinner'));el.appendChild(document.createTextNode(msg));}
+ function setBusy(flag){loading=flag;['stockV46Guardar','stockV46Refrescar','stockV46Limpiar'].forEach(function(id){if($(id))$(id).disabled=flag;});if($('stockV46Buscar'))$('stockV46Buscar').disabled=flag;}
+ function renderSuggestions(){
+   var out=$('stockV49Sugerencias');if(!out)return;out.replaceChildren();var q=str($('stockV46Buscar').value),matched=suggestions();
+   if(q.length>=2){var ts=tokens(q);matched=matched.filter(function(x){return x.group.some(function(p){return score(q,p)>0;})||ts.every(function(t){return x.key.indexOf(t)>=0;});});}
+   var label=$('stockV49SugerenciasConteo');label.textContent=matched.length?'Hay '+matched.length+' posible(s) grupo(s) de presentaciones aún sin vincular.':'Sin sugerencias pendientes para esta búsqueda.';
+   matched.slice(0,8).forEach(function(x){var card=$node('div','stock-v49-suggest'),title=$node('strong','',physicalName(x.group[0].nombre)),sub=$node('small','',x.group.length+' ITEMS · '+x.roots.length+' maestros distintos'),photos=$node('div','stock-v49-thumb');
+     x.group.slice(0,3).forEach(function(p){photos.appendChild(photo(p));});
+     var button=$node('button','','Revisar y seleccionar');button.type='button';button.disabled=loading;
+     button.onclick=function(){selected={};x.group.forEach(function(p){selected[p.id_item]=true;});var roots=x.group.filter(function(p){return root(p)===p.id_item;});maestro=(roots[0]||x.group[0]).id_item;$('stockV46Buscar').value=physicalName(x.group[0].nombre);render();setStatus('info','Sugerencia cargada: '+x.group.length+' ITEMS. Verifica fotos y elige el código maestro antes de guardar.');$('stockV47Elegidos').scrollIntoView({behavior:'smooth',block:'nearest'});};
+     card.appendChild(title);card.appendChild(sub);card.appendChild(photos);card.appendChild(button);out.appendChild(card);
+   });
+ }
  function addItem(p){selected[p.id_item]=true;if(!maestro)maestro=p.id_item;render();}
  function removeItem(id){delete selected[id];if(maestro===id)maestro=Object.keys(selected)[0]||'';render();}
  function render(){
@@ -4618,31 +4659,65 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
    var picked=$('stockV47Elegidos');picked.replaceChildren();var ids=Object.keys(selected),map={};list.forEach(function(p){map[p.id_item]=p;});
    ids.forEach(function(id){var p=map[id];if(!p)return;var row=$node('label','stock-v47-selected-row'),radio=$node('input');radio.type='radio';radio.name='stockV47Maestro';radio.value=id;radio.checked=maestro===id;radio.onchange=function(){maestro=id;renderSelectedOnly();};var desc=$node('span','item-info');desc.appendChild($node('strong','',p.nombre));desc.appendChild($node('small','',id+' · maestro actual '+root(p)));var rem=$node('button','stock-v47-remove','Quitar');rem.type='button';rem.onclick=function(e){e.preventDefault();removeItem(id);};row.appendChild(radio);row.appendChild(photo(p));row.appendChild(desc);row.appendChild(rem);picked.appendChild(row);});
    if(!ids.length)picked.appendChild($node('div','stock-v47-selected-row','Marca dos o más ITEMS de la lista superior.'));
-   renderSelectedOnly();
+   renderSelectedOnly();renderSuggestions();
  }
  function renderSelectedOnly(){var ids=Object.keys(selected),el=$('stockV46Estado');
    if(ids.length<2){el.textContent='Seleccionados: '+ids.length+'. Marca al menos 2 presentaciones del mismo producto físico.';return;}
    var picked=items().find(function(p){return p.id_item===maestro;});if(!picked){el.textContent='Selecciona cuál de los códigos será el ITEM maestro.';return;}
    var effective=root(picked);el.textContent=ids.length+' ITEMS seleccionados. Todos apuntarán a '+effective+' (maestro de '+picked.nombre+'). Solo cambiará la columna id_item_maestro.';
  }
- async function save(){if(loading)return;if(!(typeof esAdmin==='function'&&esAdmin())){alert('Solo Administrador.');return;}
-   var ids=Object.keys(selected);if(ids.length<2||!maestro||!selected[maestro]){alert('Marca al menos dos ITEMS y elige cuál será el maestro.');return;}
-   var p=items().find(function(x){return x.id_item===maestro;});if(!p){alert('Actualiza ITEMS antes de guardar.');return;}
+ async function save(){
+   if(loading)return;
+   if(!(typeof esAdmin==='function'&&esAdmin())){setStatus('error','Solo el Administrador puede guardar vínculos.');return;}
+   var ids=Object.keys(selected);
+   if(ids.length<2||!maestro||!selected[maestro]){setStatus('warning','Marca al menos dos ITEMS y elige cuál será el maestro.');return;}
+   var p=items().find(function(x){return x.id_item===maestro;});if(!p){setStatus('error','Actualiza ITEMS antes de guardar.');return;}
    var r=root(p);
-   if(!confirm('¿Unificar '+ids.length+' ITEMS bajo '+r+'?\n\nSe conservarán precios, fotografías, códigos originales y Stock.'))return;
-   loading=true;$('stockV46Guardar').disabled=true;
-   try{var respuesta=await postItemsJSON({accion:'vincularItemsMaestro',id_item_maestro:r,id_items:ids});if(!respuesta||respuesta.ok===false)throw Error(respuesta&&respuesta.error||'No se confirmó el guardado.');
-     selected={};maestro='';$('stockV46Buscar').value='';await cargarCatalogo();render();$('stockV46Estado').textContent='Guardado correctamente: '+respuesta.actualizados+' vínculos actualizados. '+(respuesta.respaldo_hoja?'Respaldo: '+respuesta.respaldo_hoja:'');
-     if(typeof Notificaciones!=='undefined')Notificaciones.mostrar('ITEMS vinculados. Stock físico sin cambios.','success',6000);
-   }catch(e){$('stockV46Estado').textContent='No se pudo guardar: '+e.message;alert('Error: '+e.message);}finally{loading=false;$('stockV46Guardar').disabled=false;}
+   if(!confirm('¿Vincular '+ids.length+' ITEMS bajo '+r+'?\n\nLos códigos comerciales, precios, fotos y Stock permanecen sin cambios.'))return;
+   setBusy(true);setStatus('working','Guardando '+ids.length+' vínculos en ITEMS…');
+   var saved=null;
+   try{
+     saved=await postItemsJSON({accion:'vincularItemsMaestro',id_item_maestro:r,id_items:ids});
+     if(!saved||saved.ok!==true)throw Error(saved&&saved.error||'El servidor no confirmó el guardado.');
+   }catch(e){setStatus('error','No se guardó: '+e.message);setBusy(false);return;}
+   setStatus('working','ITEMS confirmó el guardado. Verificando los '+ids.length+' códigos directamente en Sheets…');
+   try{
+     var check=await postItemsJSON({accion:'listarItemsAdmin'});
+     if(!check||check.ok!==true||!Array.isArray(check.filas)||!Array.isArray(check.encabezados))throw Error('No llegó una lectura verificable de ITEMS.');
+     var heads=check.encabezados.map(norm),idCol=heads.indexOf('ID ITEM'),masterCol=heads.indexOf('ID ITEM MAESTRO');
+     if(idCol<0||masterCol<0)throw Error('La respuesta de ITEMS no contiene id_item e id_item_maestro.');
+     var found={};check.filas.forEach(function(row){var code=str(row[idCol]).toUpperCase();if(ids.indexOf(code)>=0)found[code]=str(row[masterCol]).toUpperCase();});
+     var missing=ids.filter(function(id){return found[id]!==r;});
+     if(missing.length)throw Error('No coinciden los vínculos de: '+missing.join(', ')+'. Revisa la columna id_item_maestro en Sheets.');
+     // Reflejar lo verificado inmediatamente sin depender de la caché CSV de GitHub.
+     items().forEach(function(item){if(ids.indexOf(item.id_item)>=0)item.id_item_maestro=r;});
+     selected={};maestro='';$('stockV46Buscar').value='';render();
+     setStatus('success','✓ GUARDADO Y VERIFICADO EN ITEMS: '+ids.length+' códigos apuntan a '+r+'.'+(saved.respaldo_hoja?' Respaldo: '+saved.respaldo_hoja+'.':'')+' Las cantidades de Stock no cambiaron.');
+     if(typeof Notificaciones!=='undefined')Notificaciones.mostrar('Vínculos guardados y verificados en ITEMS.','success',6500);
+   }catch(e){
+     setStatus('warning','⚠ ITEMS confirmó que guardó los vínculos, pero NO se pudo verificar la lectura: '+e.message+' No repitas el guardado sin comprobar primero Sheets.');
+   }finally{setBusy(false);}
  }
  function setup(){
    // Reutilizar la pestaña original en vez de mostrar dos apartados.
    var area=$('stockV40Presentaciones'),panel=$('stockV46Panel');if(area&&panel)area.appendChild(panel);
    $('stockV46Buscar').addEventListener('input',render);
    $('stockV46Guardar').addEventListener('click',save);
-   $('stockV46Refrescar').addEventListener('click',async function(){await cargarCatalogo();render();});
-   $('stockV46Limpiar').addEventListener('click',function(){selected={};maestro='';render();});
+   $('stockV46Refrescar').addEventListener('click',async function(){
+     if(loading)return;setBusy(true);setStatus('working','Consultando directamente Google Sheets ITEMS…');
+     try{
+       var res=await postItemsJSON({accion:'listarItemsAdmin'});
+       if(!res||res.ok!==true||!Array.isArray(res.encabezados)||!Array.isArray(res.filas))throw Error('ITEMS no devolvió filas verificables.');
+       var encabezados=res.encabezados.map(function(h){return norm(h).toLowerCase().replace(/\s+/g,'_');});
+       var records=res.filas.map(function(row){var obj={};encabezados.forEach(function(h,i){obj[h]=str(row[i]);});return obj;}).filter(function(p){return /^ITM-\d{6}$/i.test(p.id_item||'')&&str(p.nombre);});
+       if(!records.length)throw Error('ITEMS devolvió una lista vacía; no se reemplazó el catálogo anterior.');
+       itemsMaestroReales=records;
+       catalogoProductos=filtrarItemsFisicosParaStock(records);
+       render();setStatus('success','✓ ACTUALIZADO Y VERIFICADO: '+records.length+' ITEMS recibidos directamente de Google Sheets.');
+     }catch(e){setStatus('error','No se pudo actualizar: '+e.message);}
+     finally{setBusy(false);}
+   });
+   $('stockV46Limpiar').addEventListener('click',function(){selected={};maestro='';render();setStatus('info','Selección limpiada. Busca productos o revisa las sugerencias.');});
    $('stockV40TabPresentaciones').addEventListener('click',function(){setTimeout(render,0);});
    window.stockV46Render=render;render();
  }
@@ -4655,6 +4730,9 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
  <label for="stockV46Buscar">Buscar productos y similares</label>
  <div class="stock-v47-search"><input id="stockV46Buscar" placeholder="Ej. decants redondo 5 ml, peine x4, ITM-000227" autocomplete="off"><button type="button" id="stockV46Refrescar" style="background:#365a78"><i class="fas fa-sync"></i> Actualizar</button></div>
  <div id="stockV47Conteo" class="stock-v40-count">Escribe para buscar</div>
+ <div class="stock-v49-suggestions"><h4><i class="fas fa-lightbulb"></i> Sugerencias: ¿Estos ITEMS son el mismo producto?</h4>
+ <p>Detectamos nombres físicos iguales con distintas presentaciones y maestros separados. Revisa las fotos antes de unir; nada se vincula automáticamente.</p>
+ <div id="stockV49SugerenciasConteo" style="font-size:11px;color:#536777;margin-bottom:8px"></div><div class="stock-v49-suggestions-list" id="stockV49Sugerencias"></div></div>
  <div id="stockV46Resultados" aria-label="Resultados de búsqueda"></div>
  <div class="stock-v47-selected"><header>ITEMS seleccionados · Marca el círculo del código que será el maestro</header><div id="stockV47Elegidos"></div></div>
  <div id="stockV46Estado" role="status" aria-live="polite">Marca dos o más presentaciones para unificarlas.</div>
