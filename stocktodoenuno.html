@@ -4583,9 +4583,23 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
 @keyframes stockV49Spin{to{transform:rotate(360deg)}}
 @media(max-width:480px){#stockV46Panel{padding:10px}.stock-v47-actions button{width:100%!important}.stock-v47-search{flex-wrap:wrap}.stock-v47-search button{width:100%!important}}
 .stock-v50-more{grid-column:1/-1!important;background:#edf5ff!important;color:#1e587e!important;border:1px solid #bed8eb!important}
+
+/* V51: identificación azul de unificaciones confirmadas en ITEMS */
+.stock-v51-linked{margin:13px 0;border:1px solid #8fbfec;border-radius:11px;padding:12px;background:#edf6ff}
+.stock-v51-linked h4{color:#15518e;font-size:14px;margin:0 0 5px}
+.stock-v51-linked p{color:#466c91;font-size:11px;margin:0 0 9px}
+.stock-v51-linked-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(245px,1fr));gap:8px}
+.stock-v51-group{border:1px solid #b3d4f1;border-left:4px solid #2879bc;border-radius:9px;padding:10px;background:#fff;min-width:0}
+.stock-v51-group strong{color:#174e80;font-size:12px;display:block;overflow-wrap:anywhere}
+.stock-v51-group small{color:#456b8b;font-size:11px;display:block;margin:4px 0 8px}
+.stock-v51-group button{background:#236ca8!important;color:white!important;width:100%!important}
+.stock-v51-pill{display:inline-block;background:#deedff;color:#1c5a98;border:1px solid #a9caee;border-radius:15px;padding:3px 7px;font-size:10px;font-weight:800;margin:4px 0}
+.stock-v51-linked-item{background:#f0f7ff;border-left:3px solid #4b9ad6}
+.stock-v51-linked-item small{color:#245b91!important}
+.stock-v51-more{grid-column:1/-1!important;background:#dbeefe!important;color:#15518e!important;border:1px solid #9ac3e9!important}
 </style>
 <script>
-/* Stock V50: UI de búsqueda, selección y sugerencias ampliadas; backend ITEMS V22 intacto. */
+/* Stock V51: sugerencias pendientes y unificaciones existentes; backend ITEMS V22 intacto. */
 (function(){
  'use strict';
  var $=function(id){return document.getElementById(id);}, selected={}, maestro='', loading=false;
@@ -4672,6 +4686,30 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
    });
    return groups.sort(function(a,b){return b.group.length-a.group.length||a.key.localeCompare(b.key);});
  }
+ // V51: detectar relaciones YA guardadas, sin confundirlas con sugerencias pendientes.
+ // Solo mostrar grupos reales: mismo id_item_maestro, al menos dos ITEMS distintos.
+ function linkedGroups(){
+   var byRoot={},lookup={};items().forEach(function(p){lookup[p.id_item]=p;});
+   items().forEach(function(p){var r=root(p);(byRoot[r]||(byRoot[r]=[])).push(p);});
+   return Object.keys(byRoot).filter(function(k){return byRoot[k].length>=2;}).map(function(k){
+     return {master:k, group:byRoot[k],masterItem:lookup[k]||byRoot[k][0]};
+   }).sort(function(a,b){return b.group.length-a.group.length||a.masterItem.nombre.localeCompare(b.masterItem.nombre);});
+ }
+ var linkedLimit=8;
+ function renderLinked(){
+   var out=$('stockV51Unificados'),count=$('stockV51UnificadosConteo');if(!out||!count)return;
+   out.replaceChildren();var q=str($('stockV46Buscar').value),groups=linkedGroups();
+   if(q.length>=2)groups=groups.filter(function(x){return x.group.some(function(p){return score(q,p)>0;})||norm(x.master).indexOf(norm(q))>=0;});
+   count.textContent=groups.length?groups.length+' grupo(s) ya vinculados en ITEMS. El código maestro aparece en azul.':'No se encontraron grupos ya vinculados'+(q.length>=2?' con esta búsqueda.':'.');
+   groups.slice(0,linkedLimit).forEach(function(x){
+     var card=$node('div','stock-v51-group'),title=$node('strong','',x.masterItem.nombre),pill=$node('span','stock-v51-pill','Maestro: '+x.master),sub=$node('small','',x.group.length+' ITEMS ya vinculados'),photos=$node('div','stock-v49-thumb');
+     x.group.slice(0,3).forEach(function(p){photos.appendChild(photo(p));});
+     var button=$node('button','','Ver ITEMS vinculados');button.type='button';button.disabled=loading;
+     button.onclick=function(){selected={};x.group.forEach(function(p){selected[p.id_item]=true;});maestro=x.group.some(function(p){return p.id_item===x.master;})?x.master:x.group[0].id_item;$('stockV46Buscar').value=x.master;render();setStatus('info','Grupo existente: '+x.group.length+' ITEMS ya apuntan al maestro '+x.master+'. No necesitas volver a guardar salvo que quieras cambiar un vínculo.');$('stockV47Elegidos').scrollIntoView({behavior:'smooth',block:'nearest'});};
+     card.appendChild(title);card.appendChild(pill);card.appendChild(sub);card.appendChild(photos);card.appendChild(button);out.appendChild(card);
+   });
+   if(groups.length>linkedLimit){var more=$node('button','stock-v51-more','Mostrar más vinculados ('+(groups.length-linkedLimit)+' restantes)');more.type='button';more.onclick=function(){linkedLimit+=12;renderLinked();};out.appendChild(more);}
+ }
  var suggestedLimit=8;
  function setStatus(kind,msg){var el=$('stockV46Estado');if(!el)return;el.dataset.status=kind||'info';el.replaceChildren();if(kind==='working')el.appendChild($node('span','stock-v49-spinner'));el.appendChild(document.createTextNode(msg));}
  function setBusy(flag){loading=flag;['stockV46Guardar','stockV46Refrescar','stockV46Limpiar'].forEach(function(id){if($(id))$(id).disabled=flag;});if($('stockV46Buscar'))$('stockV46Buscar').disabled=flag;}
@@ -4698,11 +4736,11 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
    var tip=$('stockV47Conteo');tip.textContent=q.length<2?'Escribe al menos 2 caracteres para buscar.':candidates.length+' coincidencia(s)'+(candidates.length===75?' (mostrando las primeras 75)':'');
    if(q.length<2){out.appendChild($node('div','stock-v47-item','Busca el producto; no mostraremos el catálogo completo.'));}
    else if(!candidates.length){out.appendChild($node('div','stock-v47-item','No encontramos coincidencias. Prueba otra palabra, código o una búsqueda más corta.'));}
-   candidates.forEach(function(x){var p=x.p,label=$node('label','stock-v47-item'),cb=$node('input');cb.type='checkbox';cb.checked=!!selected[p.id_item];cb.onchange=function(){if(cb.checked)addItem(p);else removeItem(p.id_item);};var box=$node('span');box.style.minWidth='0';box.appendChild($node('strong','',p.nombre));box.appendChild($node('small','',p.id_item+' · maestro actual: '+root(p)+' · '+p.seccion));label.appendChild(cb);label.appendChild(photo(p));label.appendChild(box);out.appendChild(label);});
+   candidates.forEach(function(x){var p=x.p,label=$node('label','stock-v47-item'),cb=$node('input');cb.type='checkbox';cb.checked=!!selected[p.id_item];cb.onchange=function(){if(cb.checked)addItem(p);else removeItem(p.id_item);};var box=$node('span');box.style.minWidth='0';box.appendChild($node('strong','',p.nombre));box.appendChild($node('small','',p.id_item+' · maestro actual: '+root(p)+' · '+p.seccion));if(root(p)!==p.id_item){label.className+=' stock-v51-linked-item';box.appendChild($node('span','stock-v51-pill','✓ Vinculado al maestro '+root(p)));}label.appendChild(cb);label.appendChild(photo(p));label.appendChild(box);out.appendChild(label);});
    var picked=$('stockV47Elegidos');picked.replaceChildren();var ids=Object.keys(selected),map={};list.forEach(function(p){map[p.id_item]=p;});
-   ids.forEach(function(id){var p=map[id];if(!p)return;var row=$node('label','stock-v47-selected-row'),radio=$node('input');radio.type='radio';radio.name='stockV47Maestro';radio.value=id;radio.checked=maestro===id;radio.onchange=function(){maestro=id;renderSelectedOnly();};var desc=$node('span','item-info');desc.appendChild($node('strong','',p.nombre));desc.appendChild($node('small','',id+' · maestro actual '+root(p)));var rem=$node('button','stock-v47-remove','Quitar');rem.type='button';rem.onclick=function(e){e.preventDefault();removeItem(id);};row.appendChild(radio);row.appendChild(photo(p));row.appendChild(desc);row.appendChild(rem);picked.appendChild(row);});
+   ids.forEach(function(id){var p=map[id];if(!p)return;var row=$node('label','stock-v47-selected-row'),radio=$node('input');radio.type='radio';radio.name='stockV47Maestro';radio.value=id;radio.checked=maestro===id;radio.onchange=function(){maestro=id;renderSelectedOnly();};var desc=$node('span','item-info');desc.appendChild($node('strong','',p.nombre));desc.appendChild($node('small','',id+' · maestro actual '+root(p)));if(root(p)!==id){row.className+=' stock-v51-linked-item';desc.appendChild($node('span','stock-v51-pill','✓ Ya vinculado a '+root(p)));}var rem=$node('button','stock-v47-remove','Quitar');rem.type='button';rem.onclick=function(e){e.preventDefault();removeItem(id);};row.appendChild(radio);row.appendChild(photo(p));row.appendChild(desc);row.appendChild(rem);picked.appendChild(row);});
    if(!ids.length)picked.appendChild($node('div','stock-v47-selected-row','Marca dos o más ITEMS de la lista superior.'));
-   renderSelectedOnly();renderSuggestions();
+   renderSelectedOnly();renderSuggestions();renderLinked();
  }
  function renderSelectedOnly(){var ids=Object.keys(selected),el=$('stockV46Estado');
    if(ids.length<2){el.textContent='Seleccionados: '+ids.length+'. Marca al menos 2 presentaciones del mismo producto físico.';return;}
@@ -4773,9 +4811,12 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
  <label for="stockV46Buscar">Buscar productos y similares</label>
  <div class="stock-v47-search"><input id="stockV46Buscar" placeholder="Ej. decants redondo 5 ml, peine x4, ITM-000227" autocomplete="off"><button type="button" id="stockV46Refrescar" style="background:#365a78"><i class="fas fa-sync"></i> Actualizar</button></div>
  <div id="stockV47Conteo" class="stock-v40-count">Escribe para buscar</div>
- <div class="stock-v49-suggestions"><h4><i class="fas fa-lightbulb"></i> Sugerencias inteligentes: posibles presentaciones del mismo producto</h4>
+ <div class="stock-v49-suggestions"><h4><i class="fas fa-lightbulb"></i> Sugerencias pendientes: posibles presentaciones del mismo producto</h4>
  <p>Buscamos nombres iguales o muy parecidos, incluyendo singular/plural y distintas formas de escribir las cantidades. Comprueba las medidas y fotos antes de unir: nada se vincula automáticamente.</p>
  <div id="stockV49SugerenciasConteo" style="font-size:11px;color:#536777;margin-bottom:8px"></div><div class="stock-v49-suggestions-list" id="stockV49Sugerencias"></div></div>
+ <div class="stock-v51-linked"><h4><i class="fas fa-check-circle"></i> ITEMS ya unificados <span class="stock-v51-pill">AZUL = YA VINCULADOS</span></h4>
+ <p>Estos grupos ya tienen el mismo <strong>id_item_maestro</strong> guardado. Puedes consultarlos, revisar sus fotos y códigos sin volver a guardarlos.</p>
+ <div id="stockV51UnificadosConteo" style="font-size:11px;color:#376895;margin-bottom:8px"></div><div class="stock-v51-linked-grid" id="stockV51Unificados"></div></div>
  <div id="stockV46Resultados" aria-label="Resultados de búsqueda"></div>
  <div class="stock-v47-selected"><header>ITEMS seleccionados · Marca el círculo del código que será el maestro</header><div id="stockV47Elegidos"></div></div>
  <div id="stockV46Estado" role="status" aria-live="polite">Marca dos o más presentaciones para unificarlas.</div>
