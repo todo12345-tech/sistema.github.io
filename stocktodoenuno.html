@@ -4584,7 +4584,7 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
 @media(max-width:480px){#stockV46Panel{padding:10px}.stock-v47-actions button{width:100%!important}.stock-v47-search{flex-wrap:wrap}.stock-v47-search button{width:100%!important}}
 .stock-v50-more{grid-column:1/-1!important;background:#edf5ff!important;color:#1e587e!important;border:1px solid #bed8eb!important}
 
-/* V51: identificación azul de unificaciones confirmadas en ITEMS */
+/* V52: identificación azul de TODAS las presentaciones de un maestro confirmado */
 .stock-v51-linked{margin:13px 0;border:1px solid #8fbfec;border-radius:11px;padding:12px;background:#edf6ff}
 .stock-v51-linked h4{color:#15518e;font-size:14px;margin:0 0 5px}
 .stock-v51-linked p{color:#466c91;font-size:11px;margin:0 0 9px}
@@ -4596,10 +4596,18 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
 .stock-v51-pill{display:inline-block;background:#deedff;color:#1c5a98;border:1px solid #a9caee;border-radius:15px;padding:3px 7px;font-size:10px;font-weight:800;margin:4px 0}
 .stock-v51-linked-item{background:#f0f7ff;border-left:3px solid #4b9ad6}
 .stock-v51-linked-item small{color:#245b91!important}
+/* V52: azul para maestro Y presentaciones, incluso cuando el maestro se apunta a sí mismo. */
+#stockV46Resultados .stock-v51-linked-item,
+#stockV47Elegidos .stock-v51-linked-item{background:#eaf4ff!important;border-left:4px solid #2879bc!important}
+#stockV46Resultados .stock-v51-linked-item strong,
+#stockV47Elegidos .stock-v51-linked-item strong{color:#17558e!important}
+#stockV46Estado[data-status="success"]{background:#e8f6ed;border:1px solid #84c6a1;color:#17683e;padding:12px;border-radius:9px}
+#stockV46Estado[data-status="working"]{background:#eaf4ff;border:1px solid #93c2ed;color:#19598e;padding:12px;border-radius:9px}
+
 .stock-v51-more{grid-column:1/-1!important;background:#dbeefe!important;color:#15518e!important;border:1px solid #9ac3e9!important}
 </style>
 <script>
-/* Stock V51: sugerencias pendientes y unificaciones existentes; backend ITEMS V22 intacto. */
+/* Stock V52: sugerencias pendientes y unificaciones existentes; backend ITEMS V22 intacto. */
 (function(){
  'use strict';
  var $=function(id){return document.getElementById(id);}, selected={}, maestro='', loading=false;
@@ -4607,6 +4615,9 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
  function norm(v){var s=str(v).toUpperCase();if(s.normalize) s=s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');return s.replace(/[^A-Z0-9]+/g,' ').trim();}
  function items(){return typeof itemsMaestroReales!=='undefined'&&Array.isArray(itemsMaestroReales)?itemsMaestroReales.filter(function(p){return /^ITM-\d{6}$/i.test(str(p.id_item))&&str(p.nombre);}):[];}
  function root(p){return str(p.id_item_maestro||p.id_item).toUpperCase();}
+ // V52: unificado significa pertenecer a un grupo real de >=2 ITEMS, no ser hijo solamente.
+ function linkedCountByMaster(){var counts={};items().forEach(function(p){var id=root(p);counts[id]=(counts[id]||0)+1;});return counts;}
+ function isLinked(p,counts){return (counts[root(p)]||0)>=2;}
  function tokens(v){return norm(v).split(' ').filter(Boolean);}
  function distance(a,b){if(a===b)return 0;if(Math.abs(a.length-b.length)>2)return 9;var prev=[],cur=[],i,j;for(j=0;j<=b.length;j++)prev[j]=j;for(i=1;i<=a.length;i++){cur[0]=i;for(j=1;j<=b.length;j++)cur[j]=Math.min(cur[j-1]+1,prev[j]+1,prev[j-1]+(a[i-1]===b[j-1]?0:1));var tmp=prev;prev=cur;cur=tmp;}return prev[b.length];}
  function canon(v){return norm(v).replace(/\b(12 DOCENAS|500 UNIDADES|\d+ UNIDADES|\d+ DOCENAS)\b/g,'').trim();}
@@ -4731,14 +4742,14 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
    var area=$('stockV46Panel');if(!area)return;
    area.hidden=!(typeof esAdmin==='function'&&esAdmin());if(area.hidden)return;
    var q=str($('stockV46Buscar').value),out=$('stockV46Resultados');out.replaceChildren();
-   var list=items(),candidates=[];
+   var list=items(),candidates=[],linkedCounts=linkedCountByMaster();
    if(q.length>=2)candidates=list.map(function(p){return {p:p,s:score(q,p)};}).filter(function(x){return x.s>0;}).sort(function(a,b){return b.s-a.s||a.p.nombre.localeCompare(b.p.nombre);}).slice(0,75);
    var tip=$('stockV47Conteo');tip.textContent=q.length<2?'Escribe al menos 2 caracteres para buscar.':candidates.length+' coincidencia(s)'+(candidates.length===75?' (mostrando las primeras 75)':'');
    if(q.length<2){out.appendChild($node('div','stock-v47-item','Busca el producto; no mostraremos el catálogo completo.'));}
    else if(!candidates.length){out.appendChild($node('div','stock-v47-item','No encontramos coincidencias. Prueba otra palabra, código o una búsqueda más corta.'));}
-   candidates.forEach(function(x){var p=x.p,label=$node('label','stock-v47-item'),cb=$node('input');cb.type='checkbox';cb.checked=!!selected[p.id_item];cb.onchange=function(){if(cb.checked)addItem(p);else removeItem(p.id_item);};var box=$node('span');box.style.minWidth='0';box.appendChild($node('strong','',p.nombre));box.appendChild($node('small','',p.id_item+' · maestro actual: '+root(p)+' · '+p.seccion));if(root(p)!==p.id_item){label.className+=' stock-v51-linked-item';box.appendChild($node('span','stock-v51-pill','✓ Vinculado al maestro '+root(p)));}label.appendChild(cb);label.appendChild(photo(p));label.appendChild(box);out.appendChild(label);});
+   candidates.forEach(function(x){var p=x.p,label=$node('label','stock-v47-item'),cb=$node('input');cb.type='checkbox';cb.checked=!!selected[p.id_item];cb.onchange=function(){if(cb.checked)addItem(p);else removeItem(p.id_item);};var box=$node('span');box.style.minWidth='0';box.appendChild($node('strong','',p.nombre));box.appendChild($node('small','',p.id_item+' · maestro actual: '+root(p)+' · '+p.seccion));if(isLinked(p,linkedCounts)){label.className+=' stock-v51-linked-item';box.appendChild($node('span','stock-v51-pill','✓ YA UNIFICADO · Maestro: '+root(p)+(root(p)===p.id_item?' (principal)':'')));}label.appendChild(cb);label.appendChild(photo(p));label.appendChild(box);out.appendChild(label);});
    var picked=$('stockV47Elegidos');picked.replaceChildren();var ids=Object.keys(selected),map={};list.forEach(function(p){map[p.id_item]=p;});
-   ids.forEach(function(id){var p=map[id];if(!p)return;var row=$node('label','stock-v47-selected-row'),radio=$node('input');radio.type='radio';radio.name='stockV47Maestro';radio.value=id;radio.checked=maestro===id;radio.onchange=function(){maestro=id;renderSelectedOnly();};var desc=$node('span','item-info');desc.appendChild($node('strong','',p.nombre));desc.appendChild($node('small','',id+' · maestro actual '+root(p)));if(root(p)!==id){row.className+=' stock-v51-linked-item';desc.appendChild($node('span','stock-v51-pill','✓ Ya vinculado a '+root(p)));}var rem=$node('button','stock-v47-remove','Quitar');rem.type='button';rem.onclick=function(e){e.preventDefault();removeItem(id);};row.appendChild(radio);row.appendChild(photo(p));row.appendChild(desc);row.appendChild(rem);picked.appendChild(row);});
+   ids.forEach(function(id){var p=map[id];if(!p)return;var row=$node('label','stock-v47-selected-row'),radio=$node('input');radio.type='radio';radio.name='stockV47Maestro';radio.value=id;radio.checked=maestro===id;radio.onchange=function(){maestro=id;renderSelectedOnly();};var desc=$node('span','item-info');desc.appendChild($node('strong','',p.nombre));desc.appendChild($node('small','',id+' · maestro actual '+root(p)));if(isLinked(p,linkedCounts)){row.className+=' stock-v51-linked-item';desc.appendChild($node('span','stock-v51-pill','✓ YA UNIFICADO · Maestro: '+root(p)+(root(p)===id?' (principal)':'')));}var rem=$node('button','stock-v47-remove','Quitar');rem.type='button';rem.onclick=function(e){e.preventDefault();removeItem(id);};row.appendChild(radio);row.appendChild(photo(p));row.appendChild(desc);row.appendChild(rem);picked.appendChild(row);});
    if(!ids.length)picked.appendChild($node('div','stock-v47-selected-row','Marca dos o más ITEMS de la lista superior.'));
    renderSelectedOnly();renderSuggestions();renderLinked();
  }
@@ -4770,10 +4781,20 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
      var found={};check.filas.forEach(function(row){var code=str(row[idCol]).toUpperCase();if(ids.indexOf(code)>=0)found[code]=str(row[masterCol]).toUpperCase();});
      var missing=ids.filter(function(id){return found[id]!==r;});
      if(missing.length)throw Error('No coinciden los vínculos de: '+missing.join(', ')+'. Revisa la columna id_item_maestro en Sheets.');
-     // Reflejar lo verificado inmediatamente sin depender de la caché CSV de GitHub.
-     items().forEach(function(item){if(ids.indexOf(item.id_item)>=0)item.id_item_maestro=r;});
-     selected={};maestro='';$('stockV46Buscar').value='';render();
-     setStatus('success','✓ GUARDADO Y VERIFICADO EN ITEMS: '+ids.length+' códigos apuntan a '+r+'.'+(saved.respaldo_hoja?' Respaldo: '+saved.respaldo_hoja+'.':'')+' Las cantidades de Stock no cambiaron.');
+     // V52: actualizar la lista desde la MISMA lectura verificada de Sheets, sin
+     // vaciar el buscador, perder la selección ni cambiar la posición del usuario.
+     var beforeY=window.scrollY||window.pageYOffset||0;
+     var beforeList=$('stockV46Resultados'),beforeScroll=beforeList?beforeList.scrollTop:0;
+     var beforeSelected=$('stockV47Elegidos'),beforeSelectedScroll=beforeSelected?beforeSelected.scrollTop:0;
+     var records=check.filas.map(function(row){var obj={};check.encabezados.forEach(function(h,i){obj[norm(h).toLowerCase().replace(/\s+/g,'_')]=str(row[i]);});return obj;}).filter(function(item){return /^ITM-\d{6}$/i.test(item.id_item||'')&&str(item.nombre);});
+     if(records.length){itemsMaestroReales=records;}
+     else{items().forEach(function(item){if(ids.indexOf(item.id_item)>=0)item.id_item_maestro=r;});}
+     // Mantener exactamente los seleccionados y el maestro elegido; ya están guardados.
+     render();
+     if(beforeList)beforeList.scrollTop=beforeScroll;
+     if(beforeSelected)beforeSelected.scrollTop=beforeSelectedScroll;
+     window.scrollTo(0,beforeY);
+     setStatus('success','✓ GUARDADO Y VERIFICADO EN ITEMS: '+ids.length+' códigos apuntan a '+r+'. Ya aparecen en AZUL y en «ITEMS ya unificados». Puedes continuar aquí sin volver a buscarlos.'+(saved.respaldo_hoja?' Respaldo: '+saved.respaldo_hoja+'.':'')+' Las cantidades de Stock no cambiaron.');
      if(typeof Notificaciones!=='undefined')Notificaciones.mostrar('Vínculos guardados y verificados en ITEMS.','success',6500);
    }catch(e){
      setStatus('warning','⚠ ITEMS confirmó que guardó los vínculos, pero NO se pudo verificar la lectura: '+e.message+' No repitas el guardado sin comprobar primero Sheets.');
