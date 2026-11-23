@@ -4605,12 +4605,22 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
 #stockV46Estado[data-status="working"]{background:#eaf4ff;border:1px solid #93c2ed;color:#19598e;padding:12px;border-radius:9px}
 
 .stock-v51-more{grid-column:1/-1!important;background:#dbeefe!important;color:#15518e!important;border:1px solid #9ac3e9!important}
+/* V53: lote de grupos y controles de separación */
+.stock-v53-queue{border:1px solid #b9d6f2;background:#f5faff;border-radius:10px;padding:12px;margin:12px 0}
+.stock-v53-queue h4{font-size:14px;color:#195887;margin:0 0 6px}
+.stock-v53-queue-row{display:flex;align-items:center;gap:8px;flex-wrap:wrap;padding:9px;border-bottom:1px solid #d9e8f5;font-size:12px}
+.stock-v53-queue-row span{flex:1;min-width:130px}
+.stock-v53-queue-row button{background:#fce7e7!important;color:#a33333!important}
+.stock-v53-group-actions{display:flex;gap:6px;flex-wrap:wrap}
+.stock-v53-group-actions button{flex:1 1 130px;min-width:0}
+.stock-v53-unlink{background:#fff2e4!important;color:#8b4114!important;border:1px solid #e3b68a!important}
+@media(max-width:430px){.stock-v53-queue-row{align-items:flex-start}.stock-v53-group-actions button{flex:1 1 100%}}
 </style>
 <script>
-/* Stock V52: sugerencias pendientes y unificaciones existentes; backend ITEMS V22 intacto. */
+/* Stock V53: sugerencias pendientes y unificaciones existentes; backend ITEMS V22 intacto. */
 (function(){
  'use strict';
- var $=function(id){return document.getElementById(id);}, selected={}, maestro='', loading=false;
+ var $=function(id){return document.getElementById(id);}, selected={}, maestro='', loading=false, pendingGroups=[];
  function str(v){return String(v==null?'':v).trim();}
  function norm(v){var s=str(v).toUpperCase();if(s.normalize) s=s.normalize('NFD').replace(/[\u0300-\u036f]/g,'');return s.replace(/[^A-Z0-9]+/g,' ').trim();}
  function items(){return typeof itemsMaestroReales!=='undefined'&&Array.isArray(itemsMaestroReales)?itemsMaestroReales.filter(function(p){return /^ITM-\d{6}$/i.test(str(p.id_item))&&str(p.nombre);}):[];}
@@ -4717,13 +4727,17 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
      x.group.slice(0,3).forEach(function(p){photos.appendChild(photo(p));});
      var button=$node('button','','Ver ITEMS vinculados');button.type='button';button.disabled=loading;
      button.onclick=function(){selected={};x.group.forEach(function(p){selected[p.id_item]=true;});maestro=x.group.some(function(p){return p.id_item===x.master;})?x.master:x.group[0].id_item;$('stockV46Buscar').value=x.master;render();setStatus('info','Grupo existente: '+x.group.length+' ITEMS ya apuntan al maestro '+x.master+'. No necesitas volver a guardar salvo que quieras cambiar un vínculo.');$('stockV47Elegidos').scrollIntoView({behavior:'smooth',block:'nearest'});};
-     card.appendChild(title);card.appendChild(pill);card.appendChild(sub);card.appendChild(photos);card.appendChild(button);out.appendChild(card);
+     var actions=$node('div','stock-v53-group-actions');actions.appendChild(button);
+     var detach=$node('button','stock-v53-unlink','Desunificar grupo');detach.type='button';detach.disabled=loading;
+     detach.onclick=function(){if(loading)return;runBatch([] ,x.group.map(function(p){return p.id_item;}),'Separar todo el grupo '+x.master);};
+     actions.appendChild(detach);
+     card.appendChild(title);card.appendChild(pill);card.appendChild(sub);card.appendChild(photos);card.appendChild(actions);out.appendChild(card);
    });
    if(groups.length>linkedLimit){var more=$node('button','stock-v51-more','Mostrar más vinculados ('+(groups.length-linkedLimit)+' restantes)');more.type='button';more.onclick=function(){linkedLimit+=12;renderLinked();};out.appendChild(more);}
  }
  var suggestedLimit=8;
  function setStatus(kind,msg){var el=$('stockV46Estado');if(!el)return;el.dataset.status=kind||'info';el.replaceChildren();if(kind==='working')el.appendChild($node('span','stock-v49-spinner'));el.appendChild(document.createTextNode(msg));}
- function setBusy(flag){loading=flag;['stockV46Guardar','stockV46Refrescar','stockV46Limpiar'].forEach(function(id){if($(id))$(id).disabled=flag;});if($('stockV46Buscar'))$('stockV46Buscar').disabled=flag;}
+ function setBusy(flag){loading=flag;['stockV46Guardar','stockV46Refrescar','stockV46Limpiar','stockV53Add','stockV53SaveBatch','stockV53Separate'].forEach(function(id){if($(id))$(id).disabled=flag;});if($('stockV46Buscar'))$('stockV46Buscar').disabled=flag;}
  function renderSuggestions(){
    var out=$('stockV49Sugerencias');if(!out)return;out.replaceChildren();var q=str($('stockV46Buscar').value),matched=suggestions();
    if(q.length>=2){var ts=tokens(q);matched=matched.filter(function(x){return x.group.some(function(p){return score(q,p)>0;})||ts.every(function(t){return x.key.indexOf(t)>=0;});});}
@@ -4757,6 +4771,65 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
    if(ids.length<2){el.textContent='Seleccionados: '+ids.length+'. Marca al menos 2 presentaciones del mismo producto físico.';return;}
    var picked=items().find(function(p){return p.id_item===maestro;});if(!picked){el.textContent='Selecciona cuál de los códigos será el ITEM maestro.';return;}
    var effective=root(picked);el.textContent=ids.length+' ITEMS seleccionados. Todos apuntarán a '+effective+' (maestro de '+picked.nombre+'). Solo cambiará la columna id_item_maestro.';
+ }
+ function renderQueue(){
+   var out=$('stockV53QueueList'),count=$('stockV53QueueCount');if(!out||!count)return;
+   out.replaceChildren();count.textContent=pendingGroups.length+' grupo(s) listos para guardar juntos.';
+   pendingGroups.forEach(function(g,i){
+     var row=$node('div','stock-v53-queue-row'),txt=$node('span','',g.id_item_maestro+' · '+g.id_items.length+' ITEMS'),btn=$node('button','','Quitar');
+     btn.type='button';btn.disabled=loading;btn.onclick=function(){pendingGroups.splice(i,1);renderQueue();};
+     row.appendChild(txt);row.appendChild(btn);out.appendChild(row);
+   });
+   if(!pendingGroups.length)out.appendChild($node('small','','Prepara distintos grupos y guárdalos todos en una operación.'));
+ }
+ function addGroup(){
+   if(loading)return;
+   var ids=Object.keys(selected),p=items().find(function(x){return x.id_item===maestro;});
+   if(ids.length<2||!p||ids.indexOf(maestro)<0){setStatus('warning','Selecciona dos o más ITEMS y marca el círculo de su maestro.');return;}
+   var r=root(p);
+   var busyIds={};pendingGroups.forEach(function(g){g.id_items.forEach(function(id){busyIds[id]=true;});});
+   if(ids.some(function(id){return busyIds[id];})){setStatus('error','Hay un ITEM repetido en otro grupo del lote. Quítalo antes de continuar.');return;}
+   if(p.id_item!==r){setStatus('warning','El ITEM elegido ya depende de '+r+'. Para cambiar de maestro, primero desunifícalo.');return;}
+   if(pendingGroups.length>=25){setStatus('error','Máximo 25 grupos por lote.');return;}
+   pendingGroups.push({id_item_maestro:r,id_items:ids.slice()});
+   selected={};maestro='';render();renderQueue();setStatus('info','Grupo agregado al lote. Busca otro modelo y añádelo, o guarda todos los grupos juntos.');
+ }
+ function recordsFromResponse(res){
+   var heads=res.encabezados.map(function(h){return norm(h).toLowerCase().replace(/\s+/g,'_');});
+   return res.filas.map(function(row){var o={};heads.forEach(function(h,i){o[h]=str(row[i]);});return o;}).filter(function(p){return /^ITM-\d{6}$/i.test(p.id_item||'')&&str(p.nombre);});
+ }
+ async function runBatch(groups,detach,description){
+   if(loading)return;
+   if(!groups.length&&!detach.length){setStatus('warning','No hay cambios por guardar.');return;}
+   var count=groups.reduce(function(n,g){return n+g.id_items.length;},0)+detach.length;
+   if(!confirm(description+'\n\nSe actualizarán '+count+' asignaciones de id_item_maestro. No se alterarán precios, fotos ni cantidades físicas. ¿Confirmas?'))return;
+   var y=window.scrollY||0,rl=$('stockV46Resultados'),scroll=rl?rl.scrollTop:0;
+   setBusy(true);setStatus('working','Guardando y auditando '+count+' asignaciones en ITEMS…');
+   var response=null;
+   try {
+     response=await postItemsJSON({accion:'actualizarMaestrosLote',grupos:groups,desvincular_ids:detach});
+     if(!response||response.ok!==true)throw Error(response&&response.error||'ITEMS no confirmó la operación.');
+   }catch(e){setBusy(false);setStatus('error','No se guardó el lote: '+e.message);return;}
+   setStatus('working','Servidor confirmó. Comprobando los valores reales de id_item_maestro…');
+   try {
+     var check=await postItemsJSON({accion:'listarItemsAdmin'});
+     if(!check||check.ok!==true||!Array.isArray(check.filas)||!Array.isArray(check.encabezados))throw Error('No se pudo leer ITEMS.');
+     var records=recordsFromResponse(check),map={};records.forEach(function(p){map[p.id_item]=p;});
+     (response.verificaciones||[]).forEach(function(v){if(!map[v.id_item]||root(map[v.id_item])!==v.id_item_maestro)throw Error('El ITEM '+v.id_item+' no coincide con el maestro esperado '+v.id_item_maestro);});
+     itemsMaestroReales=records;
+     pendingGroups=[];
+     render();renderQueue();
+     if(rl)rl.scrollTop=scroll;
+     window.scrollTo(0,y);
+     setStatus('success','✓ GUARDADO Y VERIFICADO: '+response.actualizados+' vínculos cambiados. Las tarjetas azules y las sugerencias se actualizaron sin salir de aquí.'+(response.respaldo_hoja?' Respaldo: '+response.respaldo_hoja+'.':''));
+   }catch(e){setStatus('warning','⚠ El servidor confirmó el guardado, pero no se pudo verificar la lectura: '+e.message+'. Comprueba Sheets antes de repetir.');}
+   finally{setBusy(false);}
+ }
+ function separateSelected(){
+   var ids=Object.keys(selected),list=items(),counts=linkedCountByMaster();
+   var active=ids.filter(function(id){var p=list.find(function(x){return x.id_item===id;});return p&&isLinked(p,counts);});
+   if(!active.length){setStatus('warning','Selecciona al menos un ITEM que ya pertenezca a un grupo azul.');return;}
+   runBatch([],active,'Desunificar '+active.length+' ITEM(s) seleccionado(s)');
  }
  async function save(){
    if(loading)return;
@@ -4805,6 +4878,9 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
    var area=$('stockV40Presentaciones'),panel=$('stockV46Panel');if(area&&panel)area.appendChild(panel);
    $('stockV46Buscar').addEventListener('input',render);
    $('stockV46Guardar').addEventListener('click',save);
+   $('stockV53Add').addEventListener('click',addGroup);
+   $('stockV53SaveBatch').addEventListener('click',function(){if(!pendingGroups.length){setStatus('warning','Primero agrega al menos un grupo al lote.');return;}runBatch(pendingGroups.slice(),[],'Guardar '+pendingGroups.length+' grupo(s) juntos');});
+   $('stockV53Separate').addEventListener('click',separateSelected);
    $('stockV46Refrescar').addEventListener('click',async function(){
      if(loading)return;setBusy(true);setStatus('working','Consultando directamente Google Sheets ITEMS…');
      try{
@@ -4821,13 +4897,13 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
    });
    $('stockV46Limpiar').addEventListener('click',function(){selected={};maestro='';render();setStatus('info','Selección limpiada. Busca productos o revisa las sugerencias.');});
    $('stockV40TabPresentaciones').addEventListener('click',function(){setTimeout(render,0);});
-   window.stockV46Render=render;render();
+   window.stockV46Render=render;render();renderQueue();
  }
  if(document.readyState==='loading')document.addEventListener('DOMContentLoaded',setup);else setup();
 })();
 </script>
 <section id="stockV46Panel" hidden>
- <h3><i class="fas fa-link"></i> Unificar ITEMS · Un solo maestro</h3>
+ <h3><i class="fas fa-link"></i> Unificar y desunificar ITEMS · V53</h3>
  <p>Busca por nombre o código, marca las presentaciones del <strong>mismo producto físico</strong> y elige cuál de esos códigos será el maestro. Sin equivalencias ni pasos adicionales.</p>
  <label for="stockV46Buscar">Buscar productos y similares</label>
  <div class="stock-v47-search"><input id="stockV46Buscar" placeholder="Ej. decants redondo 5 ml, peine x4, ITM-000227" autocomplete="off"><button type="button" id="stockV46Refrescar" style="background:#365a78"><i class="fas fa-sync"></i> Actualizar</button></div>
@@ -4841,7 +4917,8 @@ function stockV45EtiquetaCategoria(v){return stockV45LimpiarCategoria(v).toLocal
  <div id="stockV46Resultados" aria-label="Resultados de búsqueda"></div>
  <div class="stock-v47-selected"><header>ITEMS seleccionados · Marca el círculo del código que será el maestro</header><div id="stockV47Elegidos"></div></div>
  <div id="stockV46Estado" role="status" aria-live="polite">Marca dos o más presentaciones para unificarlas.</div>
- <div class="stock-v47-actions"><button type="button" id="stockV46Guardar" style="background:#137b54"><i class="fas fa-check-circle"></i> Guardar y ejecutar en ITEMS</button><button type="button" id="stockV46Limpiar" style="background:#6c757d"><i class="fas fa-eraser"></i> Limpiar selección</button></div>
+ <div class="stock-v53-queue"><h4><i class="fas fa-layer-group"></i> Unificar varios grupos de una sola vez</h4><p>Marca las presentaciones, elige el maestro y pulsa «Añadir grupo al lote». Puedes repetirlo con otros productos y guardar todos juntos.</p><div id="stockV53QueueCount"></div><div id="stockV53QueueList"></div><div class="stock-v47-actions"><button type="button" id="stockV53Add" style="background:#266b9b"><i class="fas fa-plus"></i> Añadir grupo al lote</button><button type="button" id="stockV53SaveBatch" style="background:#137b54"><i class="fas fa-save"></i> Guardar todos los grupos</button></div></div>
+ <div class="stock-v47-actions"><button type="button" id="stockV46Guardar" style="background:#137b54"><i class="fas fa-check-circle"></i> Guardar y ejecutar en ITEMS</button><button type="button" id="stockV53Separate" class="stock-v53-unlink"><i class="fas fa-unlink"></i> Desunificar seleccionados</button><button type="button" id="stockV46Limpiar" style="background:#6c757d"><i class="fas fa-eraser"></i> Limpiar selección</button></div>
  <div class="stock-v47-note"><strong>Seguridad:</strong> Se conservan todos los <code>id_item</code> comerciales. Solo se actualiza <code>id_item_maestro</code> en ITEMS. No se modifican precios ni existencias de Stock.</div>
 </section>
 </body>
