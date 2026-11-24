@@ -702,6 +702,7 @@ button:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
 #tablaVentasDia .v268-detail-wrap:active .v268-detail-tooltip { display:block; }
 @media(max-width:767px){ #tablaVentasDia .v268-products-cell{min-width:280px!important;} #tablaVentasDia .v268-product-line{grid-template-columns:minmax(0,1fr) 65px;gap:5px;padding:6px;} }
 
+.teus-autocomplete-saldo-v2683{font-size:11px;line-height:1.4;color:#16834d;white-space:normal;overflow-wrap:anywhere;margin-top:2px}
 </style>
 <!-- V26: Apps Script propio, id_venta único, Stock seguro, origen EXTERNO/PENDIENTE, borrador y caja inteligente. -->
 <style id="estado-nube-v2638">
@@ -2249,7 +2250,7 @@ function mostrarSugerencias(query) {
             <div class="autocomplete-item-info">
                 <div class="autocomplete-item-nombre">${p.nombre || ''}</div>
                 <div class="autocomplete-item-seccion">${p.seccion || ''} · ${p.origenDatos || 'CATÁLOGO'} ${p.disponiblePaquete===false?'· PAQUETE AGOTADO EN CATÁLOGO':''}</div>
-                ${(() => {const ff=filasStockProductoVenta(p);if(!ff.length)return '';const r=resumenMaestroVentaV2683(ff);return '<div class="teus-autocomplete-saldo-v2683">'+(r.invalidas?'Equivalencia parcial: ':'Stock: ')+r.unidades.toLocaleString('es-BO')+' unidades</div>';})()}
+                ${(() => {const ff=filasStockProductoVenta(p);if(!ff.length)return '';return teusTextoPorUbicacionV2684(ff);})()}
             </div>
             <div class="autocomplete-item-precio">${precio > 0 ? formatearPrecio(precio) + ' Bs' : '—'}</div>
         </div>`;
@@ -2292,6 +2293,28 @@ function resumenMaestroVentaV2683(filas){
  return {unidades,invalidas,descripcion:parts.join(' | ')};
 }
 
+// V26.84: mostrar la existencia real de cada ubicación sin mezclar sucursales.
+function teusTextoPorUbicacionV2684(filas){
+ var grupos={};
+ (filas||[]).forEach(function(f){
+  var lugar=String(f.ubicacion||'Sin ubicación').trim();
+  if(!grupos[lugar])grupos[lugar]=[];
+  grupos[lugar].push(f);
+ });
+ return Object.keys(grupos).map(function(lugar){
+  var rows=grupos[lugar],partes=[],total=0,incompleto=false;
+  rows.forEach(function(f){
+   var c=Math.max(0,nStock(f.cajas)),p=Math.max(0,nStock(f.paquetes)),u=Math.max(0,nStock(f.unidades)),upp=nStock(f.unidades_por_paquete),ppc=nStock(f.paquetes_por_caja);
+   if(c)partes.push(c+' '+(ppc>0&&upp>0?'cajas':'cajas sin equivalencia'));
+   if(p)partes.push(p+' '+(upp===12?'dc':('paquetes'+(upp>0?' de '+upp:''))));
+   if(u)partes.push(u+' u');
+   if((p&&upp<=0)||(c&&(upp<=0||ppc<=0)))incompleto=true;
+   total+=u+(upp>0?p*upp:0)+(upp>0&&ppc>0?c*upp*ppc:0);
+  });
+  var t=partes.join(' + ')||'0 unidades';
+  return '<div class="teus-autocomplete-saldo-v2683"><b>'+teusEsc(lugar)+':</b> '+teusEsc(t)+(incompleto?' · equivalencia parcial':' · '+total.toLocaleString('es-BO')+' u')+'</div>';
+ }).join('');
+}
 function unidadesTotalesFilaVenta(r){const upp=Math.max(1,nStock(r.unidades_por_paquete)||1),ppc=Math.max(1,nStock(r.paquetes_por_caja)||1);return nStock(r.cajas)*ppc*upp+nStock(r.paquetes)*upp+nStock(r.unidades)}
 function empaqueVentaSmart(){const f=ventaSmartFilas[0]||{};return {upp:Math.max(1,nStock(f.unidades_por_paquete)||(ventaSmartProducto?.numUnidades||1)),ppc:Math.max(0,nStock(f.paquetes_por_caja)||(ventaSmartProducto?.paquetesPorCaja||0))}}
 function ventaSmartUE(){const e=empaqueVentaSmart();return ventaSmartCant.unidades+ventaSmartCant.paquetes*e.upp+ventaSmartCant.cajas*e.ppc*e.upp}
@@ -4189,6 +4212,8 @@ function mostrarModalAperturaCaja() {
   montoAperturaCaja.value='';aperturaCajaModal.style.display='flex';
 }
 function mostrarModalCierreCaja() {
+  var pend=teusMonedasLeerV2684();
+  if(pend.length)Notificaciones.mostrar('Atención: '+pend.length+' ingreso(s) de monedas pendientes en este dispositivo. Se intentarán sincronizar antes de cerrar.','warning',7000);
   montoCierreCaja.value = '';
   let vista=document.getElementById('cierrePrevisualizacionV2617');
   if(!vista){
@@ -4234,7 +4259,17 @@ function abrirCaja(registrarApertura = true) {
     }
 }
 
-function cerrarCaja() {
+async function cerrarCaja() {
+    var pendientesMonedas=teusMonedasLeerV2684();
+    if(pendientesMonedas.length){
+      await teusMonedasSincronizarV2684(true);
+      pendientesMonedas=teusMonedasLeerV2684();
+      if(pendientesMonedas.length){
+        var sumaPend=pendientesMonedas.reduce(function(a,b){return a+Number(b.monto||0);},0);
+        var decidir=await Swal.fire({icon:'warning',title:'Monedas sin guardar en la nube',html:'<b>'+pendientesMonedas.length+' ingreso(s) · '+sumaPend.toFixed(2)+' Bs</b><p style="margin-top:8px">Están guardados solo en este dispositivo. No se incluyen como confirmados en Sheets. Se volverán a enviar con sus mismos IDs.</p>',showCancelButton:true,confirmButtonText:'Cerrar caja y conservar pendientes',cancelButtonText:'Volver y revisar',confirmButtonColor:'#b45309'});
+        if(!decidir.isConfirmed)return;
+      }
+    }
     if(sinCajaV2666()){terminarSinCajaV2666();return;}
     if(ventasDelDia.some(v=>v&&fechaVentaV2617(v)&&perteneceVentaASucursal(v)&&esCierreV2617(v)&&!esAnuladaV2620(v)&&(!horaAperturaCaja||horaVentaV2617(v)>=(inicioSesionSegundosV2617()??0)))){Notificaciones.mostrar('Ya existe un cierre registrado o pendiente para este turno.','warning',6000);return;}
     if (!cajaAbierta || estadoCajaHoyV2620!=='OPERANDO') { Notificaciones.mostrar('La caja no está operando actualmente', 'warning'); return; }
@@ -6245,56 +6280,95 @@ document.addEventListener('click',function(e){
 
 
 // V26.3 — accesos visibles acordados
-async function agregarSencilloCajaV263(){
- if(!cajaAbierta){Notificaciones.mostrar('Primero abre la caja para ingresar monedas.','warning',5000);return;}
- const keyPend='teus_monedas_pendientes_'+normalizarTextoCatalogo(sucursalSeleccionada).replace(/\s+/g,'_');
- const btn=document.getElementById('btnAgregarSencillo');if(btn)btn.disabled=true;
- try{
-   let pendiente=null;try{pendiente=JSON.parse(localStorage.getItem(keyPend)||'null');}catch(e){}
-   // Conciliar cualquier ID viejo primero. Jamás eliminar pendiente sin consultar al servidor.
-   if(pendiente&&pendiente.id_operacion){
-     const verif=await backendV26('verificar_monedas',{sucursal:sucursalSeleccionada||'',id_operacion:pendiente.id_operacion});
-     if(verif.existe){
-       if(Math.abs(Number(verif.monto)-Number(pendiente.monto))>0.001)throw new Error('El movimiento anterior existe con un importe distinto: '+pendiente.id_operacion);
-       localStorage.removeItem(keyPend);pendiente=null;
-       Notificaciones.mostrar('Movimiento anterior confirmado en Sheets, sin duplicarlo. Ya puedes agregar más monedas.','success',6500);
-     }else{
-       const reintentar=confirm('Hay un ingreso de monedas anterior NO confirmado en Sheets.\nID: '+pendiente.id_operacion+'\nMonto: '+pendiente.monto+' Bs\n\nAceptar: REINTENTAR el mismo ingreso con el mismo ID.\nCancelar: no registrar nada y conservar el pendiente.');
-       if(!reintentar){
-         const descartar=confirm('La consulta al servidor indica que ese ingreso NO está registrado.\n\n¿Quieres DESCARTAR ese intento antiguo y registrar un ingreso NUEVO?\n\nAceptar: descartar ID antiguo sin sumar monedas.\nCancelar: conservarlo y salir.');
-         if(!descartar)return;
-         localStorage.removeItem(keyPend);pendiente=null;
-       }
-     }
-   }
-   if(!pendiente){
-     const entrada=prompt('¿Cuánto efectivo físico agregarás a la caja?\nEjemplo: 10','');if(entrada===null)return;
-     const monto=Number(String(entrada).replace(',','.'));
-     if(!Number.isSafeInteger(monto)||monto<=0){Notificaciones.mostrar('Ingresa un monto entero mayor a 0.','warning');return;}
-     const motivo=prompt('Motivo:','Agregar sencillo / monedas');if(motivo===null)return;
-     if(!confirm('Agregar '+monto+' Bs de efectivo físico a caja?\n\nEsto NO aumenta las ventas.'))return;
-     pendiente={id_operacion:'MON-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),monto,motivo:motivo||'Agregar sencillo / monedas',fecha:diaLocalV2617()};
-     localStorage.setItem(keyPend,JSON.stringify(pendiente));
-   }
-   // Verificar la API por capacidad, no por un identificador fijo de una versión antigua.
-   const verifFinal=await backendV26('verificar_monedas',{sucursal:sucursalSeleccionada||'',id_operacion:pendiente.id_operacion});
-   if(verifFinal.existe){
-     if(Math.abs(Number(verifFinal.monto)-Number(pendiente.monto))>0.001)throw new Error('El ID ya figura con otro monto.');
-     localStorage.removeItem(keyPend);Notificaciones.mostrar('El ingreso ya estaba confirmado; no se duplicó.','success');return;
-   }
-   const r=await backendV26('movimiento_caja',{tipo:'INGRESO_EFECTIVO',id_operacion:pendiente.id_operacion,monto:pendiente.monto,motivo:pendiente.motivo,
-     usuario:currentUser?.nombre||currentUser?.username||'',sucursal:sucursalSeleccionada||'',metodo:'EFECTIVO',observaciones:'Ingreso manual de sencillo; no es venta'});
-   if(!r||r.confirmado!==true||r.id_venta!==pendiente.id_operacion)throw new Error('El servidor no confirmó el mismo ID. Revisa la hoja antes de repetir.');
-   localStorage.removeItem(keyPend);
-   cajaManualV2617.actualizado=0;
-   try{await cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true});}catch(e){console.warn('Monedas guardadas, actualización visual pendiente',e);}
-   consultarMovimientosCajaV2617({forzar:true}).catch(()=>{});
-   const ultimo=document.getElementById('rcUltimoMovimiento');if(ultimo)ultimo.textContent='CONFIRMADO EN SHEETS: +'+r.monto+' Bs · '+pendiente.motivo+' · ID '+r.id_venta;
-   Notificaciones.mostrar('+'+r.monto+' Bs confirmados en '+r.hoja+'. No aumenta ventas.','success',8000);
-   if(typeof actualizarEstadoCaja==='function')actualizarEstadoCaja();
- }catch(e){Notificaciones.mostrar('No se confirmó el ingreso: '+(e.message||e)+'. El ID quedó guardado para conciliarlo sin duplicación.','error',10000);}
- finally{if(btn)btn.disabled=false;}
+// V26.84 — Monedas: un solo monto, persistencia local e idempotencia en la nube.
+// El pendiente NO suma como confirmado hasta recibir acuse de Sheets.
+var teusMonedasEnviandoV2684 = false;
+function teusMonedasClaveV2684(){
+ return 'teus_monedas_cola_v2684_'+normalizarTextoCatalogo(sucursalSeleccionada||'').replace(/\s+/g,'_');
 }
+function teusMonedasViejaClaveV2684(){
+ return 'teus_monedas_pendientes_'+normalizarTextoCatalogo(sucursalSeleccionada||'').replace(/\s+/g,'_');
+}
+function teusMonedasLeerV2684(){
+ var lista=[];
+ try{var a=JSON.parse(localStorage.getItem(teusMonedasClaveV2684())||'[]');if(Array.isArray(a))lista=a;}catch(e){}
+ // Preservar un intento antiguo con su ID: nunca descartarlo a escondidas.
+ try{
+  var viejo=JSON.parse(localStorage.getItem(teusMonedasViejaClaveV2684())||'null');
+  if(viejo&&viejo.id_operacion&&!lista.some(function(x){return x.id_operacion===viejo.id_operacion;})){
+   lista.push({id_operacion:viejo.id_operacion,monto:Number(viejo.monto),motivo:viejo.motivo||'Agregar sencillo / monedas',fecha:viejo.fecha||'',sucursal:sucursalSeleccionada||''});
+   localStorage.setItem(teusMonedasClaveV2684(),JSON.stringify(lista));
+   localStorage.removeItem(teusMonedasViejaClaveV2684());
+  }
+ }catch(e){console.warn('Monedas antiguas conservadas para conciliación',e);}
+ return lista;
+}
+function teusMonedasGuardarV2684(lista){
+ // Devolver fallo en lugar de afirmar que se guardó si el navegador rechaza almacenamiento.
+ localStorage.setItem(teusMonedasClaveV2684(),JSON.stringify(lista));
+}
+function teusMonedasAvisoV2684(){
+ var lista=teusMonedasLeerV2684();
+ var badge=document.getElementById('teusMonedasPendV2684');
+ if(!badge){badge=document.createElement('div');badge.id='teusMonedasPendV2684';badge.style.cssText='font-size:12px;font-weight:700;color:#a16207;margin:5px 0;text-align:center';var boton=document.getElementById('btnAgregarSencillo');if(boton)boton.appendChild(badge);}
+ if(badge)badge.textContent=lista.length?lista.length+' ingreso(s) de monedas pendientes de nube':'';
+ return lista.length;
+}
+async function teusMonedasSincronizarV2684(silencioso){
+ if(teusMonedasEnviandoV2684)return {ocupado:true,pendientes:teusMonedasLeerV2684().length};
+ teusMonedasEnviandoV2684=true;
+ var confirmados=0,fallos=[];
+ try{
+  var cola=teusMonedasLeerV2684();
+  for(var i=0;i<cola.length;i++){
+   var mov=cola[i];
+   try{
+    var suc=mov.sucursal||sucursalSeleccionada||'';
+    var prueba=await backendV26('verificar_monedas',{sucursal:suc,id_operacion:mov.id_operacion});
+    if(!prueba.existe){
+     prueba=await backendV26('movimiento_caja',{tipo:'INGRESO_EFECTIVO',id_operacion:mov.id_operacion,monto:mov.monto,motivo:mov.motivo||'Agregar sencillo / monedas',usuario:mov.usuario||currentUser?.nombre||currentUser?.username||'',sucursal:suc,metodo:'EFECTIVO',observaciones:'Sencillo agregado; respaldo local V26.84'});
+     if(!prueba||prueba.confirmado!==true||prueba.id_venta!==mov.id_operacion)throw new Error('La nube no confirmó el ID del movimiento');
+    }
+    if(Math.abs(Number(prueba.monto)-Number(mov.monto))>0.001)throw new Error('ID existente con otro importe: '+mov.id_operacion);
+    // Solo quitar el movimiento ya confirmado; respetar los nuevos que se agreguen mientras se sincroniza.
+    var actual=teusMonedasLeerV2684().filter(function(x){return x.id_operacion!==mov.id_operacion;});
+    teusMonedasGuardarV2684(actual);
+    confirmados++;
+   }catch(e){fallos.push((e&&e.message)||String(e));}
+  }
+ }finally{teusMonedasEnviandoV2684=false;teusMonedasAvisoV2684();}
+ if(confirmados){
+  cajaManualV2617.actualizado=0;
+  try{await cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true});}catch(e){console.warn('Fallo refresco de caja, movimientos confirmados',e);}
+  consultarMovimientosCajaV2617({forzar:true}).catch(function(){});
+  if(typeof actualizarEstadoCaja==='function')actualizarEstadoCaja();
+ }
+ var restantes=teusMonedasLeerV2684().length;
+ if(!silencioso){
+  if(!restantes&&confirmados)Notificaciones.mostrar('Monedas guardadas en la nube correctamente.','success',5000);
+  else if(restantes)Notificaciones.mostrar('Hay '+restantes+' ingreso(s) guardados en este dispositivo, pendientes de la nube. No los vuelvas a ingresar.','warning',7500);
+ }
+ return {confirmados:confirmados,pendientes:restantes,errores:fallos};
+}
+async function agregarSencilloCajaV263(){
+ if(!cajaAbierta){Notificaciones.mostrar('Primero abre la caja para ingresar monedas.','warning',4500);return;}
+ if(window.teusMonedasModalAbiertoV2684)return;
+ window.teusMonedasModalAbiertoV2684=true;
+ try{
+  // Abrir de inmediato: NO verificar pendientes ni hacer peticiones antes del monto.
+  var r=await Swal.fire({title:'Agregar monedas',input:'number',inputLabel:'¿Cuántos Bs agregarás a caja?',inputPlaceholder:'Ejemplo: 10',inputAttributes:{min:'0.01',step:'0.01',inputmode:'decimal'},showCancelButton:true,confirmButtonText:'Guardar',cancelButtonText:'Cancelar',confirmButtonColor:'#16834d',focusConfirm:false,inputValidator:function(v){var n=Number(String(v).replace(',','.'));if(!Number.isFinite(n)||n<=0||Math.abs(Math.round(n*100)-n*100)>0.000001)return 'Ingresa un monto válido mayor a 0 (máximo dos decimales).';}});
+  if(!r.isConfirmed)return;
+  var monto=Math.round(Number(String(r.value).replace(',','.'))*100)/100;
+  var nuevo={id_operacion:'MON-'+Date.now()+'-'+Math.random().toString(36).slice(2,9),monto:monto,motivo:'Agregar sencillo / monedas',fecha:diaLocalV2617(),sucursal:sucursalSeleccionada||'',usuario:currentUser?.nombre||currentUser?.username||''};
+  try{var cola=teusMonedasLeerV2684();cola.push(nuevo);teusMonedasGuardarV2684(cola);}catch(e){Notificaciones.mostrar('No se pudo guardar el ingreso en este dispositivo. No se enviaron monedas: '+(e.message||e),'error',9000);return;}
+  teusMonedasAvisoV2684();
+  Notificaciones.mostrar('+'+monto+' Bs registrados. Sincronizando con la nube…','info',3000);
+  await teusMonedasSincronizarV2684(false);
+ }finally{window.teusMonedasModalAbiertoV2684=false;}
+}
+// Al reconectar, reintentar usando EXACTAMENTE el mismo ID de cada movimiento.
+window.addEventListener('online',function(){if(teusMonedasLeerV2684().length)teusMonedasSincronizarV2684(true).catch(function(e){console.warn(e);});});
+document.addEventListener('DOMContentLoaded',function(){setTimeout(function(){teusMonedasAvisoV2684();},700);});
 
 document.addEventListener('click',function(e){
   if(e.target.closest?.('#btnAgregarSencillo')){e.preventDefault();agregarSencilloCajaV263();}
