@@ -1502,6 +1502,106 @@ input,select,textarea {min-width:0;max-width:100%;}
  #autocompleteList .autocomplete-item-precio{font-size:10px!important;max-width:70px!important;}
 }
 </style>
+
+<style id="teus-mayor-v435-compact-layout">
+/* V4.35: ergonomía de pantalla, sin alterar comportamiento ni ocultar información. */
+@media (min-width: 1000px) {
+  body {padding: 12px 14px;}
+  .app-container {gap:14px;max-width:1540px;align-items:flex-start;}
+  .main-panel {flex: 1 1 62%; min-width:0;}
+  .side-panel {flex: 1 1 32%; min-width:295px; gap:12px;}
+  .main-panel>.container {padding:19px 22px 22px;margin-bottom:12px;}
+  .main-panel .header {margin-bottom:10px;padding-bottom:9px;}
+  .main-panel .store-name {font-size:25px;}
+  .main-panel>.container>h1 {font-size:21px;margin:6px 0 13px;padding-bottom:10px;}
+  #usuarioMayorBar {padding:9px 12px!important;margin-bottom:12px!important;}
+  /* Los cuatro campos base se distribuyen en dos filas, no en cuatro. */
+  #pedidoMayorForm {display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:12px;row-gap:0;align-items:start;}
+  #pedidoMayorForm> .form-group:nth-child(-n+4) {grid-column:auto;min-width:0;margin:0 0 11px;}
+  #pedidoMayorForm> :nth-child(n+5) {grid-column:1/-1;min-width:0;}
+  #pedidoMayorForm> .form-group:nth-child(1) {grid-row:1;grid-column:1;}
+  #pedidoMayorForm> .form-group:nth-child(2) {grid-row:1;grid-column:2;}
+  #pedidoMayorForm> .form-group:nth-child(3) {grid-row:2;grid-column:1;}
+  #pedidoMayorForm> .form-group:nth-child(4) {grid-row:2;grid-column:2;}
+  #pedidoMayorForm input:not([type="radio"]):not([type="checkbox"]),
+  #pedidoMayorForm select, #pedidoMayorForm textarea {padding:12px 12px;font-size:14px;border-radius:9px;min-height:44px;}
+  #pedidoMayorForm .input-with-icon> input,
+  #pedidoMayorForm .input-with-icon> select {padding-left:40px!important;}
+  #pedidoMayorForm .input-with-icon>i {left:13px;}
+  #pedidoMayorForm>.form-group {margin-bottom:12px;}
+  #pedidoMayorForm h2 {font-size:19px;margin:11px 0 12px;padding-bottom:7px;}
+  #pedidoMayorForm h3 {font-size:15px;}
+  #pedidoMayorForm #notaPedido {min-height:54px;height:54px;resize:vertical;}
+  #pedidoMayorForm label {font-size:13px;margin-bottom:5px;}
+  #pedidoMayorForm .info-box {padding:11px 13px;margin:8px 0;font-size:12px;line-height:1.45;border-left-width:4px;}
+  #pedidoMayorForm .radio-group {margin:5px 0;padding:7px 9px;gap:7px;}
+  #pedidoMayorForm .radio-group label {margin:0;}
+  #pedidoMayorForm .provincia-container,
+  #pedidoMayorForm .ciudad-container,
+  #pedidoMayorForm .transportadora-provincia-container,
+  #pedidoMayorForm .recoger-container {padding:11px 13px;margin-top:9px;}
+  #pedidoMayorForm #transportadoraSection .transportadora-fields>.form-group {margin-bottom:9px;}
+  #pedidoMayorForm #transportadoraSection #envioSinCostoGroup {padding:10px 12px!important;margin-top:8px!important;}
+  #pedidoMayorForm .producto-mayor {gap:9px;margin-bottom:9px;}
+  #pedidoMayorForm #descripcionProducto, #pedidoMayorForm #montoProducto {padding:12px!important;min-height:44px;}
+  #pedidoMayorForm .mayor-quick-action-row {margin-bottom:7px;gap:8px;}
+  #pedidoMayorForm .mayor-quick-action-row button {padding:10px 12px!important;font-size:13px!important;}
+  #pedidoMayorForm .productos-container {padding:11px;margin-bottom:10px;}
+  #pedidoMayorForm .productos-lista {padding:10px;}
+  #pedidoMayorForm .total-container {padding:12px 15px;margin:11px 0;font-size:18px;}
+  #pedidoMayorForm #teusAccionesPedidoSeis {gap:9px;margin:12px 0;}
+  #pedidoMayorForm #teusAccionesPedidoSeis button {padding:11px 9px;font-size:13px;}
+  .side-panel>.cargar-pedido-container,
+  .side-panel>.estado-pago-container,
+  .side-panel>.alistar-container {padding:16px 18px;margin-bottom:9px;border-radius:14px;}
+  .side-panel .cargar-pedido-header,
+  .side-panel .estado-pago-header,
+  .side-panel .alistar-header {margin-bottom:10px;padding-bottom:9px;}
+  .side-panel .cargar-pedido-title,
+  .side-panel .estado-pago-title,
+  .side-panel .alistar-title {font-size:18px;}
+  .side-panel .cargar-pedido-textarea {min-height:85px;padding:10px;font-size:12px;margin-bottom:10px;}
+  .side-panel button {font-size:13px;padding:11px 12px;}
+}
+@media(min-width:1000px) and (max-width:1199px){
+  .main-panel>.container {padding:16px;}
+  .side-panel {min-width:290px;}
+  #pedidoMayorForm {column-gap:9px;}
+}
+@media(min-width:600px) and (max-width:999px){
+  body{padding:12px;}
+  .main-panel>.container{padding:18px;}
+  .main-panel .header{margin-bottom:12px;padding-bottom:10px;}
+  .main-panel>.container>h1{margin:10px 0 16px;font-size:21px;}
+  #pedidoMayorForm{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:0 12px;}
+  #pedidoMayorForm>.form-group:nth-child(-n+4){grid-column:auto;margin-bottom:11px;min-width:0;}
+  #pedidoMayorForm>:nth-child(n+5){grid-column:1/-1;min-width:0;}
+  #pedidoMayorForm input:not([type=radio]):not([type=checkbox]),#pedidoMayorForm select{padding:12px;font-size:14px;min-height:44px;}
+  #pedidoMayorForm .input-with-icon>input,#pedidoMayorForm .input-with-icon>select{padding-left:40px!important;}
+  #pedidoMayorForm #descripcionProducto,#pedidoMayorForm #montoProducto{padding:12px!important;}
+  #pedidoMayorForm #notaPedido{min-height:60px;height:60px;}
+  #pedidoMayorForm>.form-group{margin-bottom:13px;}
+}
+@media(max-width:599px){
+  body{padding:8px;}
+  .main-panel>.container,.side-panel>.cargar-pedido-container,.side-panel>.alistar-container,.side-panel>.estado-pago-container{padding:14px;margin-bottom:12px;border-radius:13px;}
+  .main-panel .header{margin-bottom:11px;padding-bottom:9px;}
+  .main-panel .store-name{font-size:22px;}
+  .main-panel>.container>h1{font-size:19px;margin:9px 0 14px;}
+  #usuarioMayorBar{padding:10px!important;margin-bottom:12px!important;}
+  #pedidoMayorForm>.form-group{margin-bottom:12px;}
+  #pedidoMayorForm input:not([type=radio]):not([type=checkbox]),#pedidoMayorForm select{padding:12px;min-height:44px;font-size:14px;}
+  #pedidoMayorForm .input-with-icon>input,#pedidoMayorForm .input-with-icon>select{padding-left:40px!important;}
+  #pedidoMayorForm #descripcionProducto,#pedidoMayorForm #montoProducto{padding:12px!important;min-height:44px;}
+  #pedidoMayorForm #notaPedido{height:58px;min-height:58px;}
+  #pedidoMayorForm h2{font-size:18px;margin:13px 0 10px;}
+  #pedidoMayorForm .info-box{padding:10px 12px;margin:8px 0;font-size:12px;}
+  #pedidoMayorForm .producto-mayor{gap:9px;margin-bottom:9px;}
+  #pedidoMayorForm .productos-container{padding:10px;}
+  #pedidoMayorForm .total-container{padding:13px;margin:10px 0;font-size:18px;}
+  .side-panel{gap:10px;}
+}
+</style>
 </head>
 <body>
 <div id="loginMayorOverlay">
