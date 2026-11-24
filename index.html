@@ -1,4 +1,4 @@
-<!-- Todoenuno Store · Ventas V26.82 · Ventas del Día completamente visible en iPad · menú incrustado -->
+<!-- Todoenuno Store · Ventas V26.83 · Ventas del Día completamente visible en iPad · menú incrustado -->
 <!DOCTYPE html>
 <html lang="es">
 <head>
@@ -1143,6 +1143,7 @@ body { max-width:100%; overflow-x:clip; }
   #sidebar .sidebar-menu a {font-size:11px!important;padding:10px 6px!important;gap:6px!important;}
 }
 </style>
+<style>.teus-maestro-resumen-v2683{background:#e9f8ef;border:1px solid #90d5a8;border-radius:9px;padding:8px 10px;color:#185b38;font-size:11px;line-height:1.5;margin-bottom:8px}.teus-maestro-resumen-v2683 strong{font-size:13px;color:#12623a}.teus-autocomplete-saldo-v2683{font-size:10px;color:#16814b;font-weight:700;margin-top:2px}</style>
 </head>
 <body>
 <div id="imageLightbox" class="lightbox" aria-hidden="true">
@@ -1711,6 +1712,8 @@ function productoVentaDesdeAux(p){
         numUnidades:Math.max(1,nStock(p.unidades_por_paquete)||1),
         paquetesPorCaja:Math.max(0,nStock(p.paquetes_por_caja)||0),
         origenDatos:'PRODUCTOS AGREGADOS',
+        id_item:String(p.id_item||'').trim().toUpperCase(),
+        id_item_maestro:maestroItemVentaV2683(p.id_item),
         _busqueda:normalizarTextoCatalogo(`${p.nombre||''} ${p.seccion||''}`)
     };
 }
@@ -1724,18 +1727,27 @@ function productoVentaDesdeStock(p){
         numUnidades:Math.max(1,nStock(p.unidades_por_paquete)||1),
         paquetesPorCaja:Math.max(0,nStock(p.paquetes_por_caja)||0),
         origenDatos:'STOCK',
+        id_item:String(p.id_item||'').trim().toUpperCase(),
+        id_item_maestro:maestroItemVentaV2683(p.id_item),
         _busqueda:normalizarTextoCatalogo(`${p.nombre||''} ${p.seccion||''}`)
     };
 }
 function fuentesProductosVenta(){
-    const salida=[], vistos=new Set();
-    const agregar=(p,origen)=>{
-        const key=normalizarTextoCatalogo(p.nombre||'');
-        if(!key||vistos.has(key))return;
+    const salida=[],vistos=new Set(),maestrosConCatalogo=new Set();
+    catalogoProductos.forEach(p=>{const m=maestroItemVentaV2683(p.id_item);if(m)maestrosConCatalogo.add(m);});
+    function agregar(p,origen){
+        const id=String(p.id_item||'').trim().toUpperCase();
+        const nombre=normalizarTextoCatalogo(p.nombre||'');
+        if(!nombre)return;
+        const maestro=maestroItemVentaV2683(id);
+        // Los registros físicos del maestro ya están representados en el catálogo.
+        // Evitamos una sugerencia sin precio de Stock del mismo producto.
+        if(origen==='STOCK' && maestro && maestrosConCatalogo.has(maestro))return;
+        const key=id?'ID:'+id:'SINID:'+nombre;
+        if(vistos.has(key))return;
         vistos.add(key);
         salida.push({...p,origenDatos:p.origenDatos||origen,_busqueda:p._busqueda||normalizarTextoCatalogo(`${p.nombre||''} ${p.seccion||''}`)});
-    };
-    // Prioridad exacta: Catálogo -> productos_agregados -> Stock.
+    }
     catalogoProductos.forEach(p=>agregar(p,'CATÁLOGO'));
     productosAgregadosCache.map(productoVentaDesdeAux).forEach(p=>agregar(p,'PRODUCTOS AGREGADOS'));
     stockCache.map(productoVentaDesdeStock).forEach(p=>agregar(p,'STOCK'));
@@ -2061,6 +2073,9 @@ function convertirImagenDrive(url) {
 const VENTAS_ITEMS_SHEET_ID = '1m9A2-dW71FWU8tgmjx7haibO052AUDM6tqiMQuaGhOw';
 const VENTAS_ITEMS_SHEET_NAME = 'item';
 let catalogoCargaV2647 = null;
+let maestrosItemsVentaV2683={};
+function maestroItemVentaV2683(id){const k=String(id||'').trim().toUpperCase();return k?(maestrosItemsVentaV2683[k]||k):'';}
+function mismoMaestroVentaV2683(a,b){const aa=maestroItemVentaV2683(a),bb=maestroItemVentaV2683(b);return !!aa&&aa===bb;}
 function canonHeaderItemsV2647(v) {
     return normalizarTextoCatalogo(String(v||'').replace(/^\uFEFF/,'')).replace(/\s+/g,' ');
 }
@@ -2082,6 +2097,11 @@ async function leerCatalogoOficialV2647() {
     if(h.length<11 || esperados.some((v,i)=>h[i+1]!==v)){
         throw new Error('La estructura A:K de ITEMS no coincide con el catálogo público');
     }
+    const mapa={};
+    for(const r of filas.slice(1)){const id=String(r[15]||'').trim().toUpperCase();if(id)mapa[id]=String(r[16]||id).trim().toUpperCase();}
+    // Resolver vínculos transitivos sin suponer coincidencias por nombre.
+    Object.keys(mapa).forEach(id=>{let actual=mapa[id],vistos=new Set([id]);while(mapa[actual]&&mapa[actual]!==actual&&!vistos.has(actual)){vistos.add(actual);actual=mapa[actual];}mapa[id]=actual;});
+    maestrosItemsVentaV2683=mapa;
     const productos=[];
     for(const r of filas.slice(1)){
         const nombre=String(r[1]||'').trim();
@@ -2099,6 +2119,8 @@ async function leerCatalogoOficialV2647() {
             numUnidades:parseInt(cantidad,10)||1,
             textoUnidad:cantidad.replace(/^\s*\d+\s*/,'').trim(),
             origenDatos:'CATÁLOGO',
+            id_item:String(r[15]||'').trim().toUpperCase(),
+            id_item_maestro:String(r[16]||r[15]||'').trim().toUpperCase(),
             disponiblePaquete:normalizarTextoCatalogo(r[4]||'')==='si',
             disponibleUnidad:normalizarTextoCatalogo(r[7]||'')==='si',
             _busqueda:normalizarTextoCatalogo(`${nombre} ${seccion}`)});
@@ -2227,6 +2249,7 @@ function mostrarSugerencias(query) {
             <div class="autocomplete-item-info">
                 <div class="autocomplete-item-nombre">${p.nombre || ''}</div>
                 <div class="autocomplete-item-seccion">${p.seccion || ''} · ${p.origenDatos || 'CATÁLOGO'} ${p.disponiblePaquete===false?'· PAQUETE AGOTADO EN CATÁLOGO':''}</div>
+                ${(() => {const ff=filasStockProductoVenta(p);if(!ff.length)return '';const r=resumenMaestroVentaV2683(ff);return '<div class="teus-autocomplete-saldo-v2683">'+(r.invalidas?'Equivalencia parcial: ':'Stock: ')+r.unidades.toLocaleString('es-BO')+' unidades</div>';})()}
             </div>
             <div class="autocomplete-item-precio">${precio > 0 ? formatearPrecio(precio) + ' Bs' : '—'}</div>
         </div>`;
@@ -2247,7 +2270,28 @@ function mostrarSugerencias(query) {
     });
 }
 
-function filasStockProductoVenta(producto){if(!producto)return [];const nn=normalizarTextoCatalogo(producto.nombre||'');return stockCache.filter(r=>normalizarTextoCatalogo(r.nombre||'')===nn)}
+function filasStockProductoVenta(producto){
+ if(!producto)return [];
+ const id=String(producto.id_item||'').trim().toUpperCase(), maestro=maestroItemVentaV2683(id);
+ const nn=normalizarTextoCatalogo(producto.nombre||'');
+ // Nunca fusionar referencias por nombres similares. Si existe ID, solo ID/maestro.
+ return stockCache.filter(r=>{
+   const sid=String(r.id_item||'').trim().toUpperCase();
+   if(maestro && sid)return maestroItemVentaV2683(sid)===maestro;
+   if(id||sid)return false;
+   return !!nn && normalizarTextoCatalogo(r.nombre||'')===nn;
+ });
+}
+function resumenMaestroVentaV2683(filas){
+ let unidades=0,invalidas=0;const parts=[];
+ (filas||[]).forEach(r=>{const c=nStock(r.cajas),p=nStock(r.paquetes),u=nStock(r.unidades),up=nStock(r.unidades_por_paquete),pc=nStock(r.paquetes_por_caja);
+  if(c||p||u){const textos=[];if(c)textos.push(c+' caja'+(c===1?'':'s'));if(p)textos.push(p+' paquete'+(p===1?'':'s'));if(u)textos.push(u+' unidad'+(u===1?'':'es'));parts.push(textos.join(' + ')+(r.ubicacion?' · '+r.ubicacion:''));}
+  if((p&&up<=0)||(c&&(up<=0||pc<=0)))invalidas++;
+  unidades+=u+(up>0?p*up:0)+(up>0&&pc>0?c*pc*up:0);
+ });
+ return {unidades,invalidas,descripcion:parts.join(' | ')};
+}
+
 function unidadesTotalesFilaVenta(r){const upp=Math.max(1,nStock(r.unidades_por_paquete)||1),ppc=Math.max(1,nStock(r.paquetes_por_caja)||1);return nStock(r.cajas)*ppc*upp+nStock(r.paquetes)*upp+nStock(r.unidades)}
 function empaqueVentaSmart(){const f=ventaSmartFilas[0]||{};return {upp:Math.max(1,nStock(f.unidades_por_paquete)||(ventaSmartProducto?.numUnidades||1)),ppc:Math.max(0,nStock(f.paquetes_por_caja)||(ventaSmartProducto?.paquetesPorCaja||0))}}
 function ventaSmartUE(){const e=empaqueVentaSmart();return ventaSmartCant.unidades+ventaSmartCant.paquetes*e.upp+ventaSmartCant.cajas*e.ppc*e.upp}
@@ -2315,9 +2359,11 @@ function renderVentaSmartStock(){
  const active=ventaSmartFilaOrigen();
  if(active && unidadesTotalesFilaVenta(active)-teusReservadas(active.id_stock)<=0){ventaSmartOrigen='';teusSmartAsignaciones=null;}
 
- let html='';
- if(ventaSmartFilas.length){
-   html='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen),saldo=teusTextoSaldoStock(r);return `<div class="venta-stock-card ${saldo.libre<=0?'v2648-sin-stock':''} ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${teusEsc(u)}</div><div class="qty">Stock en Sheets: ${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${saldo.reservado?`<span style="color:#b45309">Ya agregado al pedido: ${teusPresentacionesEnCarrito(r.id_stock) || `${saldo.reservado} unidades equivalentes`}</span><br>`:''}<strong>Disponible para esta venta: ${saldo.descripcion}</strong><br>${saldo.libre} de ${saldo.total} unidades equivalentes</div><div class="pick">${saldo.libre<=0?'SIN SALDO PARA ESTA VENTA':(sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación')}</div></div>`}).join('')+'</div>';
+  let html='';
+  if(ventaSmartFilas.length){
+    const res=resumenMaestroVentaV2683(ventaSmartFilas);
+    html='<div class="teus-maestro-resumen-v2683"><b>Existencias del producto: </b>'+teusEsc(res.descripcion||'Sin cantidades')+'<div><strong>'+ (res.invalidas?'Equivalencias incompletas; total parcial: ':'Total equivalente: ')+res.unidades.toLocaleString('es-BO')+' unidades</strong></div></div>'; 
+   html+='<div class="venta-stock-cards">'+ventaSmartFilas.map((r,i)=>{const u=r.ubicacion||'Sin ubicación',sel=normalizarTextoCatalogo(u)===normalizarTextoCatalogo(ventaSmartOrigen),saldo=teusTextoSaldoStock(r);return `<div class="venta-stock-card ${saldo.libre<=0?'v2648-sin-stock':''} ${sel?'selected':''}" data-vstock="${i}"><div class="loc"><i class="fas fa-map-marker-alt"></i> ${teusEsc(u)}</div><div class="qty">Stock en Sheets: ${nStock(r.cajas)} caja(s) · ${nStock(r.paquetes)} paquete(s) · ${nStock(r.unidades)} unidad(es)</div><div class="eq">${saldo.reservado?`<span style="color:#b45309">Ya agregado al pedido: ${teusPresentacionesEnCarrito(r.id_stock) || `${saldo.reservado} unidades equivalentes`}</span><br>`:''}<strong>Disponible para esta venta: ${saldo.descripcion}</strong><br>${saldo.libre} de ${saldo.total} unidades equivalentes</div><div class="pick">${saldo.libre<=0?'SIN SALDO PARA ESTA VENTA':(sel?'✓ Ubicación de salida seleccionada':'Clic para usar esta ubicación')}</div></div>`}).join('')+'</div>';
  }else html='<div class="teus-stock-aviso-rojo"><strong>⚠ SIN STOCK REGISTRADO</strong><span class="teus-stock-aviso-sub">Este producto no tiene existencias físicas registradas en Stock. Puedes agregarlo igualmente como venta externa o con origen pendiente, sin descontar inventario.</span></div>';
  if(ventaSmartFilas.length && ventaSmartFilas.every(r => unidadesTotalesFilaVenta(r)-teusReservadas(r.id_stock)<=0)){
    html += '<div class="teus-stock-aviso-rojo"><strong>⚠ SIN EXISTENCIAS DISPONIBLES</strong><span class="teus-stock-aviso-sub">No quedan unidades libres registradas en estas ubicaciones. Puedes registrar la venta como externa o con origen pendiente, pero no descontar Stock sin existencias.</span></div>';
@@ -6200,86 +6246,56 @@ document.addEventListener('click',function(e){
 
 // V26.3 — accesos visibles acordados
 async function agregarSencilloCajaV263(){
-  if(!cajaAbierta){
-    Notificaciones.mostrar('Primero debes abrir la caja para agregar sencillo / monedas.','warning',5000);
-    return;
-  }
-  const entrada=prompt('¿Cuánto efectivo físico agregarás a la caja?\nEjemplo: 10','');
-  if(entrada===null)return;
-  const monto=Math.round(Number(String(entrada).replace(',','.')));
-  if(!Number.isFinite(monto)||monto<=0){
-    Notificaciones.mostrar('Ingresa un monto entero mayor a 0','warning');
-    return;
-  }
-  const motivo=prompt('Motivo:','Agregar sencillo / monedas')||'Agregar sencillo / monedas';
-  const keyPend='teus_monedas_pendientes_'+normalizarTextoCatalogo(sucursalSeleccionada).replace(/\s+/g,'_');
-  let pendiente=null;try{pendiente=JSON.parse(localStorage.getItem(keyPend)||'null')}catch(e){}
-  const hoyMonedas=diaLocalV2617();
-  if(pendiente && pendiente.fecha!==hoyMonedas){Notificaciones.mostrar('Existe un movimiento antiguo sin confirmar. Revisa su ID antes de registrar más monedas: '+pendiente.id_operacion,'error',9000);return;}
-  if(pendiente && (pendiente.monto!==monto||pendiente.motivo!==motivo)){Notificaciones.mostrar('Hay monedas pendientes de confirmar. Primero reintenta el mismo importe y motivo: '+pendiente.monto+' Bs, '+pendiente.motivo,'warning',7000);return;}
-  if(!confirm(`Agregar ${monto} Bs de efectivo físico a caja?\n\nEsto NO aumentará las ventas.`))return;
-  if(!pendiente){pendiente={id_operacion:`MON-${Date.now()}-${Math.random().toString(36).slice(2,8)}`,monto,motivo,fecha:hoyMonedas};localStorage.setItem(keyPend,JSON.stringify(pendiente));}
-
-  const btn=document.getElementById('btnAgregarSencillo');
-  if(btn) btn.style.pointerEvents='none';
-  try{
-    // Primero verificar que la implementación pública sea la NUEVA.
-    const prueba=await fetch(APPS_SCRIPT_URL+'?accion=ping&_='+Date.now(),{cache:'no-store'});
-    if(!prueba.ok)throw new Error('Apps Script no responde (HTTP '+prueba.status+').');
-    const estado=await prueba.json();
-    if(!estado.ok || estado.servicio!=='V26.27-MONEDAS-DIAGNOSTICO')
-      throw new Error('Code.gs antiguo publicado. Implementa una NUEVA VERSIÓN del Web App antes de guardar monedas. Versión detectada: '+String(estado.servicio||'desconocida'));
-    const verif=await backendV26('verificar_monedas',{
-      sucursal:sucursalSeleccionada||'',id_operacion:pendiente.id_operacion
-    });
-    if(verif.existe){
-      if(Math.abs(Number(verif.monto)-monto)>0.001)throw new Error('Movimiento pendiente con importe diferente.');
-      localStorage.removeItem(keyPend);
-      Notificaciones.mostrar('Los '+monto+' Bs ya estaban en '+verif.hoja+' (fila '+verif.fila+'). No se duplicó el ingreso.','success',9000);
-      return;
-    }
-    Notificaciones.mostrar('Registrando MONEDAS en la hoja de esta sucursal...','info',2500);
-    const r=await backendV26('movimiento_caja',{
-      tipo:'INGRESO_EFECTIVO',
-      id_operacion:pendiente.id_operacion,
-      monto,
-      motivo,
-      usuario:currentUser?.nombre||currentUser?.username||'',
-      sucursal:sucursalSeleccionada||'',
-      metodo:'EFECTIVO',
-      observaciones:'Ingreso manual de sencillo; no es venta'
-    });
-
-    if(!r || r.confirmado!==true || !r.id_venta){
-      throw new Error('Apps Script no confirmó la fila. Respuesta: '+JSON.stringify(r||{}).slice(0,450));
-    }
-
-
-    // Mismo ID estable en todo reintento; no genera una segunda fila.
-    localStorage.removeItem(keyPend);
-    // La escritura YA fue verificada por Apps Script. Refrescar datos es secundario.
-    cajaManualV2617.actualizado=0;
-    await cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true});
-    consultarMovimientosCajaV2617({forzar:true}).catch(()=>{});
-
-    const ultimo=document.getElementById('rcUltimoMovimiento');
-    if(ultimo){
-      ultimo.textContent=`CONFIRMADO EN SHEETS: +${monto} Bs · ${motivo} · ID ${r.id_evento}`;
-    }
-    Notificaciones.mostrar(
-      `+${monto} Bs confirmados en hoja ${r.hoja}. ID: ${r.id_venta}. No aumenta las ventas. ${r.aviso||''}`,
-      'success',8000
-    );
-    if(typeof actualizarEstadoCaja==='function') actualizarEstadoCaja();
-  }catch(e){
-    Notificaciones.mostrar(
-      'NO se registró el efectivo: '+(e.message||e),
-      'error',9000
-    );
-  }finally{
-    if(btn) btn.style.pointerEvents='';
-  }
+ if(!cajaAbierta){Notificaciones.mostrar('Primero abre la caja para ingresar monedas.','warning',5000);return;}
+ const keyPend='teus_monedas_pendientes_'+normalizarTextoCatalogo(sucursalSeleccionada).replace(/\s+/g,'_');
+ const btn=document.getElementById('btnAgregarSencillo');if(btn)btn.disabled=true;
+ try{
+   let pendiente=null;try{pendiente=JSON.parse(localStorage.getItem(keyPend)||'null');}catch(e){}
+   // Conciliar cualquier ID viejo primero. Jamás eliminar pendiente sin consultar al servidor.
+   if(pendiente&&pendiente.id_operacion){
+     const verif=await backendV26('verificar_monedas',{sucursal:sucursalSeleccionada||'',id_operacion:pendiente.id_operacion});
+     if(verif.existe){
+       if(Math.abs(Number(verif.monto)-Number(pendiente.monto))>0.001)throw new Error('El movimiento anterior existe con un importe distinto: '+pendiente.id_operacion);
+       localStorage.removeItem(keyPend);pendiente=null;
+       Notificaciones.mostrar('Movimiento anterior confirmado en Sheets, sin duplicarlo. Ya puedes agregar más monedas.','success',6500);
+     }else{
+       const reintentar=confirm('Hay un ingreso de monedas anterior NO confirmado en Sheets.\nID: '+pendiente.id_operacion+'\nMonto: '+pendiente.monto+' Bs\n\nAceptar: REINTENTAR el mismo ingreso con el mismo ID.\nCancelar: no registrar nada y conservar el pendiente.');
+       if(!reintentar){
+         const descartar=confirm('La consulta al servidor indica que ese ingreso NO está registrado.\n\n¿Quieres DESCARTAR ese intento antiguo y registrar un ingreso NUEVO?\n\nAceptar: descartar ID antiguo sin sumar monedas.\nCancelar: conservarlo y salir.');
+         if(!descartar)return;
+         localStorage.removeItem(keyPend);pendiente=null;
+       }
+     }
+   }
+   if(!pendiente){
+     const entrada=prompt('¿Cuánto efectivo físico agregarás a la caja?\nEjemplo: 10','');if(entrada===null)return;
+     const monto=Number(String(entrada).replace(',','.'));
+     if(!Number.isSafeInteger(monto)||monto<=0){Notificaciones.mostrar('Ingresa un monto entero mayor a 0.','warning');return;}
+     const motivo=prompt('Motivo:','Agregar sencillo / monedas');if(motivo===null)return;
+     if(!confirm('Agregar '+monto+' Bs de efectivo físico a caja?\n\nEsto NO aumenta las ventas.'))return;
+     pendiente={id_operacion:'MON-'+Date.now()+'-'+Math.random().toString(36).slice(2,8),monto,motivo:motivo||'Agregar sencillo / monedas',fecha:diaLocalV2617()};
+     localStorage.setItem(keyPend,JSON.stringify(pendiente));
+   }
+   // Verificar la API por capacidad, no por un identificador fijo de una versión antigua.
+   const verifFinal=await backendV26('verificar_monedas',{sucursal:sucursalSeleccionada||'',id_operacion:pendiente.id_operacion});
+   if(verifFinal.existe){
+     if(Math.abs(Number(verifFinal.monto)-Number(pendiente.monto))>0.001)throw new Error('El ID ya figura con otro monto.');
+     localStorage.removeItem(keyPend);Notificaciones.mostrar('El ingreso ya estaba confirmado; no se duplicó.','success');return;
+   }
+   const r=await backendV26('movimiento_caja',{tipo:'INGRESO_EFECTIVO',id_operacion:pendiente.id_operacion,monto:pendiente.monto,motivo:pendiente.motivo,
+     usuario:currentUser?.nombre||currentUser?.username||'',sucursal:sucursalSeleccionada||'',metodo:'EFECTIVO',observaciones:'Ingreso manual de sencillo; no es venta'});
+   if(!r||r.confirmado!==true||r.id_venta!==pendiente.id_operacion)throw new Error('El servidor no confirmó el mismo ID. Revisa la hoja antes de repetir.');
+   localStorage.removeItem(keyPend);
+   cajaManualV2617.actualizado=0;
+   try{await cargarVentasDiaDesdeSheet({notificar:false,forzar:true,silencioso:true});}catch(e){console.warn('Monedas guardadas, actualización visual pendiente',e);}
+   consultarMovimientosCajaV2617({forzar:true}).catch(()=>{});
+   const ultimo=document.getElementById('rcUltimoMovimiento');if(ultimo)ultimo.textContent='CONFIRMADO EN SHEETS: +'+r.monto+' Bs · '+pendiente.motivo+' · ID '+r.id_venta;
+   Notificaciones.mostrar('+'+r.monto+' Bs confirmados en '+r.hoja+'. No aumenta ventas.','success',8000);
+   if(typeof actualizarEstadoCaja==='function')actualizarEstadoCaja();
+ }catch(e){Notificaciones.mostrar('No se confirmó el ingreso: '+(e.message||e)+'. El ID quedó guardado para conciliarlo sin duplicación.','error',10000);}
+ finally{if(btn)btn.disabled=false;}
 }
+
 document.addEventListener('click',function(e){
   if(e.target.closest?.('#btnAgregarSencillo')){e.preventDefault();agregarSencilloCajaV263();}
   if(e.target.closest?.('#btnVentaAntigua')){e.preventDefault();agregarVentaAntiguaV261();}
