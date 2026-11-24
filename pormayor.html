@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Pedidos por Mayor V4.30: controles de paquetes 1 o mas siempre visibles -->
+<!-- Pedidos por Mayor V4.31: existencias reales por ITEM maestro y equivalencias de Stock -->
 <link rel="icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
 <link rel="shortcut icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
 <link rel="apple-touch-icon" href="./teus-pedidos-mayor-icono2.png?v=428">
@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Pedidos por Mayor V4.30 · Cantidades corregidas</title>
+<title>Todoenuno_store - Pedidos por Mayor V4.31 · Stock por ITEM maestro</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -2374,6 +2374,8 @@ document.addEventListener('DOMContentLoaded', function() {
             const headers=filas[0].map(canon);
             const indice=(...nombres)=>headers.findIndex(h=>nombres.map(canon).includes(h));
             const indiceOferta=(...nombres)=>headers.findIndex(h=>nombres.map(canon).some(n=>h===n || h.startsWith(n+' ') || h.startsWith(n+'('))); 
+            const iIdItem=indice('id_item','id item');
+            const iIdItemMaestro=indice('id_item_maestro','id item maestro');
             const iNombre=indice('nombre','producto');
             const iSeccion=indice('seccion','sección','categoria','categoría');
             const iPrecioPaquete=indice('precio de paquete','precio paquete','precio por paquete');
@@ -2451,6 +2453,8 @@ document.addEventListener('DOMContentLoaded', function() {
                     precioMayor:0,precioUnidad,
                     imagen:imagenOficialMayor(leer(c,iImagenEditada)||leer(c,iImagenOriginal)),
                     numUnidades,textoUnidad,
+                    id_item:leer(c,iIdItem).toUpperCase(),
+                    id_item_maestro:(leer(c,iIdItemMaestro)||leer(c,iIdItem)).toUpperCase(),
                     disponiblePaquete:mayorEstadoDisponibilidad(leer(c,iDisponiblePaquete)),
                     disponibleUnidad:mayorEstadoDisponibilidad(leer(c,iDisponibleUnidad)),
                     ofertaMonitor,origenDatos:'ITEMS'
@@ -2820,38 +2824,108 @@ document.addEventListener('DOMContentLoaded', function() {
         }).filter(obj => Object.values(obj).some(v => String(v).trim() !== ''));
     }
 
-    function stockDelProducto(producto) {
-        const n = normalizarNombreStock(producto.nombre);
-        return stockDataMayorista.filter(x => normalizarNombreStock(x.nombre) === n);
+    // V4.31: Stock comparte existencias entre todas las presentaciones del mismo
+    // producto físico (Q=id_item_maestro de ITEMS). Jamás sumar resultados por
+    // coincidencia parcial de nombre: mezclaría tamaños/modelos distintos.
+    function mayorIdNormalizado(id) { return String(id || '').trim().toUpperCase(); }
+    function mayorMaestroProducto(producto) {
+        return mayorIdNormalizado(producto && (producto.id_item_maestro || producto.id_item));
     }
+    function mayorStockFamilia(producto) {
+        const maestro=mayorMaestroProducto(producto);
+        const ids={};
+        if (maestro) {
+            ids[maestro]=true;
+            productosData.forEach(function(p) {
+                if (mayorMaestroProducto(p)===maestro && mayorIdNormalizado(p.id_item))
+                    ids[mayorIdNormalizado(p.id_item)]=true;
+            });
+            // Solo filas con ID verificable. Jamás añadir por nombre cuando la
+            // identidad maestra está disponible: evita doble conteo o mezcla.
+            return stockDataMayorista.filter(function(fila){
+                return !!ids[mayorIdNormalizado(fila.id_item)];
+            });
+        }
+        // Compatibilidad con catálogos antiguos SIN IDs: exigir sección y nombre.
+        const n=normalizarNombreStock(producto.nombre);
+        const sec=normalizarNombreStock(producto.seccion);
+        return stockDataMayorista.filter(function(fila){
+            return !mayorIdNormalizado(fila.id_item) &&
+                normalizarNombreStock(fila.nombre)===n &&
+                normalizarNombreStock(fila.seccion)===sec;
+        });
+    }
+    function stockDelProducto(producto) { return mayorStockFamilia(producto); }
 
-    function nStock(v) { const n = parseFloat(String(v ?? '').replace(',','.')); return isNaN(n) ? 0 : n; }
-
+    function nStock(v) {
+        const n=Number(String(v == null ? '' : v).trim().replace(',','.'));
+        return Number.isFinite(n) && n>=0 ? n : 0;
+    }
+    function mayorEnteroStock(n) { return Number(n).toLocaleString('es-BO',{maximumFractionDigits:0}); }
+    function mayorFichaFilaStock(fila) {
+        const cajas=nStock(fila.cajas), paquetes=nStock(fila.paquetes), unidades=nStock(fila.unidades);
+        const up=nStock(fila.unidades_por_paquete), pc=nStock(fila.paquetes_por_caja);
+        let total=unidades, completo=true;
+        if (paquetes) { if (up>0) total+=paquetes*up; else completo=false; }
+        if (cajas) { if (up>0 && pc>0) total+=cajas*pc*up; else completo=false; }
+        const partes=[];
+        if (cajas) partes.push(mayorEnteroStock(cajas)+' caja'+(cajas===1?'':'s')+(pc && up?' ('+mayorEnteroStock(pc*up)+' unidades c/u)':''));
+        if (paquetes) partes.push(mayorEnteroStock(paquetes)+(up===12?' docena'+(paquetes===1?'':'s'):' paquete'+(paquetes===1?'':'s'))+(up && up!==12?' de '+mayorEnteroStock(up):'') );
+        if (unidades) partes.push(mayorEnteroStock(unidades)+' unidad'+(unidades===1?'':'es'));
+        return {partes:partes,total:total,completo:completo,ubicacion:String(fila.ubicacion||'Sin ubicación'),id_item:mayorIdNormalizado(fila.id_item)};
+    }
     function renderStockConsulta(producto) {
-        const box = document.getElementById('stockConsultaContenido');
-        if(!box || !producto)return;
-        const filas = stockDelProducto(producto);
+        const box=document.getElementById('stockConsultaContenido');
+        if (!box || !producto) return;
+        const filas=stockDelProducto(producto);
+        const maestro=mayorMaestroProducto(producto);
         if (!filas.length) {
-            box.innerHTML = `<div class="mayor-stock-no-registrado"><b>${mayorStockError?'No se pudo actualizar Stock.':'STOCK SIN REGISTRAR EN EL SISTEMA'}</b><div style="margin-top:5px;font-size:12px">No significa que esté agotado físicamente. Puedes agregarlo al pedido si tienes mercancía en la feria. Verifica la existencia real; esta consulta NO descuenta inventario.</div></div><div style="margin-top:5px;font-size:11px;color:#687782">${mayorEstadoConsultaStock()}</div>`;
+            box.innerHTML='<div class="mayor-stock-no-registrado"><b>'+
+                (mayorStockError?'No se pudo actualizar Stock.':'SIN EXISTENCIAS REGISTRADAS PARA ESTE ITEM')+
+                '</b><div style="margin-top:5px;font-size:12px">Esto no confirma que esté agotado físicamente. Revisa la mercadería sin registrar. La consulta NO descuenta Stock.</div></div>'+
+                '<div style="margin-top:5px;font-size:11px;color:#687782">'+mayorEscapar(mayorEstadoConsultaStock())+'</div>';
             return;
         }
-        box.innerHTML = filas.map(x => {
-            const partes=[];
-            if(nStock(x.cajas)) partes.push(`${nStock(x.cajas)} caja(s)`);
-            if(nStock(x.paquetes)) partes.push(`${nStock(x.paquetes)} paquete(s)`);
-            if(nStock(x.unidades)) partes.push(`${nStock(x.unidades)} unidad(es)`);
-            const up=nStock(x.unidades_por_paquete)||nStock(producto.numUnidades);
-            const pc=nStock(x.paquetes_por_caja);
-            const eq=up>0 ? nStock(x.unidades)+nStock(x.paquetes)*up+(pc>0?nStock(x.cajas)*pc*up:0) : null;
-            return `<div style="padding:5px 0;border-bottom:1px solid #f0e4bd"><b>${mayorEscapar(x.ubicacion || 'Sin ubicación')}</b>: ${partes.length?partes.join(' · '):'0'}${eq!==null?`<span style="color:#137a51;font-weight:700"> · ${eq} unidades equivalentes</span>`:''}</div>`;
-        }).join('')+`<div style="font-size:11px;color:${mayorStockError?'#b45309':'#687782'};margin-top:6px">${mayorEstadoConsultaStock()} · No descuenta ni reserva stock.</div>`;
+        let total=0, completo=true;
+        const porUbicacion={};
+        const htmlFilas=filas.map(function(fila){
+            const f=mayorFichaFilaStock(fila);
+            total+=f.total;
+            if (!f.completo) completo=false;
+            const clave=f.ubicacion;
+            if (!porUbicacion[clave]) porUbicacion[clave]={total:0,completo:true};
+            porUbicacion[clave].total+=f.total;
+            if (!f.completo) porUbicacion[clave].completo=false;
+            return '<div style="padding:6px 0;border-bottom:1px solid #f0e4bd">'+
+                '<b>'+mayorEscapar(f.ubicacion)+'</b> · '+
+                mayorEscapar(f.partes.join(' + ')||'0 unidades')+
+                (f.completo?' <span style="color:#137a51;font-weight:700">= '+mayorEnteroStock(f.total)+' unidades</span>':' <span style="color:#b45309">· Falta equivalencia de embalaje</span>')+
+                (filas.length>1?' <small style="color:#64748b">('+mayorEscapar(f.id_item||'sin ID')+')</small>':'')+'</div>';
+        }).join('');
+        const resumenUbicacion=Object.keys(porUbicacion).map(function(ubi){
+            const d=porUbicacion[ubi];
+            return '<div style="font-size:12px;color:#475569">'+mayorEscapar(ubi)+': '+
+                (d.completo?mayorEnteroStock(d.total)+' unidades':'equivalencias incompletas')+'</div>';
+        }).join('');
+        const advertencia=completo?'':'<div style="font-size:12px;color:#92400e;margin-top:6px">⚠ Faltan unidades_por_paquete o paquetes_por_caja en alguna fila; no se puede calcular un total confiable.</div>';
+        box.innerHTML='<div style="background:#eaf8ef;border:1px solid #96d4ac;padding:11px;border-radius:9px;margin-bottom:8px;color:#166534">'+
+            '<div style="font-size:11px">Existencia compartida'+(maestro?' · maestro '+mayorEscapar(maestro):'')+'</div>'+
+            (completo?'<div style="font-size:22px;font-weight:850">'+mayorEnteroStock(total)+' unidades</div>':
+             '<div style="font-size:15px;font-weight:750">Total pendiente de equivalencias</div>')+
+            '<div style="font-size:11px">'+filas.length+' registro(s) físico(s) · '+Object.keys(porUbicacion).length+' ubicación(es)</div></div>'+
+            htmlFilas+'<div style="padding-top:7px">'+resumenUbicacion+'</div>'+advertencia+
+            '<div style="font-size:11px;color:'+(mayorStockError?'#b45309':'#687782')+';margin-top:7px">'+
+            mayorEscapar(mayorEstadoConsultaStock())+' · Solo consulta; no reserva ni descuenta.</div>';
     }
 
+    // Las equivalencias para CREAR el pedido pertenecen al ITEM comercial
+    // seleccionado, no a un empaque de otra presentación de la misma familia.
     function obtenerEmpaqueProducto(producto) {
-        const filas = stockDelProducto(producto);
-        const up = filas.map(x=>nStock(x.unidades_por_paquete)).find(Boolean) || producto.numUnidades || 0;
-        const pc = filas.map(x=>nStock(x.paquetes_por_caja)).find(Boolean) || 0;
-        return { unidadesPorPaquete: up, paquetesPorCaja: pc };
+        const propio=mayorIdNormalizado(producto.id_item);
+        const filas=stockDelProducto(producto).filter(function(f){return mayorIdNormalizado(f.id_item)===propio;});
+        const up=filas.map(function(x){return nStock(x.unidades_por_paquete);}).find(Boolean)||producto.numUnidades||0;
+        const pc=filas.map(function(x){return nStock(x.paquetes_por_caja);}).find(Boolean)||0;
+        return {unidadesPorPaquete:up,paquetesPorCaja:pc};
     }
 
     let mayorPrecioEditadoEnModal = false;
