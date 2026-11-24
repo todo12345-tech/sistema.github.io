@@ -1,7 +1,7 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-<!-- Pedidos por Mayor V4.31: existencias reales por ITEM maestro y equivalencias de Stock -->
+<!-- Pedidos por Mayor V4.32: stock compacto por ubicación en buscador y modal, sin mezclar presentaciones -->
 <link rel="icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
 <link rel="shortcut icon" type="image/png" href="./teus-pedidos-mayor-icono2.png?v=428">
 <link rel="apple-touch-icon" href="./teus-pedidos-mayor-icono2.png?v=428">
@@ -13,7 +13,7 @@
 <meta name="mobile-web-app-capable" content="yes">
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Todoenuno_store - Pedidos por Mayor V4.31 · Stock por ITEM maestro</title>
+<title>Todoenuno_store - Pedidos por Mayor V4.32 · Stock por ubicación y ITEM maestro</title>
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 <style>
 * {
@@ -1422,6 +1422,18 @@ input,select,textarea {min-width:0;max-width:100%;}
 #autocompleteList .autocomplete-item-precio{font-size:13px;flex-shrink:0}
 @media(max-width:390px){#autocompleteList .autocomplete-item{gap:7px;padding:9px 7px}#autocompleteList .autocomplete-item-img{width:42px;height:42px}#autocompleteList .autocomplete-item-precio{font-size:11px;padding-left:3px}}
 </style>
+<style id="teus-mayor-ubicaciones-v432">
+#autocompleteList .mayor-stock-por-ubicacion{margin-top:5px;font-size:11px;line-height:1.5;overflow-wrap:anywhere;color:#116e48}
+#autocompleteList .mayor-stock-ubicacion-linea{display:block;margin-top:1px}
+#autocompleteList .mayor-stock-ubicacion-linea b{font-weight:800}
+.mayor-stock-ubicacion-total{color:#166534;font-weight:700}
+.mayor-stock-ubicacion-incompleto{color:#b45309;font-weight:700}
+.mayor-stock-ubicacion-pendiente{font-size:10px;color:#64748b}
+.mayor-resumen-modal-ubicaciones{background:#f0fdf4;border:1px solid #bbf7d0;color:#166534;border-radius:9px;padding:10px;font-size:12px;line-height:1.6;overflow-wrap:anywhere}
+.mayor-stock-detalles{font-size:11px;color:#64748b;margin-top:9px}
+.mayor-stock-detalles summary{cursor:pointer;padding:6px 0}
+@media(max-width:480px){#autocompleteList .mayor-stock-por-ubicacion{font-size:10px}.mayor-resumen-modal-ubicaciones{font-size:11px}}
+</style>
 </head>
 <body>
 <div id="loginMayorOverlay">
@@ -2630,6 +2642,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     <div class="autocomplete-item-nombre">${mayorEscapar(p.nombre || '')}</div>
                     <div class="autocomplete-item-seccion">${mayorEscapar(p.seccion || '')}</div>
                     <div class="mayor-estado-disponibilidad">${mayorEscapar(mayorTextoDisponibilidad(p))}</div>
+                    <div class="mayor-stock-por-ubicacion">${mayorLineasUbicacionesV432(p)}</div>
                     ${agotado
                         ? '<span class="mayor-agotado-aviso mayor-estado-agotado"><i class="fas fa-exclamation-triangle" aria-hidden="true"></i> AGOTADO · EXCEPCIÓN PERMITIDA</span>'
                         : (soloUnidad
@@ -2643,6 +2656,7 @@ document.addEventListener('DOMContentLoaded', function() {
         });
         autocompleteList.innerHTML = html;
         autocompleteList.classList.add('active');
+        if(!mayorUltimaConsultaStock && !mayorStockEnCurso) cargarStockMayorista();
         indiceHighlight = -1;
 
         autocompleteList.querySelectorAll('.autocomplete-item').forEach(el => {
@@ -2752,6 +2766,7 @@ document.addEventListener('DOMContentLoaded', function() {
                         stockDataMayorista = filas;
                         mayorUltimaConsultaStock = Date.now();
                         mayorStockError = '';
+                        mayorRefrescarBuscadorStockV432();
                     }
                     return true;
                 } catch (e) {error=e;}
@@ -2785,6 +2800,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (!forzar && mayorUltimaConsultaStock && Date.now()-mayorUltimaConsultaStock<periodo) return;
         await cargarStockMayorista();
         mayorMostrarStockActualizado();
+        mayorRefrescarBuscadorStockV432();
     }
     setInterval(()=>mayorRefrescarStockVisible(),5000);
     window.addEventListener('focus',()=>mayorRefrescarStockVisible(true));
@@ -2855,6 +2871,69 @@ document.addEventListener('DOMContentLoaded', function() {
                 normalizarNombreStock(fila.seccion)===sec;
         });
     }
+    // V4.32: resumen por ubicación, respetando la presentación física de cada fila.
+    // Cuando hay dos empaques de capacidades distintas se muestran por separado,
+    // y NUNCA se agrupan como docenas salvo que unidades_por_paquete === 12.
+    function mayorResumenUbicacionesV432(producto) {
+        const filas=mayorStockFamilia(producto);
+        const lugares={};
+        filas.forEach(function(fila){
+            const lugar=String(fila.ubicacion||'Sin ubicación').trim()||'Sin ubicación';
+            const clave=normalizarNombreStock(lugar)||'sin-ubicacion';
+            if(!lugares[clave]) lugares[clave]={nombre:lugar, grupos:{}, unidades:0, incompleto:false, conteo:0};
+            const g=lugares[clave];
+            const cajas=nStock(fila.cajas), paquetes=nStock(fila.paquetes), unidades=nStock(fila.unidades);
+            const up=nStock(fila.unidades_por_paquete), pc=nStock(fila.paquetes_por_caja);
+            if(!cajas && !paquetes && !unidades)return;
+            g.conteo++;
+            g.unidades+=unidades;
+            if(paquetes && up>0) g.unidades+=paquetes*up;
+            else if(paquetes) g.incompleto=true;
+            if(cajas && up>0 && pc>0)g.unidades+=cajas*up*pc;
+            else if(cajas)g.incompleto=true;
+            function sumar(tipo, cantidad, tam){
+                if(!cantidad)return;
+                const id=tipo+'_'+tam;
+                if(!g.grupos[id])g.grupos[id]={tipo:tipo,cantidad:0,tam:tam};
+                g.grupos[id].cantidad+=cantidad;
+            }
+            sumar('caja',cajas,(up>0 && pc>0)?up*pc:0);
+            sumar('paquete',paquetes,up);
+            sumar('unidad',unidades,1);
+        });
+        return Object.keys(lugares).map(function(k){
+            const g=lugares[k];
+            const grupos=Object.keys(g.grupos).map(function(x){return g.grupos[x];});
+            const partes=grupos.map(function(x){
+                const n=mayorEnteroStock(x.cantidad);
+                if(x.tipo==='unidad')return n+' u';
+                if(x.tipo==='caja')return n+' caja'+(x.cantidad===1?'':'s')+(x.tam?' ('+x.tam+' u/caja)':'');
+                if(x.tam===12)return n+' dc';
+                if(x.tam>0)return n+' pq x'+x.tam;
+                return n+' pq (sin equivalencia)';
+            });
+            return {nombre:g.nombre, partes:partes, total:g.unidades, completo:!g.incompleto, conteo:g.conteo};
+        }).filter(function(g){return g.conteo>0;}).sort(function(a,b){return a.nombre.localeCompare(b.nombre,'es');});
+    }
+    function mayorLineasUbicacionesV432(producto) {
+        const grupos=mayorResumenUbicacionesV432(producto);
+        if(!grupos.length)return '<div class="mayor-stock-ubicacion-pendiente">'+
+            (mayorStockError?'Stock sin conexión nueva; verifica los datos.':mayorUltimaConsultaStock?'Sin existencia física registrada':'Consultando existencias de Stock…')+'</div>';
+        return grupos.map(function(g){
+            return '<div class="mayor-stock-ubicacion-linea"><b>'+mayorEscapar(g.nombre)+':</b> '+
+                mayorEscapar(g.partes.join(' + '))+ (g.completo?' <span class="mayor-stock-ubicacion-total">('+mayorEnteroStock(g.total)+' u)</span>':' <span class="mayor-stock-ubicacion-incompleto">· equivalencia incompleta</span>')+'</div>';
+        }).join('');
+    }
+    function mayorRefrescarBuscadorStockV432(){
+        if(!autocompleteList || !autocompleteList.classList.contains('active'))return;
+        autocompleteList.querySelectorAll('.autocomplete-item[data-index]').forEach(function(el){
+            const i=Number(el.getAttribute('data-index'));
+            const p=sugerenciasActuales[i];
+            const target=el.querySelector('.mayor-stock-por-ubicacion');
+            if(target && p)target.innerHTML=mayorLineasUbicacionesV432(p);
+        });
+    }
+
     function stockDelProducto(producto) { return mayorStockFamilia(producto); }
 
     function nStock(v) {
@@ -2907,13 +2986,14 @@ document.addEventListener('DOMContentLoaded', function() {
             return '<div style="font-size:12px;color:#475569">'+mayorEscapar(ubi)+': '+
                 (d.completo?mayorEnteroStock(d.total)+' unidades':'equivalencias incompletas')+'</div>';
         }).join('');
+        const resumenFisicoV432='<div class="mayor-resumen-modal-ubicaciones">'+mayorLineasUbicacionesV432(producto)+'</div>';
         const advertencia=completo?'':'<div style="font-size:12px;color:#92400e;margin-top:6px">⚠ Faltan unidades_por_paquete o paquetes_por_caja en alguna fila; no se puede calcular un total confiable.</div>';
         box.innerHTML='<div style="background:#eaf8ef;border:1px solid #96d4ac;padding:11px;border-radius:9px;margin-bottom:8px;color:#166534">'+
             '<div style="font-size:11px">Existencia compartida'+(maestro?' · maestro '+mayorEscapar(maestro):'')+'</div>'+
             (completo?'<div style="font-size:22px;font-weight:850">'+mayorEnteroStock(total)+' unidades</div>':
              '<div style="font-size:15px;font-weight:750">Total pendiente de equivalencias</div>')+
             '<div style="font-size:11px">'+filas.length+' registro(s) físico(s) · '+Object.keys(porUbicacion).length+' ubicación(es)</div></div>'+
-            htmlFilas+'<div style="padding-top:7px">'+resumenUbicacion+'</div>'+advertencia+
+            resumenFisicoV432+'<details class="mayor-stock-detalles"><summary>Ver registros físicos y códigos</summary>'+htmlFilas+'</details>'+advertencia+
             '<div style="font-size:11px;color:'+(mayorStockError?'#b45309':'#687782')+';margin-top:7px">'+
             mayorEscapar(mayorEstadoConsultaStock())+' · Solo consulta; no reserva ni descuenta.</div>';
     }
@@ -4961,7 +5041,7 @@ let ultimaActividad=Date.now(), ultimaFirmaPedido='', ofertaPos=0, ultCambio=0;
 let versionStandby=0; // cancela activaciones y transiciones anteriores
 let cargaStandby=false;
 let suspenderStandbyHasta=0; // evita que vuelva a aparecer inmediatamente tras despertarlo
-const TIEMPO_STANDBY=2*60*1000, ROTACION=8000;
+const TIEMPO_STANDBY=60*1000, ROTACION=8000;
 function ofertasReales(){try{return parent?.__teusOfertasMonitor?.()||[]}catch(e){return []}}
 function salirStandby(){
  versionStandby++;
@@ -4995,16 +5075,50 @@ window.__teusLimpiarPedidoLocal=function(){
   return true;
 };
 function mostrarOferta(){const arr=ofertasReales();if(!arr.length){salirStandby();return}ofertaPos=ofertaPos%arr.length;const x=arr[ofertaPos],slide=$('teusStandbySlide');slide.classList.add('swap');
-const token=versionStandby;const pintar=()=>{if(token!==versionStandby)return;const photo=$('teusStandbyPhoto');photo.src=x.imagen||'';photo.alt=x.nombre;$('teusStandbyName').textContent=x.nombre;$('teusStandbyBefore').textContent='Antes: '+money(x.precioNormal);$('teusStandbyNow').textContent='Ahora: '+money(x.precioOferta);$('teusStandbySave').textContent='AHORRAS: '+money(x.ahorro);slide.classList.remove('swap')};
+const token=versionStandby;const pintar=()=>{if(token!==versionStandby)return;const photo=$('teusStandbyPhoto');photo.style.display='block';photo.src=x.imagen||'';photo.alt=x.nombre;$('teusStandbyName').textContent=x.nombre;$('teusStandbyBefore').textContent='Antes: '+money(x.precioNormal);$('teusStandbyNow').textContent='Ahora: '+money(x.precioOferta);$('teusStandbySave').textContent='AHORRAS: '+money(x.ahorro);slide.classList.remove('swap')};
 if(!$('teusStandby').classList.contains('active'))pintar();else setTimeout(pintar,300);
 $('teusStandby').classList.add('active');ultCambio=Date.now()}
+// Si no hay promociones vigentes, tambien debemos proteger el monitor en reposo.
+function mostrarStandbySinOfertas(){
+ const base=$('teusStandby');if(!base)return;
+ const img=$('teusStandbyPhoto');if(img){img.removeAttribute('src');img.style.display='none';}
+ $('teusStandbyName').textContent='TODOENUNO STORE';
+ $('teusStandbyBefore').textContent='';
+ $('teusStandbyNow').textContent='Calidad y soluciones prácticas para todos';
+ $('teusStandbySave').textContent='';
+ $('teusStandbySlide')?.classList.remove('swap');
+ base.classList.add('active');ultCambio=Date.now();
+}
 function cicloStandby(){
  if(!esMonitorIndependiente || cargaStandby || !verificarSesionMonitor())return;
- if(parent?.__teusIsPaymentOpen?.()||$('payLayer').classList.contains('active')||$('light').classList.contains('active')||$('wifiLayer').style.display==='flex')return;
  if(!$('teusStandby').classList.contains('active')){
-   if(current.length && Date.now()>=suspenderStandbyHasta && Date.now()-ultimaActividad>=TIEMPO_STANDBY && ofertasReales().length)mostrarOferta();
- }
-else if(Date.now()-ultCambio>=ROTACION){ofertaPos++;mostrarOferta()}}
+   if(Date.now()>=suspenderStandbyHasta && Date.now()-ultimaActividad>=TIEMPO_STANDBY){
+     // El reloj corre tambien con QR, Wi-Fi, foto y lista vacia.
+     // Cerrar primero las pantallas remotas para que sus estados no las reactiven
+     // durante la sincronizacion periodica de la ventana principal.
+     try{if(parent?.__teusIsPaymentOpen?.())parent.__teusSetPayVisible?.(false)}catch(e){}
+     try{if(parent?.__teusGetWifiState?.()?.open)parent.__teusSetWifiVisible?.(false)}catch(e){}
+     $('payLayer').classList.remove('active');
+     $('wifiLayer').style.display='none';
+     $('light').classList.remove('active');
+     // Los cierres anteriores actualizan el reloj: restauramos el instante de
+     // inactividad original y respetamos el plazo cumplido.
+     ultimaActividad=Date.now()-TIEMPO_STANDBY;
+     suspenderStandbyHasta=0;
+     if(ofertasReales().length){mostrarOferta();}
+     else if(!cargaStandby){
+       cargaStandby=true;
+       Promise.resolve().then(()=>parent?.__teusCargarOfertasPublicas?.()).catch(()=>{}).then(()=>{
+         cargaStandby=false;
+         if(Date.now()-ultimaActividad>=TIEMPO_STANDBY&&!$('teusStandby').classList.contains('active')){
+           if(ofertasReales().length)mostrarOferta();else mostrarStandbySinOfertas();
+         }
+       });
+     }
+   }
+ } else if(Date.now()-ultCambio>=ROTACION){
+   if(ofertasReales().length){ofertaPos++;mostrarOferta();}
+ } }
 async function activarStandbyManual(){
  if(!esMonitorIndependiente || !verificarSesionMonitor())return false;
  // SEGUNDA PULSACIÓN: cancelar también si las ofertas aún estaban cargando.
@@ -5216,7 +5330,7 @@ function launch(){
   // Abrir por nombre permite REUTILIZAR la ventana que quedó abierta ayer.
   // Nombre específico por versión: nunca reutilizar silenciosamente un monitor antiguo
   // con JavaScript guardado desde una publicación anterior de GitHub.
-  const w=window.open('','teus_alistar_monitor_v431','width=1250,height=820,resizable=yes,scrollbars=yes');
+  const w=window.open('','teus_alistar_monitor_v433','width=1250,height=820,resizable=yes,scrollbars=yes');
   if(!w){alert('El navegador bloqueó la ventana. Permite ventanas emergentes para esta página.');return}
   if(!repararMonitor(w))alert('No se pudo vincular el monitor. Comprueba que ambas ventanas tengan el mismo origen.');
   else w.focus();
